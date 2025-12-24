@@ -4,6 +4,7 @@ import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import DashboardLayout from './components/DashboardLayout';
 import OrdersPage from './pages/OrdersPage';
 import PartnersPage from './pages/PartnersPage';
+import StoresPage from './pages/StoresPage';
 import ScootersPage from './pages/ScootersPage';
 import FinesPage from './pages/FinesPage';
 import BannersPage from './pages/BannersPage';
@@ -17,6 +18,7 @@ const App: React.FC = () => {
           <Route index element={<Navigate to="/orders" replace />} />
           <Route path="orders" element={<OrdersPage />} />
           <Route path="partners" element={<PartnersPage />} />
+          <Route path="stores" element={<StoresPage />} />
           <Route path="scooters" element={<ScootersPage />} />
           <Route path="fines" element={<FinesPage />} />
           <Route path="banners" element={<BannersPage />} />

@@ -10,7 +10,7 @@ class Scooter extends Model
     use HasFactory;
 
     protected $fillable = [
-        'partner_id',
+        'store_id',
         'plate_number',
         'model',
         'type',
@@ -20,11 +20,11 @@ class Scooter extends Model
     ];
 
     /**
-     * Get the partner that owns the scooter.
+     * Get the store that owns the scooter.
      */
-    public function partner()
+    public function store()
     {
-        return $this->belongsTo(Partner::class);
+        return $this->belongsTo(Store::class);
     }
 
     /**

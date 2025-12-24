@@ -120,6 +120,16 @@ export const partnersApi = {
     api.uploadFile(`/partners/${id}/upload-photo`, file),
 };
 
+export const storesApi = {
+  list: (params?: { search?: string }) => api.get('/stores', params),
+  get: (id: string | number) => api.get(`/stores/${id}`),
+  create: (data: any) => api.post('/stores', data),
+  update: (id: string | number, data: any) => api.put(`/stores/${id}`, data),
+  delete: (id: string | number) => api.delete(`/stores/${id}`),
+  uploadPhoto: (id: string | number, file: File) =>
+    api.uploadFile(`/stores/${id}/upload-photo`, file),
+};
+
 export const scootersApi = {
   list: (params?: { status?: string; search?: string }) =>
     api.get('/scooters', params),

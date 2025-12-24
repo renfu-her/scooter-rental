@@ -40,7 +40,7 @@ class ScooterController extends Controller
             });
         }
 
-        $scooters = $query->orderBy('created_at', 'desc')->get();
+        $scooters = $query->with('store')->orderBy('created_at', 'desc')->get();
 
         return response()->json([
             'data' => ScooterResource::collection($scooters),
@@ -53,7 +53,7 @@ class ScooterController extends Controller
     public function available(): JsonResponse
     {
         $scooters = Scooter::where('status', '待出租')
-            ->with('partner')
+            ->with('store')
             ->orderBy('plate_number')
             ->get();
 
@@ -68,7 +68,7 @@ class ScooterController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'partner_id' => 'required|exists:partners,id',
+            'store_id' => 'required|exists:stores,id',
             'plate_number' => 'required|string|max:20|unique:scooters,plate_number',
             'model' => 'required|string|max:255',
             'type' => 'required|in:白牌,綠牌,電輔車',
@@ -87,7 +87,7 @@ class ScooterController extends Controller
 
         return response()->json([
             'message' => 'Scooter created successfully',
-            'data' => new ScooterResource($scooter->load('partner')),
+            'data' => new ScooterResource($scooter->load('store')),
         ], 201);
     }
 
@@ -97,7 +97,7 @@ class ScooterController extends Controller
     public function show(Scooter $scooter): JsonResponse
     {
         return response()->json([
-            'data' => new ScooterResource($scooter->load('partner')),
+            'data' => new ScooterResource($scooter->load('store')),
         ]);
     }
 
@@ -107,7 +107,7 @@ class ScooterController extends Controller
     public function update(Request $request, Scooter $scooter): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'partner_id' => 'required|exists:partners,id',
+            'store_id' => 'required|exists:stores,id',
             'plate_number' => 'required|string|max:20|unique:scooters,plate_number,' . $scooter->id,
             'model' => 'required|string|max:255',
             'type' => 'required|in:白牌,綠牌,電輔車',

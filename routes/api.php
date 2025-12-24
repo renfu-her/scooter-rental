@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\PartnerController;
 use App\Http\Controllers\Api\ScooterController;
 use App\Http\Controllers\Api\FineController;
 use App\Http\Controllers\Api\AccessoryController;
+use App\Http\Controllers\Api\StoreController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -30,6 +31,16 @@ Route::prefix('partners')->group(function () {
     Route::put('/{partner}', [PartnerController::class, 'update']);
     Route::delete('/{partner}', [PartnerController::class, 'destroy']);
     Route::post('/{partner}/upload-photo', [PartnerController::class, 'uploadPhoto']);
+});
+
+// Stores API
+Route::prefix('stores')->group(function () {
+    Route::get('/', [StoreController::class, 'index']);
+    Route::post('/', [StoreController::class, 'store']);
+    Route::get('/{store}', [StoreController::class, 'show']);
+    Route::put('/{store}', [StoreController::class, 'update']);
+    Route::delete('/{store}', [StoreController::class, 'destroy']);
+    Route::post('/{store}/upload-photo', [StoreController::class, 'uploadPhoto']);
 });
 
 // Scooters API

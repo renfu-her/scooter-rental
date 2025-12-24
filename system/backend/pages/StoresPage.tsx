@@ -1,72 +1,66 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Search, Edit3, Trash2, MapPin, Phone, Building, Image as ImageIcon, X, Loader2 } from 'lucide-react';
-import { partnersApi } from '../lib/api';
+import { storesApi } from '../lib/api';
 
-interface Partner {
+interface Store {
   id: number;
   name: string;
   address: string | null;
   phone: string | null;
-  tax_id: string | null;
   manager: string;
   photo_path: string | null;
 }
 
-const PartnersPage: React.FC = () => {
+const StoresPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingPartner, setEditingPartner] = useState<Partner | null>(null);
-  const [partners, setPartners] = useState<Partner[]>([]);
+  const [editingStore, setEditingStore] = useState<Store | null>(null);
+  const [stores, setStores] = useState<Store[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     address: '',
     phone: '',
-    tax_id: '',
     manager: '',
   });
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
-  const inputClasses = "w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all placeholder:text-gray-400 shadow-sm";
+  const inputClasses = "w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-gray-200 shadow-sm";
 
   useEffect(() => {
-    fetchPartners();
+    fetchStores();
   }, [searchTerm]);
 
-  const fetchPartners = async () => {
+  const fetchStores = async () => {
     setLoading(true);
     try {
-      const response = await partnersApi.list(searchTerm ? { search: searchTerm } : undefined);
-      // API returns { data: [...] }, api.get() returns the whole JSON object
-      // So response.data is the array
-      setPartners(response.data || []);
+      const response = await storesApi.list(searchTerm ? { search: searchTerm } : undefined);
+      setStores(response.data || []);
     } catch (error) {
-      console.error('Failed to fetch partners:', error);
-      setPartners([]);
+      console.error('Failed to fetch stores:', error);
+      setStores([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleOpenModal = (partner?: Partner) => {
-    if (partner) {
-      setEditingPartner(partner);
+  const handleOpenModal = (store?: Store) => {
+    if (store) {
+      setEditingStore(store);
       setFormData({
-        name: partner.name,
-        address: partner.address || '',
-        phone: partner.phone || '',
-        tax_id: partner.tax_id || '',
-        manager: partner.manager,
+        name: store.name,
+        address: store.address || '',
+        phone: store.phone || '',
+        manager: store.manager,
       });
-      setPhotoPreview(partner.photo_path || null);
+      setPhotoPreview(store.photo_path || null);
     } else {
-      setEditingPartner(null);
+      setEditingStore(null);
       setFormData({
         name: '',
         address: '',
         phone: '',
-        tax_id: '',
         manager: '',
       });
       setPhotoPreview(null);
@@ -77,12 +71,11 @@ const PartnersPage: React.FC = () => {
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    setEditingPartner(null);
+    setEditingStore(null);
     setFormData({
       name: '',
       address: '',
       phone: '',
-      tax_id: '',
       manager: '',
     });
     setPhotoFile(null);
@@ -91,35 +84,35 @@ const PartnersPage: React.FC = () => {
 
   const handleSubmit = async () => {
     try {
-      if (editingPartner) {
-        await partnersApi.update(editingPartner.id, formData);
+      if (editingStore) {
+        await storesApi.update(editingStore.id, formData);
         if (photoFile) {
-          await partnersApi.uploadPhoto(editingPartner.id, photoFile);
+          await storesApi.uploadPhoto(editingStore.id, photoFile);
         }
       } else {
-        const response = await partnersApi.create(formData);
+        const response = await storesApi.create(formData);
         if (photoFile) {
-          const partnerId = editingPartner ? editingPartner.id : (response.data?.data?.id || response.data?.id);
-          if (partnerId) {
-            await partnersApi.uploadPhoto(partnerId, photoFile);
+          const storeId = editingStore ? editingStore.id : (response.data?.data?.id || response.data?.id);
+          if (storeId) {
+            await storesApi.uploadPhoto(storeId, photoFile);
           }
         }
       }
       handleCloseModal();
-      fetchPartners();
+      fetchStores();
     } catch (error) {
-      console.error('Failed to save partner:', error);
+      console.error('Failed to save store:', error);
       alert('儲存失敗，請檢查輸入資料');
     }
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('確定要刪除此合作商嗎？')) return;
+    if (!confirm('確定要刪除此商店嗎？')) return;
     try {
-      await partnersApi.delete(id);
-      fetchPartners();
+      await storesApi.delete(id);
+      fetchStores();
     } catch (error) {
-      console.error('Failed to delete partner:', error);
+      console.error('Failed to delete store:', error);
       alert('刪除失敗');
     }
   };
@@ -140,15 +133,15 @@ const PartnersPage: React.FC = () => {
     <div className="p-6 dark:text-gray-100">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">合作商管理</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">管理各租賃門市與合作店家資訊</p>
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">商店管理</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">管理各分店資訊</p>
         </div>
         <button 
           onClick={() => handleOpenModal()}
           className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2.5 rounded-xl flex items-center space-x-2 transition-all shadow-sm active:scale-95 font-bold"
         >
           <Plus size={18} />
-          <span>新增合作商</span>
+          <span>新增商店</span>
         </button>
       </div>
 
@@ -158,8 +151,8 @@ const PartnersPage: React.FC = () => {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
             <input 
               type="text" 
-              placeholder="搜尋合作商名稱、地址或統編..." 
-              className={inputClasses.replace('shadow-sm', '').replace('bg-white', 'bg-white dark:bg-gray-700').replace('text-gray-', 'dark:text-gray-300 text-gray-') + ' pl-11 shadow-none border-gray-200 dark:border-gray-600'}
+              placeholder="搜尋商店名稱、地址..." 
+              className={inputClasses.replace('shadow-sm', '') + ' pl-11 shadow-none'}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -177,28 +170,27 @@ const PartnersPage: React.FC = () => {
               <thead className="bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 font-bold uppercase tracking-wider text-[11px]">
                 <tr>
                   <th className="px-6 py-5">店面照片</th>
-                  <th className="px-6 py-5">合作商名稱</th>
-                  <th className="px-6 py-5">合作商地址</th>
+                  <th className="px-6 py-5">商店名稱</th>
+                  <th className="px-6 py-5">商店地址</th>
                   <th className="px-6 py-5">聯絡電話</th>
-                  <th className="px-6 py-5">合作商統編</th>
                   <th className="px-6 py-5">商店主管</th>
                   <th className="px-6 py-5 text-right">操作</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {partners.length === 0 ? (
+                {stores.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
-                      目前沒有合作商資料
+                    <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
+                      目前沒有商店資料
                     </td>
                   </tr>
                 ) : (
-                  partners.map((partner) => (
-                  <tr key={partner.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-colors">
+                  stores.map((store) => (
+                  <tr key={store.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-colors">
                     <td className="px-6 py-5">
                       <div className="w-20 h-12 bg-gray-100 rounded-xl overflow-hidden border border-gray-200 shadow-inner">
-                        {partner.photo_path ? (
-                          <img src={partner.photo_path} alt={partner.name} className="w-full h-full object-cover" />
+                        {store.photo_path ? (
+                          <img src={store.photo_path} alt={store.name} className="w-full h-full object-cover" />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-gray-400">
                             <ImageIcon size={20} />
@@ -206,20 +198,19 @@ const PartnersPage: React.FC = () => {
                         )}
                       </div>
                     </td>
-                    <td className="px-6 py-5 font-black text-gray-900 dark:text-gray-100 text-base">{partner.name}</td>
-                    <td className="px-6 py-5 text-gray-500 dark:text-gray-400 font-medium">{partner.address || '-'}</td>
-                    <td className="px-6 py-5 text-gray-500 dark:text-gray-400 font-medium tracking-wide">{partner.phone || '-'}</td>
-                    <td className="px-6 py-5 text-gray-500 dark:text-gray-400 font-bold">{partner.tax_id || '-'}</td>
-                    <td className="px-6 py-5 text-gray-500 dark:text-gray-400 font-black">{partner.manager}</td>
+                    <td className="px-6 py-5 font-black text-gray-900 dark:text-gray-100 text-base">{store.name}</td>
+                    <td className="px-6 py-5 text-gray-500 dark:text-gray-400 font-medium">{store.address || '-'}</td>
+                    <td className="px-6 py-5 text-gray-500 dark:text-gray-400 font-medium tracking-wide">{store.phone || '-'}</td>
+                    <td className="px-6 py-5 text-gray-500 dark:text-gray-400 font-black">{store.manager}</td>
                     <td className="px-6 py-5 text-right space-x-2">
                       <button 
-                        onClick={() => handleOpenModal(partner)}
+                        onClick={() => handleOpenModal(store)}
                         className="p-2 hover:bg-orange-50 rounded-xl text-orange-600 transition-all font-bold"
                       >
                         <Edit3 size={16} />
                       </button>
                       <button 
-                        onClick={() => handleDelete(partner.id)}
+                        onClick={() => handleDelete(store.id)}
                         className="p-2 hover:bg-red-50 rounded-xl text-red-500 transition-all font-bold"
                       >
                         <Trash2 size={16} />
@@ -234,16 +225,16 @@ const PartnersPage: React.FC = () => {
         )}
       </div>
 
-      {/* Add/Edit Partner Modal */}
+      {/* Add/Edit Store Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleCloseModal} />
           <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl w-full max-w-2xl relative animate-in fade-in zoom-in duration-200">
             <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
               <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">
-                {editingPartner ? '編輯合作商' : '建立合作商'}
+                {editingStore ? '編輯商店' : '建立商店'}
               </h2>
-              <button onClick={handleCloseModal} className="p-2 hover:bg-gray-100 rounded-full text-gray-400">
+              <button onClick={handleCloseModal} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full text-gray-400 dark:text-gray-500">
                 <X size={20} />
               </button>
             </div>
@@ -251,11 +242,11 @@ const PartnersPage: React.FC = () => {
               <div className="grid grid-cols-2 gap-6">
                 <div>
                   <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider flex items-center">
-                    <Building size={14} className="mr-1.5" /> 合作商名稱 <span className="text-red-500 ml-1">*</span>
+                    <Building size={14} className="mr-1.5" /> 商店名稱 <span className="text-red-500 ml-1">*</span>
                   </label>
                   <input 
                     type="text" 
-                    className={inputClasses.replace('bg-white', 'bg-white dark:bg-gray-700').replace('text-gray-', 'dark:text-gray-300 text-gray-').replace('border-gray-200', 'border-gray-200 dark:border-gray-600')} 
+                    className={inputClasses} 
                     required 
                     placeholder="例如：琉球總店"
                     value={formData.name}
@@ -263,19 +254,19 @@ const PartnersPage: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider flex items-center">
-                    <MapPin size={14} className="mr-1.5" /> 合作商地址
+                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider flex items-center">
+                    <MapPin size={14} className="mr-1.5" /> 商店地址
                   </label>
                   <input 
                     type="text" 
-                    className={inputClasses.replace('bg-white', 'bg-white dark:bg-gray-700').replace('text-gray-', 'dark:text-gray-300 text-gray-').replace('border-gray-200', 'border-gray-200 dark:border-gray-600')} 
+                    className={inputClasses} 
                     placeholder="完整的店址"
                     value={formData.address}
                     onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider flex items-center">
+                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider flex items-center">
                     <Phone size={14} className="mr-1.5" /> 聯絡電話
                   </label>
                   <input 
@@ -287,24 +278,12 @@ const PartnersPage: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">
-                    合作商統編
-                  </label>
-                  <input 
-                    type="text" 
-                    className={inputClasses.replace('bg-white', 'bg-white dark:bg-gray-700').replace('text-gray-', 'dark:text-gray-300 text-gray-').replace('border-gray-200', 'border-gray-200 dark:border-gray-600')} 
-                    placeholder="8位數字統編"
-                    value={formData.tax_id}
-                    onChange={(e) => setFormData({ ...formData, tax_id: e.target.value })}
-                  />
-                </div>
-                <div className="col-span-2">
-                  <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">
+                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">
                     商店主管 <span className="text-red-500">*</span>
                   </label>
                   <input 
                     type="text" 
-                    className={inputClasses.replace('bg-white', 'bg-white dark:bg-gray-700').replace('text-gray-', 'dark:text-gray-300 text-gray-').replace('border-gray-200', 'border-gray-200 dark:border-gray-600')} 
+                    className={inputClasses} 
                     required
                     value={formData.manager}
                     onChange={(e) => setFormData({ ...formData, manager: e.target.value })}
@@ -312,8 +291,8 @@ const PartnersPage: React.FC = () => {
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-bold text-gray-500 mb-3 uppercase tracking-wider">店面形象照片</label>
-                <div className="border-2 border-dashed border-gray-200 rounded-2xl p-10 text-center bg-gray-50/50 hover:bg-white hover:border-orange-400 transition-all group cursor-pointer relative">
+                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-3 uppercase tracking-wider">店面形象照片</label>
+                <div className="border-2 border-dashed border-gray-200 dark:border-gray-600 rounded-2xl p-10 text-center bg-gray-50/50 dark:bg-gray-700/50 hover:bg-white dark:hover:bg-gray-700 hover:border-orange-400 transition-all group cursor-pointer relative">
                   <input
                     type="file"
                     accept="image/*"
@@ -321,11 +300,11 @@ const PartnersPage: React.FC = () => {
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                   />
                    <div className="flex flex-col items-center">
-                      <div className="p-4 bg-white rounded-2xl shadow-sm mb-3 group-hover:scale-110 transition-transform">
-                        <ImageIcon size={32} className="text-gray-400 group-hover:text-orange-500 transition-colors" />
+                      <div className="p-4 bg-white dark:bg-gray-800 rounded-2xl shadow-sm mb-3 group-hover:scale-110 transition-transform">
+                        <ImageIcon size={32} className="text-gray-400 dark:text-gray-500 group-hover:text-orange-500 transition-colors" />
                       </div>
-                      <p className="text-sm font-bold text-gray-700">拖放檔案，或者 <span className="text-orange-600">點擊瀏覽</span></p>
-                      <p className="text-xs text-gray-400 mt-1 font-medium">建議比例 16:9, 最高支援 10MB JPG/PNG</p>
+                      <p className="text-sm font-bold text-gray-700 dark:text-gray-300">拖放檔案，或者 <span className="text-orange-600 dark:text-orange-400">點擊瀏覽</span></p>
+                      <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 font-medium">建議比例 16:9, 最高支援 10MB JPG/PNG</p>
                       {photoPreview && (
                         <img src={photoPreview} alt="Preview" className="mt-4 max-w-full max-h-48 rounded-lg" />
                       )}
@@ -336,7 +315,7 @@ const PartnersPage: React.FC = () => {
             <div className="p-6 border-t border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 flex justify-end space-x-3 rounded-b-3xl">
               <button onClick={handleCloseModal} className="px-6 py-2.5 rounded-xl text-sm font-bold text-gray-500 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-700 transition-all">取消</button>
               <button onClick={handleSubmit} className="px-10 py-2.5 bg-gray-900 dark:bg-gray-700 rounded-xl text-sm font-black text-white hover:bg-black dark:hover:bg-gray-600 shadow-lg active:scale-95 transition-all">
-                {editingPartner ? '確認更新' : '確認建立'}
+                {editingStore ? '確認更新' : '確認建立'}
               </button>
             </div>
           </div>
@@ -346,4 +325,5 @@ const PartnersPage: React.FC = () => {
   );
 };
 
-export default PartnersPage;
+export default StoresPage;
+

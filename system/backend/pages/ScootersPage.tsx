@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Search, Bike, Edit, Trash2, X, Loader2 } from 'lucide-react';
-import { scootersApi, partnersApi } from '../lib/api';
+import { scootersApi, storesApi } from '../lib/api';
 
 interface Scooter {
   id: number;
-  partner_id: number;
-  partner?: { id: number; name: string };
+  store_id: number;
+  store?: { id: number; name: string };
   plate_number: string;
   model: string;
   type: string;
@@ -14,7 +14,7 @@ interface Scooter {
   photo_path: string | null;
 }
 
-interface Partner {
+interface Store {
   id: number;
   name: string;
 }
@@ -23,12 +23,12 @@ const ScootersPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingScooter, setEditingScooter] = useState<Scooter | null>(null);
   const [scooters, setScooters] = useState<Scooter[]>([]);
-  const [partners, setPartners] = useState<Partner[]>([]);
+  const [stores, setStores] = useState<Store[]>([]);
   const [loading, setLoading] = useState(false);
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
   const [formData, setFormData] = useState({
-    partner_id: '',
+    store_id: '',
     plate_number: '',
     model: '',
     type: '白牌',
@@ -42,7 +42,7 @@ const ScootersPage: React.FC = () => {
 
   useEffect(() => {
     fetchScooters();
-    fetchPartners();
+    fetchStores();
   }, [statusFilter, searchTerm]);
 
   const fetchScooters = async () => {
@@ -60,12 +60,12 @@ const ScootersPage: React.FC = () => {
     }
   };
 
-  const fetchPartners = async () => {
+  const fetchStores = async () => {
     try {
-      const response = await partnersApi.list();
-      setPartners(response.data || []);
+      const response = await storesApi.list();
+      setStores(response.data || []);
     } catch (error) {
-      console.error('Failed to fetch partners:', error);
+      console.error('Failed to fetch stores:', error);
     }
   };
 
@@ -73,7 +73,7 @@ const ScootersPage: React.FC = () => {
     if (scooter) {
       setEditingScooter(scooter);
       setFormData({
-        partner_id: String(scooter.partner_id),
+        store_id: String(scooter.store_id),
         plate_number: scooter.plate_number,
         model: scooter.model,
         type: scooter.type,
@@ -84,7 +84,7 @@ const ScootersPage: React.FC = () => {
     } else {
       setEditingScooter(null);
       setFormData({
-        partner_id: '',
+        store_id: '',
         plate_number: '',
         model: '',
         type: '白牌',
@@ -101,7 +101,7 @@ const ScootersPage: React.FC = () => {
     setIsModalOpen(false);
     setEditingScooter(null);
     setFormData({
-      partner_id: '',
+      store_id: '',
       plate_number: '',
       model: '',
       type: '白牌',
@@ -113,7 +113,7 @@ const ScootersPage: React.FC = () => {
   };
 
   const handleSubmit = async () => {
-    if (!formData.partner_id || !formData.plate_number || !formData.model) {
+    if (!formData.store_id || !formData.plate_number || !formData.model) {
       alert('請填寫必填欄位');
       return;
     }
@@ -121,7 +121,7 @@ const ScootersPage: React.FC = () => {
     try {
       const data = {
         ...formData,
-        partner_id: parseInt(formData.partner_id),
+        store_id: parseInt(formData.store_id),
         color: formData.color || null,
       };
 
@@ -255,7 +255,7 @@ const ScootersPage: React.FC = () => {
                   <th className="px-6 py-5">機車型號</th>
                   <th className="px-6 py-5">車款類型</th>
                   <th className="px-6 py-5">顏色</th>
-                  <th className="px-6 py-5">所屬商店</th>
+                  <th className="px-6 py-5">所屬合作商</th>
                   <th className="px-6 py-5">狀態</th>
                   <th className="px-6 py-5 text-center">操作</th>
                 </tr>
@@ -275,7 +275,7 @@ const ScootersPage: React.FC = () => {
                       </span>
                     </td>
                     <td className="px-6 py-5 text-gray-500 dark:text-gray-400 font-medium">{scooter.color || '-'}</td>
-                    <td className="px-6 py-5 text-gray-500 dark:text-gray-400 font-medium">{scooter.partner?.name || '-'}</td>
+                    <td className="px-6 py-5 text-gray-500 dark:text-gray-400 font-medium">{scooter.store?.name || '-'}</td>
                     <td className="px-6 py-5">
                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black shadow-sm ${
                          scooter.status === '待出租' ? 'bg-green-100 text-green-700' :
@@ -322,17 +322,17 @@ const ScootersPage: React.FC = () => {
             <div className="p-8 space-y-6 overflow-y-auto max-h-[70vh]">
               <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">
-                    所屬分店 / 商店 <span className="text-red-500">*</span>
+                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">
+                    所屬商店 <span className="text-red-500">*</span>
                   </label>
                   <select 
-                    className={inputClasses}
-                    value={formData.partner_id}
-                    onChange={(e) => setFormData({ ...formData, partner_id: e.target.value })}
+                    className={inputClasses.replace('bg-white', 'bg-white dark:bg-gray-700').replace('text-gray-', 'dark:text-gray-300 text-gray-').replace('border-gray-200', 'border-gray-200 dark:border-gray-600')}
+                    value={formData.store_id}
+                    onChange={(e) => setFormData({ ...formData, store_id: e.target.value })}
                   >
                     <option value="">請選擇</option>
-                    {partners.map(partner => (
-                      <option key={partner.id} value={partner.id}>{partner.name}</option>
+                    {stores.map(store => (
+                      <option key={store.id} value={store.id}>{store.name}</option>
                     ))}
                   </select>
                 </div>
