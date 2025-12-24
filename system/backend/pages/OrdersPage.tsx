@@ -19,7 +19,6 @@ interface Order {
   ship_return_time: string | null;
   phone: string | null;
   partner: { id: number; name: string } | null;
-  partner_name?: string;
   payment_method: string | null;
   payment_amount: number;
   remark: string | null;
@@ -316,9 +315,7 @@ const OrdersPage: React.FC = () => {
                       {!order.shipping_company && '-'}
                     </td>
                     <td className="px-4 py-4 text-gray-500 dark:text-gray-400 font-medium">{order.phone || '-'}</td>
-                    <td className="px-4 py-4 text-orange-600 dark:text-orange-400 font-bold">
-                      {order.partner_name || order.partner?.name || '-'}
-                    </td>
+                    <td className="px-4 py-4 text-orange-600 dark:text-orange-400 font-bold">{order.partner?.name || '-'}</td>
                     <td className="px-4 py-4">
                       <div className="text-xs text-gray-400 dark:text-gray-500 mb-0.5">{order.payment_method || '-'}</div>
                       <div className="font-black text-gray-900 dark:text-gray-100">${order.payment_amount.toLocaleString()}</div>

@@ -61,13 +61,7 @@ class OrderController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        // Handle special "languang" value - convert to null
-        $requestData = $request->all();
-        if (isset($requestData['partner_id']) && $requestData['partner_id'] === 'languang') {
-            $requestData['partner_id'] = null;
-        }
-
-        $validator = Validator::make($requestData, [
+        $validator = Validator::make($request->all(), [
             'partner_id' => 'nullable|exists:partners,id',
             'tenant' => 'required|string|max:255',
             'appointment_date' => 'required|date',
@@ -111,12 +105,7 @@ class OrderController extends Controller
 
         DB::beginTransaction();
         try {
-            $validated = $validator->validated();
-            // Ensure partner_id is null if it was "languang"
-            if (isset($validated['partner_id']) && $validated['partner_id'] === 'languang') {
-                $validated['partner_id'] = null;
-            }
-            $order = Order::create($validated);
+            $order = Order::create($validator->validated());
             $order->scooters()->attach($scooterIds);
 
             // Update scooter status to 出租中
@@ -152,13 +141,7 @@ class OrderController extends Controller
      */
     public function update(Request $request, Order $order): JsonResponse
     {
-        // Handle special "languang" value - convert to null
-        $requestData = $request->all();
-        if (isset($requestData['partner_id']) && $requestData['partner_id'] === 'languang') {
-            $requestData['partner_id'] = null;
-        }
-
-        $validator = Validator::make($requestData, [
+        $validator = Validator::make($request->all(), [
             'partner_id' => 'nullable|exists:partners,id',
             'tenant' => 'required|string|max:255',
             'appointment_date' => 'required|date',
@@ -189,12 +172,7 @@ class OrderController extends Controller
             $oldStatus = $order->status;
             $oldScooterIds = $order->scooters->pluck('id')->toArray();
 
-            $validated = $validator->validated();
-            // Ensure partner_id is null if it was "languang"
-            if (isset($validated['partner_id']) && $validated['partner_id'] === 'languang') {
-                $validated['partner_id'] = null;
-            }
-            $order->update($validated);
+            $order->update($validator->validated());
 
             // Update scooters if provided
             if ($request->has('scooter_ids')) {

@@ -30,7 +30,6 @@ class OrderResource extends JsonResource
             'partner' => $this->whenLoaded('partner', function () {
                 return $this->partner ? new PartnerResource($this->partner) : null;
             }),
-            'partner_name' => $this->partner_id ? ($this->partner ? $this->partner->name : null) : '蘭光',
             'tenant' => $this->tenant,
             'appointment_date' => $this->appointment_date->format('Y-m-d'),
             'start_time' => $this->start_time->format('Y-m-d H:i:s'),

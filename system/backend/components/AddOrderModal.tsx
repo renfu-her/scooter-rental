@@ -234,7 +234,6 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose }) => {
                   onChange={(e) => setFormData({ ...formData, partner_id: e.target.value })}
                 >
                   <option value="">請選擇合作商（非必選）</option>
-                  <option value="languang">蘭光</option>
                   {partners.map(partner => (
                     <option key={partner.id} value={partner.id}>{partner.name}</option>
                   ))}
