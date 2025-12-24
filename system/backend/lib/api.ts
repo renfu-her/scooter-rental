@@ -56,8 +56,21 @@ class ApiClient {
   }
 
   async get<T>(endpoint: string, params?: Record<string, any>): Promise<ApiResponse<T>> {
-    const queryString = params
-      ? '?' + new URLSearchParams(params).toString()
+    if (!params) {
+      return this.request<T>(endpoint, { method: 'GET' });
+    }
+    
+    // 過濾掉 undefined 和 null 值
+    const filteredParams: Record<string, string> = {};
+    Object.keys(params).forEach(key => {
+      const value = params[key];
+      if (value !== undefined && value !== null && value !== '') {
+        filteredParams[key] = String(value);
+      }
+    });
+    
+    const queryString = Object.keys(filteredParams).length > 0
+      ? '?' + new URLSearchParams(filteredParams).toString()
       : '';
     return this.request<T>(endpoint + queryString, { method: 'GET' });
   }

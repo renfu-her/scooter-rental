@@ -52,19 +52,20 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose }) => {
   const inputClasses = "w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-gray-200";
 
   // Flatpickr 設定（繁體中文）
-  const dateOptions = {
+  // 為每個實例創建獨立的配置對象，避免共享引用
+  const dateOptions = React.useMemo(() => ({
     locale: MandarinTraditional,
     dateFormat: 'Y-m-d',
     allowInput: true,
-  };
+  }), []);
 
-  const datetimeOptions = {
+  const getDatetimeOptions = React.useCallback(() => ({
     locale: MandarinTraditional,
     dateFormat: 'Y-m-d H:i',
     enableTime: true,
     time_24hr: true,
     allowInput: true,
-  };
+  }), []);
 
   useEffect(() => {
     if (isOpen) {
@@ -235,12 +236,13 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose }) => {
                   <Calendar size={14} className="mr-1.5" /> 預約日期 <span className="text-red-500 ml-1">*</span>
                 </label>
                 <Flatpickr
+                  key="appointment_date"
                   className={inputClasses}
                   value={formData.appointment_date}
                   onChange={(dates) => {
                     if (dates && dates.length > 0) {
                       const dateStr = dates[0].toISOString().split('T')[0];
-                      setFormData({ ...formData, appointment_date: dateStr });
+                      setFormData(prev => ({ ...prev, appointment_date: dateStr }));
                     }
                   }}
                   options={dateOptions}
@@ -254,16 +256,17 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose }) => {
                     <Clock size={14} className="mr-1.5" /> 開始時間 <span className="text-red-500 ml-1">*</span>
                   </label>
                   <Flatpickr
+                    key="start_time"
                     className={inputClasses}
                     value={formData.start_time}
                     onChange={(dates) => {
                       if (dates && dates.length > 0) {
                         const date = dates[0];
                         const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}T${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
-                        setFormData({ ...formData, start_time: dateStr });
+                        setFormData(prev => ({ ...prev, start_time: dateStr }));
                       }
                     }}
-                    options={datetimeOptions}
+                    options={getDatetimeOptions()}
                     placeholder="選擇日期時間"
                   />
                 </div>
@@ -272,16 +275,17 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose }) => {
                     <Clock size={14} className="mr-1.5" /> 結束時間 <span className="text-red-500 ml-1">*</span>
                   </label>
                   <Flatpickr
+                    key="end_time"
                     className={inputClasses}
                     value={formData.end_time}
                     onChange={(dates) => {
                       if (dates && dates.length > 0) {
                         const date = dates[0];
                         const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}T${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
-                        setFormData({ ...formData, end_time: dateStr });
+                        setFormData(prev => ({ ...prev, end_time: dateStr }));
                       }
                     }}
-                    options={datetimeOptions}
+                    options={getDatetimeOptions()}
                     placeholder="選擇日期時間"
                   />
                 </div>
@@ -292,18 +296,19 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose }) => {
                   <Clock size={14} className="mr-1.5" /> 預計還車時間
                 </label>
                 <Flatpickr
+                  key="expected_return_time"
                   className={inputClasses}
                   value={formData.expected_return_time}
                   onChange={(dates) => {
                     if (dates && dates.length > 0) {
                       const date = dates[0];
                       const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}T${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
-                      setFormData({ ...formData, expected_return_time: dateStr });
+                      setFormData(prev => ({ ...prev, expected_return_time: dateStr }));
                     } else {
-                      setFormData({ ...formData, expected_return_time: '' });
+                      setFormData(prev => ({ ...prev, expected_return_time: '' }));
                     }
                   }}
-                  options={datetimeOptions}
+                  options={getDatetimeOptions()}
                   placeholder="選擇日期時間"
                 />
               </div>
@@ -340,36 +345,38 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose }) => {
                 <div>
                   <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">船班時間（來）</label>
                   <Flatpickr
+                    key="ship_arrival_time"
                     className={inputClasses}
                     value={formData.ship_arrival_time}
                     onChange={(dates) => {
                       if (dates && dates.length > 0) {
                         const date = dates[0];
                         const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}T${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
-                        setFormData({ ...formData, ship_arrival_time: dateStr });
+                        setFormData(prev => ({ ...prev, ship_arrival_time: dateStr }));
                       } else {
-                        setFormData({ ...formData, ship_arrival_time: '' });
+                        setFormData(prev => ({ ...prev, ship_arrival_time: '' }));
                       }
                     }}
-                    options={datetimeOptions}
+                    options={getDatetimeOptions()}
                     placeholder="選擇日期時間"
                   />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">船班時間（回）</label>
                   <Flatpickr
+                    key="ship_return_time"
                     className={inputClasses}
                     value={formData.ship_return_time}
                     onChange={(dates) => {
                       if (dates && dates.length > 0) {
                         const date = dates[0];
                         const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}T${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
-                        setFormData({ ...formData, ship_return_time: dateStr });
+                        setFormData(prev => ({ ...prev, ship_return_time: dateStr }));
                       } else {
-                        setFormData({ ...formData, ship_return_time: '' });
+                        setFormData(prev => ({ ...prev, ship_return_time: '' }));
                       }
                     }}
-                    options={datetimeOptions}
+                    options={getDatetimeOptions()}
                     placeholder="選擇日期時間"
                   />
                 </div>

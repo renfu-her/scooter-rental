@@ -116,12 +116,17 @@ const OrdersPage: React.FC = () => {
           search: searchTerm || undefined,
           page: currentPage,
         });
-        setOrders(response.data || []);
-        if (response.data.meta) {
-          setTotalPages(response.data.meta.last_page);
+        // API 返回結構: { data: [...], meta: {...} }
+        // response 本身就是 { data: [...], meta: {...} }
+        console.log('API Response:', response);
+        const ordersData = response.data || [];
+        setOrders(Array.isArray(ordersData) ? ordersData : []);
+        if (response.meta) {
+          setTotalPages(response.meta.last_page);
         }
       } catch (error) {
         console.error('Failed to fetch orders:', error);
+        setOrders([]);
       } finally {
         setLoading(false);
       }
@@ -274,7 +279,14 @@ const OrdersPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {orders.map((order) => (
+                {orders.length === 0 ? (
+                  <tr>
+                    <td colSpan={13} className="px-4 py-12 text-center text-gray-500 dark:text-gray-400">
+                      目前沒有訂單資料
+                    </td>
+                  </tr>
+                ) : (
+                  orders.map((order) => (
                   <tr key={order.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-700/50 group transition-colors">
                     <td className="px-4 py-4">
                       <span className={`px-2 py-1 rounded-full text-xs font-bold ${
@@ -327,7 +339,8 @@ const OrdersPage: React.FC = () => {
                       </button>
                     </td>
                   </tr>
-                ))}
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -388,7 +401,13 @@ const OrdersPage: React.FC = () => {
                 search: searchTerm || undefined,
                 page: currentPage,
               });
-              setOrders(response.data || []);
+              // API 返回結構: { data: [...], meta: {...} }
+              // response 本身就是 { data: [...], meta: {...} }
+              const ordersData = response.data || [];
+              setOrders(Array.isArray(ordersData) ? ordersData : []);
+              if (response.meta) {
+                setTotalPages(response.meta.last_page);
+              }
             } catch (error) {
               console.error('Failed to fetch orders:', error);
             }
