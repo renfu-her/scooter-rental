@@ -13,11 +13,12 @@
 ├── config/
 ├── database/
 ├── public/                 # Web 根目錄
-│   ├── index.html          # React 構建後的 index.html
-│   ├── assets/             # React 構建的靜態資源
-│   │   ├── index-*.js
-│   │   ├── index-*.css
-│   │   └── ...
+│   ├── backend/            # React 構建後的目錄（對應 /backend 路徑）
+│   │   ├── index.html      # React 構建後的 index.html
+│   │   ├── assets/         # React 構建的靜態資源
+│   │   │   ├── index-*.js
+│   │   │   ├── index-*.css
+│   │   │   └── ...
 │   ├── index.php           # Laravel 入口
 │   ├── storage/            # Laravel storage link (符號連結)
 │   ├── favicon.ico          # 網站圖標
@@ -26,7 +27,9 @@
 ├── routes/
 ├── storage/
 └── system/
-    └── backend/            # React 源碼（開發用）
+    ├── frontend/            # 前端首頁
+    │   └── index.html       # 首頁 HTML
+    └── backend/             # React 後台源碼（開發用）
 ```
 
 ### 構建 React 前端
@@ -46,9 +49,10 @@ pnpm install
 pnpm run build
 ```
 
-4. 構建輸出會自動生成到 `public/` 目錄（已配置在 vite.config.ts 中）
-   - 構建後，React 的 `index.html` 和 `assets/` 會直接輸出到 `public/` 目錄
-   - 注意：構建時不會清空 `public/` 目錄，所以 Laravel 的 `index.php` 等文件會保留
+4. 構建輸出會自動生成到 `public/backend/` 目錄（已配置在 vite.config.ts 中）
+   - 構建後，React 的 `index.html` 和 `assets/` 會輸出到 `public/backend/` 目錄
+   - 訪問路徑為：`https://scooter-rental.ai-tracks.com/backend`
+   - 注意：構建時會清空 `public/backend/` 目錄，但不會影響 Laravel 的其他文件
 
 ### Nginx 配置要點
 
@@ -110,10 +114,9 @@ pnpm install
 pnpm run build
 ```
 
-2. **複製構建文件**：
-```bash
-cp -r system/backend/dist/* public/
-```
+2. **構建文件已自動輸出**：
+   - 構建文件會自動輸出到 `public/backend/` 目錄
+   - 無需手動複製
 
 3. **設置 Laravel**：
 ```bash
@@ -132,14 +135,17 @@ sudo systemctl reload nginx
 
 ### 驗證部署
 
-1. 訪問 `https://scooter-rental.ai-tracks.com` 應該看到 React 前端
-2. 訪問 `https://scooter-rental.ai-tracks.com/api/captcha/generate` 應該返回 API 響應
-3. 檢查瀏覽器控制台，確保 API 請求正常
+1. 訪問 `https://scooter-rental.ai-tracks.com/` 應該看到前端首頁
+2. 訪問 `https://scooter-rental.ai-tracks.com/backend` 應該看到 React 後台管理系統
+3. 訪問 `https://scooter-rental.ai-tracks.com/api/captcha/generate` 應該返回 API 響應
+4. 檢查瀏覽器控制台，確保 API 請求正常
 
 ### 注意事項
 
-- React 使用 HashRouter，所以路由是 `/#/orders` 格式
+- React 前端通過 `/backend` 路徑訪問，完整 URL 為：`https://scooter-rental.ai-tracks.com/backend`
+- React 使用 HashRouter，所以路由是 `/backend/#/orders` 格式
 - API 請求會自動發送到 `/api/*`
 - 確保 CORS 設置正確（如果需要）
 - 生產環境建議啟用 Laravel 的緩存優化
+- 構建時會清空 `public/backend/` 目錄，確保每次構建都是乾淨的
 

@@ -20,11 +20,15 @@ export default defineConfig(({ mode }) => {
         }
       },
       build: {
-        outDir: path.resolve(__dirname, '../../public'),
-        emptyOutDir: false, // 不要清空 public 目錄（保留 Laravel 文件）
+        // 開發環境：不構建，直接使用源碼
+        // 生產環境：構建到 public/backend 目錄
+        outDir: path.resolve(__dirname, '../../public/backend'),
+        emptyOutDir: true, // 構建時清空 backend 目錄
         rollupOptions: {
           input: path.resolve(__dirname, 'index.html'),
         },
+        // 確保資源路徑正確（對應 /backend 路徑）
+        base: '/backend/',
       },
     };
 });
