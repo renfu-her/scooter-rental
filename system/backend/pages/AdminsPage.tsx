@@ -125,15 +125,22 @@ const AdminsPage: React.FC = () => {
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: number, email: string) => {
+    // 禁止刪除 admin@admin.com
+    if (email === 'admin@admin.com') {
+      alert('無法刪除預設管理員帳號');
+      return;
+    }
+
     if (!confirm('確定要刪除此系統管理者嗎？')) return;
 
     try {
       await usersApi.delete(id);
       fetchAdmins();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to delete admin:', error);
-      alert('刪除失敗');
+      const errorMessage = error?.response?.data?.message || '刪除失敗';
+      alert(errorMessage);
     }
   };
 
@@ -217,12 +224,19 @@ const AdminsPage: React.FC = () => {
                           >
                             <Edit3 size={16} />
                           </button>
-                          <button
-                            onClick={() => handleDelete(admin.id)}
-                            className="p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg text-red-400 transition-colors"
-                          >
-                            <Trash2 size={16} />
-                          </button>
+                          {admin.email !== 'admin@admin.com' && (
+                            <button
+                              onClick={() => handleDelete(admin.id, admin.email)}
+                              className="p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg text-red-400 transition-colors"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          )}
+                          {admin.email === 'admin@admin.com' && (
+                            <span className="text-xs text-gray-400 dark:text-gray-500 px-2" title="預設管理員無法刪除">
+                              預設
+                            </span>
+                          )}
                         </div>
                       </td>
                     </tr>
