@@ -19,6 +19,7 @@ export default defineConfig(({ mode }) => {
           '@': path.resolve(__dirname, '.'),
         }
       },
+      base: '/backend/',
       build: {
         // 開發環境：不構建，直接使用源碼
         // 生產環境：構建到 public/backend 目錄
@@ -27,8 +28,6 @@ export default defineConfig(({ mode }) => {
         rollupOptions: {
           input: path.resolve(__dirname, 'index.html'),
         },
-        // 確保資源路徑正確（對應 /backend 路徑）
-        base: '/backend/',
       },
     };
 });
