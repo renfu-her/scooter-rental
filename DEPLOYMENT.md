@@ -1,5 +1,53 @@
 # 部署指南 (Deployment Guide)
 
+## 服務器環境設置
+
+### 解決 pnpm 全局 bin 目錄問題
+
+如果在服務器上遇到 `ERR_PNPM_NO_GLOBAL_BIN_DIR` 錯誤，請執行以下步驟：
+
+#### 方法一：自動設置（推薦）
+```bash
+# 運行 pnpm setup 自動配置
+pnpm setup
+
+# 然後重新載入 shell 配置
+source ~/.bashrc
+# 或
+source ~/.zshrc
+```
+
+#### 方法二：手動設置環境變數
+```bash
+# 設置 PNPM_HOME 環境變數（添加到 ~/.bashrc 或 ~/.zshrc）
+export PNPM_HOME="$HOME/.local/share/pnpm"
+export PATH="$PNPM_HOME:$PATH"
+
+# 重新載入配置
+source ~/.bashrc
+```
+
+#### 方法三：設置 pnpm 配置
+```bash
+# 設置全局 bin 目錄
+pnpm config set global-bin-dir ~/.local/share/pnpm
+
+# 或使用絕對路徑
+pnpm config set global-bin-dir /home/username/.local/share/pnpm
+```
+
+#### 驗證設置
+```bash
+# 檢查 pnpm 配置
+pnpm config get global-bin-dir
+
+# 檢查 PATH 是否包含 pnpm 目錄
+echo $PATH | grep pnpm
+
+# 測試 pnpm 命令
+pnpm --version
+```
+
 ## Nginx 配置說明
 
 ### 目錄結構
@@ -34,39 +82,57 @@
 
 ### 構建 React 前端
 
-1. 進入 React 前端目錄：
+**注意**：根據 nginx 配置，`/backend` 路徑直接對應到 `system/backend` 目錄，所以有兩種部署方式：
+
+#### 方式一：開發環境（推薦，無需構建）
+- 直接使用 `system/backend` 源碼
+- nginx 配置已將 `/backend` 指向 `system/backend`
+- 訪問：`https://scooter-rental.ai-tracks.com/backend`
+- 無需構建步驟
+
+#### 方式二：生產環境（構建優化版本）
+1. **解決 pnpm 問題**（如果遇到）：
+```bash
+pnpm setup
+source ~/.bashrc
+```
+
+2. 進入 React 前端目錄：
 ```bash
 cd system/backend
 ```
 
-2. 安裝依賴（如果還沒安裝）：
+3. 安裝依賴（如果還沒安裝）：
 ```bash
 pnpm install
 ```
 
-3. 構建生產版本：
+4. 構建生產版本：
 ```bash
 pnpm run build
 ```
 
-4. 構建輸出會自動生成到 `public/backend/` 目錄（已配置在 vite.config.ts 中）
+5. 構建輸出會自動生成到 `public/backend/` 目錄（已配置在 vite.config.ts 中）
    - 構建後，React 的 `index.html` 和 `assets/` 會輸出到 `public/backend/` 目錄
    - 訪問路徑為：`https://scooter-rental.ai-tracks.com/backend`
-   - 注意：構建時會清空 `public/backend/` 目錄，但不會影響 Laravel 的其他文件
+   - 注意：構建時會清空 `public/backend/` 目錄，確保每次構建都是乾淨的
+   - **如果使用構建版本，需要修改 nginx 配置中的 `/backend` location，將 `alias` 改為指向 `public/backend`**
 
 ### Nginx 配置要點
 
 1. **根目錄設置**：
    - `root` 指向 Laravel 的 `public` 目錄
-   - 這樣可以同時服務 Laravel 和 React 文件
+   - 這樣可以同時服務 Laravel 和前端文件
 
-2. **API 路由**：
-   - `/api/*` 路由轉發到 PHP-FPM 處理 Laravel API
-   - 其他 Laravel 路由（如 `/storage/*`）也由 PHP-FPM 處理
+2. **路由配置**：
+   - `/` → `system/frontend/index.html`（前端首頁）
+   - `/backend` → `system/backend`（React 後台管理系統）
+   - `/api/*` → Laravel API（PHP-FPM 處理）
+   - `/storage/*` → Laravel storage 文件
 
-3. **React 前端路由**：
-   - 所有其他請求（`/`）返回 `index.html`
-   - 這樣 React Router 的 HashRouter 可以正常工作
+3. **React 後台路由**：
+   - `/backend` 路徑直接對應到 `system/backend` 目錄
+   - 支援 React Router 的 HashRouter（路由格式：`/backend/#/orders`）
    - 靜態資源（CSS, JS, 圖片）直接從文件系統提供
 
 4. **靜態資源優化**：
@@ -107,16 +173,18 @@ chown -R www-data:www-data storage bootstrap/cache
 
 ### 部署步驟
 
-1. **構建 React 前端**：
+1. **解決 pnpm 問題**（如果遇到）：
+```bash
+pnpm setup
+source ~/.bashrc
+```
+
+2. **構建 React 前端**（如果需要）：
 ```bash
 cd system/backend
 pnpm install
 pnpm run build
 ```
-
-2. **構建文件已自動輸出**：
-   - 構建文件會自動輸出到 `public/backend/` 目錄
-   - 無需手動複製
 
 3. **設置 Laravel**：
 ```bash
@@ -148,4 +216,4 @@ sudo systemctl reload nginx
 - 確保 CORS 設置正確（如果需要）
 - 生產環境建議啟用 Laravel 的緩存優化
 - 構建時會清空 `public/backend/` 目錄，確保每次構建都是乾淨的
-
+- 如果遇到 pnpm 問題，先運行 `pnpm setup` 進行自動配置
