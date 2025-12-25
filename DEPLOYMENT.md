@@ -32,113 +32,15 @@ sudo nginx -t && sudo systemctl reload nginx
 
 ### Nginx 配置（CloudPanel 版本）
 
-```nginx
-# CloudPanel Nginx configuration for scooter-rental.ai-tracks.com
-# 同時服務 Laravel API 和 React 前端
+**重要**：CloudPanel 使用雙 server block 架構：
+- 第一個 server block (80/443)：通過 Varnish 代理到 8080 端口
+- 第二個 server block (8080)：處理 PHP-FPM 請求
 
-server {
-  listen 80;
-  listen [::]:80;
-  listen 443 quic;
-  listen 443 ssl;
-  listen [::]:443 quic;
-  listen [::]:443 ssl;
-  http2 on;
-  http3 off;
-  {{ssl_certificate_key}}
-  {{ssl_certificate}}
-  server_name scooter-rental.ai-tracks.com;
-  
-  # 根目錄指向 Laravel public 目錄
-  # CloudPanel 通常會自動設置，但需要確認路徑正確
-  root /home/cloudpanel/htdocs/scooter-rental.ai-tracks.com/public;
-  index index.html index.php;
+配置說明：
+- `/backend` 和 `/` 在第一個 server block 中直接提供靜態文件（不通過 Varnish）
+- `/api` 和其他 PHP 請求通過 Varnish 代理到第二個 server block 的 8080 端口處理
 
-  {{nginx_access_log}}
-  {{nginx_error_log}}
-
-  if ($scheme != "https") {
-    rewrite ^ https://$host$request_uri permanent;
-  }
-
-  location ~ /.well-known {
-    auth_basic off;
-    allow all;
-  }
-
-  {{settings}}
-
-  include /etc/nginx/global_settings;
-
-  # React 前端 - /backend 路徑對應到 system/backend
-  location /backend {
-    alias /home/cloudpanel/htdocs/scooter-rental.ai-tracks.com/system/backend;
-    index index.html;
-    try_files $uri $uri/ /backend/index.html;
-    
-    # 靜態資源處理
-    location ~* \.(css|js|jpg|jpeg|gif|png|ico|gz|svg|svgz|ttf|otf|woff|woff2|eot|mp4|ogg|ogv|webm|webp|zip|swf|map)$ {
-      add_header Access-Control-Allow-Origin "*";
-      add_header alt-svc 'h3=":443"; ma=86400';
-      expires max;
-      access_log off;
-    }
-  }
-
-  # 前端首頁 - / 路徑對應到 system/frontend
-  location = / {
-    alias /home/cloudpanel/htdocs/scooter-rental.ai-tracks.com/system/frontend/index.html;
-  }
-
-  # Laravel storage 文件
-  location /storage {
-    alias /home/cloudpanel/htdocs/scooter-rental.ai-tracks.com/storage/app/public;
-    try_files $uri =404;
-    expires max;
-    access_log off;
-  }
-
-  # 靜態資源（CSS, JS, 圖片等）- 優先匹配
-  location ~* ^.+\.(css|js|jpg|jpeg|gif|png|ico|gz|svg|svgz|ttf|otf|woff|woff2|eot|mp4|ogg|ogv|webm|webp|zip|swf|map)$ {
-    add_header Access-Control-Allow-Origin "*";
-    add_header alt-svc 'h3=":443"; ma=86400';
-    expires max;
-    access_log off;
-    try_files $uri =404;
-  }
-
-  # Laravel PHP 處理（包括 API 路由和 index.php）
-  location ~ \.php$ {
-    include fastcgi_params;
-    fastcgi_intercept_errors on;
-    fastcgi_index index.php;
-    fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-    fastcgi_read_timeout 3600;
-    fastcgi_send_timeout 3600;
-    fastcgi_param HTTPS "on";
-    fastcgi_param SERVER_PORT 443;
-    fastcgi_pass 127.0.0.1:{{php_fpm_port}};
-    fastcgi_param PHP_VALUE "{{php_settings}}";
-  }
-
-  # API 路由和其他需要 Laravel 處理的路由
-  location ~ ^/(api|index\.php) {
-    try_files $uri $uri/ /index.php?$query_string;
-  }
-
-  # 其他請求返回前端首頁
-  location / {
-    alias /home/cloudpanel/htdocs/scooter-rental.ai-tracks.com/system/frontend/index.html;
-  }
-
-  # 禁止訪問隱藏文件
-  location ~ /\. {
-    deny all;
-    access_log off;
-    log_not_found off;
-  }
-}
-```
+完整配置請參考 `nginx-cloudpanel.conf` 文件。
 
 ### 重要路徑說明
 
@@ -149,6 +51,41 @@ server {
 
 請將配置中的路徑替換為實際的 CloudPanel 項目路徑：
 - `/home/cloudpanel/htdocs/scooter-rental.ai-tracks.com/` → 替換為您的實際路徑
+
+### PHP-FPM 配置說明
+
+如果 `{{php_fpm_port}}` 變數無法辨識，CloudPanel 可能需要使用不同的格式：
+
+1. **檢查 CloudPanel 的 PHP 版本設置**：
+   - 在 CloudPanel 界面中查看網站設置
+   - 確認 PHP 版本（例如：PHP 8.2）
+
+2. **可能的替代方案**：
+   ```nginx
+   # 方案一：使用 unix socket（如果 CloudPanel 使用 socket）
+   fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
+   
+   # 方案二：使用固定端口（根據 CloudPanel 的 PHP 版本）
+   # PHP 8.2 通常是 9022
+   # PHP 8.1 通常是 9021
+   # PHP 8.0 通常是 9020
+   fastcgi_pass 127.0.0.1:9022;
+   
+   # 方案三：使用 CloudPanel 的變數（如果有的話）
+   # 檢查 CloudPanel 文檔或現有配置中的變數名稱
+   ```
+
+3. **如何找到正確的 PHP-FPM 配置**：
+   ```bash
+   # 查看 CloudPanel 的其他網站配置作為參考
+   cat /home/cloudpanel/htdocs/[其他網站]/nginx.conf | grep fastcgi_pass
+   
+   # 或查看 PHP-FPM 進程
+   ps aux | grep php-fpm
+   
+   # 或查看 PHP-FPM socket 文件
+   ls -la /var/run/php/
+   ```
 
 ### CloudPanel 特殊注意事項
 
