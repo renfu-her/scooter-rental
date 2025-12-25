@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { ChevronDown, ChevronRight, User, Menu, Sun, Moon, LogOut } from 'lucide-react';
 import { NAV_ITEMS } from '../constants';
-import AIChatAssistant from './AIChatAssistant';
 import { useAuth } from '../contexts/AuthContext';
 
 const SidebarItem: React.FC<{ item: any; isOpenByDefault?: boolean; sidebarOpen: boolean; theme: 'light' | 'dark' }> = ({ 
@@ -205,8 +204,6 @@ const DashboardLayout: React.FC = () => {
         <div className={`flex-1 overflow-y-auto ${theme === 'dark' ? 'bg-gray-900' : 'bg-[#fafafa]'}`}>
           <Outlet />
         </div>
-
-        <AIChatAssistant />
       </main>
     </div>
   );
