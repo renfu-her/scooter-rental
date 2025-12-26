@@ -315,38 +315,58 @@ const FinesPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {fines.map((fine) => (
-                  <tr key={fine.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-colors">
-                    <td className="px-6 py-5 font-black text-gray-900 dark:text-gray-100 text-base tracking-tight">
-                      {fine.scooter?.plate_number || '-'}
-                    </td>
-                    <td className="px-6 py-5 text-gray-800 dark:text-gray-200 font-bold">{fine.tenant}</td>
-                    <td className="px-6 py-5 text-gray-500 dark:text-gray-400 font-medium">{fine.violation_date}</td>
-                    <td className="px-6 py-5 text-gray-500 dark:text-gray-400 font-medium italic">{fine.violation_type}</td>
-                    <td className="px-6 py-5 font-black text-red-600 text-base">${fine.fine_amount.toLocaleString()}</td>
-                    <td className="px-6 py-5">
-                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black shadow-sm ${
-                        fine.payment_status === '未繳費'
-                          ? 'bg-red-100 text-red-700 shadow-red-50'
-                          : 'bg-green-100 text-green-700 shadow-green-50'
-                      }`}>
-                        {fine.payment_status === '未繳費' ? <AlertCircle size={12} className="mr-1" /> : <CheckCircle2 size={12} className="mr-1" />}
-                        {fine.payment_status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-5 text-center">
-                      <div className="relative">
-                        <button 
-                          ref={(el) => { buttonRefs.current[fine.id] = el; }}
-                          onClick={() => toggleDropdown(fine.id)}
-                          className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl text-gray-400 dark:text-gray-500 transition-colors"
-                        >
-                          <MoreHorizontal size={18} />
-                        </button>
+                {fines.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-12 text-center">
+                      <div className="flex flex-col items-center justify-center">
+                        <AlertCircle size={48} className="text-gray-300 dark:text-gray-600 mb-4" />
+                        <p className="text-gray-500 dark:text-gray-400 font-medium text-base">
+                          {searchTerm || paymentStatusFilter
+                            ? '目前沒有符合條件的罰單資料'
+                            : '目前沒有罰單資料'}
+                        </p>
+                        {!searchTerm && !paymentStatusFilter && (
+                          <p className="text-sm text-gray-400 dark:text-gray-500 mt-2">
+                            點擊右上角的「登記新罰單」按鈕來新增第一筆罰單
+                          </p>
+                        )}
                       </div>
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  fines.map((fine) => (
+                    <tr key={fine.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-colors">
+                      <td className="px-6 py-5 font-black text-gray-900 dark:text-gray-100 text-base tracking-tight">
+                        {fine.scooter?.plate_number || '-'}
+                      </td>
+                      <td className="px-6 py-5 text-gray-800 dark:text-gray-200 font-bold">{fine.tenant}</td>
+                      <td className="px-6 py-5 text-gray-500 dark:text-gray-400 font-medium">{fine.violation_date}</td>
+                      <td className="px-6 py-5 text-gray-500 dark:text-gray-400 font-medium italic">{fine.violation_type}</td>
+                      <td className="px-6 py-5 font-black text-red-600 text-base">${fine.fine_amount.toLocaleString()}</td>
+                      <td className="px-6 py-5">
+                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black shadow-sm ${
+                          fine.payment_status === '未繳費'
+                            ? 'bg-red-100 text-red-700 shadow-red-50'
+                            : 'bg-green-100 text-green-700 shadow-green-50'
+                        }`}>
+                          {fine.payment_status === '未繳費' ? <AlertCircle size={12} className="mr-1" /> : <CheckCircle2 size={12} className="mr-1" />}
+                          {fine.payment_status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-5 text-center">
+                        <div className="relative">
+                          <button 
+                            ref={(el) => { buttonRefs.current[fine.id] = el; }}
+                            onClick={() => toggleDropdown(fine.id)}
+                            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl text-gray-400 dark:text-gray-500 transition-colors"
+                          >
+                            <MoreHorizontal size={18} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
