@@ -381,7 +381,7 @@ const OrdersPage: React.FC = () => {
                   <option 
                     key={month} 
                     value={month}
-                    style={monthsWithOrders.includes(month) ? { backgroundColor: '#fff7ed' } : {}}
+                    style={monthsWithOrders.includes(month) ? { backgroundColor: '#fed7aa' } : {}}
                   >
                     {month} 月
                   </option>
