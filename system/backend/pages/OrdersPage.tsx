@@ -64,20 +64,37 @@ const StatsModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statis
           <div className="space-y-3">
              <p className="text-sm font-bold text-gray-700 dark:text-gray-300">各店業績分佈</p>
              <div className="divide-y divide-gray-100 dark:divide-gray-700 border border-gray-100 dark:border-gray-700 rounded-xl overflow-hidden">
-                {Object.entries(stats.partner_stats).map(([partner, data]) => (
-                  <div key={partner} className="p-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-xs font-bold text-gray-500 dark:text-gray-400">
-                        {partner.charAt(0)}
+                {Object.entries(stats.partner_stats).map(([partner, data], index) => {
+                  // 生成隨機顏色（不重複）
+                  const colors = [
+                    'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+                    'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+                    'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
+                    'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
+                    'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400',
+                    'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
+                    'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400',
+                    'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+                    'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400',
+                    'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400',
+                  ];
+                  const colorClass = colors[index % colors.length];
+                  
+                  return (
+                    <div key={partner} className="p-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                      <div className="flex items-center space-x-3">
+                        <div className={`w-8 h-8 rounded-lg ${colorClass} flex items-center justify-center text-xs font-bold`}>
+                          {partner.charAt(0)}
+                        </div>
+                        <span className="text-sm font-medium text-gray-800 dark:text-gray-200">{partner}</span>
                       </div>
-                      <span className="text-sm font-medium text-gray-800 dark:text-gray-200">{partner}</span>
+                      <div className="text-right">
+                        <p className="text-sm font-bold text-gray-900 dark:text-gray-100">${data.amount.toLocaleString()}</p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500">{data.count} 台租借</p>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-sm font-bold text-gray-900 dark:text-gray-100">${data.amount.toLocaleString()}</p>
-                      <p className="text-xs text-gray-400 dark:text-gray-500">{data.count} 台租借</p>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
              </div>
           </div>
         </div>
@@ -118,6 +135,9 @@ const OrdersPage: React.FC = () => {
   const dropdownRefs = useRef<Record<number, HTMLDivElement | null>>({});
   const buttonRefs = useRef<Record<number, HTMLButtonElement | null>>({});
 
+  // 用於追蹤是否已經自動切換過，避免無限循環
+  const autoSwitchedRef = useRef(false);
+
   // Fetch orders
   useEffect(() => {
     const fetchOrders = async () => {
@@ -136,6 +156,44 @@ const OrdersPage: React.FC = () => {
         if (response.meta) {
           setTotalPages(response.meta.last_page);
         }
+        
+        // 檢查是否有訂單的預約日期跨月，如果有則自動切換到預約日期所在的月份
+        // 只在首次載入時檢查，避免無限循環
+        if (ordersData.length > 0 && !autoSwitchedRef.current && !searchTerm && currentPage === 1) {
+          const now = new Date();
+          const currentYear = now.getFullYear();
+          const currentMonth = now.getMonth() + 1;
+          
+          // 檢查訂單的預約日期是否與當前選擇的月份不同
+          for (const order of ordersData) {
+            if (order.appointment_date) {
+              // 解析日期字符串（格式：YYYY-MM-DD）
+              const [year, month, day] = order.appointment_date.split('-').map(Number);
+              const appointmentYear = year;
+              const appointmentMonth = month;
+              
+              // 如果預約日期所在的年月與當前選擇的不同，自動切換
+              if (appointmentYear !== selectedYear || appointmentMonth !== selectedMonth) {
+                // 確保年份在有效範圍內（2025 到當前年份）
+                if (appointmentYear >= 2025 && appointmentYear <= currentYear) {
+                  // 確保月份在有效範圍內
+                  let validMonth = appointmentMonth;
+                  if (appointmentYear === 2025 && appointmentMonth < 12) {
+                    validMonth = 12;
+                  } else if (appointmentYear === currentYear && appointmentMonth > currentMonth) {
+                    validMonth = currentMonth;
+                  }
+                  
+                  autoSwitchedRef.current = true;
+                  setSelectedYear(appointmentYear);
+                  setSelectedMonth(validMonth);
+                  // 只處理第一個跨月的訂單，避免重複切換
+                  break;
+                }
+              }
+            }
+          }
+        }
       } catch (error) {
         console.error('Failed to fetch orders:', error);
         setOrders([]);
@@ -146,6 +204,11 @@ const OrdersPage: React.FC = () => {
 
     fetchOrders();
   }, [selectedYear, selectedMonth, searchTerm, currentPage]);
+
+  // 當搜索條件或頁面改變時，重置自動切換標記
+  useEffect(() => {
+    autoSwitchedRef.current = false;
+  }, [searchTerm, currentPage]);
 
   // Fetch statistics
   const fetchStatistics = async () => {
@@ -431,14 +494,45 @@ const OrdersPage: React.FC = () => {
                   orders.map((order) => (
                   <tr key={order.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-700/50 group transition-colors">
                     <td className="px-4 py-4">
-                      <span className={`px-2 py-1 rounded-full text-xs font-bold ${
-                        order.status === '進行中' ? 'bg-blue-100 text-blue-600' :
-                        order.status === '已完成' ? 'bg-green-100 text-green-600' :
-                        order.status === '預約中' ? 'bg-orange-100 text-orange-600' :
-                        'bg-gray-100 text-gray-600'
-                      }`}>
-                        {order.status}
-                      </span>
+                      <select
+                        value={order.status}
+                        onChange={async (e) => {
+                          const newStatus = e.target.value;
+                          try {
+                            // 使用專門的狀態更新 API
+                            await ordersApi.updateStatus(order.id, newStatus);
+                            // 重新載入訂單列表
+                            const response = await ordersApi.list({
+                              month: selectedMonthString,
+                              search: searchTerm || undefined,
+                              page: currentPage,
+                            });
+                            const ordersData = response.data || [];
+                            setOrders(Array.isArray(ordersData) ? ordersData : []);
+                            if (response.meta) {
+                              setTotalPages(response.meta.last_page);
+                            }
+                            fetchStatistics();
+                          } catch (error) {
+                            console.error('Failed to update order status:', error);
+                            alert('更新狀態失敗，請稍後再試。');
+                          }
+                        }}
+                        className={`px-2 py-1 rounded-full text-xs font-bold border-0 cursor-pointer focus:ring-2 focus:ring-orange-500/20 ${
+                          order.status === '進行中' ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400' :
+                          order.status === '已完成' ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' :
+                          order.status === '已預訂' ? 'bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400' :
+                          order.status === '待接送' ? 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400' :
+                          order.status === '在合作商' ? 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400' :
+                          'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
+                        }`}
+                      >
+                        <option value="已預訂">已預訂</option>
+                        <option value="進行中">進行中</option>
+                        <option value="待接送">待接送</option>
+                        <option value="已完成">已完成</option>
+                        <option value="在合作商">在合作商</option>
+                      </select>
                     </td>
                     <td className="px-4 py-4 font-bold text-gray-900 dark:text-gray-100">{order.tenant}</td>
                     <td className="px-4 py-4 text-gray-500 dark:text-gray-400">{formatDate(order.appointment_date)}</td>

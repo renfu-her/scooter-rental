@@ -99,6 +99,13 @@ class ApiClient {
     });
   }
 
+  async patch<T>(endpoint: string, data?: any): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
   async delete<T>(endpoint: string): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, { method: 'DELETE' });
   }
@@ -136,6 +143,7 @@ export const ordersApi = {
   get: (id: string | number) => api.get(`/orders/${id}`),
   create: (data: any) => api.post('/orders', data),
   update: (id: string | number, data: any) => api.put(`/orders/${id}`, data),
+  updateStatus: (id: string | number, status: string) => api.patch(`/orders/${id}/status`, { status }),
   delete: (id: string | number) => api.delete(`/orders/${id}`),
   statistics: (month: string) => api.get('/orders/statistics', { month }),
 };

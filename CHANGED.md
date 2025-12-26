@@ -1,5 +1,129 @@
 # 變更記錄 (Change Log)
 
+## 2025-12-26 11:05:44 - 修復訂單狀態 Enum Migration
+
+### 問題
+- Migration 執行失敗，錯誤：`Data truncated for column 'status'`
+- 原因：資料庫中仍有舊狀態值（「預約中」、「已取消」），無法直接修改 enum
+
+### 解決方案
+- **修復 Migration** (`database/migrations/2025_12_26_025817_update_orders_status_enum.php`)
+  - 步驟 1: 先將 enum 改為包含所有新舊狀態值
+  - 步驟 2: 更新現有資料（「預約中」→「已預訂」，「已取消」→「已完成」）
+  - 步驟 3: 再將 enum 改為只包含新狀態值
+  - 這樣可以安全地遷移資料而不會造成資料截斷
+
+### 結果
+- Migration 成功執行
+- 所有訂單狀態已正確更新為新狀態值
+- 資料庫 enum 已更新為：已預訂、進行中、待接送、已完成、在合作商
+
+---
+
+## 2025-12-26 11:03:33 - 添加訂單狀態專用更新 API
+
+### Backend Changes
+- **新增狀態更新端點** (`app/Http/Controllers/Api/OrderController.php`)
+  - 添加 `updateStatus` 方法，專門處理訂單狀態更新
+  - 端點：`PATCH /api/orders/{order}/status`
+  - 只驗證 `status` 字段，不需要其他必填字段
+  - 自動更新相關機車狀態（根據訂單狀態）
+
+- **更新 API Routes** (`routes/api.php`)
+  - 添加 `PATCH /api/orders/{order}/status` 路由
+
+### Frontend Changes
+- **更新 API Client** (`system/backend/lib/api.ts`)
+  - 添加 `patch` 方法支援 PATCH 請求
+  - 添加 `updateStatus` 方法到 `ordersApi`
+
+- **更新訂單狀態更新邏輯** (`system/backend/pages/OrdersPage.tsx`)
+  - 改用 `ordersApi.updateStatus()` 而不是 `ordersApi.update()`
+  - 只傳遞狀態值，不需要完整的訂單數據
+
+### Features
+- 專門的狀態更新端點，更符合 RESTful 設計
+- 只更新狀態時不需要提供其他必填字段
+- 自動處理機車狀態更新邏輯
+- 更清晰的 API 設計
+
+---
+
+## 2025-12-26 11:00:30 - 訂單管理功能增強
+
+### 主要變更
+
+1. **修復日期選擇器日期差一日的問題**
+   - 修復了預約日期選擇時，點選的日期與顯示日期相差一日的問題
+   - 改用本地時間格式化（`getFullYear()`, `getMonth()`, `getDate()`），避免時區轉換導致的日期偏移
+
+2. **將預約日期、開始時間、結束時間改為非必選**
+   - 前端：移除了預約日期、開始時間、結束時間的必填標記（紅色星號）
+   - 後端：將 `appointment_date`、`start_time`、`end_time` 的驗證規則從 `required` 改為 `nullable`
+   - 驗證邏輯：如果 `start_time` 和 `end_time` 都存在，仍會驗證結束時間必須在開始時間之後
+
+3. **將狀態改為下拉選單**
+   - 訂單列表中的狀態欄位改為可編輯的下拉選單
+   - 狀態選項：已預訂、進行中、待接送、已完成、在合作商
+   - 每個狀態都有對應的顏色標識（支援深色模式）
+   - 狀態變更時會自動更新訂單並重新載入列表
+
+4. **新增訂單時預設狀態為已預訂**
+   - 新增訂單時，預設狀態從「預約中」改為「已預訂」
+   - 在 `AddOrderModal` 中添加了狀態選擇下拉選單
+
+5. **實現狀態變更時機車狀態自動更新邏輯**
+   - 當訂單狀態為「已預訂」、「已完成」、「待接送」時，訂單內選擇的機車狀態一律變為「待出租」
+   - 當訂單狀態為「進行中」、「在合作商」時，訂單內選擇的機車狀態為「出租中」
+   - 此邏輯同時應用於新增訂單和更新訂單
+
+6. **實現預約日期跨月自動切換功能**
+   - 當訂單的預約日期與當前選擇的月份不同時，自動切換到預約日期所在的月份
+   - 只在首次載入時檢查（`currentPage === 1`），避免無限循環
+   - 使用 `useRef` 追蹤是否已經自動切換過
+   - 當搜索條件或頁面改變時，重置自動切換標記
+
+7. **合作商統計使用隨機顏色區分**
+   - 各店業績分佈中的合作商標識使用隨機顏色（不重複）
+   - 提供 10 種顏色選項，按順序循環使用
+   - 支援深色模式
+
+### 資料庫變更
+
+- 創建 migration `2025_12_26_025817_update_orders_status_enum.php`
+  - 更新 `orders` 表的 `status` enum 值為：已預訂、進行中、待接送、已完成、在合作商
+  - 預設值改為「已預訂」
+
+### 檔案變更
+
+- `system/backend/components/AddOrderModal.tsx`
+  - 修復日期選擇器使用本地時間格式化
+  - 移除預約日期、開始時間、結束時間的必填標記
+  - 添加狀態選擇下拉選單
+  - 新增訂單預設狀態為「已預訂」
+  - 更新表單驗證邏輯，只驗證總金額為必填
+
+- `system/backend/pages/OrdersPage.tsx`
+  - 狀態欄位改為可編輯的下拉選單
+  - 實現跨月自動切換邏輯
+  - 合作商統計使用隨機顏色
+  - 更新狀態顏色樣式（支援深色模式）
+
+- `app/Http/Controllers/Api/OrderController.php`
+  - 更新驗證規則：`appointment_date`、`start_time`、`end_time` 改為 `nullable`
+  - 更新狀態驗證規則：支援新的狀態選項（已預訂、進行中、待接送、已完成、在合作商）
+  - 實現狀態變更時機車狀態自動更新邏輯（在 `store` 和 `update` 方法中）
+
+- `database/migrations/2025_12_26_025817_update_orders_status_enum.php`
+  - 新增 migration 更新狀態 enum 值
+
+### 注意事項
+
+- 需要運行 `php artisan migrate` 來應用資料庫變更
+- 舊的訂單狀態（預約中、已取消）需要手動更新為新的狀態值
+
+---
+
 ## 2025-12-26 09:40:00 - 將訂單管理的月份選擇器改為分開的年和月份選擇
 
 ### Frontend Changes

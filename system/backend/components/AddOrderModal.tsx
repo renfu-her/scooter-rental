@@ -66,7 +66,7 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
     ship_return_time: '',
     payment_method: '',
     payment_amount: '',
-    status: '預約中',
+    status: '已預訂',
     remark: '',
   });
 
@@ -173,7 +173,7 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
             ship_return_time: '',
             payment_method: '',
             payment_amount: '',
-            status: '預約中',
+            status: '已預訂',
             remark: '',
           });
           setSelectedScooterIds([]);
@@ -233,8 +233,8 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
   };
 
   const handleSubmit = async () => {
-    if (!formData.appointment_date || !formData.start_time || !formData.end_time || !formData.payment_amount) {
-      alert('請填寫必填欄位');
+    if (!formData.payment_amount) {
+      alert('請填寫必填欄位（總金額）');
       return;
     }
 
@@ -350,7 +350,7 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
 
               <div>
                 <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider flex items-center">
-                  <Calendar size={14} className="mr-1.5" /> 預約日期 <span className="text-red-500 ml-1">*</span>
+                  <Calendar size={14} className="mr-1.5" /> 預約日期
                 </label>
                 <Flatpickr
                   key="appointment_date"
@@ -358,7 +358,12 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
                   value={formData.appointment_date}
                   onChange={(dates) => {
                     if (dates && dates.length > 0) {
-                      const dateStr = dates[0].toISOString().split('T')[0];
+                      const date = dates[0];
+                      // 使用本地時間避免時區轉換導致的日期偏移
+                      const year = date.getFullYear();
+                      const month = String(date.getMonth() + 1).padStart(2, '0');
+                      const day = String(date.getDate()).padStart(2, '0');
+                      const dateStr = `${year}-${month}-${day}`;
                       setFormData(prev => ({ ...prev, appointment_date: dateStr }));
                     }
                   }}
@@ -370,7 +375,7 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider flex items-center">
-                    <Clock size={14} className="mr-1.5" /> 開始時間 <span className="text-red-500 ml-1">*</span>
+                    <Clock size={14} className="mr-1.5" /> 開始時間
                   </label>
                   <Flatpickr
                     key="start_time"
@@ -389,7 +394,7 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider flex items-center">
-                    <Clock size={14} className="mr-1.5" /> 結束時間 <span className="text-red-500 ml-1">*</span>
+                    <Clock size={14} className="mr-1.5" /> 結束時間
                   </label>
                   <Flatpickr
                     key="end_time"
@@ -524,6 +529,22 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
                   value={formData.payment_amount}
                   onChange={(e) => setFormData({ ...formData, payment_amount: e.target.value })}
                 />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">訂單狀態 <span className="text-red-500">*</span></label>
+                <select 
+                  className={inputClasses}
+                  value={formData.status}
+                  onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                  required
+                >
+                  <option value="已預訂">已預訂</option>
+                  <option value="進行中">進行中</option>
+                  <option value="待接送">待接送</option>
+                  <option value="已完成">已完成</option>
+                  <option value="在合作商">在合作商</option>
+                </select>
               </div>
 
               <div>

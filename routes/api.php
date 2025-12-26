@@ -28,6 +28,7 @@ Route::prefix('orders')->group(function () {
     Route::get('/statistics', [OrderController::class, 'statistics']);
     Route::get('/{order}', [OrderController::class, 'show']);
     Route::put('/{order}', [OrderController::class, 'update']);
+    Route::patch('/{order}/status', [OrderController::class, 'updateStatus']);
     Route::delete('/{order}', [OrderController::class, 'destroy']);
 });
 

@@ -64,9 +64,9 @@ class OrderController extends Controller
         $validator = Validator::make($request->all(), [
             'partner_id' => 'nullable|exists:partners,id',
             'tenant' => 'nullable|string|max:255',
-            'appointment_date' => 'required|date',
-            'start_time' => 'required|date',
-            'end_time' => 'required|date|after:start_time',
+            'appointment_date' => 'nullable|date',
+            'start_time' => 'nullable|date',
+            'end_time' => 'nullable|date',
             'expected_return_time' => 'nullable|date',
             'phone' => 'nullable|string|max:20',
             'shipping_company' => 'nullable|in:泰富,藍白,聯營,大福',
@@ -74,11 +74,20 @@ class OrderController extends Controller
             'ship_return_time' => 'nullable|date',
             'payment_method' => 'nullable|in:現金,月結,日結',
             'payment_amount' => 'required|numeric|min:0',
-            'status' => 'required|in:進行中,已完成,已取消,預約中',
+            'status' => 'required|in:已預訂,進行中,待接送,已完成,在合作商',
             'remark' => 'nullable|string',
             'scooter_ids' => 'required|array|min:1',
             'scooter_ids.*' => 'exists:scooters,id',
         ]);
+        
+        // 驗證 end_time 必須在 start_time 之後（如果兩者都存在）
+        if ($request->has('start_time') && $request->has('end_time') && $request->get('start_time') && $request->get('end_time')) {
+            $validator->after(function ($validator) use ($request) {
+                if (strtotime($request->get('end_time')) <= strtotime($request->get('start_time'))) {
+                    $validator->errors()->add('end_time', '結束時間必須在開始時間之後');
+                }
+            });
+        }
 
         if ($validator->fails()) {
             return response()->json([
@@ -108,8 +117,15 @@ class OrderController extends Controller
             $order = Order::create($validator->validated());
             $order->scooters()->attach($scooterIds);
 
-            // Update scooter status to 出租中
-            Scooter::whereIn('id', $scooterIds)->update(['status' => '出租中']);
+            // 根據訂單狀態更新機車狀態
+            $status = $request->get('status', '已預訂');
+            // 如果狀態為已預訂、已完成、待接送，機車狀態變為待出租
+            if (in_array($status, ['已預訂', '已完成', '待接送'])) {
+                Scooter::whereIn('id', $scooterIds)->update(['status' => '待出租']);
+            } else {
+                // 其他狀態（進行中、在合作商）機車狀態為出租中
+                Scooter::whereIn('id', $scooterIds)->update(['status' => '出租中']);
+            }
 
             DB::commit();
 
@@ -144,9 +160,9 @@ class OrderController extends Controller
         $validator = Validator::make($request->all(), [
             'partner_id' => 'nullable|exists:partners,id',
             'tenant' => 'nullable|string|max:255',
-            'appointment_date' => 'required|date',
-            'start_time' => 'required|date',
-            'end_time' => 'required|date|after:start_time',
+            'appointment_date' => 'nullable|date',
+            'start_time' => 'nullable|date',
+            'end_time' => 'nullable|date',
             'expected_return_time' => 'nullable|date',
             'phone' => 'nullable|string|max:20',
             'shipping_company' => 'nullable|in:泰富,藍白,聯營,大福',
@@ -154,11 +170,20 @@ class OrderController extends Controller
             'ship_return_time' => 'nullable|date',
             'payment_method' => 'nullable|in:現金,月結,日結',
             'payment_amount' => 'required|numeric|min:0',
-            'status' => 'required|in:進行中,已完成,已取消,預約中',
+            'status' => 'required|in:已預訂,進行中,待接送,已完成,在合作商',
             'remark' => 'nullable|string',
             'scooter_ids' => 'sometimes|array|min:1',
             'scooter_ids.*' => 'exists:scooters,id',
         ]);
+        
+        // 驗證 end_time 必須在 start_time 之後（如果兩者都存在）
+        if ($request->has('start_time') && $request->has('end_time') && $request->get('start_time') && $request->get('end_time')) {
+            $validator->after(function ($validator) use ($request) {
+                if (strtotime($request->get('end_time')) <= strtotime($request->get('start_time'))) {
+                    $validator->errors()->add('end_time', '結束時間必須在開始時間之後');
+                }
+            });
+        }
 
         if ($validator->fails()) {
             return response()->json([
@@ -174,11 +199,14 @@ class OrderController extends Controller
 
             $order->update($validator->validated());
 
+            $newStatus = $request->get('status', $order->status);
+            $allScooterIds = [];
+            
             // Update scooters if provided
             if ($request->has('scooter_ids')) {
                 $newScooterIds = $request->get('scooter_ids');
                 
-                // Check if new scooters are available
+                // Check if new scooters are available (only check those not already in the order)
                 $unavailableScooters = Scooter::whereIn('id', $newScooterIds)
                     ->where('status', '!=', '待出租')
                     ->whereNotIn('id', $oldScooterIds)
@@ -199,23 +227,24 @@ class OrderController extends Controller
                 $order->scooters()->detach();
                 // Attach new scooters
                 $order->scooters()->attach($newScooterIds);
-
-                // Update old scooters status to 待出租
+                $allScooterIds = $newScooterIds;
+                
+                // Restore old scooters to 待出租
                 Scooter::whereIn('id', $oldScooterIds)
                     ->whereNotIn('id', $newScooterIds)
                     ->update(['status' => '待出租']);
-
-                // Update new scooters status to 出租中
-                Scooter::whereIn('id', $newScooterIds)
-                    ->whereNotIn('id', $oldScooterIds)
-                    ->update(['status' => '出租中']);
+            } else {
+                // If no scooter_ids provided, use existing scooters
+                $allScooterIds = $order->scooters->pluck('id')->toArray();
             }
-
-            // Handle status change: if order is completed or cancelled, set scooters to 待出租
-            $newStatus = $order->status;
-            if (($oldStatus !== '已完成' && $oldStatus !== '已取消') && 
-                ($newStatus === '已完成' || $newStatus === '已取消')) {
-                $order->scooters()->update(['status' => '待出租']);
+            
+            // 根據訂單狀態更新所有相關機車的狀態
+            // 如果狀態為已預訂、已完成、待接送，機車狀態變為待出租
+            if (in_array($newStatus, ['已預訂', '已完成', '待接送'])) {
+                Scooter::whereIn('id', $allScooterIds)->update(['status' => '待出租']);
+            } else {
+                // 其他狀態（進行中、在合作商）機車狀態為出租中
+                Scooter::whereIn('id', $allScooterIds)->update(['status' => '出租中']);
             }
 
             DB::commit();
@@ -228,6 +257,57 @@ class OrderController extends Controller
             DB::rollBack();
             return response()->json([
                 'message' => 'Failed to update order',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Update order status only
+     */
+    public function updateStatus(Request $request, Order $order): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'status' => 'required|in:已預訂,進行中,待接送,已完成,在合作商',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation error',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        DB::beginTransaction();
+        try {
+            $oldStatus = $order->status;
+            $newStatus = $request->get('status');
+            
+            // Update order status
+            $order->update(['status' => $newStatus]);
+            
+            // Get all scooters associated with this order
+            $scooterIds = $order->scooters->pluck('id')->toArray();
+            
+            // 根據訂單狀態更新所有相關機車的狀態
+            // 如果狀態為已預訂、已完成、待接送，機車狀態變為待出租
+            if (in_array($newStatus, ['已預訂', '已完成', '待接送'])) {
+                Scooter::whereIn('id', $scooterIds)->update(['status' => '待出租']);
+            } else {
+                // 其他狀態（進行中、在合作商）機車狀態為出租中
+                Scooter::whereIn('id', $scooterIds)->update(['status' => '出租中']);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Order status updated successfully',
+                'data' => new OrderResource($order->load(['partner', 'scooters'])),
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Failed to update order status',
                 'error' => $e->getMessage(),
             ], 500);
         }
