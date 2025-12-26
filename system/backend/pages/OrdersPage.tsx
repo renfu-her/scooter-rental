@@ -132,9 +132,6 @@ const OrdersPage: React.FC = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [availableYears, setAvailableYears] = useState<number[]>([]);
   const [monthsWithOrders, setMonthsWithOrders] = useState<number[]>([]);
-  const [isMonthDropdownOpen, setIsMonthDropdownOpen] = useState(false);
-  const monthDropdownRef = useRef<HTMLDivElement | null>(null);
-  const monthButtonRef = useRef<HTMLButtonElement | null>(null);
   const [openDropdownId, setOpenDropdownId] = useState<number | null>(null);
   const [dropdownPosition, setDropdownPosition] = useState<{ top: number; right: number } | null>(null);
   const dropdownRefs = useRef<Record<number, HTMLDivElement | null>>({});
@@ -252,16 +249,13 @@ const OrdersPage: React.FC = () => {
         setOpenDropdownId(null);
         setDropdownPosition(null);
       }
-      if (isMonthDropdownOpen) {
-        setIsMonthDropdownOpen(false);
-      }
     };
 
     window.addEventListener('scroll', handleScroll, true);
     return () => {
       window.removeEventListener('scroll', handleScroll, true);
     };
-  }, [openDropdownId, isMonthDropdownOpen]);
+  }, [openDropdownId]);
 
   const handleYearChange = (year: number) => {
     setSelectedYear(year);
@@ -272,20 +266,6 @@ const OrdersPage: React.FC = () => {
   const handleMonthChange = (month: number) => {
     setSelectedMonth(month);
     setCurrentPage(1);
-    setIsMonthDropdownOpen(false);
-  };
-
-  const toggleMonthDropdown = () => {
-    if (isMonthDropdownOpen) {
-      setIsMonthDropdownOpen(false);
-    } else {
-      const button = monthButtonRef.current;
-      if (button) {
-        const rect = button.getBoundingClientRect();
-        // 位置會在渲染時計算
-        setIsMonthDropdownOpen(true);
-      }
-    }
   };
 
   // 獲取可選的年份列表（從 API 獲取）
@@ -391,48 +371,18 @@ const OrdersPage: React.FC = () => {
                 ))}
              </select>
           </div>
-          <div className="relative">
-            <button
-              ref={monthButtonRef}
-              onClick={toggleMonthDropdown}
-              className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 px-4 py-2 flex items-center space-x-2 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-            >
-              <span className="text-sm font-medium text-gray-600 dark:text-gray-300">{selectedMonth} 月</span>
-              <ChevronDown size={16} className={`text-gray-400 transition-transform ${isMonthDropdownOpen ? 'rotate-180' : ''}`} />
-            </button>
-            
-            {isMonthDropdownOpen && (
-              <>
-                <div
-                  className="fixed inset-0 z-40"
-                  onClick={() => setIsMonthDropdownOpen(false)}
-                />
-                <div
-                  ref={monthDropdownRef}
-                  className="fixed bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl z-50 min-w-[120px] max-h-[300px] overflow-y-auto"
-                  style={{
-                    top: `${(monthButtonRef.current?.getBoundingClientRect().bottom || 0) + window.scrollY + 4}px`,
-                    left: `${(monthButtonRef.current?.getBoundingClientRect().left || 0) + window.scrollX}px`,
-                  }}
-                >
-                  {getAvailableMonths().map(month => (
-                    <button
-                      key={month}
-                      onClick={() => handleMonthChange(month)}
-                      className={`w-full px-4 py-2.5 text-left text-sm font-medium transition-colors ${
-                        month === selectedMonth
-                          ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
-                          : monthsWithOrders.includes(month)
-                          ? 'bg-orange-100 hover:bg-orange-200 dark:bg-orange-900/30 dark:hover:bg-orange-900/40 text-gray-700 dark:text-gray-300'
-                          : 'hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
-                      }`}
-                    >
-                      {month} 月
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-1 flex items-center shadow-sm">
+             <select 
+              className="bg-transparent border-none focus:ring-0 text-sm px-4 py-2 cursor-pointer outline-none font-medium text-gray-600 dark:text-gray-300"
+              value={selectedMonth}
+              onChange={(e) => handleMonthChange(Number(e.target.value))}
+             >
+                {getAvailableMonths().map(month => (
+                  <option key={month} value={month}>
+                    {month} 月{monthsWithOrders.includes(month) ? ' ●' : ''}
+                  </option>
+                ))}
+             </select>
           </div>
           <button 
             onClick={() => setIsAddModalOpen(true)}

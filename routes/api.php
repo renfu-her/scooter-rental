@@ -28,10 +28,10 @@ Route::prefix('orders')->group(function () {
     Route::get('/statistics', [OrderController::class, 'statistics']);
     Route::get('/years', [OrderController::class, 'getYears']);
     Route::get('/months', [OrderController::class, 'getMonthsByYear']);
-    Route::get('/{order}', [OrderController::class, 'show']);
-    Route::put('/{order}', [OrderController::class, 'update']);
-    Route::patch('/{order}/status', [OrderController::class, 'updateStatus']);
-    Route::delete('/{order}', [OrderController::class, 'destroy']);
+    Route::get('/{order}', [OrderController::class, 'show'])->where('order', '[0-9]+');
+    Route::put('/{order}', [OrderController::class, 'update'])->where('order', '[0-9]+');
+    Route::patch('/{order}/status', [OrderController::class, 'updateStatus'])->where('order', '[0-9]+');
+    Route::delete('/{order}', [OrderController::class, 'destroy'])->where('order', '[0-9]+');
 });
 
 // Partners API
