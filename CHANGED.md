@@ -1,5 +1,30 @@
 # 變更記錄 (Change Log)
 
+## 2025-12-26 09:40:00 - 將訂單管理的月份選擇器改為分開的年和月份選擇
+
+### Frontend Changes
+- **改進訂單管理月份選擇器** (`system/backend/pages/OrdersPage.tsx`)
+  - 將單一的月份選擇器拆分為年份選擇器和月份選擇器
+  - 年份選擇器：從 2025 年開始到當前年份
+  - 月份選擇器：根據選擇的年份動態顯示可選月份
+    - 2025 年：從 12 月開始
+    - 當前年份：到當前月份為止
+    - 其他年份：1-12 月
+  - 添加 `selectedYear` 和 `selectedMonth` 狀態（分別存儲年份和月份）
+  - 添加 `selectedMonthString` 計算屬性，用於 API 調用（格式：YYYY-MM）
+  - 添加 `handleYearChange` 函數處理年份變化，自動調整月份範圍
+  - 添加 `handleMonthChange` 函數處理月份變化
+  - 添加 `getAvailableYears` 函數獲取可選年份列表
+  - 添加 `getAvailableMonths` 函數獲取可選月份列表（根據年份動態計算）
+  - 更新 `useEffect` 依賴項，確保年份和月份變化時正確更新數據
+
+### Features
+- 年份和月份分開選擇，更直觀易用
+- 自動限制可選月份範圍（2025年從12月開始，當前年份到當前月份為止）
+- 切換年份時自動調整月份選擇，避免選擇無效的月份組合
+
+---
+
 ## 2025-12-26 09:35:00 - 為機車管理添加操作下拉菜單
 
 ### Frontend Changes

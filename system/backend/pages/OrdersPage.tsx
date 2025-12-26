@@ -95,10 +95,17 @@ const OrdersPage: React.FC = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
+  const [selectedYear, setSelectedYear] = useState(() => {
+    const now = new Date();
+    return now.getFullYear();
+  });
   const [selectedMonth, setSelectedMonth] = useState(() => {
     const now = new Date();
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    return now.getMonth() + 1;
   });
+  
+  // 計算 selectedMonth 字符串（用於 API）
+  const selectedMonthString = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}`;
   const [searchTerm, setSearchTerm] = useState('');
   const [orders, setOrders] = useState<Order[]>([]);
   const [stats, setStats] = useState<Statistics | null>(null);
@@ -117,7 +124,7 @@ const OrdersPage: React.FC = () => {
       setLoading(true);
       try {
         const response = await ordersApi.list({
-          month: selectedMonth,
+          month: selectedMonthString,
           search: searchTerm || undefined,
           page: currentPage,
         });
@@ -138,13 +145,13 @@ const OrdersPage: React.FC = () => {
     };
 
     fetchOrders();
-  }, [selectedMonth, searchTerm, currentPage]);
+  }, [selectedYear, selectedMonth, searchTerm, currentPage]);
 
   // Fetch statistics
   const fetchStatistics = async () => {
     setStatsLoading(true);
     try {
-      const response = await ordersApi.statistics(selectedMonth);
+      const response = await ordersApi.statistics(selectedMonthString);
       setStats(response.data);
     } catch (error) {
       console.error('Failed to fetch statistics:', error);
@@ -155,7 +162,7 @@ const OrdersPage: React.FC = () => {
 
   useEffect(() => {
     fetchStatistics();
-  }, [selectedMonth]);
+  }, [selectedYear, selectedMonth]);
 
   // 點擊外部關閉下拉菜單（現在通過遮罩層處理）
   // 滾動時關閉下拉菜單
@@ -173,9 +180,65 @@ const OrdersPage: React.FC = () => {
     };
   }, [openDropdownId]);
 
-  const handleMonthChange = (month: string) => {
+  const handleYearChange = (year: number) => {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth() + 1;
+    
+    setSelectedYear(year);
+    
+    // 如果選擇的是當前年份，且當前選擇的月份超過當前月份，則設為當前月份
+    if (year === currentYear && selectedMonth > currentMonth) {
+      setSelectedMonth(currentMonth);
+    }
+    // 如果選擇的是 2025 年，且當前選擇的月份小於 12，則設為 12 月
+    else if (year === 2025 && selectedMonth < 12) {
+      setSelectedMonth(12);
+    }
+    setCurrentPage(1);
+  };
+
+  const handleMonthChange = (month: number) => {
     setSelectedMonth(month);
     setCurrentPage(1);
+  };
+
+  // 獲取可選的年份列表（從 2025 到當前年份）
+  const getAvailableYears = () => {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const years = [];
+    for (let year = 2025; year <= currentYear; year++) {
+      years.push(year);
+    }
+    return years;
+  };
+
+  // 獲取可選的月份列表
+  const getAvailableMonths = () => {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth() + 1;
+    const months = [];
+    
+    let startMonth = 1;
+    let endMonth = 12;
+    
+    // 如果是 2025 年，從 12 月開始
+    if (selectedYear === 2025) {
+      startMonth = 12;
+    }
+    
+    // 如果是當前年份，到當前月份為止
+    if (selectedYear === currentYear) {
+      endMonth = currentMonth;
+    }
+    
+    for (let month = startMonth; month <= endMonth; month++) {
+      months.push(month);
+    }
+    
+    return months;
   };
 
   const handleEdit = (order: Order) => {
@@ -250,16 +313,23 @@ const OrdersPage: React.FC = () => {
           <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-1 flex items-center shadow-sm">
              <select 
               className="bg-transparent border-none focus:ring-0 text-sm px-4 py-2 cursor-pointer outline-none font-medium text-gray-600 dark:text-gray-300"
-              value={selectedMonth}
-              onChange={(e) => handleMonthChange(e.target.value)}
+              value={selectedYear}
+              onChange={(e) => handleYearChange(Number(e.target.value))}
              >
-                {Array.from({ length: 12 }, (_, i) => {
-                  const date = new Date();
-                  date.setMonth(date.getMonth() - i);
-                  const value = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-                  const label = `${date.getFullYear()}年 ${date.getMonth() + 1}月`;
-                  return <option key={value} value={value}>{label}</option>;
-                })}
+                {getAvailableYears().map(year => (
+                  <option key={year} value={year}>{year} 年</option>
+                ))}
+             </select>
+          </div>
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-1 flex items-center shadow-sm">
+             <select 
+              className="bg-transparent border-none focus:ring-0 text-sm px-4 py-2 cursor-pointer outline-none font-medium text-gray-600 dark:text-gray-300"
+              value={selectedMonth}
+              onChange={(e) => handleMonthChange(Number(e.target.value))}
+             >
+                {getAvailableMonths().map(month => (
+                  <option key={month} value={month}>{month} 月</option>
+                ))}
              </select>
           </div>
           <button 
@@ -477,7 +547,7 @@ const OrdersPage: React.FC = () => {
           const fetchOrders = async () => {
             try {
               const response = await ordersApi.list({
-                month: selectedMonth,
+                month: selectedMonthString,
                 search: searchTerm || undefined,
                 page: currentPage,
               });
