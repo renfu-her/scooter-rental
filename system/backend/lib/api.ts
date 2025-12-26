@@ -146,6 +146,7 @@ export const ordersApi = {
   updateStatus: (id: string | number, status: string) => api.patch(`/orders/${id}/status`, { status }),
   delete: (id: string | number) => api.delete(`/orders/${id}`),
   statistics: (month: string) => api.get('/orders/statistics', { month }),
+  getYears: () => api.get<number[]>('/orders/years'),
 };
 
 export const partnersApi = {

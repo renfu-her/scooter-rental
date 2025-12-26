@@ -398,5 +398,23 @@ class OrderController extends Controller
             ],
         ]);
     }
+
+    /**
+     * Get all years that have orders with appointment dates
+     */
+    public function getYears(): JsonResponse
+    {
+        // 從所有訂單中提取不重複的年份
+        $years = Order::whereNotNull('appointment_date')
+            ->selectRaw('YEAR(appointment_date) as year')
+            ->distinct()
+            ->orderBy('year', 'asc')
+            ->pluck('year')
+            ->toArray();
+
+        return response()->json([
+            'data' => $years,
+        ]);
+    }
 }
 

@@ -1,5 +1,72 @@
 # 變更記錄 (Change Log)
 
+## 2025-12-26 14:05:28 - 通過 API 獲取訂單預約日期的年份列表
+
+### Backend Changes
+- **OrderController.php** (`app/Http/Controllers/Api/OrderController.php`)
+  - 新增 `getYears()` 方法，從資料庫中查詢所有訂單的預約日期年份
+  - 使用 `YEAR(appointment_date)` 提取年份
+  - 使用 `distinct()` 去重
+  - 按年份升序排序
+  - 返回年份數組
+
+- **routes/api.php**
+  - 新增路由 `GET /api/orders/years`，對應 `OrderController@getYears`
+  - 路由位置在 `/orders/statistics` 之後，避免與 `/{order}` 路由衝突
+
+### Frontend Changes
+- **api.ts** (`system/backend/lib/api.ts`)
+  - 在 `ordersApi` 中新增 `getYears()` 方法
+  - 調用 `/orders/years` API 端點
+
+- **OrdersPage.tsx** (`system/backend/pages/OrdersPage.tsx`)
+  - 新增 `availableYears` state 來存儲從 API 獲取的年份列表
+  - 新增 `fetchYears()` 函數來獲取年份列表
+  - 在組件初始化時調用 `fetchYears()`
+  - 修改 `getAvailableYears()` 函數，使用 API 返回的年份列表
+  - 確保當前選中的年份也在列表中（即使 API 沒有返回）
+  - 在新增/更新訂單後，重新獲取年份列表，確保新年份能及時顯示
+
+### Features
+- 年份列表現在從資料庫中準確獲取，不會有判斷錯誤
+- 當新增或更新訂單時，年份列表會自動更新
+- 如果當前選中的年份不在 API 返回的列表中，會自動加入列表
+- 更準確和可靠的年份選擇器
+
+---
+
+## 2025-12-26 14:03:14 - 年份選擇器動態顯示訂單預約日期的年份
+
+### Frontend Changes
+- **OrdersPage.tsx** (`system/backend/pages/OrdersPage.tsx`)
+  - 修改 `getAvailableYears` 函數，從訂單列表中動態提取所有預約日期的年份
+  - 從每個訂單的 `appointment_date` 中提取年份
+  - 使用 `Set` 去重，確保年份不重複
+  - 確保當前選中的年份也在列表中（即使該年份沒有訂單）
+  - 年份按升序排序顯示
+  - 如果沒有訂單，至少顯示當前選中的年份
+
+### Features
+- 年份選擇器現在動態顯示所有訂單中出現過的年份
+- 當訂單列表更新時，年份列表也會自動更新
+- 確保當前選中的年份始終在列表中，避免選擇器顯示錯誤
+
+---
+
+## 2025-12-26 14:00:19 - 固定年份選擇器顯示 2025 和 2026
+
+### Frontend Changes
+- **OrdersPage.tsx** (`system/backend/pages/OrdersPage.tsx`)
+  - 修改 `getAvailableYears` 函數，固定返回 `[2025, 2026]`
+  - 年份選擇器現在固定顯示 2025 和 2026 兩個選項
+  - 移除了動態計算到當前年份的邏輯
+
+### Features
+- 年份選擇器固定顯示 2025 和 2026
+- 簡化了年份選項邏輯
+
+---
+
 ## 2025-12-26 13:57:14 - 訂單預約日期自動更新年份選擇器
 
 ### Frontend Changes

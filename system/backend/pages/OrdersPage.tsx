@@ -130,6 +130,7 @@ const OrdersPage: React.FC = () => {
   const [statsLoading, setStatsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [availableYears, setAvailableYears] = useState<number[]>([]);
   const [openDropdownId, setOpenDropdownId] = useState<number | null>(null);
   const [dropdownPosition, setDropdownPosition] = useState<{ top: number; right: number } | null>(null);
   const dropdownRefs = useRef<Record<number, HTMLDivElement | null>>({});
@@ -139,6 +140,28 @@ const OrdersPage: React.FC = () => {
   const statusDropdownRefs = useRef<Record<number, HTMLDivElement | null>>({});
   const statusButtonRefs = useRef<Record<number, HTMLButtonElement | null>>({});
 
+
+  // Fetch available years from API
+  const fetchYears = async () => {
+    try {
+      const response = await ordersApi.getYears();
+      const years = response.data || [];
+      setAvailableYears(years);
+      
+      // 如果當前選中的年份不在列表中，且列表不為空，則選擇第一個年份
+      if (years.length > 0 && !years.includes(selectedYear)) {
+        setSelectedYear(years[0]);
+      }
+    } catch (error) {
+      console.error('Failed to fetch years:', error);
+      // 如果 API 失敗，至少顯示當前年份
+      setAvailableYears([selectedYear]);
+    }
+  };
+
+  useEffect(() => {
+    fetchYears();
+  }, []);
 
   // Fetch orders
   useEffect(() => {
@@ -228,15 +251,17 @@ const OrdersPage: React.FC = () => {
     setCurrentPage(1);
   };
 
-  // 獲取可選的年份列表（從 2025 到當前年份）
+  // 獲取可選的年份列表（從 API 獲取）
   const getAvailableYears = () => {
-    const now = new Date();
-    const currentYear = now.getFullYear();
-    const years = [];
-    for (let year = 2025; year <= currentYear; year++) {
-      years.push(year);
-    }
-    return years;
+    // 確保當前選中的年份也在列表中（即使 API 沒有返回）
+    const yearsSet = new Set(availableYears);
+    yearsSet.add(selectedYear);
+    
+    // 轉換為數組並排序
+    const years = Array.from(yearsSet).sort((a, b) => a - b);
+    
+    // 如果沒有年份，至少顯示當前年份
+    return years.length > 0 ? years : [selectedYear];
   };
 
   // 獲取可選的月份列表（固定 1-12 月）
@@ -581,6 +606,9 @@ const OrdersPage: React.FC = () => {
         onClose={async (appointmentDate) => {
           setIsAddModalOpen(false);
           setEditingOrder(null);
+          
+          // 重新獲取年份列表（因為可能有新的年份）
+          await fetchYears();
           
           // 如果有預約日期，跳轉到該月份
           let monthChanged = false;

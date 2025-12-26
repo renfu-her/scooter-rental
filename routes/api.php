@@ -26,6 +26,7 @@ Route::prefix('orders')->group(function () {
     Route::get('/', [OrderController::class, 'index']);
     Route::post('/', [OrderController::class, 'store']);
     Route::get('/statistics', [OrderController::class, 'statistics']);
+    Route::get('/years', [OrderController::class, 'getYears']);
     Route::get('/{order}', [OrderController::class, 'show']);
     Route::put('/{order}', [OrderController::class, 'update']);
     Route::patch('/{order}/status', [OrderController::class, 'updateStatus']);
