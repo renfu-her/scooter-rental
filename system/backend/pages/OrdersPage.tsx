@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Plus, Filter, FileText, ChevronLeft, ChevronRight, MoreHorizontal, Bike, X, TrendingUp, Loader2, Edit3, Trash2, ChevronDown } from 'lucide-react';
+import { Search, Plus, Filter, FileText, ChevronLeft, ChevronRight, MoreHorizontal, Bike, X, TrendingUp, Loader2, Edit3, Trash2, ChevronDown, Download } from 'lucide-react';
 import { OrderStatus } from '../types';
 import AddOrderModal from '../components/AddOrderModal';
 import { ordersApi } from '../lib/api';
+import * as XLSX from 'xlsx';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface Order {
   id: number;
@@ -89,8 +91,8 @@ const StatsModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statis
                         <span className="text-sm font-medium text-gray-800 dark:text-gray-200">{partner}</span>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm font-bold text-gray-900 dark:text-gray-100">${data.amount.toLocaleString()}</p>
-                        <p className="text-xs text-gray-400 dark:text-gray-500">{data.count} 台租借</p>
+                        <p className="text-sm font-bold text-gray-900 dark:text-gray-100">${(data as { count: number; amount: number }).amount.toLocaleString()}</p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500">{(data as { count: number; amount: number }).count} 台租借</p>
                       </div>
                     </div>
                   );
@@ -108,9 +110,82 @@ const StatsModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statis
   );
 };
 
+const ChartModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statistics | null }> = ({ isOpen, onClose, stats }) => {
+  if (!isOpen || !stats) return null;
+  
+  const startDate = new Date(stats.month + '-01');
+  const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0);
+  
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-4xl relative animate-in fade-in zoom-in duration-200 overflow-hidden flex flex-col">
+        <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+          <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 flex items-center">
+            <TrendingUp size={20} className="mr-2 text-blue-600 dark:text-blue-400" />
+            合作商業績統計圖表
+          </h2>
+          <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full text-gray-400 dark:text-gray-500">
+            <X size={20} />
+          </button>
+        </div>
+        <div className="p-6 space-y-6 overflow-y-auto max-h-[80vh]">
+          <div className="grid grid-cols-2 gap-4">
+             <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-100 dark:border-blue-800">
+                <p className="text-xs text-blue-600 dark:text-blue-400 font-bold mb-1">全平台總業績</p>
+                <p className="text-2xl font-black text-blue-800 dark:text-blue-300">${stats.total_amount.toLocaleString()}</p>
+             </div>
+             <div className="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-xl border border-orange-100 dark:border-orange-800">
+                <p className="text-xs text-orange-600 dark:text-orange-400 font-bold mb-1">全平台總車次</p>
+                <p className="text-2xl font-black text-orange-800 dark:text-orange-300">{stats.total_count} 台</p>
+             </div>
+          </div>
+          {stats.partner_stats && Object.keys(stats.partner_stats).length > 0 ? (
+            <div className="bg-gray-50 dark:bg-gray-900/50 p-6 rounded-xl">
+              <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4">各合作商業績對比</h3>
+              <ResponsiveContainer width="100%" height={400}>
+                <BarChart data={Object.entries(stats.partner_stats).map(([name, data]) => ({
+                  name: name,
+                  訂單數: (data as { count: number; amount: number }).count,
+                  金額: (data as { count: number; amount: number }).amount,
+                }))}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis 
+                    dataKey="name" 
+                    angle={-45}
+                    textAnchor="end"
+                    height={100}
+                    tick={{ fontSize: 12 }}
+                  />
+                  <YAxis yAxisId="left" orientation="left" label={{ value: '訂單數', angle: -90, position: 'insideLeft' }} />
+                  <YAxis yAxisId="right" orientation="right" label={{ value: '金額 (TWD)', angle: 90, position: 'insideRight' }} />
+                  <Tooltip />
+                  <Legend />
+                  <Bar yAxisId="left" dataKey="訂單數" fill="#3b82f6" name="訂單數" />
+                  <Bar yAxisId="right" dataKey="金額" fill="#10b981" name="金額 (TWD)" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          ) : (
+            <div className="flex items-center justify-center h-[400px] text-gray-500 dark:text-gray-400">
+              <p>目前沒有統計資料</p>
+            </div>
+          )}
+        </div>
+        <div className="p-4 bg-gray-50 dark:bg-gray-800/50 text-center border-t border-gray-100 dark:border-gray-700">
+           <p className="text-xs text-gray-400 dark:text-gray-500 italic">
+             統計週期：{startDate.getFullYear()}/{String(startDate.getMonth() + 1).padStart(2, '0')}/01 - {endDate.getFullYear()}/{String(endDate.getMonth() + 1).padStart(2, '0')}/{endDate.getDate()}
+           </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const OrdersPage: React.FC = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
+  const [isChartModalOpen, setIsChartModalOpen] = useState(false);
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
   const [selectedYear, setSelectedYear] = useState(() => {
     const now = new Date();
@@ -268,14 +343,44 @@ const OrdersPage: React.FC = () => {
     setCurrentPage(1);
   };
 
+  const handleExportExcel = () => {
+    if (!stats) {
+      alert('目前沒有統計資料可匯出');
+      return;
+    }
+
+    // 準備 Excel 數據 - 只包含統計數據
+    const excelData = [
+      {
+        '項目': '單月總台數',
+        '數值': `${stats.total_count || 0} 台`
+      },
+      {
+        '項目': '單月總金額',
+        '數值': `$${(stats.total_amount || 0).toLocaleString()}`
+      }
+    ];
+
+    // 創建工作簿
+    const ws = XLSX.utils.json_to_sheet(excelData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, '統計資料');
+
+    // 生成文件名：export-YYYYMM.xlsx
+    const fileName = `export-${selectedYear}${String(selectedMonth).padStart(2, '0')}.xlsx`;
+
+    // 下載文件
+    XLSX.writeFile(wb, fileName);
+  };
+
   // 獲取可選的年份列表（從 API 獲取）
   const getAvailableYears = () => {
     // 確保當前選中的年份也在列表中（即使 API 沒有返回）
-    const yearsSet = new Set(availableYears);
+    const yearsSet = new Set<number>(availableYears);
     yearsSet.add(selectedYear);
     
     // 轉換為數組並排序
-    const years = Array.from(yearsSet).sort((a, b) => a - b);
+    const years = Array.from(yearsSet).sort((a: number, b: number) => a - b);
     
     // 如果沒有年份，至少顯示當前年份
     return years.length > 0 ? years : [selectedYear];
@@ -360,6 +465,13 @@ const OrdersPage: React.FC = () => {
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">管理與統計全平台租賃訂單 (每月上限 200 組一頁)</p>
         </div>
         <div className="flex items-center space-x-3">
+          <button
+            onClick={handleExportExcel}
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl flex items-center space-x-2 transition-all shadow-sm active:scale-95 text-sm font-medium"
+          >
+            <Download size={16} />
+            <span>匯出 Excel</span>
+          </button>
           <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-1 flex items-center shadow-sm">
              <select 
               className="bg-transparent border-none focus:ring-0 text-sm px-4 py-2 cursor-pointer outline-none font-medium text-gray-600 dark:text-gray-300"
@@ -406,7 +518,7 @@ const OrdersPage: React.FC = () => {
            <div>
               <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">合作商單月統計</p>
               <button 
-                onClick={() => setIsStatsModalOpen(true)}
+                onClick={() => setIsChartModalOpen(true)}
                 className="text-sm font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-500 transition-colors"
               >
                 點擊彈出詳細視窗
@@ -673,6 +785,7 @@ const OrdersPage: React.FC = () => {
         }} 
       />
       <StatsModal isOpen={isStatsModalOpen} onClose={() => setIsStatsModalOpen(false)} stats={stats} />
+      <ChartModal isOpen={isChartModalOpen} onClose={() => setIsChartModalOpen(false)} stats={stats} />
       
       {/* 狀態下拉選單使用 fixed 定位，避免被表格 overflow 裁剪 */}
       {openStatusDropdownId !== null && statusDropdownPosition && orders.find(o => o.id === openStatusDropdownId) && (
