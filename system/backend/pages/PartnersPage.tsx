@@ -32,7 +32,7 @@ const PartnersPage: React.FC = () => {
   const dropdownRefs = useRef<Record<number, HTMLDivElement | null>>({});
   const buttonRefs = useRef<Record<number, HTMLButtonElement | null>>({});
 
-  const inputClasses = "w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all placeholder:text-gray-400 shadow-sm";
+  const inputClasses = "w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-gray-200 shadow-sm";
 
   useEffect(() => {
     fetchPartners();
@@ -212,7 +212,7 @@ const PartnersPage: React.FC = () => {
             <input 
               type="text" 
               placeholder="搜尋合作商名稱、地址或統編..." 
-              className={inputClasses.replace('shadow-sm', '').replace('bg-white', 'bg-white dark:bg-gray-700').replace('text-gray-', 'dark:text-gray-300 text-gray-') + ' pl-11 shadow-none border-gray-200 dark:border-gray-600'}
+              className="w-full pl-11 pr-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-gray-200 shadow-none"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -305,7 +305,7 @@ const PartnersPage: React.FC = () => {
                   </label>
                   <input 
                     type="text" 
-                    className={inputClasses.replace('bg-white', 'bg-white dark:bg-gray-700').replace('text-gray-', 'dark:text-gray-300 text-gray-').replace('border-gray-200', 'border-gray-200 dark:border-gray-600')} 
+                    className={inputClasses}
                     required 
                     placeholder="例如：琉球總店"
                     value={formData.name}
@@ -313,19 +313,19 @@ const PartnersPage: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider flex items-center">
+                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider flex items-center">
                     <MapPin size={14} className="mr-1.5" /> 合作商地址
                   </label>
                   <input 
                     type="text" 
-                    className={inputClasses.replace('bg-white', 'bg-white dark:bg-gray-700').replace('text-gray-', 'dark:text-gray-300 text-gray-').replace('border-gray-200', 'border-gray-200 dark:border-gray-600')} 
+                    className={inputClasses}
                     placeholder="完整的店址"
                     value={formData.address}
                     onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider flex items-center">
+                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider flex items-center">
                     <Phone size={14} className="mr-1.5" /> 聯絡電話
                   </label>
                   <input 
@@ -337,32 +337,33 @@ const PartnersPage: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">
+                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">
                     合作商統編
                   </label>
                   <input 
                     type="text" 
-                    className={inputClasses.replace('bg-white', 'bg-white dark:bg-gray-700').replace('text-gray-', 'dark:text-gray-300 text-gray-').replace('border-gray-200', 'border-gray-200 dark:border-gray-600')} 
+                    className={inputClasses}
                     placeholder="8位數字統編"
                     value={formData.tax_id}
                     onChange={(e) => setFormData({ ...formData, tax_id: e.target.value })}
                   />
                 </div>
                 <div className="col-span-2">
-                  <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">
+                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">
                     商店主管
                   </label>
                   <input 
                     type="text" 
-                    className={inputClasses.replace('bg-white', 'bg-white dark:bg-gray-700').replace('text-gray-', 'dark:text-gray-300 text-gray-').replace('border-gray-200', 'border-gray-200 dark:border-gray-600')} 
+                    className={inputClasses}
+                    placeholder=""
                     value={formData.manager}
                     onChange={(e) => setFormData({ ...formData, manager: e.target.value })}
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-bold text-gray-500 mb-3 uppercase tracking-wider">店面形象照片</label>
-                <div className="border-2 border-dashed border-gray-200 rounded-2xl p-10 text-center bg-gray-50/50 hover:bg-white hover:border-orange-400 transition-all group cursor-pointer relative">
+                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-3 uppercase tracking-wider">店面形象照片</label>
+                <div className="border-2 border-dashed border-gray-200 dark:border-gray-600 rounded-2xl p-10 text-center bg-gray-50/50 dark:bg-gray-700/30 hover:bg-white dark:hover:bg-gray-700/50 hover:border-orange-400 dark:hover:border-orange-500 transition-all group cursor-pointer relative">
                   <input
                     type="file"
                     accept="image/*"
@@ -370,11 +371,11 @@ const PartnersPage: React.FC = () => {
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                   />
                    <div className="flex flex-col items-center">
-                      <div className="p-4 bg-white rounded-2xl shadow-sm mb-3 group-hover:scale-110 transition-transform">
-                        <ImageIcon size={32} className="text-gray-400 group-hover:text-orange-500 transition-colors" />
+                      <div className="p-4 bg-white dark:bg-gray-800 rounded-2xl shadow-sm mb-3 group-hover:scale-110 transition-transform">
+                        <ImageIcon size={32} className="text-gray-400 dark:text-gray-500 group-hover:text-orange-500 transition-colors" />
                       </div>
-                      <p className="text-sm font-bold text-gray-700">拖放檔案，或者 <span className="text-orange-600">點擊瀏覽</span></p>
-                      <p className="text-xs text-gray-400 mt-1 font-medium">建議比例 16:9, 最高支援 10MB JPG/PNG</p>
+                      <p className="text-sm font-bold text-gray-700 dark:text-gray-300">拖放檔案，或者 <span className="text-orange-600 dark:text-orange-400">點擊瀏覽</span></p>
+                      <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 font-medium">建議比例 16:9, 最高支援 10MB JPG/PNG</p>
                       {photoPreview && (
                         <img src={photoPreview} alt="Preview" className="mt-4 max-w-full max-h-48 rounded-lg" />
                       )}

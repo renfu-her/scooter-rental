@@ -15,7 +15,10 @@ export enum ScooterType {
 export enum PaymentMethod {
   CASH = '現金',
   MONTHLY = '月結',
-  DAILY = '日結'
+  DAILY = '日結',
+  TRANSFER = '匯款',
+  CARD = '刷卡',
+  MOBILE = '行動支付'
 }
 
 export enum ShippingCompany {

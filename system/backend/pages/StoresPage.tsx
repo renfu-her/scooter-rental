@@ -205,7 +205,7 @@ const StoresPage: React.FC = () => {
             <input 
               type="text" 
               placeholder="搜尋商店名稱、地址..." 
-              className={inputClasses.replace('shadow-sm', '') + ' pl-11 shadow-none'}
+              className="w-full pl-11 pr-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-gray-200 shadow-none"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />

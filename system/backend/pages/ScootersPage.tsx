@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus, Search, Bike, Edit3, Trash2, X, Loader2, MoreHorizontal } from 'lucide-react';
+import { Plus, Search, Bike, Edit3, Trash2, X, Loader2, MoreHorizontal, ChevronDown } from 'lucide-react';
 import { scootersApi, storesApi } from '../lib/api';
 
 interface Scooter {
@@ -41,7 +41,10 @@ const ScootersPage: React.FC = () => {
   const [dropdownPosition, setDropdownPosition] = useState<{ top: number; right: number } | null>(null);
   const buttonRefs = useRef<Record<number, HTMLButtonElement | null>>({});
 
-  const inputClasses = "w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all placeholder:text-gray-400";
+  const inputClasses = "w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-gray-200 shadow-sm";
+  
+  // Select 專用樣式（確保選項在 dark 模式下清楚可見）
+  const selectClasses = "w-full px-4 py-2.5 pr-10 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all text-gray-900 dark:text-gray-100 appearance-none cursor-pointer shadow-sm";
 
   useEffect(() => {
     fetchScooters();
@@ -408,19 +411,22 @@ const ScootersPage: React.FC = () => {
                   <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">
                     所屬商店 <span className="text-red-500">*</span>
                   </label>
-                  <select 
-                    className={inputClasses.replace('bg-white', 'bg-white dark:bg-gray-700').replace('text-gray-', 'dark:text-gray-300 text-gray-').replace('border-gray-200', 'border-gray-200 dark:border-gray-600')}
-                    value={formData.store_id}
-                    onChange={(e) => setFormData({ ...formData, store_id: e.target.value })}
-                  >
-                    <option value="">請選擇</option>
-                    {stores.map(store => (
-                      <option key={store.id} value={store.id}>{store.name}</option>
-                    ))}
-                  </select>
+                  <div className="relative">
+                    <select 
+                      className={selectClasses}
+                      value={formData.store_id}
+                      onChange={(e) => setFormData({ ...formData, store_id: e.target.value })}
+                    >
+                      <option value="" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">請選擇</option>
+                      {stores.map(store => (
+                        <option key={store.id} value={store.id} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">{store.name}</option>
+                      ))}
+                    </select>
+                    <ChevronDown size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-400 pointer-events-none" />
+                  </div>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">
+                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">
                     車牌號碼 <span className="text-red-500">*</span>
                   </label>
                   <input 
@@ -432,7 +438,7 @@ const ScootersPage: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">
+                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">
                     機車型號 <span className="text-red-500">*</span>
                   </label>
                   <input 
@@ -444,8 +450,8 @@ const ScootersPage: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">
-                    車款顏色 <span className="text-gray-400 font-normal">(非必填)</span>
+                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">
+                    車款顏色 <span className="text-gray-400 dark:text-gray-500 font-normal">(非必填)</span>
                   </label>
                   <input 
                     type="text" 
@@ -456,48 +462,54 @@ const ScootersPage: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">
+                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">
                     車款類型 <span className="text-red-500">*</span>
                   </label>
-                  <select 
-                    className={inputClasses}
-                    value={formData.type}
-                    onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                  >
-                    <option value="白牌">白牌 (Heavy)</option>
-                    <option value="綠牌">綠牌 (Light)</option>
-                    <option value="電輔車">電輔車 (E-Bike)</option>
-                  </select>
+                  <div className="relative">
+                    <select 
+                      className={selectClasses}
+                      value={formData.type}
+                      onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                    >
+                      <option value="白牌" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">白牌 (Heavy)</option>
+                      <option value="綠牌" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">綠牌 (Light)</option>
+                      <option value="電輔車" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">電輔車 (E-Bike)</option>
+                    </select>
+                    <ChevronDown size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-400 pointer-events-none" />
+                  </div>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">
+                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">
                     初始狀態 <span className="text-red-500">*</span>
                   </label>
-                  <select 
-                    className={inputClasses}
-                    value={formData.status}
-                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                  >
-                    <option value="待出租">待出租</option>
-                    <option value="出租中">出租中</option>
-                    <option value="保養中">保養中</option>
-                  </select>
+                  <div className="relative">
+                    <select 
+                      className={selectClasses}
+                      value={formData.status}
+                      onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                    >
+                      <option value="待出租" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">待出租</option>
+                      <option value="出租中" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">出租中</option>
+                      <option value="保養中" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">保養中</option>
+                    </select>
+                    <ChevronDown size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-400 pointer-events-none" />
+                  </div>
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-bold text-gray-500 mb-3 uppercase tracking-wider">機車外觀照片</label>
-                <div className="border-2 border-dashed border-gray-200 rounded-2xl p-10 bg-gray-50/50 flex flex-col items-center justify-center hover:border-orange-400 hover:bg-orange-50/10 cursor-pointer transition-all group relative">
+                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-3 uppercase tracking-wider">機車外觀照片</label>
+                <div className="border-2 border-dashed border-gray-200 dark:border-gray-600 rounded-2xl p-10 bg-gray-50/50 dark:bg-gray-700/30 flex flex-col items-center justify-center hover:border-orange-400 dark:hover:border-orange-500 hover:bg-orange-50/10 dark:hover:bg-gray-700/50 cursor-pointer transition-all group relative">
                   <input
                     type="file"
                     accept="image/*"
                     onChange={handlePhotoChange}
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                   />
-                   <div className="p-4 bg-white rounded-2xl shadow-sm mb-3 group-hover:scale-110 transition-transform">
-                     <Bike size={32} className="text-gray-400 group-hover:text-orange-500 transition-colors" />
+                   <div className="p-4 bg-white dark:bg-gray-800 rounded-2xl shadow-sm mb-3 group-hover:scale-110 transition-transform">
+                     <Bike size={32} className="text-gray-400 dark:text-gray-500 group-hover:text-orange-500 transition-colors" />
                    </div>
-                   <p className="text-sm font-bold text-gray-700">點擊或拖放照片至此</p>
-                   <p className="text-xs text-gray-400 mt-1">建議解析度 1280x720 以上的清晰照片</p>
+                   <p className="text-sm font-bold text-gray-700 dark:text-gray-300">點擊或拖放照片至此</p>
+                   <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">建議解析度 1280x720 以上的清晰照片</p>
                    {photoPreview && (
                      <img src={photoPreview} alt="Preview" className="mt-4 max-w-full max-h-48 rounded-lg" />
                    )}

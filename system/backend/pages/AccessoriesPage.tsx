@@ -38,7 +38,10 @@ const AccessoriesPage: React.FC = () => {
     rent_price: '',
   });
 
-  const inputClasses = "w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all placeholder:text-gray-400 shadow-sm";
+  const inputClasses = "w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-gray-200 shadow-sm";
+  
+  // Select 專用樣式（確保選項在 dark 模式下清楚可見）
+  const selectClasses = "w-full px-4 py-2.5 pr-10 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all text-gray-900 dark:text-gray-100 appearance-none cursor-pointer shadow-sm";
 
   useEffect(() => {
     fetchAccessories();
@@ -232,7 +235,7 @@ const AccessoriesPage: React.FC = () => {
             <input 
               type="text" 
               placeholder="搜尋配件名稱或規格..." 
-              className={inputClasses.replace('shadow-sm', '').replace('bg-white', 'bg-white dark:bg-gray-700').replace('text-gray-', 'dark:text-gray-300 text-gray-').replace('border-gray-200', 'border-gray-200 dark:border-gray-600') + ' pl-11 shadow-none'}
+              className="w-full pl-11 pr-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-gray-200 shadow-none"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -370,20 +373,23 @@ const AccessoriesPage: React.FC = () => {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">所屬類別 <span className="text-red-500">*</span></label>
-                  <select 
-                    className={inputClasses}
-                    value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value as any })}
-                  >
-                    <option value="防護">防護</option>
-                    <option value="配件">配件</option>
-                    <option value="雨具">雨具</option>
-                    <option value="其他">其他</option>
-                  </select>
+                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">所屬類別 <span className="text-red-500">*</span></label>
+                  <div className="relative">
+                    <select 
+                      className={selectClasses}
+                      value={formData.category}
+                      onChange={(e) => setFormData({ ...formData, category: e.target.value as any })}
+                    >
+                      <option value="防護" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">防護</option>
+                      <option value="配件" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">配件</option>
+                      <option value="雨具" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">雨具</option>
+                      <option value="其他" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">其他</option>
+                    </select>
+                    <ChevronDown size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-400 pointer-events-none" />
+                  </div>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">初始庫存量 <span className="text-red-500">*</span></label>
+                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">初始庫存量 <span className="text-red-500">*</span></label>
                   <input 
                     type="number" 
                     className={inputClasses} 
@@ -394,7 +400,7 @@ const AccessoriesPage: React.FC = () => {
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">每日加購租金 (TWD) <span className="text-red-500">*</span></label>
+                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">每日加購租金 (TWD) <span className="text-red-500">*</span></label>
                 <input 
                   type="number" 
                   className={inputClasses} 

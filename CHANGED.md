@@ -1,5 +1,139 @@
 # 變更記錄 (Change Log)
 
+## 2025-12-27 21:50:00 - 統一 PartnersPage 所有輸入框的 placeholder 樣式
+
+### Frontend Changes
+- **PartnersPage.tsx** (`system/backend/pages/PartnersPage.tsx`)
+  - 統一所有輸入框使用 `inputClasses`，移除 `.replace()` 方法
+  - 確保所有輸入框的 placeholder 樣式與電話輸入框一致
+  - 更新以下輸入框：
+    - 合作商名稱：使用統一的 `inputClasses`
+    - 合作商地址：使用統一的 `inputClasses`
+    - 合作商統編：使用統一的 `inputClasses`
+    - 商店主管：使用統一的 `inputClasses`（添加空的 placeholder）
+  - 所有輸入框現在都使用相同的 placeholder 樣式：`placeholder:text-gray-400 dark:placeholder:text-gray-500`
+
+### Features
+- 所有輸入框的 placeholder 在 dark 模式下都有統一的顏色（淺灰色）
+- 移除了不一致的 `.replace()` 方法，使用統一的樣式類別
+- 確保所有輸入框的視覺效果一致
+
+## 2025-12-27 21:45:00 - 修正所有上傳照片區域的文字在 dark 模式下的可見性
+
+### Frontend Changes
+- **PartnersPage.tsx** (`system/backend/pages/PartnersPage.tsx`)
+  - 更新上傳照片區域的樣式：
+    - 邊框：添加 `dark:border-gray-600`
+    - 背景：添加 `dark:bg-gray-700/30` 和 `dark:hover:bg-gray-700/50`
+    - 圖標容器：添加 `dark:bg-gray-800`
+    - 圖標：添加 `dark:text-gray-500`
+    - 主要文字：「拖放檔案，或者 點擊瀏覽」添加 `dark:text-gray-300`
+    - 次要文字：「建議比例 16:9, 最高支援 10MB JPG/PNG」添加 `dark:text-gray-500`
+    - 連結文字：「點擊瀏覽」添加 `dark:text-orange-400`
+- **ScootersPage.tsx** (`system/backend/pages/ScootersPage.tsx`)
+  - 更新上傳照片區域的樣式：
+    - 邊框：添加 `dark:border-gray-600` 和 `dark:hover:border-orange-500`
+    - 背景：添加 `dark:bg-gray-700/30` 和 `dark:hover:bg-gray-700/50`
+    - 圖標容器：添加 `dark:bg-gray-800`
+    - 圖標：添加 `dark:text-gray-500`
+    - 主要文字：「點擊或拖放照片至此」添加 `dark:text-gray-300`
+    - 次要文字：「建議解析度 1280x720 以上的清晰照片」添加 `dark:text-gray-500`
+- **FinesPage.tsx** (`system/backend/pages/FinesPage.tsx`)
+  - 更新上傳照片區域的樣式：
+    - 邊框：添加 `dark:border-gray-600` 和 `dark:hover:border-orange-500`
+    - 背景：添加 `dark:bg-gray-700/30` 和 `dark:hover:bg-gray-700/50`
+    - 圖標容器：添加 `dark:bg-gray-800`
+    - 圖標：添加 `dark:text-gray-500`
+    - 主要文字：「點擊上傳或拍攝照片」添加 `dark:text-gray-300`
+    - 次要文字：「支援格式: JPG, PNG, PDF」添加 `dark:text-gray-500`
+- **StoresPage.tsx** (`system/backend/pages/StoresPage.tsx`)
+  - 已有正確的 dark 模式樣式（無需修改）
+
+### Features
+- 所有上傳照片區域的文字在 dark 模式下都有清楚的顏色
+- 主要文字使用 `dark:text-gray-300`（淺灰色）
+- 次要文字使用 `dark:text-gray-500`（中灰色）
+- 連結文字使用 `dark:text-orange-400`（橙色）
+- 所有上傳區域的背景和邊框在 dark 模式下都有適當的樣式
+
+## 2025-12-27 21:40:00 - 修正所有搜尋輸入框的 placeholder 在 dark 模式下的可見性
+
+### Frontend Changes
+- **所有頁面的搜尋輸入框** (`system/backend/pages/*.tsx`)
+  - **AccessoriesPage.tsx**: 更新搜尋輸入框的 placeholder 樣式，確保在 dark 模式下清楚可見
+  - **PartnersPage.tsx**: 更新搜尋輸入框的 placeholder 樣式，確保在 dark 模式下清楚可見
+  - **StoresPage.tsx**: 更新搜尋輸入框的 placeholder 樣式，確保在 dark 模式下清楚可見
+  - **FinesPage.tsx**: 更新搜尋輸入框的 placeholder 樣式，確保在 dark 模式下清楚可見
+  - **ScootersPage.tsx**: 已有正確的 placeholder 樣式（無需修改）
+  - **OrdersPage.tsx**: 已有正確的 placeholder 樣式（無需修改）
+  - **AdminsPage.tsx**: 已有正確的 placeholder 樣式（無需修改）
+  - 統一所有搜尋輸入框使用 `dark:placeholder:text-gray-500` 樣式，確保 placeholder 文字在 dark 模式下清楚可見
+
+### Features
+- 所有搜尋輸入框的 placeholder 文字在 dark 模式下都有適當的顏色（淺灰色），在深灰色背景上清楚可見
+- 統一了所有搜尋輸入框的樣式，使用完整的 className 而不是 `.replace()` 方法
+
+## 2025-12-27 21:35:00 - 更新付款方式選項並統一所有頁面的 dark 模式樣式
+
+### Frontend Changes
+- **AddOrderModal.tsx** (`system/backend/components/AddOrderModal.tsx`)
+  - 更新付款方式選項：添加「匯款」、「刷卡」、「行動支付」
+  - 排列順序：現金、月結、日結、匯款、刷卡、行動支付
+- **types.ts** (`system/backend/types.ts`)
+  - 更新 `PaymentMethod` enum，添加 `TRANSFER = '匯款'`, `CARD = '刷卡'`, `MOBILE = '行動支付'`
+- **所有頁面** (`system/backend/pages/*.tsx`)
+  - **PartnersPage.tsx**: 更新所有 input 和 label 的 dark 模式樣式
+  - **StoresPage.tsx**: 已有 dark 模式樣式（無需修改）
+  - **ScootersPage.tsx**: 
+    - 更新所有 input 和 label 的 dark 模式樣式
+    - 為所有 select 元素添加 dark 模式樣式和下拉箭頭圖標
+  - **AccessoriesPage.tsx**: 
+    - 更新所有 input 和 label 的 dark 模式樣式
+    - 為所有 select 元素添加 dark 模式樣式和下拉箭頭圖標
+  - **FinesPage.tsx**: 
+    - 更新所有 input 和 label 的 dark 模式樣式
+    - 為所有 select 元素添加 dark 模式樣式和下拉箭頭圖標
+  - 統一所有頁面的 `inputClasses` 和 `selectClasses` 樣式
+  - 所有 label 添加 `dark:text-gray-400` 樣式
+  - 所有 select 元素添加 `ChevronDown` 圖標和 `selectClasses` 樣式
+  - 所有 option 元素添加 `bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100` 樣式
+
+### Backend Changes
+- **OrderController.php** (`app/Http/Controllers/Api/OrderController.php`)
+  - 更新 `payment_method` 驗證規則：`'nullable|in:現金,月結,日結,匯款,刷卡,行動支付'`
+  - 在 `store` 和 `update` 方法中更新驗證規則
+
+### Features
+- 付款方式現在包含 6 個選項，按指定順序排列
+- 所有頁面的輸入框和選單在 dark 模式下都有清楚的樣式
+- 所有選單都有統一的下拉箭頭圖標
+- 所有 label 在 dark 模式下都有適當的文字顏色
+
+## 2025-12-27 07:40:00 - 改善 dark 模式下的選單和按鈕可見性，統一所有輸入框樣式
+
+### Frontend Changes
+- **AddOrderModal.tsx** (`system/backend/components/AddOrderModal.tsx`)
+  - 改善 dark 模式下的選單（select）樣式：
+    - 創建專用的 `selectClasses` 樣式，確保選項在 dark 模式下清楚可見
+    - 為所有 `<option>` 元素添加 `bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100` 樣式
+    - 添加自定義下拉箭頭圖標（ChevronDown），因為使用了 `appearance-none`
+    - 所有 select 元素使用 `relative` 容器包裹，以便定位下拉箭頭
+  - 改善取消按鈕在 dark 模式下的可見性：
+    - 添加背景色 `bg-white dark:bg-gray-700`
+    - 添加邊框 `border border-gray-200 dark:border-gray-600`
+    - 改善文字顏色 `text-gray-600 dark:text-gray-300`
+    - 改善 hover 狀態 `hover:bg-gray-50 dark:hover:bg-gray-600`
+  - 統一所有 label 的 dark 模式樣式：
+    - 所有 label 都添加 `dark:text-gray-400` 樣式，確保在 dark 模式下清楚可見
+  - 改善底部區域的 dark 模式樣式：
+    - 添加 `dark:border-gray-700` 和 `dark:bg-gray-800/50` 樣式
+
+### Features
+- 所有選單在 dark 模式下都有清楚的背景色和文字顏色
+- 取消按鈕在 dark 模式下有明顯的背景和邊框，更容易識別
+- 所有輸入框使用統一的 `inputClasses` 樣式
+- 所有 label 在 dark 模式下都有適當的文字顏色
+
 ## 2025-12-26 22:20:00 - 修改 Excel 匯出格式，按照圖片布局並添加統編欄位
 
 ### Frontend Changes

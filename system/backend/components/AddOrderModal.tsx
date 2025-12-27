@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Search, Calendar, Clock, Phone, FileText, Loader2 } from 'lucide-react';
+import { X, Search, Calendar, Clock, Phone, FileText, Loader2, ChevronDown } from 'lucide-react';
 import { ordersApi, scootersApi, partnersApi } from '../lib/api';
 import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
@@ -72,6 +72,9 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
   });
 
   const inputClasses = "w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-gray-200";
+  
+  // Select 專用樣式（確保選項在 dark 模式下清楚可見）
+  const selectClasses = "w-full px-4 py-2.5 pr-10 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all text-gray-900 dark:text-gray-100 appearance-none cursor-pointer";
 
   // Flatpickr 設定（繁體中文）
   // 為每個實例創建獨立的配置對象，避免共享引用
@@ -327,16 +330,19 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
             <div className="space-y-5">
               <div>
                 <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">合作商選擇</label>
-                <select 
-                  className={inputClasses}
-                  value={formData.partner_id}
-                  onChange={(e) => setFormData({ ...formData, partner_id: e.target.value })}
-                >
-                  <option value="">請選擇合作商（非必選）</option>
-                  {partners.map(partner => (
-                    <option key={partner.id} value={partner.id}>{partner.name}</option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <select 
+                    className={selectClasses}
+                    value={formData.partner_id}
+                    onChange={(e) => setFormData({ ...formData, partner_id: e.target.value })}
+                  >
+                    <option value="" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">請選擇合作商（非必選）</option>
+                    {partners.map(partner => (
+                      <option key={partner.id} value={partner.id} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">{partner.name}</option>
+                    ))}
+                  </select>
+                  <ChevronDown size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-400 pointer-events-none" />
+                </div>
               </div>
 
               <div>
@@ -351,7 +357,7 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider flex items-center">
+                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider flex items-center">
                   <Calendar size={14} className="mr-1.5" /> 預約日期
                 </label>
                 <Flatpickr
@@ -380,7 +386,7 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider flex items-center">
+                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider flex items-center">
                     <Clock size={14} className="mr-1.5" /> 開始時間
                   </label>
                   <Flatpickr
@@ -399,7 +405,7 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider flex items-center">
+                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider flex items-center">
                     <Clock size={14} className="mr-1.5" /> 結束時間
                   </label>
                   <Flatpickr
@@ -420,7 +426,7 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider flex items-center">
+                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider flex items-center">
                   <Clock size={14} className="mr-1.5" /> 預計還車時間
                 </label>
                 <Flatpickr
@@ -442,7 +448,7 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider flex items-center">
+                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider flex items-center">
                   <Phone size={14} className="mr-1.5" /> 聯絡電話
                 </label>
                 <input 
@@ -456,17 +462,20 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
 
               <div>
                 <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">航運公司</label>
-                <select 
-                  className={inputClasses}
-                  value={formData.shipping_company}
-                  onChange={(e) => setFormData({ ...formData, shipping_company: e.target.value })}
-                >
-                  <option value="">請選擇</option>
-                  <option value="泰富">泰富</option>
-                  <option value="藍白">藍白</option>
-                  <option value="聯營">聯營</option>
-                  <option value="大福">大福</option>
-                </select>
+                <div className="relative">
+                  <select 
+                    className={selectClasses}
+                    value={formData.shipping_company}
+                    onChange={(e) => setFormData({ ...formData, shipping_company: e.target.value })}
+                  >
+                    <option value="" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">請選擇</option>
+                    <option value="泰富" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">泰富</option>
+                    <option value="藍白" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">藍白</option>
+                    <option value="聯營" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">聯營</option>
+                    <option value="大福" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">大福</option>
+                  </select>
+                  <ChevronDown size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-400 pointer-events-none" />
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -512,20 +521,26 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
 
               <div>
                 <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">付款方式</label>
-                <select 
-                  className={inputClasses}
-                  value={formData.payment_method}
-                  onChange={(e) => setFormData({ ...formData, payment_method: e.target.value })}
-                >
-                  <option value="">請選擇</option>
-                  <option value="現金">現金</option>
-                  <option value="月結">月結</option>
-                  <option value="日結">日結</option>
-                </select>
+                <div className="relative">
+                  <select 
+                    className={selectClasses}
+                    value={formData.payment_method}
+                    onChange={(e) => setFormData({ ...formData, payment_method: e.target.value })}
+                  >
+                    <option value="" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">請選擇</option>
+                    <option value="現金" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">現金</option>
+                    <option value="月結" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">月結</option>
+                    <option value="日結" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">日結</option>
+                    <option value="匯款" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">匯款</option>
+                    <option value="刷卡" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">刷卡</option>
+                    <option value="行動支付" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">行動支付</option>
+                  </select>
+                  <ChevronDown size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-400 pointer-events-none" />
+                </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider flex items-center">
+                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider flex items-center">
                   <FileText size={14} className="mr-1.5" /> 總金額 <span className="text-red-500 ml-1">*</span>
                 </label>
                 <input 
@@ -539,18 +554,21 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
 
               <div>
                 <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">訂單狀態 <span className="text-red-500">*</span></label>
-                <select 
-                  className={inputClasses}
-                  value={formData.status}
-                  onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                  required
-                >
-                  <option value="已預訂">已預訂</option>
-                  <option value="進行中">進行中</option>
-                  <option value="待接送">待接送</option>
-                  <option value="已完成">已完成</option>
-                  <option value="在合作商">在合作商</option>
-                </select>
+                <div className="relative">
+                  <select 
+                    className={selectClasses}
+                    value={formData.status}
+                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                    required
+                  >
+                    <option value="已預訂" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">已預訂</option>
+                    <option value="進行中" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">進行中</option>
+                    <option value="待接送" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">待接送</option>
+                    <option value="已完成" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">已完成</option>
+                    <option value="在合作商" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">在合作商</option>
+                  </select>
+                  <ChevronDown size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-400 pointer-events-none" />
+                </div>
               </div>
 
               <div>
@@ -654,10 +672,10 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
           </div>
         </div>
 
-        <div className="p-6 border-t border-gray-100 bg-gray-50/50 flex items-center justify-end space-x-4 sticky bottom-0 z-10">
+        <div className="p-6 border-t border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 flex items-center justify-end space-x-4 sticky bottom-0 z-10">
           <button 
             onClick={onClose} 
-            className="px-6 py-2.5 rounded-xl text-sm font-bold text-gray-500 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-700 transition-all"
+            className="px-6 py-2.5 rounded-xl text-sm font-bold text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 transition-all"
             disabled={isSubmitting}
           >
             取消

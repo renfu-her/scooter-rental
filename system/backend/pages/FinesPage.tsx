@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Plus, AlertCircle, CheckCircle2, MoreHorizontal, Camera, X, Loader2, Calendar, Edit3, Trash2 } from 'lucide-react';
+import { Search, Plus, AlertCircle, CheckCircle2, MoreHorizontal, Camera, X, Loader2, Calendar, Edit3, Trash2, ChevronDown } from 'lucide-react';
 import { finesApi, scootersApi } from '../lib/api';
 import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
@@ -46,6 +46,9 @@ const FinesPage: React.FC = () => {
   const buttonRefs = useRef<Record<number, HTMLButtonElement | null>>({});
 
   const inputClasses = "w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-gray-200 shadow-sm";
+  
+  // Select 專用樣式（確保選項在 dark 模式下清楚可見）
+  const selectClasses = "w-full px-4 py-2.5 pr-10 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all text-gray-900 dark:text-gray-100 appearance-none cursor-pointer shadow-sm";
 
   // Flatpickr 設定（繁體中文）
   const dateOptions = React.useMemo(() => ({
@@ -288,7 +291,7 @@ const FinesPage: React.FC = () => {
             <input 
               type="text" 
               placeholder="搜尋車牌、承租人..." 
-              className={inputClasses.replace('shadow-sm', '').replace('bg-white', 'bg-white dark:bg-gray-700').replace('text-gray-', 'dark:text-gray-300 text-gray-').replace('border-gray-200', 'border-gray-200 dark:border-gray-600') + ' pl-11 shadow-none'}
+              className="w-full pl-11 pr-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-gray-200 shadow-none"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -388,7 +391,7 @@ const FinesPage: React.FC = () => {
             <div className="p-8 space-y-5">
               <div className="grid grid-cols-2 gap-5">
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">車牌號碼 <span className="text-red-500">*</span></label>
+                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">車牌號碼 <span className="text-red-500">*</span></label>
                   <select
                     className={inputClasses}
                     value={formData.scooter_id}
@@ -401,7 +404,7 @@ const FinesPage: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">承租人 <span className="text-red-500">*</span></label>
+                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">承租人 <span className="text-red-500">*</span></label>
                   <input 
                     type="text" 
                     className={inputClasses} 
@@ -429,7 +432,7 @@ const FinesPage: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">罰鍰金額 <span className="text-red-500">*</span></label>
+                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">罰鍰金額 <span className="text-red-500">*</span></label>
                   <input 
                     type="number" 
                     className={inputClasses} 
@@ -439,7 +442,7 @@ const FinesPage: React.FC = () => {
                   />
                 </div>
                 <div className="col-span-2">
-                  <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">違規事由 / 類型 <span className="text-red-500">*</span></label>
+                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">違規事由 / 類型 <span className="text-red-500">*</span></label>
                   <input 
                     type="text" 
                     className={inputClasses} 
@@ -449,31 +452,34 @@ const FinesPage: React.FC = () => {
                   />
                 </div>
                 <div className="col-span-2">
-                  <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">繳費狀態 <span className="text-red-500">*</span></label>
-                  <select
-                    className={inputClasses}
-                    value={formData.payment_status}
-                    onChange={(e) => setFormData({ ...formData, payment_status: e.target.value })}
-                  >
-                    <option value="未繳費">未繳費</option>
-                    <option value="已處理">已處理</option>
-                  </select>
+                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">繳費狀態 <span className="text-red-500">*</span></label>
+                  <div className="relative">
+                    <select
+                      className={selectClasses}
+                      value={formData.payment_status}
+                      onChange={(e) => setFormData({ ...formData, payment_status: e.target.value })}
+                    >
+                      <option value="未繳費" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">未繳費</option>
+                      <option value="已處理" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">已處理</option>
+                    </select>
+                    <ChevronDown size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-400 pointer-events-none" />
+                  </div>
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-bold text-gray-500 mb-3 uppercase tracking-wider">罰單影本 / 現場照</label>
-                <div className="border-2 border-dashed border-gray-200 rounded-2xl p-10 text-center bg-gray-50/50 flex flex-col items-center group hover:border-orange-400 hover:bg-white transition-all cursor-pointer relative">
+                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-3 uppercase tracking-wider">罰單影本 / 現場照</label>
+                <div className="border-2 border-dashed border-gray-200 dark:border-gray-600 rounded-2xl p-10 text-center bg-gray-50/50 dark:bg-gray-700/30 flex flex-col items-center group hover:border-orange-400 dark:hover:border-orange-500 hover:bg-white dark:hover:bg-gray-700/50 transition-all cursor-pointer relative">
                   <input
                     type="file"
                     accept="image/*"
                     onChange={handlePhotoChange}
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                   />
-                  <div className="p-4 bg-white rounded-2xl shadow-sm mb-3 group-hover:scale-110 transition-transform">
-                    <Camera size={32} className="text-gray-400 group-hover:text-orange-500 transition-colors" />
+                  <div className="p-4 bg-white dark:bg-gray-800 rounded-2xl shadow-sm mb-3 group-hover:scale-110 transition-transform">
+                    <Camera size={32} className="text-gray-400 dark:text-gray-500 group-hover:text-orange-500 transition-colors" />
                   </div>
-                  <p className="text-sm font-bold text-gray-700">點擊上傳或拍攝照片</p>
-                  <p className="text-xs text-gray-400 mt-1 font-medium italic">支援格式: JPG, PNG, PDF</p>
+                  <p className="text-sm font-bold text-gray-700 dark:text-gray-300">點擊上傳或拍攝照片</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 font-medium italic">支援格式: JPG, PNG, PDF</p>
                   {photoPreview && (
                     <img src={photoPreview} alt="Preview" className="mt-4 max-w-full max-h-48 rounded-lg" />
                   )}
