@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Search, Edit3, Trash2, Phone, Mail, User, X, Loader2, Shield } from 'lucide-react';
 import { usersApi } from '../lib/api';
+import { inputClasses as sharedInputClasses, labelClasses, searchInputClasses, modalCancelButtonClasses, modalSubmitButtonClasses } from '../styles';
 interface Member {
   id: number;
   name: string;
@@ -24,8 +25,7 @@ const MembersPage: React.FC = () => {
     password: '',
     status: 'active' as 'active' | 'inactive',
   });
-
-  const inputClasses = `w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-gray-200 shadow-sm`;
+  const inputClasses = sharedInputClasses;
 
   useEffect(() => {
     fetchMembers();
@@ -247,7 +247,7 @@ const MembersPage: React.FC = () => {
 
             <div className="p-6 space-y-4">
               <div>
-                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">
+                <label className={labelClasses}>
                   姓名 <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -260,7 +260,7 @@ const MembersPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">
+                <label className={labelClasses}>
                   Email <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -273,7 +273,7 @@ const MembersPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">
+                <label className={labelClasses}>
                   電話
                 </label>
                 <input
@@ -286,7 +286,7 @@ const MembersPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">
+                <label className={labelClasses}>
                   {editingMember ? '新密碼（留空則不修改）' : '密碼'} <span className="text-red-500">{!editingMember ? '*' : ''}</span>
                 </label>
                 <input
@@ -299,7 +299,7 @@ const MembersPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">
+                <label className={labelClasses}>
                   狀態
                 </label>
                 <select

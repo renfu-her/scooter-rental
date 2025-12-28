@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, Plus, Package, Edit3, Trash2, ShieldCheck, ShoppingBag, Smartphone, CloudRain, X, Loader2, MoreHorizontal, ChevronDown } from 'lucide-react';
 import { accessoriesApi } from '../lib/api';
+import { inputClasses, selectClasses, labelClasses, searchInputClasses, chevronDownClasses, modalCancelButtonClasses, modalSubmitButtonClasses } from '../styles';
 
 interface Accessory {
   id: number;
@@ -37,11 +38,6 @@ const AccessoriesPage: React.FC = () => {
     stock: '',
     rent_price: '',
   });
-
-  const inputClasses = "w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-gray-200 shadow-sm";
-  
-  // Select 專用樣式（確保選項在 dark 模式下清楚可見）
-  const selectClasses = "w-full px-4 py-2.5 pr-10 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all text-gray-900 dark:text-gray-100 appearance-none cursor-pointer shadow-sm";
 
   useEffect(() => {
     fetchAccessories();
@@ -235,7 +231,7 @@ const AccessoriesPage: React.FC = () => {
             <input 
               type="text" 
               placeholder="搜尋配件名稱或規格..." 
-              className="w-full pl-11 pr-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-gray-200 shadow-none"
+              className={searchInputClasses}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -362,7 +358,7 @@ const AccessoriesPage: React.FC = () => {
             </div>
             <div className="p-8 space-y-5">
               <div>
-                <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">配件完整名稱 <span className="text-red-500">*</span></label>
+                <label className={labelClasses}>配件完整名稱 <span className="text-red-500">*</span></label>
                 <input 
                   type="text" 
                   className={inputClasses} 
@@ -373,7 +369,7 @@ const AccessoriesPage: React.FC = () => {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">所屬類別 <span className="text-red-500">*</span></label>
+                  <label className={labelClasses}>所屬類別 <span className="text-red-500">*</span></label>
                   <div className="relative">
                     <select 
                       className={selectClasses}
@@ -385,11 +381,11 @@ const AccessoriesPage: React.FC = () => {
                       <option value="雨具" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">雨具</option>
                       <option value="其他" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">其他</option>
                     </select>
-                    <ChevronDown size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-400 pointer-events-none" />
+                    <ChevronDown size={18} className={chevronDownClasses} />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">初始庫存量 <span className="text-red-500">*</span></label>
+                  <label className={labelClasses}>初始庫存量 <span className="text-red-500">*</span></label>
                   <input 
                     type="number" 
                     className={inputClasses} 
@@ -400,7 +396,7 @@ const AccessoriesPage: React.FC = () => {
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">每日加購租金 (TWD) <span className="text-red-500">*</span></label>
+                <label className={labelClasses}>每日加購租金 (TWD) <span className="text-red-500">*</span></label>
                 <input 
                   type="number" 
                   className={inputClasses} 
@@ -412,8 +408,8 @@ const AccessoriesPage: React.FC = () => {
               </div>
             </div>
             <div className="p-6 border-t border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 flex justify-end space-x-3 rounded-b-3xl">
-              <button onClick={handleCloseModal} className="px-6 py-2.5 rounded-xl text-sm font-bold text-gray-500 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-700 transition-all">取消</button>
-              <button onClick={handleSubmit} className="px-10 py-2.5 bg-gray-900 dark:bg-gray-700 rounded-xl text-sm font-black text-white hover:bg-black dark:hover:bg-gray-600 shadow-lg active:scale-95 transition-all">
+              <button onClick={handleCloseModal} className={modalCancelButtonClasses}>取消</button>
+              <button onClick={handleSubmit} className={modalSubmitButtonClasses}>
                 {editingAccessory ? '確認更新' : '建立並存檔'}
               </button>
             </div>

@@ -1,5 +1,38 @@
 # 變更記錄 (Change Log)
 
+## 2025-12-28 11:31:00 - 重構 React 代碼：統一共享樣式類別
+
+### Frontend Refactoring
+- **styles.ts** (`system/backend/styles.ts`) - 新建
+  - 創建共享樣式文件，統一管理重複的樣式類別
+  - 定義 `inputClasses`、`selectClasses`、`labelClasses`、`chevronDownClasses`、`searchInputClasses`、`uploadAreaBaseClasses`、`modalCancelButtonClasses`、`modalSubmitButtonClasses`
+  - 消除多個文件中重複定義的樣式類別
+
+- **所有頁面文件更新**：
+  - **PartnersPage.tsx** - 移除重複的 `inputClasses` 定義，改用共享樣式
+  - **ScootersPage.tsx** - 移除重複的 `inputClasses` 和 `selectClasses` 定義，改用共享樣式
+  - **AccessoriesPage.tsx** - 移除重複的樣式定義，改用共享樣式
+  - **FinesPage.tsx** - 移除重複的樣式定義，改用共享樣式
+  - **StoresPage.tsx** - 移除重複的樣式定義，改用共享樣式
+  - **AdminsPage.tsx** - 移除重複的樣式定義，改用共享樣式
+  - **MembersPage.tsx** - 移除重複的樣式定義，改用共享樣式
+  - **AddOrderModal.tsx** - 移除重複的樣式定義，改用共享樣式
+
+### Code Quality Improvements
+- 消除重複代碼：移除了 8 個文件中重複定義的樣式類別
+- 統一維護：所有樣式現在集中在一個文件中，便於維護和更新
+- 保持一致性：確保所有頁面的輸入框、選擇框、標籤等元素使用相同的樣式
+
+### 重複模式總結
+1. **inputClasses** - 在 8 個文件中重複定義，現已統一
+2. **selectClasses** - 在 5 個文件中重複定義，現已統一
+3. **labelClasses** - 在 8 個文件中重複定義（52 處使用），現已統一
+4. **chevronDownClasses** - 在 4 個文件中重複定義（9 處使用），現已統一
+5. **searchInputClasses** - 在 7 個文件中重複定義，現已統一
+6. **uploadAreaBaseClasses** - 在 4 個文件中重複定義，現已統一
+7. **modalCancelButtonClasses** - 在 6 個文件中重複定義，現已統一
+8. **modalSubmitButtonClasses** - 在 6 個文件中重複定義，現已統一
+
 ## 2025-12-27 21:55:00 - 修復 AccessoriesPage 中缺少的 ChevronDown 導入
 
 ### Frontend Changes

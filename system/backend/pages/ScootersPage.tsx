@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Plus, Search, Bike, Edit3, Trash2, X, Loader2, MoreHorizontal, ChevronDown } from 'lucide-react';
 import { scootersApi, storesApi } from '../lib/api';
+import { inputClasses, selectClasses, labelClasses, searchInputClasses, chevronDownClasses, uploadAreaBaseClasses, modalCancelButtonClasses, modalSubmitButtonClasses } from '../styles';
 
 interface Scooter {
   id: number;
@@ -40,11 +41,6 @@ const ScootersPage: React.FC = () => {
   const [openDropdownId, setOpenDropdownId] = useState<number | null>(null);
   const [dropdownPosition, setDropdownPosition] = useState<{ top: number; right: number } | null>(null);
   const buttonRefs = useRef<Record<number, HTMLButtonElement | null>>({});
-
-  const inputClasses = "w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-gray-200 shadow-sm";
-  
-  // Select 專用樣式（確保選項在 dark 模式下清楚可見）
-  const selectClasses = "w-full px-4 py-2.5 pr-10 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all text-gray-900 dark:text-gray-100 appearance-none cursor-pointer shadow-sm";
 
   useEffect(() => {
     fetchScooters();
@@ -317,7 +313,7 @@ const ScootersPage: React.FC = () => {
             <input 
               type="text" 
               placeholder="搜尋車牌、型號..." 
-              className="w-full pl-11 pr-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-gray-200 shadow-sm"
+              className={searchInputClasses}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -408,7 +404,7 @@ const ScootersPage: React.FC = () => {
             <div className="p-8 space-y-6 overflow-y-auto max-h-[70vh]">
               <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">
+                  <label className={labelClasses}>
                     所屬商店 <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
@@ -422,11 +418,11 @@ const ScootersPage: React.FC = () => {
                         <option key={store.id} value={store.id} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">{store.name}</option>
                       ))}
                     </select>
-                    <ChevronDown size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-400 pointer-events-none" />
+                    <ChevronDown size={18} className={chevronDownClasses} />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">
+                  <label className={labelClasses}>
                     車牌號碼 <span className="text-red-500">*</span>
                   </label>
                   <input 
@@ -438,7 +434,7 @@ const ScootersPage: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">
+                  <label className={labelClasses}>
                     機車型號 <span className="text-red-500">*</span>
                   </label>
                   <input 
@@ -450,7 +446,7 @@ const ScootersPage: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">
+                  <label className={labelClasses}>
                     車款顏色 <span className="text-gray-400 dark:text-gray-500 font-normal">(非必填)</span>
                   </label>
                   <input 
@@ -462,7 +458,7 @@ const ScootersPage: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">
+                  <label className={labelClasses}>
                     車款類型 <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
@@ -475,11 +471,11 @@ const ScootersPage: React.FC = () => {
                       <option value="綠牌" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">綠牌 (Light)</option>
                       <option value="電輔車" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">電輔車 (E-Bike)</option>
                     </select>
-                    <ChevronDown size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-400 pointer-events-none" />
+                    <ChevronDown size={18} className={chevronDownClasses} />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">
+                  <label className={labelClasses}>
                     初始狀態 <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
@@ -492,7 +488,7 @@ const ScootersPage: React.FC = () => {
                       <option value="出租中" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">出租中</option>
                       <option value="保養中" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">保養中</option>
                     </select>
-                    <ChevronDown size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-400 pointer-events-none" />
+                    <ChevronDown size={18} className={chevronDownClasses} />
                   </div>
                 </div>
               </div>
@@ -517,8 +513,8 @@ const ScootersPage: React.FC = () => {
               </div>
             </div>
             <div className="p-6 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 flex justify-end space-x-3 rounded-b-2xl">
-              <button onClick={handleCloseModal} className="px-6 py-2.5 rounded-xl text-sm font-bold text-gray-500 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-700 hover:text-gray-700 dark:hover:text-gray-200 transition-all">取消</button>
-              <button onClick={handleSubmit} className="px-10 py-2.5 bg-gray-900 dark:bg-gray-700 rounded-xl text-sm font-black text-white hover:bg-black dark:hover:bg-gray-600 shadow-lg active:scale-95 transition-all">
+              <button onClick={handleCloseModal} className={modalCancelButtonClasses}>取消</button>
+              <button onClick={handleSubmit} className={modalSubmitButtonClasses}>
                 {editingScooter ? '確認更新' : '完成建立'}
               </button>
             </div>

@@ -5,6 +5,7 @@ import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 import flatpickr from 'flatpickr';
 import { MandarinTraditional } from 'flatpickr/dist/l10n/zh-tw.js';
+import { inputClasses as sharedInputClasses, selectClasses as sharedSelectClasses, labelClasses, chevronDownClasses } from '../styles';
 
 interface Order {
   id: number;
@@ -70,11 +71,8 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
     status: '已預訂',
     remark: '',
   });
-
-  const inputClasses = "w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-gray-200";
-  
-  // Select 專用樣式（確保選項在 dark 模式下清楚可見）
-  const selectClasses = "w-full px-4 py-2.5 pr-10 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all text-gray-900 dark:text-gray-100 appearance-none cursor-pointer";
+  const inputClasses = sharedInputClasses;
+  const selectClasses = sharedSelectClasses;
 
   // Flatpickr 設定（繁體中文）
   // 為每個實例創建獨立的配置對象，避免共享引用
@@ -341,12 +339,12 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
                       <option key={partner.id} value={partner.id} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">{partner.name}</option>
                     ))}
                   </select>
-                  <ChevronDown size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-400 pointer-events-none" />
+                  <ChevronDown size={18} className={chevronDownClasses} />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">承租人資訊</label>
+                <label className={labelClasses}>承租人資訊</label>
                 <input 
                   type="text" 
                   className={inputClasses} 
@@ -357,7 +355,7 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider flex items-center">
+                <label className={`${labelClasses} flex items-center`}>
                   <Calendar size={14} className="mr-1.5" /> 預約日期
                 </label>
                 <Flatpickr
@@ -386,7 +384,7 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider flex items-center">
+                  <label className={`${labelClasses} flex items-center`}>
                     <Clock size={14} className="mr-1.5" /> 開始時間
                   </label>
                   <Flatpickr
@@ -405,7 +403,7 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider flex items-center">
+                  <label className={`${labelClasses} flex items-center`}>
                     <Clock size={14} className="mr-1.5" /> 結束時間
                   </label>
                   <Flatpickr
@@ -426,7 +424,7 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider flex items-center">
+                <label className={`${labelClasses} flex items-center`}>
                   <Clock size={14} className="mr-1.5" /> 預計還車時間
                 </label>
                 <Flatpickr
@@ -448,7 +446,7 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider flex items-center">
+                <label className={`${labelClasses} flex items-center`}>
                   <Phone size={14} className="mr-1.5" /> 聯絡電話
                 </label>
                 <input 
@@ -461,7 +459,7 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">航運公司</label>
+                <label className={labelClasses}>航運公司</label>
                 <div className="relative">
                   <select 
                     className={selectClasses}
@@ -474,13 +472,13 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
                     <option value="聯營" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">聯營</option>
                     <option value="大福" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">大福</option>
                   </select>
-                  <ChevronDown size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-400 pointer-events-none" />
+                  <ChevronDown size={18} className={chevronDownClasses} />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">船班時間（來）</label>
+                  <label className={labelClasses}>船班時間（來）</label>
                   <Flatpickr
                     key="ship_arrival_time"
                     className={inputClasses}
@@ -499,7 +497,7 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">船班時間（回）</label>
+                  <label className={labelClasses}>船班時間（回）</label>
                   <Flatpickr
                     key="ship_return_time"
                     className={inputClasses}
@@ -520,7 +518,7 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">付款方式</label>
+                <label className={labelClasses}>付款方式</label>
                 <div className="relative">
                   <select 
                     className={selectClasses}
@@ -535,12 +533,12 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
                     <option value="刷卡" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">刷卡</option>
                     <option value="行動支付" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">行動支付</option>
                   </select>
-                  <ChevronDown size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-400 pointer-events-none" />
+                  <ChevronDown size={18} className={chevronDownClasses} />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider flex items-center">
+                <label className={`${labelClasses} flex items-center`}>
                   <FileText size={14} className="mr-1.5" /> 總金額 <span className="text-red-500 ml-1">*</span>
                 </label>
                 <input 
@@ -553,7 +551,7 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">訂單狀態 <span className="text-red-500">*</span></label>
+                <label className={labelClasses}>訂單狀態 <span className="text-red-500">*</span></label>
                 <div className="relative">
                   <select 
                     className={selectClasses}
@@ -567,12 +565,12 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
                     <option value="已完成" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">已完成</option>
                     <option value="在合作商" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">在合作商</option>
                   </select>
-                  <ChevronDown size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-400 pointer-events-none" />
+                  <ChevronDown size={18} className={chevronDownClasses} />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">備註</label>
+                <label className={labelClasses}>備註</label>
                 <textarea 
                   className={inputClasses}
                   rows={3}

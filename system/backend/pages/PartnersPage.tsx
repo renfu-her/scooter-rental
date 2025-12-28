@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Plus, Search, Edit3, Trash2, MapPin, Phone, Building, Image as ImageIcon, X, Loader2, MoreHorizontal } from 'lucide-react';
 import { partnersApi } from '../lib/api';
+import { inputClasses, labelClasses, searchInputClasses, uploadAreaBaseClasses, modalCancelButtonClasses, modalSubmitButtonClasses } from '../styles';
 
 interface Partner {
   id: number;
@@ -31,8 +32,6 @@ const PartnersPage: React.FC = () => {
   const [dropdownPosition, setDropdownPosition] = useState<{ top: number; right: number } | null>(null);
   const dropdownRefs = useRef<Record<number, HTMLDivElement | null>>({});
   const buttonRefs = useRef<Record<number, HTMLButtonElement | null>>({});
-
-  const inputClasses = "w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-gray-200 shadow-sm";
 
   useEffect(() => {
     fetchPartners();
@@ -212,7 +211,7 @@ const PartnersPage: React.FC = () => {
             <input 
               type="text" 
               placeholder="搜尋合作商名稱、地址或統編..." 
-              className="w-full pl-11 pr-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-gray-200 shadow-none"
+              className={searchInputClasses}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -300,7 +299,7 @@ const PartnersPage: React.FC = () => {
             <div className="p-8 space-y-6">
               <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider flex items-center">
+                  <label className={`${labelClasses} flex items-center`}>
                     <Building size={14} className="mr-1.5" /> 合作商名稱 <span className="text-red-500 ml-1">*</span>
                   </label>
                   <input 
@@ -313,7 +312,7 @@ const PartnersPage: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider flex items-center">
+                  <label className={`${labelClasses} flex items-center`}>
                     <MapPin size={14} className="mr-1.5" /> 合作商地址
                   </label>
                   <input 
@@ -325,7 +324,7 @@ const PartnersPage: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider flex items-center">
+                  <label className={`${labelClasses} flex items-center`}>
                     <Phone size={14} className="mr-1.5" /> 聯絡電話
                   </label>
                   <input 
@@ -337,7 +336,7 @@ const PartnersPage: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">
+                  <label className={labelClasses}>
                     合作商統編
                   </label>
                   <input 
@@ -349,7 +348,7 @@ const PartnersPage: React.FC = () => {
                   />
                 </div>
                 <div className="col-span-2">
-                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">
+                  <label className={labelClasses}>
                     商店主管
                   </label>
                   <input 
@@ -362,8 +361,8 @@ const PartnersPage: React.FC = () => {
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-3 uppercase tracking-wider">店面形象照片</label>
-                <div className="border-2 border-dashed border-gray-200 dark:border-gray-600 rounded-2xl p-10 text-center bg-gray-50/50 dark:bg-gray-700/30 hover:bg-white dark:hover:bg-gray-700/50 hover:border-orange-400 dark:hover:border-orange-500 transition-all group cursor-pointer relative">
+                <label className={`${labelClasses} mb-3`}>店面形象照片</label>
+                <div className={uploadAreaBaseClasses}>
                   <input
                     type="file"
                     accept="image/*"
@@ -384,8 +383,8 @@ const PartnersPage: React.FC = () => {
               </div>
             </div>
             <div className="p-6 border-t border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 flex justify-end space-x-3 rounded-b-3xl">
-              <button onClick={handleCloseModal} className="px-6 py-2.5 rounded-xl text-sm font-bold text-gray-500 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-700 transition-all">取消</button>
-              <button onClick={handleSubmit} className="px-10 py-2.5 bg-gray-900 dark:bg-gray-700 rounded-xl text-sm font-black text-white hover:bg-black dark:hover:bg-gray-600 shadow-lg active:scale-95 transition-all">
+              <button onClick={handleCloseModal} className={modalCancelButtonClasses}>取消</button>
+              <button onClick={handleSubmit} className={modalSubmitButtonClasses}>
                 {editingPartner ? '確認更新' : '確認建立'}
               </button>
             </div>

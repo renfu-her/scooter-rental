@@ -4,6 +4,7 @@ import { finesApi, scootersApi } from '../lib/api';
 import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 import { MandarinTraditional } from 'flatpickr/dist/l10n/zh-tw.js';
+import { inputClasses, selectClasses, labelClasses, searchInputClasses, chevronDownClasses, uploadAreaBaseClasses, modalCancelButtonClasses, modalSubmitButtonClasses } from '../styles';
 
 interface Fine {
   id: number;
@@ -44,11 +45,6 @@ const FinesPage: React.FC = () => {
   const [openDropdownId, setOpenDropdownId] = useState<number | null>(null);
   const [dropdownPosition, setDropdownPosition] = useState<{ top: number; right: number } | null>(null);
   const buttonRefs = useRef<Record<number, HTMLButtonElement | null>>({});
-
-  const inputClasses = "w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-gray-200 shadow-sm";
-  
-  // Select 專用樣式（確保選項在 dark 模式下清楚可見）
-  const selectClasses = "w-full px-4 py-2.5 pr-10 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all text-gray-900 dark:text-gray-100 appearance-none cursor-pointer shadow-sm";
 
   // Flatpickr 設定（繁體中文）
   const dateOptions = React.useMemo(() => ({
@@ -291,7 +287,7 @@ const FinesPage: React.FC = () => {
             <input 
               type="text" 
               placeholder="搜尋車牌、承租人..." 
-              className="w-full pl-11 pr-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-gray-200 shadow-none"
+              className={searchInputClasses}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -391,7 +387,7 @@ const FinesPage: React.FC = () => {
             <div className="p-8 space-y-5">
               <div className="grid grid-cols-2 gap-5">
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">車牌號碼 <span className="text-red-500">*</span></label>
+                  <label className={labelClasses}>車牌號碼 <span className="text-red-500">*</span></label>
                   <select
                     className={inputClasses}
                     value={formData.scooter_id}
@@ -404,7 +400,7 @@ const FinesPage: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">承租人 <span className="text-red-500">*</span></label>
+                  <label className={labelClasses}>承租人 <span className="text-red-500">*</span></label>
                   <input 
                     type="text" 
                     className={inputClasses} 
@@ -414,7 +410,7 @@ const FinesPage: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider flex items-center">
+                  <label className={`${labelClasses} flex items-center`}>
                     <Calendar size={14} className="mr-1.5" /> 違規日期 <span className="text-red-500 ml-1">*</span>
                   </label>
                   <Flatpickr
@@ -432,7 +428,7 @@ const FinesPage: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">罰鍰金額 <span className="text-red-500">*</span></label>
+                  <label className={labelClasses}>罰鍰金額 <span className="text-red-500">*</span></label>
                   <input 
                     type="number" 
                     className={inputClasses} 
@@ -442,7 +438,7 @@ const FinesPage: React.FC = () => {
                   />
                 </div>
                 <div className="col-span-2">
-                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">違規事由 / 類型 <span className="text-red-500">*</span></label>
+                  <label className={labelClasses}>違規事由 / 類型 <span className="text-red-500">*</span></label>
                   <input 
                     type="text" 
                     className={inputClasses} 
@@ -452,7 +448,7 @@ const FinesPage: React.FC = () => {
                   />
                 </div>
                 <div className="col-span-2">
-                  <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">繳費狀態 <span className="text-red-500">*</span></label>
+                  <label className={labelClasses}>繳費狀態 <span className="text-red-500">*</span></label>
                   <div className="relative">
                     <select
                       className={selectClasses}
@@ -462,13 +458,13 @@ const FinesPage: React.FC = () => {
                       <option value="未繳費" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">未繳費</option>
                       <option value="已處理" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">已處理</option>
                     </select>
-                    <ChevronDown size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-400 pointer-events-none" />
+                    <ChevronDown size={18} className={chevronDownClasses} />
                   </div>
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-3 uppercase tracking-wider">罰單影本 / 現場照</label>
-                <div className="border-2 border-dashed border-gray-200 dark:border-gray-600 rounded-2xl p-10 text-center bg-gray-50/50 dark:bg-gray-700/30 flex flex-col items-center group hover:border-orange-400 dark:hover:border-orange-500 hover:bg-white dark:hover:bg-gray-700/50 transition-all cursor-pointer relative">
+                <label className={`${labelClasses} mb-3`}>罰單影本 / 現場照</label>
+                <div className={`${uploadAreaBaseClasses} flex flex-col items-center`}>
                   <input
                     type="file"
                     accept="image/*"
@@ -487,8 +483,8 @@ const FinesPage: React.FC = () => {
               </div>
             </div>
             <div className="p-6 border-t border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 flex justify-end space-x-3 rounded-b-3xl">
-              <button onClick={handleCloseModal} className="px-6 py-2.5 rounded-xl text-sm font-bold text-gray-500 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-700 transition-all">取消</button>
-              <button onClick={handleSubmit} className="px-10 py-2.5 bg-gray-900 dark:bg-gray-700 rounded-xl text-sm font-black text-white hover:bg-black dark:hover:bg-gray-600 shadow-lg active:scale-95 transition-all">
+              <button onClick={handleCloseModal} className={modalCancelButtonClasses}>取消</button>
+              <button onClick={handleSubmit} className={modalSubmitButtonClasses}>
                 {editingFine ? '確認更新' : '確認登記'}
               </button>
             </div>
