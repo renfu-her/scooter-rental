@@ -1,16 +1,27 @@
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import DashboardLayout from './components/DashboardLayout';
 import LoginPage from './pages/LoginPage';
-import OrdersPage from './pages/OrdersPage';
-import PartnersPage from './pages/PartnersPage';
-import StoresPage from './pages/StoresPage';
-import ScootersPage from './pages/ScootersPage';
-import FinesPage from './pages/FinesPage';
-import AccessoriesPage from './pages/AccessoriesPage';
-import AdminsPage from './pages/AdminsPage';
+
+// Lazy load page components for code-splitting
+const OrdersPage = React.lazy(() => import('./pages/OrdersPage'));
+const PartnersPage = React.lazy(() => import('./pages/PartnersPage'));
+const StoresPage = React.lazy(() => import('./pages/StoresPage'));
+const ScootersPage = React.lazy(() => import('./pages/ScootersPage'));
+const FinesPage = React.lazy(() => import('./pages/FinesPage'));
+const AccessoriesPage = React.lazy(() => import('./pages/AccessoriesPage'));
+const AdminsPage = React.lazy(() => import('./pages/AdminsPage'));
+
+const LoadingFallback: React.FC = () => (
+  <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+    <div className="text-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto"></div>
+      <p className="mt-4 text-gray-500 dark:text-gray-400">載入中...</p>
+    </div>
+  </div>
+);
 
 const ProtectedRoute: React.FC<{ children: React.ReactElement }> = ({ children }) => {
   const { user, loading } = useAuth();
@@ -45,13 +56,41 @@ const App: React.FC = () => {
             </ProtectedRoute>
           }>
             <Route index element={<Navigate to="/orders" replace />} />
-            <Route path="orders" element={<OrdersPage />} />
-            <Route path="partners" element={<PartnersPage />} />
-            <Route path="stores" element={<StoresPage />} />
-            <Route path="scooters" element={<ScootersPage />} />
-            <Route path="fines" element={<FinesPage />} />
-            <Route path="accessories" element={<AccessoriesPage />} />
-            <Route path="admins" element={<AdminsPage />} />
+            <Route path="orders" element={
+              <Suspense fallback={<LoadingFallback />}>
+                <OrdersPage />
+              </Suspense>
+            } />
+            <Route path="partners" element={
+              <Suspense fallback={<LoadingFallback />}>
+                <PartnersPage />
+              </Suspense>
+            } />
+            <Route path="stores" element={
+              <Suspense fallback={<LoadingFallback />}>
+                <StoresPage />
+              </Suspense>
+            } />
+            <Route path="scooters" element={
+              <Suspense fallback={<LoadingFallback />}>
+                <ScootersPage />
+              </Suspense>
+            } />
+            <Route path="fines" element={
+              <Suspense fallback={<LoadingFallback />}>
+                <FinesPage />
+              </Suspense>
+            } />
+            <Route path="accessories" element={
+              <Suspense fallback={<LoadingFallback />}>
+                <AccessoriesPage />
+              </Suspense>
+            } />
+            <Route path="admins" element={
+              <Suspense fallback={<LoadingFallback />}>
+                <AdminsPage />
+              </Suspense>
+            } />
           </Route>
         </Routes>
       </HashRouter>
