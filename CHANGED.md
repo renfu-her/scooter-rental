@@ -1,5 +1,49 @@
 # 變更記錄 (Change Log)
 
+## 2025-12-28 20:51:00 - 訂單管理列表排序和拖拽功能 / Order Management List Sorting and Drag-to-Reorder Features
+
+### Frontend Changes
+- **OrdersPage.tsx** (`system/backend/pages/OrdersPage.tsx`)
+  - 添加排序選項狀態：`sortByStatus`, `sortByStartTime`, `sortByEndTime`, `sortByExpectedReturnTime`
+  - 添加拖拽排序狀態：`draggedOrderId`, `draggedOverOrderId`, `manualOrder`
+  - 添加備註展開狀態：`expandedRemarks`
+  - 實現排序邏輯：
+    - 默認按預約日期升序排序
+    - 狀態排序：進行中、待接送、在合作商、已預訂、已完成（按此順序）
+    - 日期排序（租借開始、租借結束、預計還車）：由近而遠（降序）
+    - 支援多個排序條件組合（按優先級排序）
+  - 實現拖拽排序功能：
+    - 表格行設置為可拖拽（`draggable={true}`）
+    - 使用 HTML5 拖拽 API 實現拖拽排序
+    - 拖拽時顯示視覺反饋（透明度、邊框高亮）
+    - 拖拽完成後自動清除所有排序選項，使用手動排序
+  - 實現備註展開功能：
+    - 備註文字超過20個字符時顯示「展開」按鈕
+    - 點擊展開後顯示完整備註內容和「收起」按鈕
+    - 使用 `Set` 追蹤已展開的備註
+  - 添加排序選項UI：
+    - 顯示「默認排序: 預約日期」提示
+    - 四個可勾選的排序選項：狀態、租借日期、租借結束、預計還車
+    - 使用自定義樣式的複選框，勾選時顯示 Check 圖標
+
+### Features
+- **默認排序**：按預約日期升序排序
+- **多條件排序**：可同時勾選多個排序選項，按優先級排序（狀態 > 租借日期 > 租借結束 > 預計還車）
+- **狀態排序**：按固定順序排序（進行中、待接送、在合作商、已預訂、已完成）
+- **日期排序**：租借日期、租借結束、預計還車按日期由近而遠（降序）排序
+- **拖拽排序**：可以使用滑鼠拖拽表格行來自由調整順序，無論當前選擇何種排序方式都可使用
+- **手動排序優先**：當進行拖拽排序後，自動清除所有排序選項，使用手動排序順序
+- **備註展開**：長備註文字可以點擊展開查看完整內容，點擊收起恢復截斷顯示
+- **視覺反饋**：拖拽時顯示透明度變化，拖拽目標位置顯示橙色邊框
+
+### Technical Details
+- 使用 `useMemo` 計算排序後的訂單列表
+- 使用 `useRef` 存儲最新的排序結果，供拖拽處理函數訪問
+- 使用 HTML5 原生拖拽 API（`draggable`, `onDragStart`, `onDragOver`, `onDragEnd`, `onDragLeave`）
+- 狀態管理使用 React Hooks（`useState`, `useMemo`, `useRef`）
+- 排序邏輯支援多條件組合，按優先級依次應用
+- 支援深色模式
+
 ## 2025-12-28 20:38:44 - 為列表添加圖片顯示和點擊放大功能 / Add Image Display and Click-to-Zoom in List Views
 
 ### Frontend Changes
