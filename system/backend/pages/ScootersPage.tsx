@@ -41,6 +41,8 @@ const ScootersPage: React.FC = () => {
   const [openDropdownId, setOpenDropdownId] = useState<number | null>(null);
   const [dropdownPosition, setDropdownPosition] = useState<{ top: number; right: number } | null>(null);
   const buttonRefs = useRef<Record<number, HTMLButtonElement | null>>({});
+  const [imageViewerOpen, setImageViewerOpen] = useState(false);
+  const [imageViewerUrl, setImageViewerUrl] = useState<string | null>(null);
 
   useEffect(() => {
     fetchScooters();
@@ -507,7 +509,16 @@ const ScootersPage: React.FC = () => {
                    <p className="text-sm font-bold text-gray-700 dark:text-gray-300">點擊或拖放照片至此</p>
                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">建議解析度 1280x720 以上的清晰照片</p>
                    {photoPreview && (
-                     <img src={photoPreview} alt="Preview" className="mt-4 max-w-full max-h-48 rounded-lg" />
+                     <img 
+                       src={photoPreview} 
+                       alt="Preview" 
+                       className="mt-4 max-w-full max-h-48 rounded-lg cursor-pointer hover:opacity-90 transition-opacity" 
+                       onClick={(e) => {
+                         e.stopPropagation();
+                         setImageViewerUrl(photoPreview);
+                         setImageViewerOpen(true);
+                       }}
+                     />
                    )}
                 </div>
               </div>
@@ -563,6 +574,24 @@ const ScootersPage: React.FC = () => {
             })()}
           </div>
         </>
+      )}
+
+      {/* 圖片放大查看器 */}
+      {imageViewerOpen && imageViewerUrl && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/90" onClick={() => setImageViewerOpen(false)}>
+          <button 
+            onClick={() => setImageViewerOpen(false)}
+            className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors"
+          >
+            <X size={24} />
+          </button>
+          <img 
+            src={imageViewerUrl} 
+            alt="Full size" 
+            className="max-w-full max-h-[90vh] object-contain rounded-lg"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
       )}
     </div>
   );
