@@ -332,6 +332,7 @@ const ScootersPage: React.FC = () => {
             <table className="w-full text-left text-sm whitespace-nowrap">
               <thead className="bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 font-bold uppercase tracking-wider text-[11px]">
                 <tr>
+                  <th className="px-6 py-5">機車照片</th>
                   <th className="px-6 py-5">車牌號碼</th>
                   <th className="px-6 py-5">機車型號</th>
                   <th className="px-6 py-5">車款類型</th>
@@ -344,13 +345,32 @@ const ScootersPage: React.FC = () => {
               <tbody className="divide-y divide-gray-100">
                 {scooters.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
+                    <td colSpan={8} className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
                       目前沒有機車資料
                     </td>
                   </tr>
                 ) : (
                   scooters.map((scooter) => (
                     <tr key={scooter.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-700/50 group transition-colors">
+                      <td className="px-6 py-5">
+                        <div className="w-20 h-12 bg-gray-100 dark:bg-gray-700 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-600 shadow-inner">
+                          {scooter.photo_path ? (
+                            <img 
+                              src={scooter.photo_path} 
+                              alt="機車照片" 
+                              className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                              onClick={() => {
+                                setImageViewerUrl(scooter.photo_path);
+                                setImageViewerOpen(true);
+                              }}
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500">
+                              <Bike size={20} />
+                            </div>
+                          )}
+                        </div>
+                      </td>
                       <td className="px-6 py-5 font-black text-gray-900 dark:text-gray-100">{scooter.plate_number}</td>
                       <td className="px-6 py-5 text-gray-700 dark:text-gray-300 font-bold">{scooter.model}</td>
                       <td className="px-6 py-5">

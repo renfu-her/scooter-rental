@@ -1,5 +1,44 @@
 # 變更記錄 (Change Log)
 
+## 2025-12-28 20:38:44 - 為列表添加圖片顯示和點擊放大功能 / Add Image Display and Click-to-Zoom in List Views
+
+### Frontend Changes
+- **FinesPage.tsx** (`system/backend/pages/FinesPage.tsx`)
+  - 在罰單列表中添加「罰單照片」列作為第一列
+  - 顯示罰單照片縮圖（20x12，圓角），無照片時顯示相機圖標
+  - 圖片添加點擊事件，點擊後打開全屏圖片查看器
+  - 更新 colSpan 從 7 改為 8 以適應新增的照片列
+
+- **ScootersPage.tsx** (`system/backend/pages/ScootersPage.tsx`)
+  - 在機車列表中添加「機車照片」列作為第一列
+  - 顯示機車照片縮圖（20x12，圓角），無照片時顯示機車圖標
+  - 圖片添加點擊事件，點擊後打開全屏圖片查看器
+  - 更新 colSpan 從 7 改為 8 以適應新增的照片列
+
+- **PartnersPage.tsx** (`system/backend/pages/PartnersPage.tsx`)
+  - 為現有的「店面照片」列表圖片添加點擊放大功能
+  - 圖片添加 `cursor-pointer` 和 `hover:opacity-90` 樣式
+  - 圖片添加點擊事件，點擊後打開全屏圖片查看器
+  - 添加深色模式支援（dark:bg-gray-700, dark:border-gray-600）
+
+### Features
+- 所有列表現在都顯示圖片縮圖
+- 點擊列表中的圖片可以全屏放大查看
+- 圖片縮圖使用統一的樣式（20x12，圓角，邊框，陰影）
+- 無照片時顯示對應的圖標（罰單：Camera，機車：Bike，合作商：ImageIcon）
+- 圖片點擊後顯示全屏圖片查看器，支援點擊背景或 X 按鈕關閉
+- 圖片查看器已在編輯模态框中實現，現在列表中也使用相同的查看器
+
+### Technical Details
+- 使用現有的 `imageViewerOpen` 和 `imageViewerUrl` 狀態管理圖片查看器
+- 圖片容器使用 `w-20 h-12` 尺寸，`rounded-xl` 圓角
+- 圖片使用 `object-cover` 填充容器
+- 點擊事件直接設置 `imageViewerUrl` 並打開查看器
+- 支援深色模式
+
+### Notes
+- AccessoriesPage（機車配件）沒有照片字段，因此不需要添加圖片顯示功能
+
 ## 2025-12-28 20:30:00 - 為上傳圖片添加點擊放大查看功能 / Add Image Click-to-Zoom Functionality for Uploaded Images
 
 ### Frontend Changes

@@ -306,6 +306,7 @@ const FinesPage: React.FC = () => {
             <table className="w-full text-left text-sm whitespace-nowrap">
               <thead className="bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 font-bold uppercase tracking-wider text-[11px]">
                 <tr>
+                  <th className="px-6 py-5">罰單照片</th>
                   <th className="px-6 py-5">車牌號碼</th>
                   <th className="px-6 py-5">承租人</th>
                   <th className="px-6 py-5">違規日期</th>
@@ -318,7 +319,7 @@ const FinesPage: React.FC = () => {
               <tbody className="divide-y divide-gray-100">
                 {fines.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="px-6 py-12 text-center">
+                    <td colSpan={8} className="px-6 py-12 text-center">
                       <div className="flex flex-col items-center justify-center">
                         <AlertCircle size={48} className="text-gray-300 dark:text-gray-600 mb-4" />
                         <p className="text-gray-500 dark:text-gray-400 font-medium text-base">
@@ -337,6 +338,25 @@ const FinesPage: React.FC = () => {
                 ) : (
                   fines.map((fine) => (
                     <tr key={fine.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-colors">
+                      <td className="px-6 py-5">
+                        <div className="w-20 h-12 bg-gray-100 dark:bg-gray-700 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-600 shadow-inner">
+                          {fine.photo_path ? (
+                            <img 
+                              src={fine.photo_path} 
+                              alt="罰單照片" 
+                              className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                              onClick={() => {
+                                setImageViewerUrl(fine.photo_path);
+                                setImageViewerOpen(true);
+                              }}
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500">
+                              <Camera size={20} />
+                            </div>
+                          )}
+                        </div>
+                      </td>
                       <td className="px-6 py-5 font-black text-gray-900 dark:text-gray-100 text-base tracking-tight">
                         {fine.scooter?.plate_number || '-'}
                       </td>
