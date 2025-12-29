@@ -1,5 +1,41 @@
 # 變更記錄 (Change Log)
 
+## 2025-12-29 22:17:26 - UI 優化：簡化頂部 Header 並調整訂單管理頁面布局 / UI Optimization: Simplify Top Header and Adjust Orders Page Layout
+
+### Frontend Changes
+
+- **DashboardLayout.tsx** (`system/backend/components/DashboardLayout.tsx`)
+  - 移除頂部 header 右側的整排元素：
+    - 移除 admin 用戶名顯示
+    - 移除退出按鈕
+    - 移除版本信息（Version 1.0.4 PRO）
+  - 將漢堡菜單按鈕（目錄收放鍵）移至左側邊欄頂部
+    - 位於 Logo 區域上方
+    - 側邊欄展開時顯示「目錄」文字
+  - 將切換深淺模式按鈕移至左側邊欄
+    - 位於導覽列表下方、使用者資訊區域上方
+    - 側邊欄展開時顯示「切換淺色模式」或「切換深色模式」文字
+
+- **OrdersPage.tsx** (`system/backend/pages/OrdersPage.tsx`)
+  - 調整「匯出 Excel」按鈕位置：
+    - 從標題區域移動到日期選擇器同一行
+    - 與年份和月份選擇器並排顯示
+  - 縮小「匯出 Excel」按鈕尺寸：
+    - 從 `px-4 py-2` 改為 `px-3 py-1.5`
+    - 從 `text-sm` 改為 `text-xs`
+    - 圖標從 `size={16}` 改為 `size={14}`
+
+### UI Improvements
+- **簡化頂部 Header**：移除重複的用戶信息（左下角已有顯示）
+- **統一控制項位置**：將所有導航和控制功能集中在左側邊欄
+- **優化訂單管理頁面**：匯出按鈕與日期選擇器在同一行，提升操作效率
+- **按鈕尺寸優化**：縮小匯出按鈕，使界面更緊湊
+
+### Technical Details
+- 頂部 header 現在為空，僅保留邊框樣式
+- 側邊欄新增兩個功能按鈕區域（漢堡菜單和主題切換）
+- 訂單管理頁面布局從 `justify-between` 改為 `flex-col`，匯出按鈕與日期選擇器在同一行
+
 ## 2025-12-29 21:28:00 - 將預約日期設為必填欄位 / Set Appointment Date as Required Field
 
 ### Backend Changes
