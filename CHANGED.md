@@ -1,5 +1,22 @@
 # 變更記錄 (Change Log)
 
+## 2025-12-29 22:22:25 - 調整匯出 Excel 按鈕位置至右側 / Move Export Excel Button to Right Side
+
+### Frontend Changes
+
+- **OrdersPage.tsx** (`system/backend/pages/OrdersPage.tsx`)
+  - 調整「匯出 Excel」按鈕位置：
+    - 從左側移動到右側
+    - 與「新增訂單」按鈕並排顯示在右側
+  - 調整布局結構：
+    - 使用 `justify-between` 將日期選擇器放在左側，按鈕放在右側
+    - 左側：年份和月份選擇器
+    - 右側：「匯出 Excel」按鈕和「新增訂單」按鈕
+
+### UI Improvements
+- **布局優化**：日期選擇器在左側，操作按鈕在右側，視覺更清晰
+- **操作便利性**：匯出和新增功能集中在右側，符合操作習慣
+
 ## 2025-12-29 22:17:26 - UI 優化：簡化頂部 Header 並調整訂單管理頁面布局 / UI Optimization: Simplify Top Header and Adjust Orders Page Layout
 
 ### Frontend Changes
