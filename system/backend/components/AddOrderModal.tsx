@@ -275,19 +275,39 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
       onClose(formData.appointment_date || undefined);
     } catch (error: any) {
       console.error('Failed to create order:', error);
+      console.error('Error response:', error.response?.data);
       // 顯示更詳細的錯誤訊息
       let errorMessage = editingOrder ? '更新訂單失敗，請檢查輸入資料' : '建立訂單失敗，請檢查輸入資料';
-      if (error.response?.data?.message) {
-        errorMessage = error.response.data.message;
-      } else if (error.response?.data?.errors) {
+      
+      // 優先顯示 API 返回的錯誤訊息
+      if (error.response?.data) {
+        const errorData = error.response.data;
+        
         // 如果有驗證錯誤，顯示第一個錯誤
-        const firstError = Object.values(error.response.data.errors)[0];
-        if (Array.isArray(firstError) && firstError.length > 0) {
-          errorMessage = firstError[0];
+        if (errorData.errors) {
+          const firstError = Object.values(errorData.errors)[0];
+          if (Array.isArray(firstError) && firstError.length > 0) {
+            errorMessage = firstError[0];
+          }
+        } 
+        // 如果有錯誤訊息
+        else if (errorData.message) {
+          errorMessage = errorData.message;
+          // 如果有詳細錯誤資訊，也顯示
+          if (errorData.error) {
+            errorMessage += `: ${errorData.error}`;
+          }
         }
-      } else if (error.message) {
+        // 如果有 error 欄位
+        else if (errorData.error) {
+          errorMessage = errorData.error;
+        }
+      } 
+      // 如果沒有 response，使用 error.message
+      else if (error.message) {
         errorMessage = error.message;
       }
+      
       alert(errorMessage);
     } finally {
       setIsSubmitting(false);

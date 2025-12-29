@@ -1,5 +1,37 @@
 # 變更記錄 (Change Log)
 
+## 2025-12-29 21:13:00 - 修復建立訂單驗證規則並改善錯誤處理 / Fix Order Creation Validation Rules and Improve Error Handling
+
+### Backend Changes
+
+- **OrderController.php** (`app/Http/Controllers/Api/OrderController.php`)
+  - 修正驗證規則：
+    - `appointment_date` 改為 `required|date`（資料庫欄位為 NOT NULL）
+    - `start_time` 改為 `required|date`（資料庫欄位為 NOT NULL）
+    - `end_time` 改為 `required|date`（資料庫欄位為 NOT NULL）
+  - 改善錯誤處理：
+    - 添加詳細的錯誤日誌記錄（使用 `\Log::error`）
+    - 在 debug 模式下返回錯誤堆疊資訊
+    - 記錄請求資料以便除錯
+
+### Frontend Changes
+
+- **AddOrderModal.tsx** (`system/backend/components/AddOrderModal.tsx`)
+  - 改善錯誤訊息顯示：
+    - 優先顯示 API 返回的驗證錯誤
+    - 顯示詳細的錯誤訊息（包括 `error` 欄位）
+    - 添加 console.error 記錄完整的錯誤回應
+    - 提供更清晰的錯誤資訊給用戶
+
+### Bug Fixes
+- **建立訂單錯誤**：修正驗證規則，確保必填欄位（`appointment_date`、`start_time`、`end_time`）符合資料庫約束
+- **錯誤訊息**：改善前後端錯誤處理，提供更詳細的錯誤資訊
+
+### Technical Details
+- 資料庫欄位 `appointment_date`、`start_time`、`end_time` 為 NOT NULL，因此 API 驗證規則必須為 `required`
+- 後端現在會記錄詳細的錯誤日誌到 Laravel 日誌檔案
+- 前端會顯示更詳細的錯誤訊息，包括 API 返回的具體錯誤內容
+
 ## 2025-12-29 21:07:00 - 修復建立訂單錯誤並改善錯誤訊息顯示 / Fix Order Creation Error and Improve Error Message Display
 
 ### Backend Changes
