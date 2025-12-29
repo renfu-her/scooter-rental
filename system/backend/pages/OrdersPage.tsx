@@ -653,52 +653,56 @@ const OrdersPage: React.FC = () => {
           <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">訂單管理</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">管理與統計全平台租賃訂單 (每月上限 200 組一頁)</p>
         </div>
-        <div className="flex items-center space-x-3 flex-wrap">
-          <button
-            onClick={handleExportExcel}
-            className="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-lg flex items-center space-x-1.5 transition-all shadow-sm active:scale-95 text-xs font-medium"
-          >
-            <Download size={14} />
-            <span>匯出 Excel</span>
-          </button>
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-1 flex items-center shadow-sm">
-             <select 
-              className="bg-transparent border-none focus:ring-0 text-sm px-4 py-2 cursor-pointer outline-none font-medium text-gray-600 dark:text-gray-300"
-              value={selectedYear}
-              onChange={(e) => handleYearChange(Number(e.target.value))}
-             >
-                {getAvailableYears().map(year => (
-                  <option key={year} value={year}>{year} 年</option>
-                ))}
-             </select>
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div className="flex items-center space-x-3">
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-1 flex items-center shadow-sm">
+               <select 
+                className="bg-transparent border-none focus:ring-0 text-sm px-4 py-2 cursor-pointer outline-none font-medium text-gray-600 dark:text-gray-300"
+                value={selectedYear}
+                onChange={(e) => handleYearChange(Number(e.target.value))}
+               >
+                  {getAvailableYears().map(year => (
+                    <option key={year} value={year}>{year} 年</option>
+                  ))}
+               </select>
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-2 flex items-center gap-1 shadow-sm overflow-x-auto">
+              {getAvailableMonths().map(month => (
+                <button
+                  key={month}
+                  onClick={() => handleMonthChange(month)}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap flex items-center space-x-1 ${
+                    month === selectedMonth
+                      ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                      : monthsWithOrders.includes(month)
+                      ? 'bg-orange-100 hover:bg-orange-200 dark:bg-orange-900/30 dark:hover:bg-orange-900/40 text-gray-700 dark:text-gray-300'
+                      : 'hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
+                  }`}
+                >
+                  <span>{month} 月</span>
+                  {monthsWithOrders.includes(month) && (
+                    <span className="text-blue-600 dark:text-blue-400 text-xs">●</span>
+                  )}
+                </button>
+              ))}
+            </div>
           </div>
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-2 flex items-center gap-1 shadow-sm overflow-x-auto">
-            {getAvailableMonths().map(month => (
-              <button
-                key={month}
-                onClick={() => handleMonthChange(month)}
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap flex items-center space-x-1 ${
-                  month === selectedMonth
-                    ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
-                    : monthsWithOrders.includes(month)
-                    ? 'bg-orange-100 hover:bg-orange-200 dark:bg-orange-900/30 dark:hover:bg-orange-900/40 text-gray-700 dark:text-gray-300'
-                    : 'hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
-                }`}
-              >
-                <span>{month} 月</span>
-                {monthsWithOrders.includes(month) && (
-                  <span className="text-blue-600 dark:text-blue-400 text-xs">●</span>
-                )}
-              </button>
-            ))}
+          <div className="flex items-center space-x-3">
+            <button
+              onClick={handleExportExcel}
+              className="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-lg flex items-center space-x-1.5 transition-all shadow-sm active:scale-95 text-xs font-medium"
+            >
+              <Download size={14} />
+              <span>匯出 Excel</span>
+            </button>
+            <button 
+              onClick={() => setIsAddModalOpen(true)}
+              className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2.5 rounded-xl flex items-center space-x-2 transition-all shadow-sm active:scale-95 font-bold"
+            >
+              <Plus size={18} />
+              <span>新增訂單</span>
+            </button>
           </div>
-          <button 
-            onClick={() => setIsAddModalOpen(true)}
-            className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2.5 rounded-xl flex items-center space-x-2 transition-all shadow-sm active:scale-95 font-bold"
-          >
-            <Plus size={18} />
-            <span>新增訂單</span>
-          </button>
         </div>
       </div>
 
