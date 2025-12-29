@@ -1,5 +1,35 @@
 # 變更記錄 (Change Log)
 
+## 2025-12-29 20:38:00 - 允許在有排序時也可以拖拽移動 / Allow Drag Sorting Even When Sort Option is Active
+
+### Frontend Changes
+
+- **OrdersPage.tsx** (`system/backend/pages/OrdersPage.tsx`)
+  - 移除拖拽限制：
+    - 移除了 `handleDragStart`、`handleDragOver`、`handleDragEnd` 中對 `activeSortColumn` 的檢查
+    - 表格行始終可拖拽（`draggable={true}`），不再受排序選項影響
+    - 移除條件性的 `cursor-move` 樣式，始終顯示移動游標
+  - 修改排序邏輯：
+    - 臨時拖拽排序現在會覆蓋當前排序結果（無論是否有排序選項）
+    - 移除了 `temporaryOrder.length > 0 && !activeSortColumn` 的條件限制
+    - 當有臨時拖拽排序時，優先應用臨時排序順序
+  - 排序行為：
+    - 5個排序列（狀態、預約日期、租借開始、租借結束、預計還車）每個都是獨立排序
+    - 選擇排序後，仍然可以自由拖拽移動訂單行
+    - 拖拽排序會覆蓋當前排序結果，但不會保存
+
+### Features
+- **獨立排序**：5個排序列各自獨立，互不影響
+- **自由拖拽**：即使選擇了排序選項，也可以自由拖拽移動訂單行
+- **臨時排序**：拖拽排序是臨時的，會覆蓋當前排序結果，但不保存
+- **無限制移動**：不再限制拖拽功能，始終可用
+
+### Technical Details
+- 拖拽排序使用 `temporaryOrder` 數組存儲臨時順序
+- 臨時排序會覆蓋任何當前排序選項的結果
+- 切換排序選項時會清除臨時排序
+- 數據刷新時會清除臨時排序
+
 ## 2025-12-29 20:29:00 - 添加臨時拖拽排序並設置默認狀態排序 / Add Temporary Drag Sorting and Set Default Status Sort
 
 ### Frontend Changes

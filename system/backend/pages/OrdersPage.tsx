@@ -578,8 +578,8 @@ const OrdersPage: React.FC = () => {
       }
     }
 
-    // 如果有臨時拖拽排序且沒有排序選項，應用臨時排序
-    if (temporaryOrder.length > 0 && !activeSortColumn) {
+    // 如果有臨時拖拽排序，應用臨時排序（覆蓋當前排序結果）
+    if (temporaryOrder.length > 0) {
       const orderMap = new Map(sorted.map(o => [o.id, o]));
       const temporarilyOrdered = temporaryOrder.map(id => orderMap.get(id)).filter(Boolean) as Order[];
       // 添加不在temporaryOrder中的訂單到末尾
@@ -603,20 +603,14 @@ const OrdersPage: React.FC = () => {
     setTemporaryOrder([]);
   };
 
-  // 拖拽處理函數（僅在無排序狀態下可用）
+  // 拖拽處理函數（始終可用，即使有排序選項）
   const handleDragStart = (e: React.DragEvent, orderId: number) => {
-    // 只有在沒有排序選項時才允許拖拽
-    if (!activeSortColumn) {
-      setDraggedOrderId(orderId);
-      e.dataTransfer.effectAllowed = 'move';
-    } else {
-      e.preventDefault();
-    }
+    setDraggedOrderId(orderId);
+    e.dataTransfer.effectAllowed = 'move';
   };
 
   const handleDragOver = (e: React.DragEvent, orderId: number) => {
-    // 只有在沒有排序選項時才允許拖拽
-    if (!activeSortColumn && draggedOrderId !== orderId) {
+    if (draggedOrderId !== orderId) {
       e.preventDefault();
       e.dataTransfer.dropEffect = 'move';
       setDraggedOverOrderId(orderId);
@@ -624,7 +618,7 @@ const OrdersPage: React.FC = () => {
   };
 
   const handleDragEnd = () => {
-    if (!activeSortColumn && draggedOrderId && draggedOverOrderId && draggedOrderId !== draggedOverOrderId) {
+    if (draggedOrderId && draggedOverOrderId && draggedOrderId !== draggedOverOrderId) {
       // 使用當前 sortedOrders 的順序作為基礎
       const currentOrder = sortedOrders.map(o => o.id);
       const draggedIndex = currentOrder.indexOf(draggedOrderId);
@@ -875,14 +869,12 @@ const OrdersPage: React.FC = () => {
                   sortedOrders.map((order) => (
                   <tr 
                     key={order.id} 
-                    draggable={!activeSortColumn} // 只有在無排序狀態下才可拖拽
+                    draggable={true} // 始終可拖拽
                     onDragStart={(e) => handleDragStart(e, order.id)}
                     onDragOver={(e) => handleDragOver(e, order.id)}
                     onDragEnd={handleDragEnd}
                     onDragLeave={handleDragLeave}
-                    className={`hover:bg-gray-50/50 dark:hover:bg-gray-700/50 group transition-colors ${
-                      !activeSortColumn ? 'cursor-move' : ''
-                    } ${
+                    className={`hover:bg-gray-50/50 dark:hover:bg-gray-700/50 group transition-colors cursor-move ${
                       draggedOrderId === order.id ? 'opacity-50' : ''
                     } ${
                       draggedOverOrderId === order.id ? 'border-t-2 border-orange-500' : ''
