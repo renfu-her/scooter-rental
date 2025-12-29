@@ -232,8 +232,8 @@ const OrdersPage: React.FC = () => {
   const [draggedOverOrderId, setDraggedOverOrderId] = useState<number | null>(null);
   const [manualOrder, setManualOrder] = useState<number[]>([]); // 手動排序的順序
   
-  // 備註展開狀態
-  const [expandedRemarks, setExpandedRemarks] = useState<Set<number>>(new Set());
+  // 備註展開狀態（顯示彈窗的訂單ID）
+  const [expandedRemarkId, setExpandedRemarkId] = useState<number | null>(null);
 
 
   // Fetch available years from API
@@ -651,17 +651,9 @@ const OrdersPage: React.FC = () => {
     setDraggedOverOrderId(null);
   };
 
-  // 切換備註展開
+  // 切換備註展開（彈窗顯示）
   const toggleRemark = (orderId: number) => {
-    setExpandedRemarks(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(orderId)) {
-        newSet.delete(orderId);
-      } else {
-        newSet.add(orderId);
-      }
-      return newSet;
-    });
+    setExpandedRemarkId(expandedRemarkId === orderId ? null : orderId);
   };
 
   return (
@@ -985,30 +977,13 @@ const OrdersPage: React.FC = () => {
                       <div className="text-xs text-gray-400 dark:text-gray-500 mb-0.5">{order.payment_method || '-'}</div>
                       <div className="font-black text-gray-900 dark:text-gray-100">${order.payment_amount.toLocaleString()}</div>
                     </td>
-                    <td className="px-4 py-4 w-[150px]">
+                    <td 
+                      className="px-4 py-4 w-[150px] cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                      onClick={() => order.remark && toggleRemark(order.id)}
+                    >
                       {order.remark ? (
-                        <div className="max-w-[150px]">
-                          {expandedRemarks.has(order.id) ? (
-                            <div>
-                              <div className="text-gray-400 dark:text-gray-500 break-words whitespace-pre-wrap">{order.remark}</div>
-                              <button
-                                onClick={() => toggleRemark(order.id)}
-                                className="text-xs text-orange-600 dark:text-orange-400 hover:underline mt-1"
-                              >
-                                收起
-                              </button>
-                            </div>
-                          ) : (
-                            <div>
-                              <div className="text-gray-400 dark:text-gray-500 truncate">{order.remark}</div>
-                              <button
-                                onClick={() => toggleRemark(order.id)}
-                                className="text-xs text-orange-600 dark:text-orange-400 hover:underline mt-1"
-                              >
-                                展開
-                              </button>
-                            </div>
-                          )}
+                        <div className="text-gray-400 dark:text-gray-500 truncate max-w-[150px]">
+                          {order.remark}
                         </div>
                       ) : (
                         <span className="text-gray-400 dark:text-gray-500">-</span>
@@ -1128,6 +1103,45 @@ const OrdersPage: React.FC = () => {
           // 如果月份改變了，useEffect 會自動觸發刷新
         }} 
       />
+      {/* 備註內容彈窗 */}
+      {expandedRemarkId !== null && (() => {
+        const order = orders.find(o => o.id === expandedRemarkId);
+        return order?.remark ? (
+          <div 
+            className="fixed inset-0 z-[70] flex items-center justify-center p-4"
+            onClick={() => setExpandedRemarkId(null)}
+          >
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+            <div 
+              className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl relative animate-in fade-in zoom-in duration-200 overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+                <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">
+                  備註內容
+                </h2>
+                <button 
+                  onClick={() => setExpandedRemarkId(null)} 
+                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full text-gray-400 dark:text-gray-500 transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              <div className="p-6">
+                <div className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-words">
+                  {order.remark}
+                </div>
+              </div>
+              <div className="p-4 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-700">
+                <p className="text-xs text-center text-gray-500 dark:text-gray-400">
+                  點選其他任一位置會自行關閉
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : null;
+      })()}
+
       <StatsModal isOpen={isStatsModalOpen} onClose={() => setIsStatsModalOpen(false)} stats={stats} />
       <ChartModal isOpen={isChartModalOpen} onClose={() => setIsChartModalOpen(false)} stats={stats} />
       

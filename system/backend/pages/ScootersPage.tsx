@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Plus, Search, Bike, Edit3, Trash2, X, Loader2, MoreHorizontal, ChevronDown } from 'lucide-react';
 import { scootersApi, storesApi } from '../lib/api';
 import { inputClasses, selectClasses, labelClasses, searchInputClasses, chevronDownClasses, uploadAreaBaseClasses, modalCancelButtonClasses, modalSubmitButtonClasses } from '../styles';
@@ -258,6 +258,26 @@ const ScootersPage: React.FC = () => {
     '保養中': scooters.filter(s => s.status === '保養中').length,
   };
 
+  // 計算各機車型號的統計
+  const modelStatistics = React.useMemo(() => {
+    const stats: Record<string, { total: number; colors: Record<string, number> }> = {};
+    
+    scooters.forEach(scooter => {
+      if (!stats[scooter.model]) {
+        stats[scooter.model] = { total: 0, colors: {} };
+      }
+      stats[scooter.model].total++;
+      
+      const color = scooter.color || '無顏色';
+      if (!stats[scooter.model].colors[color]) {
+        stats[scooter.model].colors[color] = 0;
+      }
+      stats[scooter.model].colors[color]++;
+    });
+    
+    return stats;
+  }, [scooters]);
+
   return (
     <div className="p-6 dark:text-gray-100">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
@@ -273,6 +293,30 @@ const ScootersPage: React.FC = () => {
           <span>新增機車</span>
         </button>
       </div>
+
+      {/* 機車型號統計 */}
+      {Object.keys(modelStatistics).length > 0 && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
+          {Object.entries(modelStatistics).map(([model, stats]) => (
+            <div key={model} className="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-200 dark:border-gray-700 border-l-4 border-orange-500 shadow-sm">
+              <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">
+                {model}
+              </p>
+              <p className="text-2xl font-black text-gray-900 dark:text-gray-100 mb-3">
+                總台數: {stats.total} 台
+              </p>
+              <div className="space-y-1">
+                {Object.entries(stats.colors).map(([color, count]) => (
+                  <div key={color} className="flex items-center justify-between text-sm">
+                    <span className="text-gray-600 dark:text-gray-400">{color}</span>
+                    <span className="font-bold text-gray-900 dark:text-gray-100">{count} 台</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
         <div className="p-5 bg-gray-50/30 dark:bg-gray-800/50 flex flex-col md:flex-row justify-between items-center gap-4 border-b border-gray-100 dark:border-gray-700">

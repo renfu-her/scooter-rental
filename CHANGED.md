@@ -1,5 +1,40 @@
 # 變更記錄 (Change Log)
 
+## 2025-12-29 09:15:00 - 修改備註展開方式並添加機車管理統計 / Modify Remark Expansion and Add Scooter Statistics
+
+### Frontend Changes
+
+- **OrdersPage.tsx** (`system/backend/pages/OrdersPage.tsx`)
+  - 修改備註列的展開方式：
+    - 移除「展開」和「收起」按鈕文字
+    - 整個備註 cell 變為可點擊區域，點擊後以彈窗顯示完整內容
+    - 添加 `expandedRemarkId` 狀態來追蹤當前展開的備註
+    - 實現彈窗組件，點擊彈窗外部區域可關閉
+    - 彈窗包含標題「備註內容」、完整備註文字和關閉提示
+  - 修改 `toggleRemark` 函數：改為切換彈窗顯示/隱藏
+
+- **ScootersPage.tsx** (`system/backend/pages/ScootersPage.tsx`)
+  - 添加機車型號統計功能：
+    - 使用 `useMemo` 計算各機車型號的統計數據
+    - 統計每個型號的總台數和各顏色分別的台數
+    - 在表格上方添加統計卡片區域，顯示每個型號的統計信息
+    - 統計卡片樣式參考 AccessoriesPage 的設計，包含：
+      - 型號名稱（標題）
+      - 總台數（大字顯示）
+      - 各顏色的台數列表
+
+### Features
+- **備註彈窗顯示**：點擊備註列任意位置即可查看完整備註內容，無需按鈕
+- **點擊外部關閉**：點擊彈窗外部區域或 X 按鈕可關閉彈窗
+- **機車型號統計**：自動統計並顯示每個機車型號的總台數和各顏色的台數
+- **響應式設計**：統計卡片支持響應式布局，適配不同屏幕尺寸
+
+### Technical Details
+- 使用 `useMemo` 優化統計數據計算性能
+- 彈窗使用 `z-index: 70` 確保在其他元素之上
+- 統計卡片使用 `border-l-4 border-orange-500` 突出顯示
+- 支持深色模式
+
 ## 2025-12-29 08:54:49 - 為訂單管理表格添加頂部和底部滾動條 / Add Top and Bottom Scrollbars to Order Management Table
 
 ### Frontend Changes
