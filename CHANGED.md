@@ -1,5 +1,18 @@
 # 變更記錄 (Change Log)
 
+## 2025-12-29 22:27:57 - 統一按鈕高度 / Unify Button Heights
+
+### Frontend Changes
+
+- **OrdersPage.tsx** (`system/backend/pages/OrdersPage.tsx`)
+  - 統一「匯出 Excel」和「新增訂單」按鈕高度：
+    - 兩個按鈕都使用 `py-2.5` 和 `h-[42px]` 確保高度一致
+    - 統一圓角樣式為 `rounded-xl`
+    - 保持按鈕視覺一致性
+
+### UI Improvements
+- **視覺一致性**：兩個按鈕現在高度完全相同，視覺更整齊
+
 ## 2025-12-29 22:22:25 - 調整匯出 Excel 按鈕位置至右側 / Move Export Excel Button to Right Side
 
 ### Frontend Changes

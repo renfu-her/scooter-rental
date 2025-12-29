@@ -112,12 +112,9 @@ const DashboardLayout: React.FC = () => {
         <div className="p-3 border-b border-gray-200 dark:border-gray-700">
           <button 
             onClick={() => setSidebarOpen(!sidebarOpen)} 
-            className={`w-full p-2.5 rounded-xl transition-all active:scale-90 flex items-center ${sidebarOpen ? 'justify-start space-x-3 px-3' : 'justify-center'} ${theme === 'dark' ? 'hover:bg-gray-700 text-gray-300 hover:text-orange-400' : 'hover:bg-gray-50 text-gray-400 hover:text-orange-600'}`}
+            className={`w-full p-2.5 rounded-xl transition-all active:scale-90 flex items-center justify-center ${theme === 'dark' ? 'hover:bg-gray-700 text-gray-300 hover:text-orange-400' : 'hover:bg-gray-50 text-gray-400 hover:text-orange-600'}`}
           >
             <Menu size={20} />
-            {sidebarOpen && (
-              <span className="text-sm font-medium animate-in fade-in duration-300">目錄</span>
-            )}
           </button>
         </div>
         

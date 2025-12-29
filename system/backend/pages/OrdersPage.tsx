@@ -690,14 +690,14 @@ const OrdersPage: React.FC = () => {
           <div className="flex items-center space-x-3">
             <button
               onClick={handleExportExcel}
-              className="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-lg flex items-center space-x-1.5 transition-all shadow-sm active:scale-95 text-xs font-medium"
+              className="bg-green-600 hover:bg-green-700 text-white px-3 py-2.5 rounded-xl flex items-center space-x-1.5 transition-all shadow-sm active:scale-95 text-xs font-medium h-[42px]"
             >
               <Download size={14} />
               <span>匯出 Excel</span>
             </button>
             <button 
               onClick={() => setIsAddModalOpen(true)}
-              className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2.5 rounded-xl flex items-center space-x-2 transition-all shadow-sm active:scale-95 font-bold"
+              className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2.5 rounded-xl flex items-center space-x-2 transition-all shadow-sm active:scale-95 font-bold h-[42px]"
             >
               <Plus size={18} />
               <span>新增訂單</span>
