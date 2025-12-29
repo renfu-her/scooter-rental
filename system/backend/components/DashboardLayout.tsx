@@ -108,6 +108,19 @@ const DashboardLayout: React.FC = () => {
   return (
     <div className={`flex h-screen overflow-hidden ${theme === 'dark' ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
       <aside className={`${sidebarOpen ? 'w-64' : 'w-20'} ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border-r transition-all duration-300 flex flex-col z-30 shadow-sm`}>
+        {/* 漢堡菜單按鈕 */}
+        <div className="p-3 border-b border-gray-200 dark:border-gray-700">
+          <button 
+            onClick={() => setSidebarOpen(!sidebarOpen)} 
+            className={`w-full p-2.5 rounded-xl transition-all active:scale-90 flex items-center ${sidebarOpen ? 'justify-start space-x-3 px-3' : 'justify-center'} ${theme === 'dark' ? 'hover:bg-gray-700 text-gray-300 hover:text-orange-400' : 'hover:bg-gray-50 text-gray-400 hover:text-orange-600'}`}
+          >
+            <Menu size={20} />
+            {sidebarOpen && (
+              <span className="text-sm font-medium animate-in fade-in duration-300">目錄</span>
+            )}
+          </button>
+        </div>
+        
         {/* Logo 區域 */}
         <div className={`p-4 flex items-center transition-all duration-300 ${sidebarOpen ? 'space-x-3' : 'justify-center'}`}>
           <div className="w-10 h-10 bg-orange-500 rounded-xl flex items-center justify-center text-white font-black shadow-lg shadow-orange-100 flex-shrink-0">
@@ -132,6 +145,22 @@ const DashboardLayout: React.FC = () => {
             />
           ))}
         </nav>
+
+        {/* 切換深淺模式按鈕 */}
+        <div className={`px-3 pb-3 ${sidebarOpen ? '' : 'px-2'}`}>
+          <button
+            onClick={toggleTheme}
+            className={`w-full p-2.5 rounded-xl transition-all flex items-center ${sidebarOpen ? 'justify-start space-x-3 px-3' : 'justify-center'} ${theme === 'dark' ? 'hover:bg-gray-700 text-gray-300' : 'hover:bg-gray-50 text-gray-600'}`}
+            title={theme === 'dark' ? '切換為淺色模式' : '切換為深色模式'}
+          >
+            {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+            {sidebarOpen && (
+              <span className="text-sm font-medium animate-in fade-in duration-300">
+                {theme === 'dark' ? '切換淺色模式' : '切換深色模式'}
+              </span>
+            )}
+          </button>
+        </div>
 
         {/* 使用者資訊區域 */}
         {user && (
@@ -160,45 +189,7 @@ const DashboardLayout: React.FC = () => {
       </aside>
 
       <main className="flex-1 flex flex-col overflow-hidden relative">
-        <header className={`h-16 ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} border-b flex items-center justify-between px-6 z-20`}>
-          <button 
-            onClick={() => setSidebarOpen(!sidebarOpen)} 
-            className={`p-2.5 rounded-xl transition-all active:scale-90 ${theme === 'dark' ? 'hover:bg-gray-700 text-gray-300 hover:text-orange-400' : 'hover:bg-gray-50 text-gray-400 hover:text-orange-600'}`}
-          >
-            <Menu size={20} />
-          </button>
-          <div className="flex items-center space-x-4">
-            {user && (
-              <div className="flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-700">
-                <User size={16} className="text-gray-600 dark:text-gray-300" />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-200">{user.name}</span>
-              </div>
-            )}
-            <button
-              onClick={toggleTheme}
-              className={`p-2.5 rounded-xl transition-all ${theme === 'dark' ? 'hover:bg-gray-700 text-gray-300' : 'hover:bg-gray-50 text-gray-600'}`}
-              title={theme === 'dark' ? '切換為淺色模式' : '切換為深色模式'}
-            >
-              {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-            </button>
-            <button
-              onClick={async () => {
-                await logout();
-                navigate('/login');
-              }}
-              className={`p-2.5 rounded-xl transition-all ${theme === 'dark' ? 'hover:bg-gray-700 text-gray-300' : 'hover:bg-gray-50 text-gray-600'}`}
-              title="登出"
-            >
-              <LogOut size={20} />
-            </button>
-             <div className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border shadow-sm ${
-               theme === 'dark' 
-                 ? 'bg-orange-900/30 text-orange-400 border-orange-800' 
-                 : 'bg-orange-50 text-orange-600 border-orange-100 shadow-orange-50'
-             }`}>
-               Version 1.0.4 PRO
-             </div>
-          </div>
+        <header className={`h-16 ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} border-b z-20`}>
         </header>
 
         <div className={`flex-1 overflow-y-auto ${theme === 'dark' ? 'bg-gray-900' : 'bg-[#fafafa]'}`}>

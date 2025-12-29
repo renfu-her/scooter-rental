@@ -648,17 +648,17 @@ const OrdersPage: React.FC = () => {
 
   return (
     <div className="p-6 max-w-full dark:text-gray-100">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+      <div className="flex flex-col gap-4 mb-8">
         <div>
           <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">訂單管理</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">管理與統計全平台租賃訂單 (每月上限 200 組一頁)</p>
         </div>
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-3 flex-wrap">
           <button
             onClick={handleExportExcel}
-            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl flex items-center space-x-2 transition-all shadow-sm active:scale-95 text-sm font-medium"
+            className="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-lg flex items-center space-x-1.5 transition-all shadow-sm active:scale-95 text-xs font-medium"
           >
-            <Download size={16} />
+            <Download size={14} />
             <span>匯出 Excel</span>
           </button>
           <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-1 flex items-center shadow-sm">
