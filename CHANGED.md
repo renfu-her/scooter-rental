@@ -1,5 +1,28 @@
 # 變更記錄 (Change Log)
 
+## 2025-12-30 22:34:55 - 創建 Seeder 將現有機車型號寫入顏色表 / Create Seeder to Populate Existing Scooter Models to Color Table
+
+### Database Changes
+
+- **ScooterModelColorSeeder.php** (`database/seeders/ScooterModelColorSeeder.php`)
+  - 新增 Seeder 來將現有的機車型號寫入 `scooter_model_colors` 表
+  - 從 `scooters` 表中獲取所有唯一的機車型號
+  - 為每個型號自動分配顏色（使用 `ScooterModelColor::assignColorForModel()`）
+  - 跳過已存在的型號，避免重複
+  - 顯示處理進度和結果
+
+### Usage
+執行以下命令來將現有機車型號寫入顏色表：
+```bash
+php artisan db:seed --class=ScooterModelColorSeeder
+```
+
+### Features
+- **自動處理**：自動從 `scooters` 表提取所有唯一的機車型號
+- **避免重複**：檢查型號是否已存在，跳過已存在的記錄
+- **自動分配顏色**：使用智能顏色分配算法為每個型號分配顏色
+- **進度顯示**：顯示處理進度和結果統計
+
 ## 2025-12-30 22:28:37 - 實現機車型號顏色系統，移除 display_color 欄位 / Implement Scooter Model Color System, Remove display_color Field
 
 ### Database Changes
