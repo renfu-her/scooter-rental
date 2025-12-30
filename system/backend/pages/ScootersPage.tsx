@@ -25,6 +25,7 @@ const ScootersPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingScooter, setEditingScooter] = useState<Scooter | null>(null);
   const [scooters, setScooters] = useState<Scooter[]>([]);
+  const [allScooters, setAllScooters] = useState<Scooter[]>([]); // 儲存所有機車用於計算計數
   const [stores, setStores] = useState<Store[]>([]);
   const [loading, setLoading] = useState(false);
   const [statusFilter, setStatusFilter] = useState<string>('');
@@ -53,6 +54,12 @@ const ScootersPage: React.FC = () => {
   const fetchScooters = async () => {
     setLoading(true);
     try {
+      // 獲取所有機車用於計算計數
+      const allResponse = await scootersApi.list();
+      const allScootersData = allResponse.data || [];
+      setAllScooters(Array.isArray(allScootersData) ? allScootersData : []);
+      
+      // 獲取過濾後的機車用於顯示
       const params: any = {};
       if (statusFilter) params.status = statusFilter;
       if (searchTerm) params.search = searchTerm;
@@ -254,18 +261,19 @@ const ScootersPage: React.FC = () => {
     }
   };
 
+  // 根據所有機車計算計數（不受過濾器影響）
   const statusCounts = {
-    all: scooters.length,
-    '待出租': scooters.filter(s => s.status === '待出租').length,
-    '出租中': scooters.filter(s => s.status === '出租中').length,
-    '保養中': scooters.filter(s => s.status === '保養中').length,
+    all: allScooters.length,
+    '待出租': allScooters.filter(s => s.status === '待出租').length,
+    '出租中': allScooters.filter(s => s.status === '出租中').length,
+    '保養中': allScooters.filter(s => s.status === '保養中').length,
   };
 
-  // 計算各機車型號的統計
+  // 計算各機車型號的統計（基於所有機車）
   const modelStatistics = React.useMemo(() => {
     const stats: Record<string, { total: number; colors: Record<string, number> }> = {};
     
-    scooters.forEach(scooter => {
+    allScooters.forEach(scooter => {
       if (!stats[scooter.model]) {
         stats[scooter.model] = { total: 0, colors: {} };
       }
@@ -279,7 +287,7 @@ const ScootersPage: React.FC = () => {
     });
     
     return stats;
-  }, [scooters]);
+  }, [allScooters]);
 
   return (
     <div className="px-6 pb-6 pt-0 dark:text-gray-100">

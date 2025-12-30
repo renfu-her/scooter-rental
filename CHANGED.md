@@ -1,5 +1,30 @@
 # 變更記錄 (Change Log)
 
+## 2025-12-30 17:58:39 - 修復機車管理頁面狀態計數邏輯 / Fix Scooters Page Status Count Logic
+
+### Frontend Changes
+
+- **ScootersPage.tsx** (`system/backend/pages/ScootersPage.tsx`)
+  - 添加 `allScooters` 狀態來儲存所有機車資料，用於計算各狀態的計數
+  - 更新 `fetchScooters` 函數：
+    - 先獲取所有機車（用於計算計數）
+    - 再獲取過濾後的機車（用於顯示列表）
+  - 更新 `statusCounts` 計算邏輯：
+    - 基於 `allScooters` 計算各狀態的計數
+    - 計數不受過濾器影響，始終顯示真實的總數
+  - 更新 `modelStatistics` 計算邏輯：
+    - 基於 `allScooters` 計算各機車型號的統計
+    - 確保統計數據不受過濾器影響
+
+### Features
+- **正確的計數顯示**：選擇某個狀態過濾器時，其他狀態的計數不會變成 0
+- **一致的統計數據**：機車型號統計始終基於所有機車資料
+
+### Technical Details
+- 使用 `allScooters` 儲存所有機車資料
+- 計數和統計基於 `allScooters` 計算，不受 `statusFilter` 影響
+- 列表顯示基於過濾後的 `scooters` 資料
+
 ## 2025-12-30 17:41:22 - 更新罰單管理頁面狀態標籤使用機車的 display_color / Update Fines Page Status to Use Scooter display_color
 
 ### Frontend Changes
