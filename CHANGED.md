@@ -1,5 +1,27 @@
 # 變更記錄 (Change Log)
 
+## 2025-12-30 17:41:22 - 更新罰單管理頁面狀態標籤使用機車的 display_color / Update Fines Page Status to Use Scooter display_color
+
+### Frontend Changes
+
+- **FinesPage.tsx** (`system/backend/pages/FinesPage.tsx`)
+  - 更新「繳費狀態」欄位顯示：
+    - 如果機車有設定 `display_color`，使用該顏色作為狀態標籤的背景色
+    - 如果沒有 `display_color`，使用灰色背景（`#E5E7EB`）
+    - 文字保持黑色（`text-gray-900 dark:text-gray-100`）確保可讀性
+    - 移除了根據狀態顯示不同顏色的邏輯（未繳費=紅色、已處理=綠色）
+    - 與機車管理頁面的狀態標籤保持一致，都使用機車的 `display_color`
+    - 使用 `style={{ backgroundColor: display_color }}` 來應用背景色
+
+### Features
+- **視覺一致性**：罰單管理和機車管理頁面的狀態標籤現在都使用機車的 `display_color` 作為背景色
+- **可讀性**：文字保持黑色，確保在任何背景色下都有良好的可讀性
+
+### Technical Details
+- 使用 `style={{ backgroundColor: fine.scooter?.display_color }}` 來應用背景色
+- 如果沒有 `display_color`，使用灰色背景 `#E5E7EB`（對應 Tailwind 的 `bg-gray-200`）
+- 文字顏色使用 `text-gray-900 dark:text-gray-100` 確保可讀性
+
 ## 2025-12-30 17:40:20 - 統一罰單管理和機車管理頁面的狀態過濾按鈕樣式 / Unify Status Filter Button Styles in Fines and Scooters Pages
 
 ### Frontend Changes
