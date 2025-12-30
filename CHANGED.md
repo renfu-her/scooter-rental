@@ -1,5 +1,70 @@
 # 變更記錄 (Change Log)
 
+## 2025-12-30 17:10:50 - 為機車添加顯示顏色欄位並實現顏色選擇功能 / Add Display Color Field to Scooters and Implement Color Selection
+
+### Database Changes
+
+- **Migration** (`database/migrations/2025_12_30_170200_add_display_color_to_scooters_table.php`)
+  - 新增 migration 檔案為 `scooters` 表添加 `display_color` 欄位
+  - 欄位類型：`string('display_color', 50)->nullable()`
+  - 位置：在 `color` 欄位之後
+  - 用於儲存機車在訂單中顯示的顏色（hex 格式）
+
+### Backend Changes
+
+- **Scooter.php** (`app/Models/Scooter.php`)
+  - 添加 `display_color` 到 `$fillable` 陣列
+
+- **ScooterController.php** (`app/Http/Controllers/Api/ScooterController.php`)
+  - 在 `store` 和 `update` 方法的驗證規則中添加 `display_color` 欄位
+  - 驗證規則：`'display_color' => 'nullable|string|regex:/^#[0-9A-Fa-f]{6}$/'`
+  - 只接受有效的 hex 顏色格式（#RRGGBB）
+
+- **ScooterResource.php** (`app/Http/Resources/ScooterResource.php`)
+  - 在 `toArray` 方法中添加 `display_color` 欄位返回
+
+- **OrderResource.php** (`app/Http/Resources/OrderResource.php`)
+  - 更新 `scooters` 數據結構，添加 `display_color` 欄位
+  - 現在返回：`{ model: string, type: string, display_color: string, count: number }`
+
+### Frontend Changes
+
+- **ScootersPage.tsx** (`system/backend/pages/ScootersPage.tsx`)
+  - 更新 `Scooter` interface 添加 `display_color: string | null`
+  - 更新 `formData` 添加 `display_color` 欄位
+  - 在表單中添加顏色選擇器：
+    - 使用 HTML5 color picker (`<input type="color">`)
+    - 添加文字輸入框允許手動輸入 hex 顏色值
+    - 添加 hex 顏色格式驗證（只接受 #RRGGBB 格式）
+    - 顯示顏色預覽，展示選中顏色在機車型號上的效果
+  - 更新機車清單「顏色」欄位：
+    - 顯示顏色方塊和 hex 顏色值（如果有設定）
+    - 如果沒有設定，顯示「未設定」文字
+
+- **OrdersPage.tsx** (`system/backend/pages/OrdersPage.tsx`)
+  - 更新 `Order` interface，`scooters` 陣列添加 `display_color?: string` 欄位
+  - 添加 `scooterColorMap` state 來儲存機車型號到顯示顏色的映射
+  - 添加 `useEffect` 在頁面載入時獲取機車列表並建立顏色映射
+  - 更新 `getScooterModelColor` 函數：
+    - 優先使用機車設定的 `display_color`
+    - 如果沒有，檢查 `scooterColorMap` 中是否有該型號的顏色
+    - 如果都沒有，則根據機車類型返回對應顏色
+  - 更新「租借機車」欄位顯示：
+    - 如果有自定義顏色，使用 `style={{ color }}` 來應用 hex 顏色值
+    - 如果沒有，使用類型顏色（Tailwind CSS 類名）
+
+### Features
+- **顏色自定義**：每個機車可以選擇自己的顯示顏色，用於訂單管理頁面
+- **視覺區分**：訂單列表中的機車型號使用各自設定的顏色顯示，更容易區分
+- **用戶友好**：顏色選擇器提供視覺化的顏色選擇和文字輸入框
+- **向後兼容**：如果機車沒有設定顯示顏色，會使用類型顏色作為後備
+
+### Technical Details
+- 顏色值儲存為 hex 格式（例如：#FF5733）
+- 後端驗證確保只接受有效的 hex 顏色格式
+- 訂單列表會自動使用機車設定的顯示顏色，無需手動更新
+- 如果機車沒有設定顯示顏色，會使用類型顏色（白牌=天藍色、綠牌=綠色、電輔車=橙色、三輪車=琥珀色）
+
 ## 2025-12-30 17:01:04 - 在機車清單中添加顏色顯示 / Add Color Display in Scooters List
 
 ### Frontend Changes
