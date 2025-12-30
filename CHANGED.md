@@ -1,5 +1,25 @@
 # 變更記錄 (Change Log)
 
+## 2025-12-30 22:43:29 - 恢復機車管理頁面狀態標籤的顏色 / Restore Status Tag Colors in Scooters Page
+
+### Frontend Changes
+
+- **ScootersPage.tsx** (`system/backend/pages/ScootersPage.tsx`)
+  - 恢復狀態標籤的背景顏色：
+    - **待出租**：灰色 (`#D1D5DB`, gray-300)
+    - **出租中**：天藍色 (`#BAE6FD`, sky-200)
+    - **保養中**：橘色 (`#FED7AA`, orange-200)
+  - 狀態標籤使用內聯樣式設定背景顏色，文字保持黑色
+
+### Features
+- **視覺區分**：不同狀態使用不同的顏色，便於快速識別機車狀態
+- **一致的顏色**：與之前設定的狀態顏色保持一致
+
+### Technical Details
+- 使用內聯樣式 (`style`) 設定狀態標籤的背景顏色
+- 顏色值使用 hex 格式，對應 Tailwind CSS 顏色類別
+- 文字顏色保持黑色 (`text-gray-900 dark:text-gray-100`)
+
 ## 2025-12-30 22:39:22 - 確認訂單租借機車型號對應 ScooterModelColor 的 color / Confirm Order Scooter Models Map to ScooterModelColor Color
 
 ### Frontend Changes
