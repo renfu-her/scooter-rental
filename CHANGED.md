@@ -1,5 +1,37 @@
 # 變更記錄 (Change Log)
 
+## 2025-12-30 23:17:31 - 添加車款類型自動顏色設定功能 / Add Automatic Color Setting Based on Vehicle Type
+
+### Frontend Changes
+
+- **ScootersPage.tsx** (`system/backend/pages/ScootersPage.tsx`)
+  - 添加 `typeColorMap` 定義車款類型對應的顏色：
+    - **白牌**：天藍色 (`#7DD3FC`, sky-300)
+    - **綠牌**：綠色 (`#86EFAC`, green-300)
+    - **電輔車**：橘色 (`#FED7AA`, orange-200)
+    - **三輪車**：黃色 (`#FDE047`, yellow-300)
+  - 更新新增/編輯表單：
+    - 當選擇車款類型時，自動設定對應的顏色到 `formData.color`
+    - 在「車款顏色」欄位旁邊顯示顏色預覽（顏色方塊和 hex 值）
+    - 添加提示文字說明自動設定規則
+    - 用戶仍可手動修改顏色
+  - 更新機車管理列表：
+    - 在「車款類型」欄位旁邊顯示對應的顏色值
+    - 顯示顏色方塊和 hex 顏色值（例如：#7DD3FC）
+    - 顏色直接從 `typeColorMap` 獲取
+
+### Features
+- **自動顏色設定**：選擇車款類型時自動設定對應的顏色
+- **視覺識別**：在列表和表單中都能看到顏色值
+- **可手動修改**：雖然自動設定，但用戶仍可手動修改顏色
+- **一致性**：新增、編輯和列表都使用相同的顏色對應規則
+
+### Technical Details
+- 顏色值使用 hex 格式（例如：#7DD3FC）
+- 顏色對應關係定義在 `typeColorMap` 常數中
+- 當車款類型改變時，自動更新 `formData.color`
+- 列表中的顏色直接從 `typeColorMap` 獲取，不依賴資料庫
+
 ## 2025-12-30 23:02:38 - 在機車管理列表顯示機車型號對應的顏色值 / Display Scooter Model Color Values in Scooters Management List
 
 ### Frontend Changes

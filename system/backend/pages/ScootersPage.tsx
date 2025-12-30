@@ -28,6 +28,14 @@ const ScootersPage: React.FC = () => {
   const [stores, setStores] = useState<Store[]>([]);
   const [modelColorMap, setModelColorMap] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
+
+  // 車款類型對應的顏色
+  const typeColorMap: Record<string, string> = {
+    '白牌': '#7DD3FC', // 天藍色 (sky-300)
+    '綠牌': '#86EFAC', // 綠色 (green-300)
+    '電輔車': '#FED7AA', // 橘色 (orange-200)
+    '三輪車': '#FDE047', // 黃色 (yellow-300)
+  };
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
   const [formData, setFormData] = useState({
@@ -473,15 +481,29 @@ const ScootersPage: React.FC = () => {
                         </div>
                       </td>
                       <td className="px-6 py-5">
-                        <span className={`px-2 py-1 rounded-lg text-[10px] font-black border ${
-                          scooter.type === '白牌' ? 'bg-sky-50 text-sky-600 border-sky-100 dark:bg-sky-900/30 dark:text-sky-400 dark:border-sky-800' : 
-                          scooter.type === '綠牌' ? 'bg-green-50 text-green-600 border-green-100 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800' :
-                          scooter.type === '電輔車' ? 'bg-orange-50 text-orange-600 border-orange-100 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800' :
-                          scooter.type === '三輪車' ? 'bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800' :
-                          'bg-gray-50 text-gray-600 border-gray-100 dark:bg-gray-900/30 dark:text-gray-400 dark:border-gray-800'
-                        }`}>
-                          {scooter.type}
-                        </span>
+                        <div className="flex items-center space-x-2">
+                          <span className={`px-2 py-1 rounded-lg text-[10px] font-black border ${
+                            scooter.type === '白牌' ? 'bg-sky-50 text-sky-600 border-sky-100 dark:bg-sky-900/30 dark:text-sky-400 dark:border-sky-800' : 
+                            scooter.type === '綠牌' ? 'bg-green-50 text-green-600 border-green-100 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800' :
+                            scooter.type === '電輔車' ? 'bg-orange-50 text-orange-600 border-orange-100 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800' :
+                            scooter.type === '三輪車' ? 'bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800' :
+                            'bg-gray-50 text-gray-600 border-gray-100 dark:bg-gray-900/30 dark:text-gray-400 dark:border-gray-800'
+                          }`}>
+                            {scooter.type}
+                          </span>
+                          {typeColorMap[scooter.type] && (
+                            <div className="flex items-center space-x-1.5">
+                              <div 
+                                className="w-4 h-4 rounded border border-gray-200 dark:border-gray-700 shadow-sm"
+                                style={{ backgroundColor: typeColorMap[scooter.type] }}
+                                title={typeColorMap[scooter.type]}
+                              />
+                              <span className="text-xs font-mono text-gray-500 dark:text-gray-400">
+                                {typeColorMap[scooter.type]}
+                              </span>
+                            </div>
+                          )}
+                        </div>
                       </td>
                       <td className="px-6 py-5 text-gray-500 dark:text-gray-400 font-medium">{scooter.store?.name || '-'}</td>
                       <td className="px-6 py-5">
@@ -573,15 +595,32 @@ const ScootersPage: React.FC = () => {
                 </div>
                 <div>
                   <label className={labelClasses}>
-                    車款顏色 <span className="text-gray-400 dark:text-gray-500 font-normal">(非必填)</span>
+                    車款顏色 <span className="text-gray-400 dark:text-gray-500 font-normal">(自動設定)</span>
                   </label>
-                  <input 
-                    type="text" 
-                    className={inputClasses} 
-                    placeholder="例如: 消光黑"
-                    value={formData.color}
-                    onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                  />
+                  <div className="flex items-center space-x-3">
+                    <input 
+                      type="text" 
+                      className={inputClasses} 
+                      placeholder="例如: 消光黑"
+                      value={formData.color}
+                      onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                    />
+                    {formData.color && typeColorMap[formData.type] && (
+                      <div className="flex items-center space-x-2">
+                        <div 
+                          className="w-8 h-8 rounded-lg border-2 border-gray-200 dark:border-gray-700 shadow-sm"
+                          style={{ backgroundColor: formData.color }}
+                          title={formData.color}
+                        />
+                        <span className="text-xs font-mono text-gray-500 dark:text-gray-400">
+                          {formData.color}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    根據車款類型自動設定：{formData.type && typeColorMap[formData.type] ? `${formData.type} = ${typeColorMap[formData.type]}` : '請選擇車款類型'}
+                  </p>
                 </div>
                 <div>
                   <label className={labelClasses}>
@@ -591,7 +630,12 @@ const ScootersPage: React.FC = () => {
                     <select 
                       className={selectClasses}
                       value={formData.type}
-                      onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                      onChange={(e) => {
+                        const selectedType = e.target.value;
+                        // 根據車款類型自動設定顏色
+                        const autoColor = typeColorMap[selectedType] || '';
+                        setFormData({ ...formData, type: selectedType, color: autoColor });
+                      }}
                     >
                       <option value="白牌" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">白牌 (Heavy)</option>
                       <option value="綠牌" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">綠牌 (Light)</option>

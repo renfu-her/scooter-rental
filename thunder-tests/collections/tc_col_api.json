@@ -1,0 +1,26 @@
+{
+    "_id": "41944ce0-ae5e-412e-b98d-06d5b95cfa06",
+    "colName": "API",
+    "created": "2025-12-30T15:08:15.546Z",
+    "sortNum": 10000,
+    "folders": [],
+    "requests": [
+        {
+            "_id": "e22b3bca-9bd5-49b4-b8ed-ca6faa9ecc67",
+            "colId": "41944ce0-ae5e-412e-b98d-06d5b95cfa06",
+            "containerId": "",
+            "name": "scooter-model-colors",
+            "url": "/scooter-model-colors",
+            "method": "GET",
+            "sortNum": 20000,
+            "created": "2025-12-30T15:08:34.886Z",
+            "modified": "2025-12-30T15:13:59.634Z",
+            "headers": []
+        }
+    ],
+    "settings": {
+        "options": {
+            "baseUrl": "https://scooter-rental.ai-tracks.com/api"
+        }
+    }
+}
