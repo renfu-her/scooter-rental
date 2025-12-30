@@ -182,6 +182,14 @@ export const scootersApi = {
     api.uploadFile(`/scooters/${id}/upload-photo`, file),
 };
 
+export const scooterModelColorsApi = {
+  list: () => api.get('/scooter-model-colors'),
+  getColor: (model: string) => api.get(`/scooter-model-colors/${model}`),
+  getColors: (models: string[]) => api.post('/scooter-model-colors/get-colors', { models }),
+  update: (model: string, color: string) => api.put(`/scooter-model-colors/${model}`, { color }),
+  delete: (model: string) => api.delete(`/scooter-model-colors/${model}`),
+};
+
 export const finesApi = {
   list: (params?: { payment_status?: string; search?: string }) =>
     api.get('/fines', params),

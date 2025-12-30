@@ -1,5 +1,85 @@
 # 變更記錄 (Change Log)
 
+## 2025-12-30 22:28:37 - 實現機車型號顏色系統，移除 display_color 欄位 / Implement Scooter Model Color System, Remove display_color Field
+
+### Database Changes
+
+- **Migration** (`database/migrations/2025_12_30_222425_create_scooter_model_colors_table.php`)
+  - 創建 `scooter_model_colors` 表來儲存機車型號和顏色的對應關係
+  - 欄位：`id`, `model` (unique), `color` (hex 格式), `timestamps`
+  
+- **Migration** (`database/migrations/2025_12_30_222427_remove_display_color_from_scooters_table.php`)
+  - 移除 `scooters` 表的 `display_color` 欄位
+
+### Backend Changes
+
+- **ScooterModelColor.php** (`app/Models/ScooterModelColor.php`)
+  - 新增 Model 來管理機車型號顏色
+  - 實現 `getColorForModel()` 方法：自動獲取或分配顏色
+  - 實現 `assignColorForModel()` 方法：自動分配顏色邏輯
+    - 使用預定義的亮色調色板（20 種顏色）
+    - 確保顏色不重複且不太接近（使用歐幾里得距離計算）
+    - 如果所有預定義顏色都被使用，自動生成新的亮色
+
+- **ScooterModelColorController.php** (`app/Http/Controllers/Api/ScooterModelColorController.php`)
+  - 新增 API Controller 管理機車型號顏色
+  - `index()`: 獲取所有型號顏色
+  - `show($model)`: 獲取特定型號的顏色（自動分配如果不存在）
+  - `getColors()`: 批量獲取多個型號的顏色
+  - `update($model)`: 更新型號顏色
+  - `destroy($model)`: 刪除型號顏色
+
+- **routes/api.php**
+  - 新增 `/api/scooter-model-colors` 路由群組
+  - 包含：`GET /`, `POST /get-colors`, `GET /{model}`, `PUT /{model}`, `DELETE /{model}`
+
+- **Scooter.php** (`app/Models/Scooter.php`)
+  - 從 `$fillable` 移除 `display_color`
+
+- **ScooterController.php** (`app/Http/Controllers/Api/ScooterController.php`)
+  - 移除 `display_color` 驗證規則
+
+- **ScooterResource.php** (`app/Http/Resources/ScooterResource.php`)
+  - 從 `toArray()` 移除 `display_color` 欄位
+
+- **OrderResource.php** (`app/Http/Resources/OrderResource.php`)
+  - 從 `scooters` 數據結構移除 `display_color` 欄位
+  - 顏色將由前端通過機車型號顏色 API 獲取
+
+### Frontend Changes
+
+- **api.ts** (`system/backend/lib/api.ts`)
+  - 新增 `scooterModelColorsApi` API 客戶端
+  - 包含：`list()`, `getColor(model)`, `getColors(models[])`, `update(model, color)`, `delete(model)`
+
+- **OrdersPage.tsx** (`system/backend/pages/OrdersPage.tsx`)
+  - 更新 `Order` interface，從 `scooters` 移除 `display_color`
+  - 更新 `useEffect` 來使用 `scooterModelColorsApi.getColors()` 批量獲取機車型號顏色
+  - 更新 `getScooterModelColor()` 函數來使用機車型號顏色映射
+  - 移除從機車列表獲取 `display_color` 的邏輯
+
+- **ScootersPage.tsx** (`system/backend/pages/ScootersPage.tsx`)
+  - 從 `Scooter` interface 移除 `display_color`
+  - 從 `formData` 移除 `display_color`
+  - 移除表單中的「顯示顏色」欄位（顏色選擇器和預覽）
+  - 移除列表中的「顏色」欄位
+  - 更新表格列數（從 8 列改為 7 列）
+
+- **FinesPage.tsx** (`system/backend/pages/FinesPage.tsx`)
+  - 從 `scooter` interface 移除 `display_color`
+
+### Features
+- **自動顏色分配**：系統自動為每個機車型號分配一個亮色，確保顏色不重複且不太接近
+- **型號顏色管理**：通過 API 管理機車型號和顏色的對應關係
+- **訂單顯示**：訂單管理頁面中的「租借機車」欄位使用機車型號對應的顏色
+- **簡化設計**：移除機車管理頁面中的顏色設定，改為由系統自動管理
+
+### Technical Details
+- 顏色值儲存為 hex 格式（例如：#FF6B9D）
+- 使用歐幾里得距離計算顏色相似度，確保分配的顏色不太接近
+- 預定義 20 種亮色，如果都用完會自動生成新的亮色
+- 前端通過批量 API 獲取所有需要的型號顏色，提高效率
+
 ## 2025-12-30 22:17:22 - 移除機車和罰單頁面的顏色設定，改為黑色文字 / Remove Color Settings from Scooters and Fines Pages, Use Black Text
 
 ### Frontend Changes

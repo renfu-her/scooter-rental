@@ -24,7 +24,6 @@ class ScooterResource extends JsonResource
             'model' => $this->model,
             'type' => $this->type,
             'color' => $this->color,
-            'display_color' => $this->display_color,
             'status' => $this->status,
             'photo_path' => $this->photo_path ? asset('storage/' . $this->photo_path) : null,
             'created_at' => $this->created_at,

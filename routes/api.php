@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\PartnerController;
 use App\Http\Controllers\Api\ScooterController;
+use App\Http\Controllers\Api\ScooterModelColorController;
 use App\Http\Controllers\Api\FineController;
 use App\Http\Controllers\Api\AccessoryController;
 use App\Http\Controllers\Api\StoreController;
@@ -63,6 +64,15 @@ Route::prefix('scooters')->group(function () {
     Route::put('/{scooter}', [ScooterController::class, 'update']);
     Route::delete('/{scooter}', [ScooterController::class, 'destroy']);
     Route::post('/{scooter}/upload-photo', [ScooterController::class, 'uploadPhoto']);
+});
+
+// Scooter Model Colors API
+Route::prefix('scooter-model-colors')->group(function () {
+    Route::get('/', [ScooterModelColorController::class, 'index']);
+    Route::post('/get-colors', [ScooterModelColorController::class, 'getColors']);
+    Route::get('/{model}', [ScooterModelColorController::class, 'show']);
+    Route::put('/{model}', [ScooterModelColorController::class, 'update']);
+    Route::delete('/{model}', [ScooterModelColorController::class, 'destroy']);
 });
 
 // Fines API

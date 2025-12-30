@@ -13,7 +13,6 @@ interface Fine {
     id: number; 
     plate_number: string;
     model?: string;
-    display_color?: string | null;
   };
   order_id: number | null;
   tenant: string;
