@@ -377,44 +377,43 @@ const PartnersPage: React.FC = () => {
                   <label className={labelClasses}>
                     顯示顏色
                   </label>
-                  <div className="grid grid-cols-8 gap-2">
-                    {[
-                      { name: 'purple', value: 'text-purple-600 dark:text-purple-400', bg: 'bg-purple-100 dark:bg-purple-900/30' },
-                      { name: 'indigo', value: 'text-indigo-600 dark:text-indigo-400', bg: 'bg-indigo-100 dark:bg-indigo-900/30' },
-                      { name: 'pink', value: 'text-pink-600 dark:text-pink-400', bg: 'bg-pink-100 dark:bg-pink-900/30' },
-                      { name: 'teal', value: 'text-teal-600 dark:text-teal-400', bg: 'bg-teal-100 dark:bg-teal-900/30' },
-                      { name: 'cyan', value: 'text-cyan-600 dark:text-cyan-400', bg: 'bg-cyan-100 dark:bg-cyan-900/30' },
-                      { name: 'violet', value: 'text-violet-600 dark:text-violet-400', bg: 'bg-violet-100 dark:bg-violet-900/30' },
-                      { name: 'fuchsia', value: 'text-fuchsia-600 dark:text-fuchsia-400', bg: 'bg-fuchsia-100 dark:bg-fuchsia-900/30' },
-                      { name: 'rose', value: 'text-rose-600 dark:text-rose-400', bg: 'bg-rose-100 dark:bg-rose-900/30' },
-                      { name: 'emerald', value: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-100 dark:bg-emerald-900/30' },
-                      { name: 'blue', value: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-100 dark:bg-blue-900/30' },
-                      { name: 'green', value: 'text-green-600 dark:text-green-400', bg: 'bg-green-100 dark:bg-green-900/30' },
-                      { name: 'orange', value: 'text-orange-600 dark:text-orange-400', bg: 'bg-orange-100 dark:bg-orange-900/30' },
-                      { name: 'red', value: 'text-red-600 dark:text-red-400', bg: 'bg-red-100 dark:bg-red-900/30' },
-                      { name: 'yellow', value: 'text-yellow-600 dark:text-yellow-400', bg: 'bg-yellow-100 dark:bg-yellow-900/30' },
-                      { name: 'amber', value: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-100 dark:bg-amber-900/30' },
-                      { name: 'lime', value: 'text-lime-600 dark:text-lime-400', bg: 'bg-lime-100 dark:bg-lime-900/30' },
-                    ].map((color) => (
-                      <button
-                        key={color.name}
-                        type="button"
-                        onClick={() => setFormData({ ...formData, color: color.value })}
-                        className={`w-full h-12 rounded-lg border-2 transition-all ${
-                          formData.color === color.value
-                            ? 'border-orange-500 ring-2 ring-orange-200 dark:ring-orange-800'
-                            : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
-                        } ${color.bg} ${color.value} flex items-center justify-center font-bold text-sm`}
-                        title={color.name}
-                      >
-                        {formData.color === color.value && '✓'}
-                      </button>
-                    ))}
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center space-x-3">
+                      <input
+                        type="color"
+                        value={formData.color || '#6B7280'}
+                        onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                        className="w-16 h-16 rounded-lg border-2 border-gray-200 dark:border-gray-700 cursor-pointer"
+                        title="選擇顏色"
+                      />
+                      <div className="flex-1">
+                        <input
+                          type="text"
+                          value={formData.color || ''}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            // 驗證 hex 顏色格式
+                            if (value === '' || /^#[0-9A-Fa-f]{6}$/.test(value)) {
+                              setFormData({ ...formData, color: value });
+                            }
+                          }}
+                          placeholder="#6B7280"
+                          className={`${inputClasses} font-mono text-sm`}
+                          maxLength={7}
+                        />
+                        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                          輸入 hex 顏色值（例如：#FF5733）
+                        </p>
+                      </div>
+                    </div>
                   </div>
                   {formData.color && (
-                    <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                      已選擇顏色：<span className={formData.color}>範例文字</span>
-                    </p>
+                    <div className="mt-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">預覽：</p>
+                      <p className="text-base font-bold" style={{ color: formData.color }}>
+                        合作商名稱範例文字
+                      </p>
+                    </div>
                   )}
                 </div>
               </div>

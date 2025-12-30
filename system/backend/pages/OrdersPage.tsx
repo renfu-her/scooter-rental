@@ -456,16 +456,16 @@ const OrdersPage: React.FC = () => {
     return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
   };
 
-  // 獲取合作商顏色
-  const getPartnerColor = (partnerName: string | null | undefined): string => {
-    if (!partnerName) return 'text-gray-500 dark:text-gray-400';
+  // 獲取合作商顏色（返回 hex 顏色值或 null）
+  const getPartnerColor = (partnerName: string | null | undefined): string | null => {
+    if (!partnerName) return null;
     
-    // 使用合作商設定的顏色，如果沒有則使用默認顏色
+    // 使用合作商設定的顏色（hex 格式）
     if (partnerColorMap[partnerName]) {
       return partnerColorMap[partnerName];
     }
     
-    return 'text-gray-600 dark:text-gray-400';
+    return null;
   };
 
   // 獲取合作商列表並建立顏色映射
@@ -1041,7 +1041,14 @@ const OrdersPage: React.FC = () => {
                     <td className="px-4 py-4 w-[120px] text-gray-500 dark:text-gray-400 font-medium">{order.phone || '-'}</td>
                     <td className="px-4 py-4 w-[120px] font-bold">
                       {order.partner?.name ? (
-                        <span className={getPartnerColor(order.partner.name)}>{order.partner.name}</span>
+                        (() => {
+                          const color = getPartnerColor(order.partner.name);
+                          return color ? (
+                            <span style={{ color }}>{order.partner.name}</span>
+                          ) : (
+                            <span className="text-gray-600 dark:text-gray-400">{order.partner.name}</span>
+                          );
+                        })()
                       ) : (
                         <span className="text-gray-500 dark:text-gray-400">-</span>
                       )}

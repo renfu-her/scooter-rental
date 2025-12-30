@@ -54,7 +54,7 @@ class PartnerController extends Controller
             'phone' => 'nullable|string|max:20',
             'tax_id' => 'nullable|string|max:20',
             'manager' => 'nullable|string|max:255',
-            'color' => 'nullable|string|max:50',
+            'color' => 'nullable|string|regex:/^#[0-9A-Fa-f]{6}$/',
         ]);
 
         if ($validator->fails()) {
@@ -93,7 +93,7 @@ class PartnerController extends Controller
             'phone' => 'nullable|string|max:20',
             'tax_id' => 'nullable|string|max:20',
             'manager' => 'nullable|string|max:255',
-            'color' => 'nullable|string|max:50',
+            'color' => 'nullable|string|regex:/^#[0-9A-Fa-f]{6}$/',
         ]);
 
         if ($validator->fails()) {

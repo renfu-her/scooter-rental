@@ -1,5 +1,41 @@
 # 變更記錄 (Change Log)
 
+## 2025-12-30 15:25:00 - 將合作商顏色選擇器改為 Color Picker / Change Partner Color Selector to Color Picker
+
+### Backend Changes
+
+- **PartnerController.php** (`app/Http/Controllers/Api/PartnerController.php`)
+  - 更新 `color` 欄位驗證規則：
+    - 從 `'nullable|string|max:50'` 改為 `'nullable|string|regex:/^#[0-9A-Fa-f]{6}$/'`
+    - 現在只接受 hex 顏色格式（例如：#FF5733）
+
+### Frontend Changes
+
+- **PartnersPage.tsx** (`system/backend/pages/PartnersPage.tsx`)
+  - 將固定顏色按鈕改為 HTML5 color picker：
+    - 使用 `<input type="color">` 提供顏色選擇器
+    - 添加文字輸入框允許手動輸入 hex 顏色值
+    - 添加 hex 顏色格式驗證（只接受 #RRGGBB 格式）
+    - 顯示顏色預覽，展示選中顏色在文字上的效果
+    - 移除原本的 16 種固定顏色按鈕
+
+- **OrdersPage.tsx** (`system/backend/pages/OrdersPage.tsx`)
+  - 更新 `getPartnerColor` 函數：
+    - 現在返回 hex 顏色值（string）或 null，而不是 Tailwind CSS 類名
+  - 更新合作商名稱顯示：
+    - 使用 `style={{ color }}` 來應用 hex 顏色值
+    - 如果沒有設定顏色，使用默認的灰色 Tailwind 類名
+
+### Features
+- **自由選擇顏色**：用戶現在可以選擇任意顏色，不再受限於預設的 16 種顏色
+- **直觀操作**：提供視覺化的顏色選擇器和文字輸入框
+- **即時預覽**：選擇顏色後可以立即看到效果
+
+### Technical Details
+- 顏色值儲存為 hex 格式（例如：#FF5733）
+- 後端驗證確保只接受有效的 hex 顏色格式
+- 前端使用 inline style 來應用自定義顏色
+
 ## 2025-12-30 15:17:17 - 為合作商添加顏色欄位並實現顏色選擇功能 / Add Color Field to Partners and Implement Color Selection
 
 ### Database Changes
