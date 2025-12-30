@@ -9,7 +9,12 @@ import { inputClasses, selectClasses, labelClasses, searchInputClasses, chevronD
 interface Fine {
   id: number;
   scooter_id: number;
-  scooter?: { id: number; plate_number: string };
+  scooter?: { 
+    id: number; 
+    plate_number: string;
+    model?: string;
+    display_color?: string | null;
+  };
   order_id: number | null;
   tenant: string;
   violation_date: string;
@@ -357,8 +362,17 @@ const FinesPage: React.FC = () => {
                           )}
                         </div>
                       </td>
-                      <td className="px-6 py-5 font-black text-gray-900 dark:text-gray-100 text-base tracking-tight">
-                        {fine.scooter?.plate_number || '-'}
+                      <td className="px-6 py-5 font-black text-base tracking-tight">
+                        {fine.scooter?.plate_number ? (
+                          <span 
+                            style={fine.scooter?.display_color ? { color: fine.scooter.display_color } : undefined}
+                            className={fine.scooter?.display_color ? '' : 'text-gray-900 dark:text-gray-100'}
+                          >
+                            {fine.scooter.plate_number}
+                          </span>
+                        ) : (
+                          <span className="text-gray-900 dark:text-gray-100">-</span>
+                        )}
                       </td>
                       <td className="px-6 py-5 text-gray-800 dark:text-gray-200 font-bold">{fine.tenant}</td>
                       <td className="px-6 py-5 text-gray-500 dark:text-gray-400 font-medium">{fine.violation_date}</td>

@@ -1,5 +1,30 @@
 # 變更記錄 (Change Log)
 
+## 2025-12-30 17:31:13 - 在罰單管理和機車管理列表中使用 display_color 顯示顏色 / Use display_color in Fines and Scooters List
+
+### Frontend Changes
+
+- **FinesPage.tsx** (`system/backend/pages/FinesPage.tsx`)
+  - 更新 `Fine` interface，添加 `scooter` 的 `model` 和 `display_color` 欄位
+  - 更新「車牌號碼」欄位顯示：
+    - 如果機車有設定 `display_color`，使用該顏色顯示車牌號碼文字
+    - 如果沒有 `display_color`，使用黑色（淺色模式）或白色（深色模式）
+    - 使用 inline style 來應用 `display_color`
+
+- **ScootersPage.tsx** (`system/backend/pages/ScootersPage.tsx`)
+  - 確認「機車型號」欄位已使用 `display_color` 顯示顏色
+  - 如果機車有設定 `display_color`，使用該顏色顯示機車型號文字
+  - 如果沒有 `display_color`，使用黑色（淺色模式）或白色（深色模式）
+
+### Features
+- **視覺一致性**：罰單管理和機車管理列表中的機車相關文字都使用 `display_color` 顯示
+- **用戶體驗**：可以通過顏色快速識別不同機車
+
+### Technical Details
+- FineController 已經載入 `scooter` 關係，FineResource 使用 ScooterResource，所以已經包含 `display_color`
+- 使用 `style={{ color: display_color }}` 來應用顏色
+- 如果沒有 `display_color`，使用 Tailwind CSS 類名 `text-gray-900 dark:text-gray-100`
+
 ## 2025-12-30 17:25:05 - 更新訂單管理頁面機車標籤使用 display_color 作為背景色 / Update Orders Page to Use display_color as Background Color
 
 ### Frontend Changes
