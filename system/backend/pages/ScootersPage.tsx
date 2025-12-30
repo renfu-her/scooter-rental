@@ -428,7 +428,22 @@ const ScootersPage: React.FC = () => {
                           {scooter.type}
                         </span>
                       </td>
-                      <td className="px-6 py-5 text-gray-500 dark:text-gray-400 font-medium">{scooter.color || '-'}</td>
+                      <td className="px-6 py-5">
+                        <div className="flex items-center space-x-2">
+                          <span className={`px-2 py-1 rounded-lg text-[10px] font-medium ${
+                            scooter.type === '白牌' ? 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400' : 
+                            scooter.type === '綠牌' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
+                            scooter.type === '電輔車' ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400' :
+                            scooter.type === '三輪車' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' :
+                            'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400'
+                          }`}>
+                            {scooter.type}
+                          </span>
+                          {scooter.color && (
+                            <span className="text-xs text-gray-500 dark:text-gray-400">({scooter.color})</span>
+                          )}
+                        </div>
+                      </td>
                       <td className="px-6 py-5 text-gray-500 dark:text-gray-400 font-medium">{scooter.store?.name || '-'}</td>
                       <td className="px-6 py-5">
                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black shadow-sm ${

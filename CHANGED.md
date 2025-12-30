@@ -1,5 +1,29 @@
 # 變更記錄 (Change Log)
 
+## 2025-12-30 17:01:04 - 在機車清單中添加顏色顯示 / Add Color Display in Scooters List
+
+### Frontend Changes
+
+- **ScootersPage.tsx** (`system/backend/pages/ScootersPage.tsx`)
+  - 更新「顏色」欄位顯示：
+    - 顯示根據機車類型的顏色標籤（與訂單管理頁面一致）
+    - 顏色映射：
+      - 白牌：天藍色 (`bg-sky-100 text-sky-700`)
+      - 綠牌：綠色 (`bg-green-100 text-green-700`)
+      - 電輔車：橙色 (`bg-orange-100 text-orange-700`)
+      - 三輪車：琥珀色 (`bg-amber-100 text-amber-700`)
+    - 如果機車有設定 color 文字（如「消光黑」），會在顏色標籤旁邊顯示
+    - 所有顏色都支持深色模式
+
+### UI Improvements
+- **視覺一致性**：機車清單和訂單管理頁面使用相同的顏色方案
+- **信息完整**：同時顯示機車類型顏色標籤和車款顏色文字（如果有）
+
+### Technical Details
+- API 和資料庫已經包含 `color` 欄位，無需額外更新
+- ScooterResource 已經返回 `color` 欄位
+- 前端直接使用現有的數據結構
+
 ## 2025-12-30 16:49:39 - 添加三輪車類型並更新機車顏色顯示邏輯 / Add Tricycle Type and Update Scooter Color Display Logic
 
 ### Database Changes
