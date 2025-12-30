@@ -550,7 +550,7 @@ const OrdersPage: React.FC = () => {
     return 'text-gray-400 dark:text-gray-500';
   };
 
-  // 獲取機車型號顏色（優先使用訂單中機車的 display_color，否則根據類型）
+  // 獲取機車型號顏色（優先使用訂單中機車的 display_color，否則使用黑色）
   const getScooterModelColor = (model: string, type: string | undefined, displayColor: string | undefined): { colorClass: string; displayColor: string | null } => {
     // 優先使用訂單中機車設定的顯示顏色（直接從 OrderResource 返回的 display_color）
     if (displayColor) {
@@ -562,19 +562,8 @@ const OrdersPage: React.FC = () => {
       return { colorClass: '', displayColor: scooterColorMap[model] };
     }
     
-    // 如果都沒有，根據機車類型返回對應顏色
-    let colorClass = 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400';
-    if (type === '白牌') {
-      colorClass = 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400';
-    } else if (type === '綠牌') {
-      colorClass = 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
-    } else if (type === '電輔車') {
-      colorClass = 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400';
-    } else if (type === '三輪車') {
-      colorClass = 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400';
-    }
-    
-    return { colorClass, displayColor: null };
+    // 如果都沒有，使用黑色作為默認顏色
+    return { colorClass: 'bg-gray-100 text-gray-900 dark:bg-gray-900/30 dark:text-gray-100', displayColor: null };
   };
 
   const handleEdit = (order: Order) => {
@@ -1065,7 +1054,7 @@ const OrdersPage: React.FC = () => {
                             );
                           }
                           
-                          // 否則使用類型顏色
+                          // 否則使用黑色（默認顏色）
                           return (
                             <span key={idx} className={`px-2 py-0.5 rounded-lg text-[10px] w-fit font-medium ${colorClass}`}>
                               {s.model} x {s.count}

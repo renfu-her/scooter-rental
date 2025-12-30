@@ -419,7 +419,14 @@ const ScootersPage: React.FC = () => {
                         </div>
                       </td>
                       <td className="px-6 py-5 font-black text-gray-900 dark:text-gray-100">{scooter.plate_number}</td>
-                      <td className="px-6 py-5 text-gray-700 dark:text-gray-300 font-bold">{scooter.model}</td>
+                      <td className="px-6 py-5 font-bold">
+                        <span 
+                          style={scooter.display_color ? { color: scooter.display_color } : undefined}
+                          className={scooter.display_color ? '' : 'text-gray-900 dark:text-gray-100'}
+                        >
+                          {scooter.model}
+                        </span>
+                      </td>
                       <td className="px-6 py-5">
                         <span className={`px-2 py-1 rounded-lg text-[10px] font-black border ${
                           scooter.type === '白牌' ? 'bg-sky-50 text-sky-600 border-sky-100 dark:bg-sky-900/30 dark:text-sky-400 dark:border-sky-800' : 

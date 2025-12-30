@@ -1,5 +1,44 @@
 # 變更記錄 (Change Log)
 
+## 2025-12-30 17:21:28 - 在機車管理列表中使用 display_color 顯示機車型號 / Use display_color for Scooter Model in Scooters List
+
+### Frontend Changes
+
+- **ScootersPage.tsx** (`system/backend/pages/ScootersPage.tsx`)
+  - 更新「機車型號」欄位顯示：
+    - 如果機車有設定 `display_color`，使用該顏色顯示機車型號文字
+    - 如果沒有 `display_color`，使用黑色（淺色模式）或白色（深色模式）
+    - 使用 inline style 來應用 `display_color`
+
+### Features
+- **視覺一致性**：機車型號的顏色與機車設定的 `display_color` 一致
+- **用戶體驗**：可以通過顏色快速識別不同機車
+
+### Technical Details
+- 使用 `style={{ color: scooter.display_color }}` 來應用顏色
+- 如果沒有 `display_color`，使用 Tailwind CSS 類名 `text-gray-900 dark:text-gray-100`
+
+## 2025-12-30 17:19:53 - 更新訂單管理頁面機車顏色顯示邏輯 / Update Scooter Color Display Logic in Orders Page
+
+### Frontend Changes
+
+- **OrdersPage.tsx** (`system/backend/pages/OrdersPage.tsx`)
+  - 更新 `getScooterModelColor` 函數：
+    - 優先使用訂單中機車的 `display_color`（直接從 OrderResource 返回）
+    - 如果沒有 `display_color`，使用黑色作為默認顏色（`text-gray-900 dark:text-gray-100`）
+    - 移除了根據機車類型顯示不同顏色的邏輯
+  - 更新「租借機車」欄位顯示：
+    - 如果有 `display_color`，使用該顏色（inline style）
+    - 如果沒有 `display_color`，使用黑色文字
+
+### Features
+- **簡化顏色邏輯**：只使用機車設定的 `display_color`，如果沒有則使用黑色
+- **視覺一致性**：確保訂單列表中的機車顏色直接來自機車設定
+
+### Technical Details
+- 移除了類型顏色作為後備的邏輯
+- 如果機車沒有設定 `display_color`，統一使用黑色文字顯示
+
 ## 2025-12-30 17:10:50 - 為機車添加顯示顏色欄位並實現顏色選擇功能 / Add Display Color Field to Scooters and Implement Color Selection
 
 ### Database Changes
