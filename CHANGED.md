@@ -1,5 +1,37 @@
 # 變更記錄 (Change Log)
 
+## 2025-12-30 15:28:33 - 優化合作商名稱顏色顯示 / Optimize Partner Name Color Display
+
+### Frontend Changes
+
+- **PartnersPage.tsx** (`system/backend/pages/PartnersPage.tsx`)
+  - 優化合作商名稱的顏色套用：
+    - 當有設定顏色時，使用 `style={{ color: partner.color }}` 直接套用 hex 顏色值
+    - 當沒有設定顏色時，使用默認的灰色 Tailwind 類名
+    - 確保顏色正確覆蓋默認的文字顏色
+
+### UI Improvements
+- **顏色顯示**：合作商名稱現在會正確使用設定的顏色顯示
+- **視覺一致性**：有顏色的名稱會優先顯示自定義顏色，沒有顏色的使用默認灰色
+
+## 2025-12-30 15:27:44 - 在合作商列表中顯示顏色 / Display Color in Partners List
+
+### Frontend Changes
+
+- **PartnersPage.tsx** (`system/backend/pages/PartnersPage.tsx`)
+  - 在合作商列表表格中添加「顯示顏色」欄位：
+    - 在表頭添加「顯示顏色」欄位（位於「合作商名稱」和「合作商地址」之間）
+    - 在每一行顯示顏色：
+      - 如果有設定顏色：顯示顏色方塊和 hex 顏色值
+      - 如果沒有設定顏色：顯示「未設定」文字
+    - 合作商名稱使用設定的顏色顯示（如果有設定）
+    - 更新 `colSpan` 從 7 改為 8（因為新增了一欄）
+
+### UI Improvements
+- **視覺識別**：在列表中可以直接看到每個合作商的顏色設定
+- **顏色預覽**：顏色方塊和 hex 值讓顏色設定一目了然
+- **一致性**：合作商名稱在列表中也會使用設定的顏色顯示
+
 ## 2025-12-30 15:25:00 - 將合作商顏色選擇器改為 Color Picker / Change Partner Color Selector to Color Picker
 
 ### Backend Changes

@@ -236,6 +236,7 @@ const PartnersPage: React.FC = () => {
                 <tr>
                   <th className="px-6 py-5">店面照片</th>
                   <th className="px-6 py-5">合作商名稱</th>
+                  <th className="px-6 py-5">顯示顏色</th>
                   <th className="px-6 py-5">合作商地址</th>
                   <th className="px-6 py-5">聯絡電話</th>
                   <th className="px-6 py-5">合作商統編</th>
@@ -246,7 +247,7 @@ const PartnersPage: React.FC = () => {
               <tbody className="divide-y divide-gray-100">
                 {partners.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
+                    <td colSpan={8} className="px-6 py-12 text-center text-gray-500">
                       目前沒有合作商資料
                     </td>
                   </tr>
@@ -272,7 +273,27 @@ const PartnersPage: React.FC = () => {
                         )}
                       </div>
                     </td>
-                    <td className="px-6 py-5 font-black text-gray-900 dark:text-gray-100 text-base">{partner.name}</td>
+                    <td className="px-6 py-5 font-black text-base">
+                      {partner.color ? (
+                        <span style={{ color: partner.color }}>{partner.name}</span>
+                      ) : (
+                        <span className="text-gray-900 dark:text-gray-100">{partner.name}</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-5">
+                      {partner.color ? (
+                        <div className="flex items-center space-x-2">
+                          <div 
+                            className="w-8 h-8 rounded-lg border-2 border-gray-200 dark:border-gray-700 shadow-sm"
+                            style={{ backgroundColor: partner.color }}
+                            title={partner.color}
+                          />
+                          <span className="text-xs font-mono text-gray-500 dark:text-gray-400">{partner.color}</span>
+                        </div>
+                      ) : (
+                        <span className="text-gray-400 dark:text-gray-500 text-sm">未設定</span>
+                      )}
+                    </td>
                     <td className="px-6 py-5 text-gray-500 dark:text-gray-400 font-medium">{partner.address || '-'}</td>
                     <td className="px-6 py-5 text-gray-500 dark:text-gray-400 font-medium tracking-wide">{partner.phone || '-'}</td>
                     <td className="px-6 py-5 text-gray-500 dark:text-gray-400 font-bold">{partner.tax_id || '-'}</td>
