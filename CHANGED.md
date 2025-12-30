@@ -1,5 +1,39 @@
 # 變更記錄 (Change Log)
 
+## 2025-12-30 22:47:57 - 確認並強化機車型號顏色對應關係說明 / Confirm and Strengthen Scooter Model Color Mapping Documentation
+
+### Frontend Changes
+
+- **OrdersPage.tsx** (`system/backend/pages/OrdersPage.tsx`)
+  - 更新註釋，明確說明顏色對應關係：
+    - 訂單中的機車型號 (`order.scooters[].model`) 
+    - → `ScooterModelColor` 表的 `model` 欄位（查詢條件）
+    - → `ScooterModelColor` 表的 `color` 欄位（返回的顏色值）
+  - 在 `useEffect` 和 `getScooterModelColor` 函數中添加詳細的對應關係說明
+
+### Technical Details
+- **資料表對應**：`scooter_model_colors` 表
+- **查詢邏輯**：`WHERE model = '機車型號'` → 返回對應的 `color` 欄位值
+- **自動處理**：如果型號不存在，API 會自動分配顏色並存入資料庫
+- **前端使用**：使用返回的 `color` 值作為「租借機車」標籤的背景色
+
+### Data Flow
+```
+訂單中的機車型號 (order.scooters[].model)
+    ↓
+前端收集所有唯一的 model
+    ↓
+API: scooterModelColorsApi.getColors([...models])
+    ↓
+後端: ScooterModelColor::getColorForModel($model)
+    ↓
+資料庫查詢: SELECT color FROM scooter_model_colors WHERE model = $model
+    ↓
+返回 color 欄位值
+    ↓
+前端使用該顏色作為背景色顯示
+```
+
 ## 2025-12-30 22:43:29 - 恢復機車管理頁面狀態標籤的顏色 / Restore Status Tag Colors in Scooters Page
 
 ### Frontend Changes
