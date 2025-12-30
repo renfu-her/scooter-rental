@@ -461,11 +461,10 @@ const ScootersPage: React.FC = () => {
                       </td>
                       <td className="px-6 py-5 text-gray-500 dark:text-gray-400 font-medium">{scooter.store?.name || '-'}</td>
                       <td className="px-6 py-5">
-                         <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black shadow-sm ${
-                           scooter.status === '待出租' ? 'bg-green-100 text-green-700' :
-                           scooter.status === '出租中' ? 'bg-blue-100 text-blue-700' :
-                           'bg-orange-100 text-orange-700'
-                         }`}>
+                         <span 
+                           className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black shadow-sm text-gray-900 dark:text-gray-100"
+                           style={scooter.display_color ? { backgroundColor: scooter.display_color } : { backgroundColor: '#E5E7EB' }}
+                         >
                            {scooter.status}
                          </span>
                       </td>
