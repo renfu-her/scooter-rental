@@ -257,33 +257,33 @@ const FinesPage: React.FC = () => {
 
       <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
         <div className="p-5 bg-gray-50/30 dark:bg-gray-800/50 flex flex-col sm:flex-row justify-between items-center gap-4 border-b border-gray-100 dark:border-gray-700">
-          <div className="flex space-x-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
+          <div className="flex items-center space-x-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
             <button
               onClick={() => setPaymentStatusFilter('')}
-              className={`px-4 py-1.5 rounded-full text-xs font-black border whitespace-nowrap shadow-sm transition-colors ${
+              className={`px-5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors ${
                 !paymentStatusFilter
-                  ? 'bg-orange-600 text-white border-orange-600 shadow-orange-100'
-                  : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
+                  ? 'bg-orange-600 text-white shadow-sm shadow-orange-100'
+                  : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
               }`}
             >
               全部 {fines.length}
             </button>
             <button
               onClick={() => setPaymentStatusFilter('未繳費')}
-              className={`px-4 py-1.5 rounded-full text-xs font-black border whitespace-nowrap shadow-sm transition-colors ${
+              className={`px-5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors ${
                 paymentStatusFilter === '未繳費'
-                  ? 'bg-red-50 text-red-600 border-red-100 shadow-red-50'
-                  : 'bg-gray-100 text-gray-500 border-gray-200 hover:bg-gray-50'
+                  ? 'bg-orange-600 text-white shadow-sm shadow-orange-100'
+                  : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
               }`}
             >
               未繳費 {unpaidCount}
             </button>
             <button
               onClick={() => setPaymentStatusFilter('已處理')}
-              className={`px-4 py-1.5 rounded-full text-xs font-black border whitespace-nowrap shadow-sm transition-colors ${
+              className={`px-5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors ${
                 paymentStatusFilter === '已處理'
-                  ? 'bg-green-50 text-green-600 border-green-100 shadow-green-50'
-                  : 'bg-gray-100 text-gray-500 border-gray-200 hover:bg-gray-50'
+                  ? 'bg-orange-600 text-white shadow-sm shadow-orange-100'
+                  : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
               }`}
             >
               已處理 {paidCount}

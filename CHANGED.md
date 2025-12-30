@@ -1,5 +1,26 @@
 # 變更記錄 (Change Log)
 
+## 2025-12-30 17:40:20 - 統一罰單管理和機車管理頁面的狀態過濾按鈕樣式 / Unify Status Filter Button Styles in Fines and Scooters Pages
+
+### Frontend Changes
+
+- **FinesPage.tsx** (`system/backend/pages/FinesPage.tsx`)
+  - 更新狀態過濾按鈕樣式，與機車管理頁面保持一致：
+    - 選中狀態：橙色背景（`bg-orange-600`）、白色文字、有陰影（`shadow-sm shadow-orange-100`）
+    - 未選中狀態：白色背景（`bg-white`）、灰色邊框（`border border-gray-200`）、灰色文字（`text-gray-600`）
+    - 統一按鈕的 padding（`px-5 py-1.5`）和字體粗細（`font-bold`）
+    - 移除了不同狀態使用不同顏色的邏輯（未繳費=紅色、已處理=綠色）
+    - 統一使用橙色作為選中狀態的顏色
+
+### Features
+- **視覺一致性**：罰單管理和機車管理頁面的狀態過濾按鈕現在使用相同的樣式
+- **用戶體驗**：統一的視覺風格讓用戶更容易理解和使用
+
+### Technical Details
+- 選中狀態：`bg-orange-600 text-white shadow-sm shadow-orange-100`
+- 未選中狀態：`bg-white border border-gray-200 text-gray-600 hover:bg-gray-50`
+- 所有按鈕使用相同的 padding 和字體樣式
+
 ## 2025-12-30 17:36:46 - 更新機車管理列表狀態標籤使用 display_color 作為背景色 / Update Scooters List Status to Use display_color as Background
 
 ### Frontend Changes
