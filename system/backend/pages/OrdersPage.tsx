@@ -455,6 +455,87 @@ const OrdersPage: React.FC = () => {
     return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
   };
 
+  // 獲取合作商顏色
+  const getPartnerColor = (partnerName: string | null | undefined): string => {
+    if (!partnerName) return 'text-gray-500 dark:text-gray-400';
+    
+    // 使用簡單的哈希函數來分配顏色
+    const colors = [
+      'text-purple-600 dark:text-purple-400',
+      'text-indigo-600 dark:text-indigo-400',
+      'text-pink-600 dark:text-pink-400',
+      'text-teal-600 dark:text-teal-400',
+      'text-cyan-600 dark:text-cyan-400',
+      'text-violet-600 dark:text-violet-400',
+      'text-fuchsia-600 dark:text-fuchsia-400',
+      'text-rose-600 dark:text-rose-400',
+    ];
+    
+    let hash = 0;
+    for (let i = 0; i < partnerName.length; i++) {
+      hash = partnerName.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return colors[Math.abs(hash) % colors.length];
+  };
+
+  // 獲取航運別顏色
+  const getShippingCompanyColor = (company: string | null | undefined): string => {
+    if (!company) return 'text-gray-500 dark:text-gray-400';
+    
+    const companyLower = company.toLowerCase();
+    if (companyLower.includes('藍白')) {
+      return 'text-blue-600 dark:text-blue-400';
+    } else if (companyLower.includes('泰富')) {
+      return 'text-red-600 dark:text-red-400';
+    } else if (companyLower.includes('聯營')) {
+      return 'text-green-600 dark:text-green-400';
+    } else if (companyLower.includes('大福')) {
+      return 'text-yellow-700 dark:text-yellow-500';
+    }
+    return 'text-gray-600 dark:text-gray-400';
+  };
+
+  // 獲取付款方式顏色
+  const getPaymentMethodColor = (method: string | null | undefined): string => {
+    if (!method) return 'text-gray-400 dark:text-gray-500';
+    
+    const methodLower = method.toLowerCase();
+    if (methodLower.includes('現金')) {
+      return 'text-emerald-600 dark:text-emerald-400';
+    } else if (methodLower.includes('月結')) {
+      return 'text-blue-600 dark:text-blue-400';
+    } else if (methodLower.includes('日結')) {
+      return 'text-cyan-600 dark:text-cyan-400';
+    } else if (methodLower.includes('匯款')) {
+      return 'text-indigo-600 dark:text-indigo-400';
+    } else if (methodLower.includes('刷卡')) {
+      return 'text-purple-600 dark:text-purple-400';
+    } else if (methodLower.includes('行動支付') || methodLower.includes('行動')) {
+      return 'text-pink-600 dark:text-pink-400';
+    }
+    return 'text-gray-400 dark:text-gray-500';
+  };
+
+  // 獲取機車型號顏色
+  const getScooterModelColor = (model: string): string => {
+    const colors = [
+      'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+      'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+      'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
+      'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400',
+      'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400',
+      'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400',
+      'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400',
+      'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400',
+    ];
+    
+    let hash = 0;
+    for (let i = 0; i < model.length; i++) {
+      hash = model.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return colors[Math.abs(hash) % colors.length];
+  };
+
   const handleEdit = (order: Order) => {
     setEditingOrder(order);
     setIsAddModalOpen(true);
@@ -927,7 +1008,7 @@ const OrdersPage: React.FC = () => {
                     <td className="px-4 py-4 w-[130px]">
                       <div className="flex flex-col gap-1">
                         {order.scooters.map((s, idx) => (
-                          <span key={idx} className="bg-gray-100 px-2 py-0.5 rounded-lg text-[10px] w-fit font-medium text-gray-700">
+                          <span key={idx} className={`px-2 py-0.5 rounded-lg text-[10px] w-fit font-medium ${getScooterModelColor(s.model)}`}>
                             {s.model} x {s.count}
                           </span>
                         ))}
@@ -936,7 +1017,7 @@ const OrdersPage: React.FC = () => {
                     <td className="px-4 py-4 w-[160px] text-xs leading-tight">
                       {order.shipping_company && (
                         <>
-                          <div className="text-gray-700 font-bold mb-1">{order.shipping_company}</div>
+                          <div className={`font-bold mb-1 ${getShippingCompanyColor(order.shipping_company)}`}>{order.shipping_company}</div>
                           {order.ship_arrival_time && (
                             <div className="text-gray-400">來: {formatDateTime(order.ship_arrival_time)}</div>
                           )}
@@ -948,9 +1029,15 @@ const OrdersPage: React.FC = () => {
                       {!order.shipping_company && '-'}
                     </td>
                     <td className="px-4 py-4 w-[120px] text-gray-500 dark:text-gray-400 font-medium">{order.phone || '-'}</td>
-                    <td className="px-4 py-4 w-[120px] text-orange-600 dark:text-orange-400 font-bold">{order.partner?.name || '-'}</td>
+                    <td className="px-4 py-4 w-[120px] font-bold">
+                      {order.partner?.name ? (
+                        <span className={getPartnerColor(order.partner.name)}>{order.partner.name}</span>
+                      ) : (
+                        <span className="text-gray-500 dark:text-gray-400">-</span>
+                      )}
+                    </td>
                     <td className="px-4 py-4 w-[110px]">
-                      <div className="text-xs text-gray-400 dark:text-gray-500 mb-0.5">{order.payment_method || '-'}</div>
+                      <div className={`text-xs mb-0.5 font-medium ${getPaymentMethodColor(order.payment_method)}`}>{order.payment_method || '-'}</div>
                       <div className="font-black text-gray-900 dark:text-gray-100">${order.payment_amount.toLocaleString()}</div>
                     </td>
                     <td 

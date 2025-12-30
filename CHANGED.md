@@ -1,5 +1,37 @@
 # 變更記錄 (Change Log)
 
+## 2025-12-30 08:22:27 - 為訂單管理表格添加顏色區分 / Add Color Coding to Order Management Table
+
+### Frontend Changes
+
+- **OrdersPage.tsx** (`system/backend/pages/OrdersPage.tsx`)
+  - 添加顏色輔助函數：
+    - `getPartnerColor()`: 為合作商名稱分配顏色（使用哈希函數確保一致性）
+    - `getShippingCompanyColor()`: 為航運別分配特定顏色
+    - `getPaymentMethodColor()`: 為付款方式分配顏色
+    - `getScooterModelColor()`: 為機車型號分配顏色標籤
+  
+  - 更新表格欄位顯示：
+    1. **合作商**：使用多種顏色（紫色、靛藍、粉色、青色等）區分不同合作商
+    2. **航運別**：特定顏色映射
+       - 藍白：藍色 (`text-blue-600`)
+       - 泰富：紅色 (`text-red-600`)
+       - 聯營：綠色 (`text-green-600`)
+       - 大福：深黃色 (`text-yellow-700`)
+    3. **付款方式**：不同付款方式使用不同顏色
+       - 現金：翠綠色 (`text-emerald-600`)
+       - 月結：藍色 (`text-blue-600`)
+       - 日結：青色 (`text-cyan-600`)
+       - 匯款：靛藍色 (`text-indigo-600`)
+       - 刷卡：紫色 (`text-purple-600`)
+       - 行動支付：粉色 (`text-pink-600`)
+    4. **租借機車（款X台）**：使用彩色標籤區分不同機車型號（藍、綠、紫、粉、靛藍、青色等）
+
+### UI Improvements
+- **視覺識別性**：通過顏色快速區分不同類型的數據
+- **一致性**：使用哈希函數確保相同值始終顯示相同顏色
+- **深色模式支持**：所有顏色都支持深色模式
+
 ## 2025-12-29 22:27:57 - 統一按鈕高度 / Unify Button Heights
 
 ### Frontend Changes
