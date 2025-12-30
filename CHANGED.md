@@ -1,5 +1,60 @@
 # 變更記錄 (Change Log)
 
+## 2025-12-30 16:49:39 - 添加三輪車類型並更新機車顏色顯示邏輯 / Add Tricycle Type and Update Scooter Color Display Logic
+
+### Database Changes
+
+- **Migration** (`database/migrations/2025_12_30_153000_add_tricycle_to_scooters_type_enum.php`)
+  - 新增 migration 檔案為 `scooters` 表的 `type` enum 欄位添加「三輪車」選項
+  - 更新後的完整選項列表：`['白牌', '綠牌', '電輔車', '三輪車']`
+  - 使用 `ALTER TABLE` 語句修改 MySQL enum 欄位
+
+### Backend Changes
+
+- **ScooterController.php** (`app/Http/Controllers/Api/ScooterController.php`)
+  - 更新 `type` 欄位驗證規則：
+    - 從 `'required|in:白牌,綠牌,電輔車'` 改為 `'required|in:白牌,綠牌,電輔車,三輪車'`
+    - 更新錯誤訊息包含「三輪車」
+
+- **OrderResource.php** (`app/Http/Resources/OrderResource.php`)
+  - 更新 `scooters` 數據結構，添加 `type` 欄位：
+    - 在按 model 分組時，同時返回該 model 的 `type` 信息
+    - 現在返回：`{ model: string, type: string, count: number }`
+
+### Frontend Changes
+
+- **types.ts** (`system/backend/types.ts`)
+  - 更新 `ScooterType` enum，添加 `TRICYCLE = '三輪車'`
+
+- **OrdersPage.tsx** (`system/backend/pages/OrdersPage.tsx`)
+  - 更新 `Order` interface，`scooters` 陣列添加 `type?: string` 欄位
+  - 更新 `getScooterModelColor` 函數：
+    - 從根據 model 名稱哈希分配顏色改為根據機車類型分配顏色
+    - 顏色映射：
+      - 白牌：天藍色 (`bg-sky-100 text-sky-700`)
+      - 綠牌：綠色 (`bg-green-100 text-green-700`)
+      - 電輔車：橙色 (`bg-orange-100 text-orange-700`)
+      - 三輪車：琥珀色/黃色 (`bg-amber-100 text-amber-700`，不要太亮)
+    - 更新調用處，從傳入 `s.model` 改為傳入 `s.type`
+
+- **ScootersPage.tsx** (`system/backend/pages/ScootersPage.tsx`)
+  - 在「車款類型」下拉選單中添加「三輪車 (Tricycle)」選項
+  - 更新機車類型標籤的顏色顯示：
+    - 白牌：天藍色 (`bg-sky-50 text-sky-600`)
+    - 綠牌：綠色 (`bg-green-50 text-green-600`)
+    - 電輔車：橙色 (`bg-orange-50 text-orange-600`)
+    - 三輪車：琥珀色 (`bg-amber-50 text-amber-600`)
+    - 所有顏色都支持深色模式
+
+### Features
+- **新增機車類型**：現在可以選擇「三輪車」作為機車類型
+- **顏色區分**：訂單管理頁面中的機車型號現在根據類型顯示不同顏色，更容易區分
+- **視覺一致性**：機車管理頁面和訂單管理頁面使用相同的顏色方案
+
+### Technical Details
+- 訂單中的機車數據現在包含 `type` 欄位，用於顏色顯示
+- 顏色選擇符合用戶要求：白牌（天藍色）、綠牌（綠色）、電輔車（橙色）、三輪車（琥珀色/不太亮的黃色）
+
 ## 2025-12-30 15:28:33 - 優化合作商名稱顏色顯示 / Optimize Partner Name Color Display
 
 ### Frontend Changes

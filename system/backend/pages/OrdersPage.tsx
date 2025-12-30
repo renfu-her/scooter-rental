@@ -16,7 +16,7 @@ interface Order {
   start_time: string;
   end_time: string;
   expected_return_time: string | null;
-  scooters: Array<{ model: string; count: number }>;
+  scooters: Array<{ model: string; type?: string; count: number }>;
   shipping_company: string | null;
   ship_arrival_time: string | null;
   ship_return_time: string | null;
@@ -526,24 +526,25 @@ const OrdersPage: React.FC = () => {
     return 'text-gray-400 dark:text-gray-500';
   };
 
-  // 獲取機車型號顏色
-  const getScooterModelColor = (model: string): string => {
-    const colors = [
-      'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
-      'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
-      'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
-      'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400',
-      'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400',
-      'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400',
-      'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400',
-      'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400',
-    ];
-    
-    let hash = 0;
-    for (let i = 0; i < model.length; i++) {
-      hash = model.charCodeAt(i) + ((hash << 5) - hash);
+  // 獲取機車型號顏色（根據機車類型）
+  const getScooterModelColor = (type: string | undefined): string => {
+    if (!type) {
+      return 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400';
     }
-    return colors[Math.abs(hash) % colors.length];
+    
+    // 根據機車類型返回對應顏色
+    if (type === '白牌') {
+      return 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400';
+    } else if (type === '綠牌') {
+      return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
+    } else if (type === '電輔車') {
+      return 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400';
+    } else if (type === '三輪車') {
+      return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400';
+    }
+    
+    // 默認顏色
+    return 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400';
   };
 
   const handleEdit = (order: Order) => {
@@ -1018,7 +1019,7 @@ const OrdersPage: React.FC = () => {
                     <td className="px-4 py-4 w-[130px]">
                       <div className="flex flex-col gap-1">
                         {order.scooters.map((s, idx) => (
-                          <span key={idx} className={`px-2 py-0.5 rounded-lg text-[10px] w-fit font-medium ${getScooterModelColor(s.model)}`}>
+                          <span key={idx} className={`px-2 py-0.5 rounded-lg text-[10px] w-fit font-medium ${getScooterModelColor(s.type)}`}>
                             {s.model} x {s.count}
                           </span>
                         ))}

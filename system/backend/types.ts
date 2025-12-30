@@ -9,7 +9,8 @@ export enum OrderStatus {
 export enum ScooterType {
   WHITE = '白牌',
   GREEN = '綠牌',
-  ELECTRIC_ASSIST = '電輔車'
+  ELECTRIC_ASSIST = '電輔車',
+  TRICYCLE = '三輪車'
 }
 
 export enum PaymentMethod {

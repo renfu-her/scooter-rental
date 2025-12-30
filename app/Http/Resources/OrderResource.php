@@ -16,8 +16,11 @@ class OrderResource extends JsonResource
     {
         $scooters = $this->whenLoaded('scooters', function () {
             return $this->scooters->groupBy('model')->map(function ($group) {
+                // 獲取該 model 的類型（如果有多個類型，取第一個）
+                $type = $group->first()->type ?? null;
                 return [
                     'model' => $group->first()->model,
+                    'type' => $type,
                     'count' => $group->count(),
                 ];
             })->values();

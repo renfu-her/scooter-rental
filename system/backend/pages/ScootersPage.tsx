@@ -419,9 +419,11 @@ const ScootersPage: React.FC = () => {
                       <td className="px-6 py-5 text-gray-700 dark:text-gray-300 font-bold">{scooter.model}</td>
                       <td className="px-6 py-5">
                         <span className={`px-2 py-1 rounded-lg text-[10px] font-black border ${
-                          scooter.type === '白牌' ? 'bg-blue-50 text-blue-600 border-blue-100' : 
-                          scooter.type === '電輔車' ? 'bg-orange-50 text-orange-600 border-orange-100' :
-                          'bg-green-50 text-green-600 border-green-100'
+                          scooter.type === '白牌' ? 'bg-sky-50 text-sky-600 border-sky-100 dark:bg-sky-900/30 dark:text-sky-400 dark:border-sky-800' : 
+                          scooter.type === '綠牌' ? 'bg-green-50 text-green-600 border-green-100 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800' :
+                          scooter.type === '電輔車' ? 'bg-orange-50 text-orange-600 border-orange-100 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800' :
+                          scooter.type === '三輪車' ? 'bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800' :
+                          'bg-gray-50 text-gray-600 border-gray-100 dark:bg-gray-900/30 dark:text-gray-400 dark:border-gray-800'
                         }`}>
                           {scooter.type}
                         </span>
@@ -536,6 +538,7 @@ const ScootersPage: React.FC = () => {
                       <option value="白牌" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">白牌 (Heavy)</option>
                       <option value="綠牌" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">綠牌 (Light)</option>
                       <option value="電輔車" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">電輔車 (E-Bike)</option>
+                      <option value="三輪車" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">三輪車 (Tricycle)</option>
                     </select>
                     <ChevronDown size={18} className={chevronDownClasses} />
                   </div>
