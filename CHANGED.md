@@ -1,5 +1,33 @@
 # 變更記錄 (Change Log)
 
+## 2025-12-31 09:06:27 - 修復罰單管理頁面日期選擇器時區問題 / Fix Timezone Issue in Fines Page Date Picker
+
+### Frontend Changes
+
+- **FinesPage.tsx** (`system/backend/pages/FinesPage.tsx`)
+  - 修復日期選擇器的時區問題：
+    - 之前使用 `toISOString().split('T')[0]` 會將日期轉換為 UTC 時間
+    - 在 UTC+8 時區（台灣）可能會導致日期少一天
+    - 改為使用本地時間格式化日期：
+      - 使用 `getFullYear()`, `getMonth() + 1`, `getDate()` 獲取本地時間的年月日
+      - 手動格式化為 `YYYY-MM-DD` 格式
+      - 確保選擇的日期與顯示的日期一致
+
+### Problem
+- **時區問題**：`toISOString()` 會將日期轉換為 UTC 時間
+- **影響**：在 UTC+8 時區選擇日期時，可能會少一天
+- **範例**：選擇 2025-12-30，可能變成 2025-12-29
+
+### Solution
+- 使用本地時間的 `getFullYear()`, `getMonth()`, `getDate()` 方法
+- 手動格式化日期字串，避免時區轉換
+- 確保選擇的日期與保存的日期一致
+
+### Technical Details
+- 日期格式化：`${year}-${month}-${day}`
+- 月份和日期使用 `padStart(2, '0')` 確保兩位數格式
+- 不再使用 `toISOString()` 避免時區轉換問題
+
 ## 2025-12-31 08:43:42 - 更新訂單管理頁面使用車款類型顏色 / Update Orders Page to Use Vehicle Type Colors
 
 ### Frontend Changes

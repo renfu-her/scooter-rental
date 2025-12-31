@@ -456,7 +456,12 @@ const FinesPage: React.FC = () => {
                     value={formData.violation_date}
                     onChange={(dates) => {
                       if (dates && dates.length > 0) {
-                        const dateStr = dates[0].toISOString().split('T')[0];
+                        // 使用本地時間格式化日期，避免時區問題導致日期少一天
+                        const date = dates[0];
+                        const year = date.getFullYear();
+                        const month = String(date.getMonth() + 1).padStart(2, '0');
+                        const day = String(date.getDate()).padStart(2, '0');
+                        const dateStr = `${year}-${month}-${day}`;
                         setFormData(prev => ({ ...prev, violation_date: dateStr }));
                       }
                     }}
