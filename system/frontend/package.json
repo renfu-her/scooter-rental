@@ -1,5 +1,5 @@
 {
-  "name": "蘭光電動機車出租---專業租賃查詢系統",
+  "name": "蘭光租賃中心---小琉球電動車首選",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -9,9 +9,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "react-dom": "^19.2.3",
     "react": "^19.2.3",
-    "@google/genai": "^1.34.0"
+    "react-dom": "^19.2.3",
+    "lucide-react": "^0.562.0",
+    "react-router-dom": "^7.11.0"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

@@ -1,5 +1,8 @@
+
 {
-  "name": "蘭光電動機車出租 - 專業租賃查詢系統",
-  "description": "專業電動機車租賃平台，提供搜尋型號與車牌的便捷查詢服務。",
-  "requestFramePermissions": []
+  "name": "蘭光租賃中心 - 小琉球電動車首選",
+  "description": "蘭光租賃中心提供小琉球高品質電動車租賃服務，包含多樣化租車方案、線上預約及在地民宿推薦。",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
 }

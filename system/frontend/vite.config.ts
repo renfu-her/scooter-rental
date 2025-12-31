@@ -18,14 +18,6 @@ export default defineConfig(({ mode }) => {
         alias: {
           '@': path.resolve(__dirname, '.'),
         }
-      },
-      base: '/',
-      build: {
-        outDir: path.resolve(__dirname, '../../public'),
-        emptyOutDir: false,
-        rollupOptions: {
-          input: path.resolve(__dirname, 'index.html'),
-        },
-      },
+      }
     };
 });
