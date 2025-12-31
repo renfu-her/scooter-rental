@@ -1027,7 +1027,7 @@ const OrdersPage: React.FC = () => {
                             return (
                               <span 
                                 key={idx} 
-                                className="px-2 py-0.5 rounded-lg text-[10px] w-fit font-medium text-gray-900 dark:text-gray-100"
+                                className="px-2 py-0.5 rounded-lg text-[10px] w-fit font-medium text-gray-900 dark:text-gray-900"
                                 style={{ backgroundColor: displayColor }}
                               >
                                 {s.model} x {s.count}
@@ -1037,7 +1037,7 @@ const OrdersPage: React.FC = () => {
                           
                           // 否則使用灰色背景和黑色文字（默認顏色）
                           return (
-                            <span key={idx} className="px-2 py-0.5 rounded-lg text-[10px] w-fit font-medium bg-gray-100 dark:bg-gray-900/30 text-gray-900 dark:text-gray-100">
+                            <span key={idx} className="px-2 py-0.5 rounded-lg text-[10px] w-fit font-medium bg-gray-100 dark:bg-gray-900/30 text-gray-900 dark:text-gray-900">
                               {s.model} x {s.count}
                             </span>
                           );

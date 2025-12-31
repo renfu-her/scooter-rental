@@ -1,5 +1,23 @@
 # 變更記錄 (Change Log)
 
+## 2025-12-31 09:10:02 - 修復訂單管理頁面 dark mode 下租借機車標籤文字顏色 / Fix Text Color in Dark Mode for Rented Motorcycle Tags in Orders Page
+
+### Frontend Changes
+
+- **OrdersPage.tsx** (`system/backend/pages/OrdersPage.tsx`)
+  - 修復 dark mode 下「租借機車」標籤的文字顏色：
+    - 從 `dark:text-gray-100`（白色）改為 `dark:text-gray-900`（黑色）
+    - 確保在 dark mode 下文字顏色為黑色，提高可讀性
+    - 適用於有顏色背景和默認灰色背景的標籤
+
+### Features
+- **可讀性改善**：在 dark mode 下，租借機車標籤的文字顏色為黑色，在淺色背景上更清晰可讀
+- **一致性**：light mode 和 dark mode 都使用黑色文字
+
+### Technical Details
+- 文字顏色：`text-gray-900 dark:text-gray-900`（light 和 dark mode 都是黑色）
+- 背景色：使用車款類型對應的顏色（例如：白牌 = 天藍色）
+
 ## 2025-12-31 09:06:27 - 修復罰單管理頁面日期選擇器時區問題 / Fix Timezone Issue in Fines Page Date Picker
 
 ### Frontend Changes
