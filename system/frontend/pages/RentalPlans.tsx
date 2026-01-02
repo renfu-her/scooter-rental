@@ -60,36 +60,13 @@ const RentalPlans: React.FC = () => {
               // 左邊（奇數索引）永遠高過右邊，左邊高度 600px，右邊高度較低
               const isLeft = index % 2 === 0;
               const heightClass = isLeft ? 'h-[600px]' : 'h-[500px]';
-              const translateClass = isLeft ? 'md:-translate-y-16' : 'md:translate-y-16';
               
               return (
-                <div key={plan.id} className={`flex flex-col items-center ${translateClass} transition-transform duration-300`}>
-                  <div className={`relative w-full ${heightClass} mb-12`}>
-                    <div className="absolute inset-0 bg-gray-50 rounded-[100px] -z-10 transform -rotate-3"></div>
-                    <div className="w-full h-full rounded-[100px] overflow-hidden shadow-2xl">
-                      {plan.image_path ? (
-                        <img
-                          src={`/storage/${plan.image_path}`}
-                          alt={plan.model || `租車方案 ${index + 1}`}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            // 如果圖片載入失敗，使用 placeholder
-                            (e.target as HTMLImageElement).src = `https://picsum.photos/seed/rental-${plan.id}/800/800`;
-                          }}
-                        />
-                      ) : (
-                        <img
-                          src={`https://picsum.photos/seed/rental-${plan.id}/800/800`}
-                          alt={plan.model || `租車方案 ${index + 1}`}
-                          className="w-full h-full object-cover"
-                        />
-                      )}
-                    </div>
-                    
-                    {/* Price Badge */}
-                    <div className="absolute bottom-[-20px] left-1/2 -translate-x-1/2 w-48 h-48 rounded-full bg-white shadow-xl flex flex-col items-center justify-center p-6 text-center border-4 border-white">
-                      <span className="text-xs font-bold uppercase tracking-widest text-gray-800">{plan.model || '未命名方案'}</span>
-                      <span className="text-3xl font-bold serif text-black">${plan.price || 0}</span>
+                <div key={plan.id} className="flex flex-col items-center">
+                  <div className={`relative w-full ${heightClass} mb-12 bg-gray-200 rounded-[100px] flex items-center justify-center`}>
+                    <div className="text-center">
+                      <div className="text-xs font-bold uppercase tracking-widest text-gray-800 mb-2">{plan.model || '未命名方案'}</div>
+                      <div className="text-3xl font-bold serif text-black">${plan.price || 0}</div>
                     </div>
                   </div>
                 </div>
