@@ -20,10 +20,10 @@ const About: React.FC = () => {
           {/* Introduction */}
           <div className="mb-16">
             <h2 className="text-3xl md:text-4xl font-bold serif mb-6 text-center">我們的使命</h2>
-            <p className="text-gray-600 leading-relaxed text-lg mb-6 text-center">
+            <p className="text-gray-600 leading-relaxed text-lg mb-6 text-left">
               蘭光租賃中心致力於為每一位旅客提供最優質的電動車租賃服務，讓您能夠以最環保、最舒適的方式探索小琉球的美麗風光。
             </p>
-            <p className="text-gray-600 leading-relaxed text-lg text-center">
+            <p className="text-gray-600 leading-relaxed text-lg text-left">
               我們相信，每一次的旅程都應該是一次難忘的體驗。因此，我們不僅提供高品質的電動車，更注重每一位顧客的服務體驗。
             </p>
           </div>
