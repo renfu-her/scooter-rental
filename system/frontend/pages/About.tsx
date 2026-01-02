@@ -5,12 +5,11 @@ const About: React.FC = () => {
   return (
     <div className="animate-in slide-in-from-right-4 duration-700">
       {/* Header Section */}
-      <header className="py-20 px-6 bg-[#fcfcfc] text-center relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-teal-50 blob-shape -z-10 opacity-30"></div>
+      <header className="py-20 px-6 bg-white text-center">
         <div className="max-w-4xl mx-auto">
           <p className="text-gray-400 tracking-[0.3em] uppercase mb-2">About Us</p>
-          <h1 className="text-5xl md:text-7xl serif font-light mb-4 tracking-tight">關於我們</h1>
-          <h2 className="text-2xl font-medium text-gray-800">蘭光租賃中心</h2>
+          <h1 className="text-5xl md:text-6xl serif font-light mb-4">關於我們</h1>
+          <p className="text-gray-500 max-w-xl mx-auto">蘭光租賃中心致力於為每一位旅客提供最優質的電動車租賃服務，讓您能夠以最環保、最舒適的方式探索小琉球的美麗風光。</p>
           <div className="mt-4 text-xs text-gray-400">首頁 &gt; 關於我們</div>
         </div>
       </header>

@@ -19,17 +19,16 @@ const Booking: React.FC = () => {
 
   return (
     <div className="animate-in fade-in duration-700 pb-24">
-      <header className="py-20 px-6 bg-black text-white text-center relative overflow-hidden">
-        <div className="max-w-4xl mx-auto relative z-10">
-          <h1 className="text-4xl md:text-5xl serif mb-4">RESERVATION</h1>
-          <h2 className="text-xl font-light opacity-80">線上預約</h2>
-        </div>
-        <div className="absolute inset-0 opacity-30">
-           <img src="https://picsum.photos/seed/beach/1920/400" className="w-full h-full object-cover" alt="Beach" />
+      <header className="py-20 px-6 bg-white text-center">
+        <div className="max-w-4xl mx-auto">
+          <p className="text-gray-400 tracking-[0.3em] uppercase mb-2 text-sm">Online Reservation</p>
+          <h1 className="text-5xl md:text-6xl serif font-light mb-4">線上預約</h1>
+          <p className="text-gray-500 max-w-xl mx-auto text-base">透過線上預約系統，輕鬆完成租車預訂，享受便捷快速的服務體驗。</p>
+          <div className="mt-4 text-xs text-gray-400">首頁 &gt; 線上預約</div>
         </div>
       </header>
 
-      <div className="container mx-auto px-6 max-w-4xl -mt-10 relative z-20">
+      <div className="container mx-auto px-6 max-w-4xl py-12">
         <div className="bg-white rounded-[40px] shadow-2xl p-8 md:p-12">
           <form onSubmit={handleSubmit} className="grid md:grid-cols-2 gap-8">
             <div className="space-y-6">

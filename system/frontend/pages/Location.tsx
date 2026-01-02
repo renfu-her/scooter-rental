@@ -7,8 +7,9 @@ const Location: React.FC = () => {
     <div className="animate-in fade-in duration-700">
        <header className="py-20 px-6 bg-white text-center">
         <div className="max-w-4xl mx-auto">
-          <p className="text-gray-400 tracking-[0.3em] uppercase mb-2">Location & Contact</p>
+          <p className="text-gray-400 tracking-[0.3em] uppercase mb-2 text-sm">Location & Contact</p>
           <h1 className="text-5xl md:text-6xl serif font-light mb-4">交通位置</h1>
+          <p className="text-gray-500 max-w-xl mx-auto text-base">蘭光租賃中心位於小琉球交通便利的位置，歡迎您前來門市參觀選車，我們提供最專業的服務與諮詢。</p>
           <div className="mt-4 text-xs text-gray-400">首頁 &gt; 交通資訊</div>
         </div>
       </header>

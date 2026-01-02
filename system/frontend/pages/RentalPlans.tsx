@@ -6,12 +6,11 @@ import { ChevronDown } from 'lucide-react';
 const RentalPlans: React.FC = () => {
   return (
     <div className="animate-in slide-in-from-bottom-4 duration-700">
-      <header className="py-20 px-6 bg-[#fcfcfc] text-center relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-teal-50 blob-shape -z-10 opacity-30"></div>
+      <header className="py-20 px-6 bg-white text-center">
         <div className="max-w-4xl mx-auto">
-          <p className="text-gray-400 tracking-[0.3em] uppercase mb-2">Electric Scooter</p>
-          <h1 className="text-5xl md:text-7xl serif font-light mb-4 tracking-tight">RENTAL PLAN</h1>
-          <h2 className="text-2xl font-medium text-gray-800">小琉球租車方案</h2>
+          <p className="text-gray-400 tracking-[0.3em] uppercase mb-2">Rental Plans</p>
+          <h1 className="text-5xl md:text-6xl serif font-light mb-4">租車方案</h1>
+          <p className="text-gray-500 max-w-xl mx-auto">蘭光租賃中心提供多種電動車租賃方案，滿足您不同的旅遊需求，讓您輕鬆探索小琉球的美景。</p>
           <div className="mt-4 text-xs text-gray-400">首頁 &gt; 租車方案</div>
         </div>
       </header>
