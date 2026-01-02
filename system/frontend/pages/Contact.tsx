@@ -73,12 +73,11 @@ const Contact: React.FC = () => {
           </div>
         </section>
       ) : (
-        <section className="container mx-auto px-6 max-w-6xl py-12">
-          <div className="grid md:grid-cols-2 gap-12">
+        <section className="container mx-auto px-6 max-w-4xl py-12">
+          <div className="space-y-12">
             {/* 聯絡資訊 */}
-            <div className="space-y-8">
-              <div className="bg-white p-8 rounded-[40px] shadow-sm border border-gray-100">
-                <h3 className="text-2xl font-bold mb-6 serif">聯絡資訊</h3>
+            <div className="bg-white p-8 rounded-[40px] shadow-sm border border-gray-100">
+              <h3 className="text-2xl font-bold mb-6 serif">聯絡資訊</h3>
                 <div className="space-y-6">
                   {location?.address && (
                     <div className="flex items-start gap-4">
@@ -130,7 +129,7 @@ const Contact: React.FC = () => {
               </div>
 
               {location?.description && (
-                <div className="bg-white p-8 rounded-[40px] shadow-sm border border-gray-100">
+                <div className="mt-6 pt-6 border-t border-gray-200">
                   <p className="text-gray-600 leading-relaxed">{location.description}</p>
                 </div>
               )}
