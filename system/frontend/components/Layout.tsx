@@ -1,8 +1,8 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Logo, NAV_ITEMS } from '../constants';
-import { Calendar, Search, MessageCircle, ChevronRight, Menu, X, Megaphone, Sparkles } from 'lucide-react';
+import { Calendar, Search, MessageCircle, ChevronRight, Menu, X } from 'lucide-react';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -10,53 +10,12 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
-  const [showBanner, setShowBanner] = useState(true);
   const location = useLocation();
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
 
   return (
     <div className="min-h-screen bg-[#fcfcfc] flex flex-col relative">
-      {/* Visual Image Banner */}
-      {showBanner && (
-        <div className="relative w-full h-16 md:h-20 overflow-hidden group z-[100]">
-          {/* Banner Background Image */}
-          <img 
-            src="https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&q=80&w=2000" 
-            className="absolute inset-0 w-full h-full object-cover filter brightness-50 contrast-125"
-            alt="Promotion Banner"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-teal-900/40 to-black/20"></div>
-          
-          <div className="relative h-full max-w-7xl mx-auto flex items-center justify-between px-6">
-            <div className="flex items-center gap-4">
-              <div className="hidden sm:flex w-10 h-10 bg-white/20 backdrop-blur-md rounded-full items-center justify-center text-white border border-white/30">
-                <Sparkles size={18} className="animate-pulse" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-[10px] uppercase tracking-[0.2em] text-teal-300 font-bold">Limited Offer</span>
-                <p className="text-xs md:text-base text-white font-bold tracking-wide">
-                  蘭光租賃開幕慶盛大展開！<span className="text-yellow-400">線上預約即享 8 折</span>，把握登島美好時光。
-                </p>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-6">
-              <Link to="/booking" className="hidden md:block bg-white text-black px-6 py-1.5 rounded-full text-sm font-black hover:bg-teal-500 hover:text-white transition-all shadow-lg transform active:scale-95">
-                立即預約
-              </Link>
-              <button 
-                onClick={() => setShowBanner(false)}
-                className="text-white/60 hover:text-white p-1 transition-colors"
-                aria-label="Close banner"
-              >
-                <X size={18} />
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       <div className="flex flex-col md:flex-row flex-1">
         {/* Sidebar - Desktop */}
         <aside className="hidden md:flex flex-col w-64 h-screen sticky top-0 bg-[#fcfcfc] border-r border-gray-100 p-8 z-50">

@@ -38,7 +38,7 @@ const BannerCarousel: React.FC = () => {
   };
 
   return (
-    <section className="relative w-full h-[400px] md:h-[500px] overflow-hidden bg-gray-100">
+    <section className="relative w-full h-[250px] md:h-[300px] overflow-hidden bg-gray-100">
       {/* Banner 容器 */}
       <div className="relative w-full h-full">
         {BANNERS.map((banner, index) => (

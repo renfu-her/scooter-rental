@@ -11,7 +11,7 @@ const Home: React.FC = () => {
       <BannerCarousel />
 
       {/* Hero Section */}
-      <section className="relative h-[80vh] flex items-center justify-center overflow-hidden">
+      <section className="relative h-[50vh] md:h-[60vh] flex items-center justify-center overflow-hidden">
         {/* Decorative background blobs */}
         <div className="absolute top-[-10%] right-[-10%] w-[60%] h-[80%] bg-[#f0f9f6] blob-shape -z-10 opacity-60 transform rotate-12"></div>
         <div className="absolute bottom-[-10%] left-[-5%] w-[40%] h-[60%] bg-[#fff4f9] blob-shape -z-10 opacity-60"></div>
