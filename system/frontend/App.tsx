@@ -9,6 +9,7 @@ import Guidelines from './pages/Guidelines';
 import Booking from './pages/Booking';
 import Location from './pages/Location';
 import Guesthouses from './pages/Guesthouses';
+import Contact from './pages/Contact';
 
 const App: React.FC = () => {
   return (
@@ -25,7 +26,7 @@ const App: React.FC = () => {
           <Route path="/booking" element={<Booking />} /> {/* 線上預約 */}
           <Route path="/location" element={<Location />} /> {/* 交通位置 */}
           <Route path="/guesthouses" element={<Guesthouses />} /> {/* 民宿推薦 */}
-          <Route path="/contact" element={<Location />} /> {/* 聯絡我們 redirects to Location info */}
+          <Route path="/contact" element={<Contact />} /> {/* 聯絡我們 */}
           
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/about" replace />} />
