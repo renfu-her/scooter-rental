@@ -3,6 +3,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import Home from './pages/Home';
+import About from './pages/About';
 import RentalPlans from './pages/RentalPlans';
 import Guidelines from './pages/Guidelines';
 import Booking from './pages/Booking';
@@ -18,7 +19,7 @@ const App: React.FC = () => {
           <Route path="/" element={<Home />} />
           
           {/* User defined navigation structure */}
-          <Route path="/about" element={<Home />} /> {/* 關於我們 maps to Home content */}
+          <Route path="/about" element={<About />} /> {/* 關於我們 */}
           <Route path="/rental" element={<RentalPlans />} /> {/* 租車方案 maps to rental */}
           <Route path="/guidelines" element={<Guidelines />} /> {/* 租車須知 */}
           <Route path="/booking" element={<Booking />} /> {/* 線上預約 */}
