@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import Home from './pages/Home';
 import RentalPlans from './pages/RentalPlans';
@@ -11,7 +11,7 @@ import Guesthouses from './pages/Guesthouses';
 
 const App: React.FC = () => {
   return (
-    <HashRouter>
+    <BrowserRouter>
       <Layout>
         <Routes>
           {/* Default entry point */}
@@ -30,7 +30,7 @@ const App: React.FC = () => {
           <Route path="*" element={<Navigate to="/about" replace />} />
         </Routes>
       </Layout>
-    </HashRouter>
+    </BrowserRouter>
   );
 };
 
