@@ -1,20 +1,224 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# 蘭光租賃中心 - 前端應用
 
-# Run and deploy your AI Studio app
+這是蘭光租賃中心的前端應用程式，使用 React + TypeScript + Vite 構建。
 
-This contains everything you need to run your app locally.
+## 功能特色
 
-View your app in AI Studio: https://ai.studio/apps/drive/1S4QaTUKrlYc3_Igashpjo1URh6gaWxea
+- 🏠 首頁 Banner 輪播展示
+- 🛵 租車方案展示
+- 📋 租車須知（FAQ）
+- 📍 交通位置資訊
+- 🏨 民宿推薦
+- 📝 線上預約表單
+- 📱 響應式設計，支援手機、平板、桌面裝置
 
-## Run Locally
+## 技術棧
 
-**Prerequisites:**  Node.js
+- **React 19** - UI 框架
+- **TypeScript** - 類型安全
+- **Vite** - 構建工具
+- **React Router v7** - 路由管理
+- **Tailwind CSS** - 樣式框架
+- **Lucide React** - 圖標庫
 
+## 環境需求
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+- **Node.js** >= 18.0.0
+- **npm** 或 **pnpm** 或 **yarn**
+
+## 安裝與設定
+
+### 1. 安裝依賴
+
+```bash
+npm install
+# 或
+pnpm install
+# 或
+yarn install
+```
+
+### 2. 環境變數設定
+
+複製 `.env.example` 並建立 `.env` 文件：
+
+```bash
+cp .env.example .env
+```
+
+編輯 `.env` 文件，設定以下環境變數：
+
+```env
+# API 基礎 URL（後端 Laravel API 地址）
+VITE_API_BASE_URL=http://localhost:8000/api
+
+# 生產環境請改為實際的 API 地址
+# VITE_API_BASE_URL=https://your-domain.com/api
+```
+
+### 3. 資料庫配置
+
+資料庫配置在 Laravel 後端的 `.env` 文件中設定（位於專案根目錄），請確保後端已正確配置：
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=scooter_rental
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+**注意**：前端應用不直接連接資料庫，所有資料都透過後端 API 取得。
+
+## 開發
+
+### 啟動開發伺服器
+
+```bash
+npm run dev
+# 或
+pnpm dev
+# 或
+yarn dev
+```
+
+開發伺服器將在 `http://localhost:3000` 啟動。
+
+### 開發模式特性
+
+- 熱模組替換 (HMR)
+- TypeScript 類型檢查
+- 自動重新載入
+
+## 構建
+
+### 生產環境構建
+
+```bash
+npm run build
+# 或
+pnpm build
+# 或
+yarn build
+```
+
+構建產物將輸出到 `public/` 目錄（專案根目錄）。
+
+### 預覽構建結果
+
+```bash
+npm run preview
+# 或
+pnpm preview
+# 或
+yarn preview
+```
+
+## 專案結構
+
+```
+system/frontend/
+├── components/          # React 元件
+│   ├── BannerCarousel.tsx    # Banner 輪播元件
+│   └── Layout.tsx            # 主要佈局元件
+├── pages/               # 頁面元件
+│   ├── About.tsx            # 關於我們
+│   ├── Booking.tsx          # 線上預約
+│   ├── Guesthouses.tsx     # 民宿推薦
+│   ├── Guidelines.tsx       # 租車須知
+│   ├── Home.tsx             # 首頁
+│   ├── Location.tsx         # 交通位置
+│   └── RentalPlans.tsx      # 租車方案
+├── lib/                 # 工具函數
+│   └── api.ts               # API 客戶端
+├── constants.tsx        # 常數定義
+├── types.ts            # TypeScript 類型定義
+├── App.tsx             # 應用程式入口
+├── index.tsx           # React 根元件
+├── index.html          # HTML 模板
+├── vite.config.ts      # Vite 配置
+├── tsconfig.json       # TypeScript 配置
+└── package.json        # 專案依賴
+```
+
+## API 整合
+
+前端透過 `lib/api.ts` 中的 API 客戶端與後端 Laravel API 通訊。
+
+### 可用的 API 端點
+
+- `GET /api/banners` - 取得 Banner 列表
+- `GET /api/rental-plans` - 取得租車方案列表
+- `GET /api/guidelines` - 取得租車須知列表
+- `GET /api/location` - 取得交通位置資訊
+- `GET /api/guesthouses` - 取得民宿推薦列表
+
+所有 API 請求都會自動加上 `active_only=true` 參數，只取得啟用的內容。
+
+## 路由
+
+應用程式使用 React Router v7 進行路由管理：
+
+- `/` - 首頁
+- `/about` - 關於我們
+- `/rental-plans` - 租車方案
+- `/guidelines` - 租車須知
+- `/booking` - 線上預約
+- `/location` - 交通位置
+- `/guesthouses` - 民宿推薦
+
+## 部署
+
+### 構建生產版本
+
+```bash
+npm run build
+```
+
+### Nginx 配置
+
+確保 Nginx 配置包含以下設定，以支援前端路由：
+
+```nginx
+location / {
+    try_files $uri $uri/ /index.html;
+}
+```
+
+### 靜態資源
+
+構建後的靜態資源位於 `public/` 目錄，可直接部署到 Web 伺服器。
+
+## 常見問題
+
+### Q: API 請求失敗？
+
+A: 請檢查：
+1. 後端 Laravel 服務是否正在運行
+2. `.env` 中的 `VITE_API_BASE_URL` 是否正確
+3. 後端 API 路由是否正確配置
+4. CORS 設定是否允許前端域名
+
+### Q: 頁面重新整理後出現 404？
+
+A: 確保 Web 伺服器（Nginx/Apache）配置了路由回退到 `index.html`。
+
+### Q: 圖片無法顯示？
+
+A: 請確認：
+1. 後端圖片上傳功能正常
+2. 圖片路徑在 API 回應中正確
+3. 後端 `storage` 目錄的符號連結已建立（`php artisan storage:link`）
+
+## 開發規範
+
+- 使用 TypeScript 進行類型檢查
+- 遵循 React Hooks 最佳實踐
+- 使用 Tailwind CSS 進行樣式設計
+- 元件命名使用 PascalCase
+- 檔案命名使用 PascalCase（元件）或 camelCase（工具函數）
+
+## 授權
+
+本專案為蘭光租賃中心所有。
