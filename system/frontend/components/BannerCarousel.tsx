@@ -60,8 +60,8 @@ const BannerCarousel: React.FC = () => {
               
               {/* Banner 內容 */}
               <div className="absolute inset-0 flex items-center">
-                <div className="container mx-auto px-6 md:px-12">
-                  <div className="max-w-md">
+                <div className="w-full px-16 md:px-24">
+                  <div className="max-w-xs md:max-w-sm">
                     <h2 className="text-white/80 text-xs md:text-sm font-medium tracking-wider uppercase mb-2">
                       {banner.subtitle}
                     </h2>
@@ -91,19 +91,19 @@ const BannerCarousel: React.FC = () => {
       {/* 左側箭頭 */}
       <button
         onClick={goToPrevious}
-        className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/80 hover:bg-white text-black p-3 rounded-full shadow-lg transition-all hover:scale-110"
+        className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-30 bg-white/90 hover:bg-white text-black p-2 md:p-3 rounded-full shadow-lg transition-all hover:scale-110"
         aria-label="Previous banner"
       >
-        <ChevronLeft size={24} />
+        <ChevronLeft size={20} className="md:w-6 md:h-6" />
       </button>
 
       {/* 右側箭頭 */}
       <button
         onClick={goToNext}
-        className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/80 hover:bg-white text-black p-3 rounded-full shadow-lg transition-all hover:scale-110"
+        className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-30 bg-white/90 hover:bg-white text-black p-2 md:p-3 rounded-full shadow-lg transition-all hover:scale-110"
         aria-label="Next banner"
       >
-        <ChevronRight size={24} />
+        <ChevronRight size={20} className="md:w-6 md:h-6" />
       </button>
 
       {/* 指示器 */}
