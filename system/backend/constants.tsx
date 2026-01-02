@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { LayoutDashboard, ShoppingCart, Users, Bike, AlertCircle, Image as ImageIcon, Settings, Shield, User } from 'lucide-react';
+import { LayoutDashboard, ShoppingCart, Users, Bike, AlertCircle, Image as ImageIcon, Settings, Shield, User, FileText, MapPin, Home } from 'lucide-react';
 
 export const NAV_ITEMS = [
   { 
@@ -28,6 +28,17 @@ export const NAV_ITEMS = [
     title: '商店管理', 
     icon: <ShoppingCart size={20} />, 
     path: '/stores'
+  },
+  { 
+    title: '網站內容管理', 
+    icon: <ImageIcon size={20} />, 
+    children: [
+      { name: '首頁 Banner', path: '/banners' },
+      { name: '租車方案', path: '/rental-plans' },
+      { name: '租車須知', path: '/guidelines' },
+      { name: '交通位置', path: '/location' },
+      { name: '民宿推薦', path: '/guesthouses' }
+    ]
   },
   { 
     title: '系統', 

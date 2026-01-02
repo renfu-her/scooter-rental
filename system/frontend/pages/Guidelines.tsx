@@ -1,17 +1,43 @@
 
-import React, { useState } from 'react';
-import { FAQS } from '../constants';
+import React, { useState, useEffect } from 'react';
 import { Plus, Minus } from 'lucide-react';
+import { publicApi } from '../lib/api';
+
+interface Guideline {
+  id: number;
+  category: string;
+  question: string;
+  answer: string;
+}
 
 const Guidelines: React.FC = () => {
+  const [guidelines, setGuidelines] = useState<Guideline[]>([]);
+  const [loading, setLoading] = useState(true);
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const [filter, setFilter] = useState('所有問題');
 
-  const categories = ['租車須知', '門市資訊', '車輛使用', '所有問題'];
+  useEffect(() => {
+    const fetchGuidelines = async () => {
+      try {
+        const response = await publicApi.guidelines.list();
+        setGuidelines(response.data || []);
+      } catch (error) {
+        console.error('Failed to fetch guidelines:', error);
+        setGuidelines([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchGuidelines();
+  }, []);
+
+  const categories = Array.from(new Set(guidelines.map(g => g.category)));
+  const allCategories = ['所有問題', ...categories];
 
   const filteredFaqs = filter === '所有問題' 
-    ? FAQS 
-    : FAQS.filter(f => f.category === filter);
+    ? guidelines 
+    : guidelines.filter(f => f.category === filter);
 
   return (
     <div className="animate-in slide-in-from-right-4 duration-700">
@@ -23,50 +49,58 @@ const Guidelines: React.FC = () => {
         </div>
       </header>
 
-      <div className="container mx-auto px-6 max-w-4xl py-12">
-        <div className="flex flex-wrap justify-center gap-2 mb-12">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setFilter(cat)}
-              className={`px-6 py-2 rounded-lg text-sm transition-all ${
-                filter === cat 
-                ? 'bg-[#1a1a1a] text-white shadow-lg' 
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
+      {loading ? (
+        <div className="container mx-auto px-6 max-w-4xl py-12">
+          <div className="flex justify-center items-center py-12">
+            <div className="text-gray-400">載入中...</div>
+          </div>
         </div>
-
-        <div className="space-y-4">
-          {filteredFaqs.map((faq, idx) => (
-            <div key={idx} className="border-b border-gray-100 pb-4">
+      ) : (
+        <div className="container mx-auto px-6 max-w-4xl py-12">
+          <div className="flex flex-wrap justify-center gap-2 mb-12">
+            {allCategories.map((cat) => (
               <button
-                onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
-                className="w-full flex items-center justify-between text-left py-4 group"
+                key={cat}
+                onClick={() => setFilter(cat)}
+                className={`px-6 py-2 rounded-lg text-sm transition-all ${
+                  filter === cat 
+                  ? 'bg-[#1a1a1a] text-white shadow-lg' 
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
               >
-                <div className="flex items-center gap-4">
-                  <div className="w-8 h-8 bg-black text-white rounded-md flex items-center justify-center text-xs font-bold">Q</div>
-                  <span className="font-medium text-gray-800">{faq.question}</span>
-                </div>
-                <div className="bg-black text-white p-1 rounded transition-transform">
-                  {openIndex === idx ? <Minus size={14} /> : <Plus size={14} />}
-                </div>
+                {cat}
               </button>
-              {openIndex === idx && (
-                <div className="pl-12 pr-6 pb-4 text-gray-600 leading-relaxed text-sm animate-in fade-in slide-in-from-top-1 duration-300">
-                  {faq.answer}
-                </div>
-              )}
-            </div>
-          ))}
-          {filteredFaqs.length === 0 && (
-            <div className="text-center py-12 text-gray-400">目前尚無相關問題</div>
-          )}
+            ))}
+          </div>
+
+          <div className="space-y-4">
+            {filteredFaqs.map((faq, idx) => (
+              <div key={faq.id} className="border-b border-gray-100 pb-4">
+                <button
+                  onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
+                  className="w-full flex items-center justify-between text-left py-4 group"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-8 h-8 bg-black text-white rounded-md flex items-center justify-center text-xs font-bold">Q</div>
+                    <span className="font-medium text-gray-800">{faq.question}</span>
+                  </div>
+                  <div className="bg-black text-white p-1 rounded transition-transform">
+                    {openIndex === idx ? <Minus size={14} /> : <Plus size={14} />}
+                  </div>
+                </button>
+                {openIndex === idx && (
+                  <div className="pl-12 pr-6 pb-4 text-gray-600 leading-relaxed text-sm animate-in fade-in slide-in-from-top-1 duration-300">
+                    {faq.answer}
+                  </div>
+                )}
+              </div>
+            ))}
+            {filteredFaqs.length === 0 && (
+              <div className="text-center py-12 text-gray-400">目前尚無相關問題</div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
       
       {/* Decorative Wave Bottom */}
       <div className="h-40 bg-white relative overflow-hidden">

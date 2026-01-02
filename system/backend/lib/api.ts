@@ -119,14 +119,24 @@ class ApiClient {
     formData.append(fieldName, file);
 
     const url = `${this.baseUrl}${endpoint}`;
+    const token = localStorage.getItem('auth_token');
     const response = await fetch(url, {
       method: 'POST',
       body: formData,
+      headers: {
+        ...(token && { 'Authorization': `Bearer ${token}` }),
+      },
     });
 
     const data = await response.json();
 
     if (!response.ok) {
+      if (response.status === 401) {
+        localStorage.removeItem('auth_token');
+        if (window.location.hash !== '#/login') {
+          window.location.hash = '/login';
+        }
+      }
       throw new Error(data.message || 'Upload failed');
     }
 
@@ -230,5 +240,54 @@ export const authApi = {
 export const captchaApi = {
   generate: () => api.get('/captcha/generate'),
   verify: (captchaId: string, answer: string) => api.post('/captcha/verify', { captcha_id: captchaId, answer }),
+};
+
+export const bannersApi = {
+  list: (params?: { active_only?: boolean; search?: string }) =>
+    api.get('/banners', params),
+  get: (id: string | number) => api.get(`/banners/${id}`),
+  create: (data: any) => api.post('/banners', data),
+  update: (id: string | number, data: any) => api.put(`/banners/${id}`, data),
+  delete: (id: string | number) => api.delete(`/banners/${id}`),
+  uploadImage: (id: string | number, file: File) =>
+    api.uploadFile(`/banners/${id}/upload-image`, file, 'image'),
+};
+
+export const rentalPlansApi = {
+  list: (params?: { active_only?: boolean; search?: string }) =>
+    api.get('/rental-plans', params),
+  get: (id: string | number) => api.get(`/rental-plans/${id}`),
+  create: (data: any) => api.post('/rental-plans', data),
+  update: (id: string | number, data: any) => api.put(`/rental-plans/${id}`, data),
+  delete: (id: string | number) => api.delete(`/rental-plans/${id}`),
+  uploadImage: (id: string | number, file: File) =>
+    api.uploadFile(`/rental-plans/${id}/upload-image`, file, 'image'),
+};
+
+export const guidelinesApi = {
+  list: (params?: { active_only?: boolean; category?: string; search?: string }) =>
+    api.get('/guidelines', params),
+  get: (id: string | number) => api.get(`/guidelines/${id}`),
+  create: (data: any) => api.post('/guidelines', data),
+  update: (id: string | number, data: any) => api.put(`/guidelines/${id}`, data),
+  delete: (id: string | number) => api.delete(`/guidelines/${id}`),
+};
+
+export const locationApi = {
+  get: () => api.get('/location'),
+  update: (data: any) => api.put('/location', data),
+  uploadImage: (file: File) =>
+    api.uploadFile('/location/upload-image', file, 'image'),
+};
+
+export const guesthousesApi = {
+  list: (params?: { active_only?: boolean; search?: string }) =>
+    api.get('/guesthouses', params),
+  get: (id: string | number) => api.get(`/guesthouses/${id}`),
+  create: (data: any) => api.post('/guesthouses', data),
+  update: (id: string | number, data: any) => api.put(`/guesthouses/${id}`, data),
+  delete: (id: string | number) => api.delete(`/guesthouses/${id}`),
+  uploadImage: (id: string | number, file: File) =>
+    api.uploadFile(`/guesthouses/${id}/upload-image`, file, 'image'),
 };
 

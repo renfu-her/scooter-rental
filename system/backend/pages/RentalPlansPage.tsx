@@ -1,29 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, Edit2, Image as ImageIcon, X, Loader2 } from 'lucide-react';
-import { bannersApi } from '../lib/api';
-import { inputClasses, labelClasses, uploadAreaBaseClasses, modalCancelButtonClasses, modalSubmitButtonClasses } from '../styles';
+import { Plus, Search, Edit2, Trash2, Image as ImageIcon, X, Loader2 } from 'lucide-react';
+import { rentalPlansApi } from '../lib/api';
+import { inputClasses, labelClasses, searchInputClasses, uploadAreaBaseClasses, modalCancelButtonClasses, modalSubmitButtonClasses } from '../styles';
 
-interface Banner {
+interface RentalPlan {
   id: number;
-  title: string;
-  subtitle: string | null;
+  model: string;
+  price: number;
   image_path: string | null;
-  link: string | null;
-  button_text: string | null;
   sort_order: number;
   is_active: boolean;
 }
 
-const BannersPage: React.FC = () => {
+const RentalPlansPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingBanner, setEditingBanner] = useState<Banner | null>(null);
-  const [banners, setBanners] = useState<Banner[]>([]);
+  const [editingPlan, setEditingPlan] = useState<RentalPlan | null>(null);
+  const [plans, setPlans] = useState<RentalPlan[]>([]);
   const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const [formData, setFormData] = useState({
-    title: '',
-    subtitle: '',
-    link: '',
-    button_text: '',
+    model: '',
+    price: '',
     sort_order: 0,
     is_active: true,
   });
@@ -32,41 +29,37 @@ const BannersPage: React.FC = () => {
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
-    fetchBanners();
-  }, []);
+    fetchPlans();
+  }, [searchTerm]);
 
-  const fetchBanners = async () => {
+  const fetchPlans = async () => {
     setLoading(true);
     try {
-      const response = await bannersApi.list();
-      setBanners(response.data || []);
+      const response = await rentalPlansApi.list(searchTerm ? { search: searchTerm } : undefined);
+      setPlans(response.data || []);
     } catch (error) {
-      console.error('Failed to fetch banners:', error);
-      setBanners([]);
+      console.error('Failed to fetch rental plans:', error);
+      setPlans([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleOpenModal = (banner?: Banner) => {
-    if (banner) {
-      setEditingBanner(banner);
+  const handleOpenModal = (plan?: RentalPlan) => {
+    if (plan) {
+      setEditingPlan(plan);
       setFormData({
-        title: banner.title,
-        subtitle: banner.subtitle || '',
-        link: banner.link || '',
-        button_text: banner.button_text || '',
-        sort_order: banner.sort_order,
-        is_active: banner.is_active,
+        model: plan.model,
+        price: plan.price.toString(),
+        sort_order: plan.sort_order,
+        is_active: plan.is_active,
       });
-      setImagePreview(banner.image_path ? `/storage/${banner.image_path}` : null);
+      setImagePreview(plan.image_path ? `/storage/${plan.image_path}` : null);
     } else {
-      setEditingBanner(null);
+      setEditingPlan(null);
       setFormData({
-        title: '',
-        subtitle: '',
-        link: '',
-        button_text: '',
+        model: '',
+        price: '',
         sort_order: 0,
         is_active: true,
       });
@@ -78,12 +71,10 @@ const BannersPage: React.FC = () => {
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    setEditingBanner(null);
+    setEditingPlan(null);
     setFormData({
-      title: '',
-      subtitle: '',
-      link: '',
-      button_text: '',
+      model: '',
+      price: '',
       sort_order: 0,
       is_active: true,
     });
@@ -98,25 +89,26 @@ const BannersPage: React.FC = () => {
     try {
       const submitData = {
         ...formData,
+        price: parseFloat(formData.price),
         sort_order: parseInt(formData.sort_order.toString()),
       };
 
-      if (editingBanner) {
-        await bannersApi.update(editingBanner.id, submitData);
+      if (editingPlan) {
+        await rentalPlansApi.update(editingPlan.id, submitData);
         if (imageFile) {
-          await bannersApi.uploadImage(editingBanner.id, imageFile);
+          await rentalPlansApi.uploadImage(editingPlan.id, imageFile);
         }
       } else {
-        const response = await bannersApi.create(submitData);
+        const response = await rentalPlansApi.create(submitData);
         if (imageFile && response.data) {
-          await bannersApi.uploadImage(response.data.id, imageFile);
+          await rentalPlansApi.uploadImage(response.data.id, imageFile);
         }
       }
 
-      await fetchBanners();
+      await fetchPlans();
       handleCloseModal();
     } catch (error: any) {
-      console.error('Failed to save banner:', error);
+      console.error('Failed to save rental plan:', error);
       alert(error.message || '儲存失敗');
     } finally {
       setUploading(false);
@@ -124,13 +116,13 @@ const BannersPage: React.FC = () => {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('確定要刪除此輪播圖嗎？')) return;
+    if (!confirm('確定要刪除此租車方案嗎？')) return;
 
     try {
-      await bannersApi.delete(id);
-      await fetchBanners();
+      await rentalPlansApi.delete(id);
+      await fetchPlans();
     } catch (error: any) {
-      console.error('Failed to delete banner:', error);
+      console.error('Failed to delete rental plan:', error);
       alert(error.message || '刪除失敗');
     }
   };
@@ -151,16 +143,29 @@ const BannersPage: React.FC = () => {
     <div className="px-6 pb-6 pt-0 dark:text-gray-100">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">首頁輪播圖管理</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">管理官網首頁大型看板與活動促銷圖</p>
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">租車方案管理</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">管理官網租車方案資訊</p>
         </div>
         <button
           onClick={() => handleOpenModal()}
           className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors"
         >
           <Plus size={18} />
-          <span>上傳新看板</span>
+          <span>新增方案</span>
         </button>
+      </div>
+
+      <div className="mb-6">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+          <input
+            type="text"
+            placeholder="搜尋型號..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className={searchInputClasses}
+          />
+        </div>
       </div>
 
       {loading ? (
@@ -169,59 +174,49 @@ const BannersPage: React.FC = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {banners.map((banner) => (
-            <div key={banner.id} className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden group">
-              <div className="aspect-[16/9] relative bg-gray-100 dark:bg-gray-700">
-                {banner.image_path ? (
+          {plans.map((plan) => (
+            <div key={plan.id} className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+              <div className="aspect-video relative bg-gray-100 dark:bg-gray-700">
+                {plan.image_path ? (
                   <img
-                    src={`/storage/${banner.image_path}`}
+                    src={`/storage/${plan.image_path}`}
+                    alt={plan.model}
                     className="w-full h-full object-cover"
-                    alt={banner.title}
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
                     <ImageIcon className="text-gray-400" size={48} />
                   </div>
                 )}
-                <div className="absolute top-2 left-2 bg-black/60 text-white px-2 py-1 rounded text-[10px] font-bold">
-                  順序: {banner.sort_order}
-                </div>
-                {!banner.is_active && (
-                  <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-[10px] font-bold">
+                {!plan.is_active && (
+                  <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-bold">
                     已停用
                   </div>
                 )}
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-3">
-                  <button
-                    onClick={() => handleOpenModal(banner)}
-                    className="p-2 bg-white rounded-full text-gray-800 hover:bg-orange-50 hover:text-orange-600 transition-colors"
-                  >
-                    <Edit2 size={18} />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(banner.id)}
-                    className="p-2 bg-white rounded-full text-red-600 hover:bg-red-50 transition-colors"
-                  >
-                    <Trash2 size={18} />
-                  </button>
-                </div>
               </div>
               <div className="p-4">
-                <h3 className="text-sm font-bold text-gray-800 dark:text-gray-100">{banner.title}</h3>
-                {banner.subtitle && (
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{banner.subtitle}</p>
-                )}
+                <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-1">{plan.model}</h3>
+                <p className="text-2xl font-bold text-orange-600 mb-4">${plan.price}</p>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-500 dark:text-gray-400">排序: {plan.sort_order}</span>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => handleOpenModal(plan)}
+                      className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                    >
+                      <Edit2 size={18} />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(plan.id)}
+                      className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           ))}
-
-          <button
-            onClick={() => handleOpenModal()}
-            className="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl flex flex-col items-center justify-center p-8 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-orange-300 dark:hover:border-orange-600 transition-all text-gray-400 dark:text-gray-500 hover:text-orange-500 dark:hover:text-orange-400"
-          >
-            <Plus size={32} className="mb-2" />
-            <span className="text-sm font-medium">點擊上傳新橫幅</span>
-          </button>
         </div>
       )}
 
@@ -230,7 +225,7 @@ const BannersPage: React.FC = () => {
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
               <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">
-                {editingBanner ? '編輯輪播圖' : '新增輪播圖'}
+                {editingPlan ? '編輯租車方案' : '新增租車方案'}
               </h2>
               <button
                 onClick={handleCloseModal}
@@ -242,47 +237,28 @@ const BannersPage: React.FC = () => {
 
             <form onSubmit={handleSubmit} className="p-6 space-y-6">
               <div>
-                <label className={labelClasses}>標題 *</label>
+                <label className={labelClasses}>型號 *</label>
                 <input
                   type="text"
                   required
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  value={formData.model}
+                  onChange={(e) => setFormData({ ...formData, model: e.target.value })}
                   className={inputClasses}
-                  placeholder="例如: 開幕慶典"
+                  placeholder="例如: VIVA MIX 白牌"
                 />
               </div>
 
               <div>
-                <label className={labelClasses}>副標題</label>
+                <label className={labelClasses}>價錢 *</label>
                 <input
-                  type="text"
-                  value={formData.subtitle}
-                  onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
+                  type="number"
+                  required
+                  min="0"
+                  step="0.01"
+                  value={formData.price}
+                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                   className={inputClasses}
-                  placeholder="例如: 線上預約即享 8 折優惠"
-                />
-              </div>
-
-              <div>
-                <label className={labelClasses}>連結</label>
-                <input
-                  type="text"
-                  value={formData.link}
-                  onChange={(e) => setFormData({ ...formData, link: e.target.value })}
-                  className={inputClasses}
-                  placeholder="例如: /booking"
-                />
-              </div>
-
-              <div>
-                <label className={labelClasses}>按鈕文字</label>
-                <input
-                  type="text"
-                  value={formData.button_text}
-                  onChange={(e) => setFormData({ ...formData, button_text: e.target.value })}
-                  className={inputClasses}
-                  placeholder="例如: 立即預約"
+                  placeholder="例如: 800"
                 />
               </div>
 
@@ -310,7 +286,7 @@ const BannersPage: React.FC = () => {
               </div>
 
               <div>
-                <label className={labelClasses}>圖片 *</label>
+                <label className={labelClasses}>圖片</label>
                 <div className={uploadAreaBaseClasses}>
                   {imagePreview ? (
                     <div className="relative">
@@ -366,4 +342,4 @@ const BannersPage: React.FC = () => {
   );
 };
 
-export default BannersPage;
+export default RentalPlansPage;

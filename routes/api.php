@@ -12,6 +12,11 @@ use App\Http\Controllers\Api\StoreController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CaptchaController;
+use App\Http\Controllers\Api\BannerController;
+use App\Http\Controllers\Api\RentalPlanController;
+use App\Http\Controllers\Api\GuidelineController;
+use App\Http\Controllers\Api\LocationController;
+use App\Http\Controllers\Api\GuesthouseController;
 
 // Auth Routes (Public)
 Route::post('/login', [AuthController::class, 'login']);
@@ -102,4 +107,60 @@ Route::prefix('users')->group(function () {
     Route::get('/{user}', [UserController::class, 'show']);
     Route::put('/{user}', [UserController::class, 'update']);
     Route::delete('/{user}', [UserController::class, 'destroy']);
+});
+
+// Banners API (Public for frontend, Protected for admin)
+Route::prefix('banners')->group(function () {
+    Route::get('/', [BannerController::class, 'index']); // Public
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/', [BannerController::class, 'store']);
+        Route::get('/{banner}', [BannerController::class, 'show']);
+        Route::put('/{banner}', [BannerController::class, 'update']);
+        Route::delete('/{banner}', [BannerController::class, 'destroy']);
+        Route::post('/{banner}/upload-image', [BannerController::class, 'uploadImage']);
+    });
+});
+
+// Rental Plans API (Public for frontend, Protected for admin)
+Route::prefix('rental-plans')->group(function () {
+    Route::get('/', [RentalPlanController::class, 'index']); // Public
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/', [RentalPlanController::class, 'store']);
+        Route::get('/{rentalPlan}', [RentalPlanController::class, 'show']);
+        Route::put('/{rentalPlan}', [RentalPlanController::class, 'update']);
+        Route::delete('/{rentalPlan}', [RentalPlanController::class, 'destroy']);
+        Route::post('/{rentalPlan}/upload-image', [RentalPlanController::class, 'uploadImage']);
+    });
+});
+
+// Guidelines API (Public for frontend, Protected for admin)
+Route::prefix('guidelines')->group(function () {
+    Route::get('/', [GuidelineController::class, 'index']); // Public
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/', [GuidelineController::class, 'store']);
+        Route::get('/{guideline}', [GuidelineController::class, 'show']);
+        Route::put('/{guideline}', [GuidelineController::class, 'update']);
+        Route::delete('/{guideline}', [GuidelineController::class, 'destroy']);
+    });
+});
+
+// Location API (Public for frontend, Protected for admin)
+Route::prefix('location')->group(function () {
+    Route::get('/', [LocationController::class, 'show']); // Public
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::put('/', [LocationController::class, 'update']);
+        Route::post('/upload-image', [LocationController::class, 'uploadImage']);
+    });
+});
+
+// Guesthouses API (Public for frontend, Protected for admin)
+Route::prefix('guesthouses')->group(function () {
+    Route::get('/', [GuesthouseController::class, 'index']); // Public
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/', [GuesthouseController::class, 'store']);
+        Route::get('/{guesthouse}', [GuesthouseController::class, 'show']);
+        Route::put('/{guesthouse}', [GuesthouseController::class, 'update']);
+        Route::delete('/{guesthouse}', [GuesthouseController::class, 'destroy']);
+        Route::post('/{guesthouse}/upload-image', [GuesthouseController::class, 'uploadImage']);
+    });
 });

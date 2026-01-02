@@ -2,22 +2,50 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { BANNERS } from '../constants';
+import { publicApi } from '../lib/api';
+
+interface Banner {
+  id: number;
+  title: string;
+  subtitle: string | null;
+  image_path: string | null;
+  link: string | null;
+  button_text: string | null;
+}
 
 const BannerCarousel: React.FC = () => {
+  const [banners, setBanners] = useState<Banner[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const [loading, setLoading] = useState(true);
+
+  // 從 API 獲取 Banner 數據
+  useEffect(() => {
+    const fetchBanners = async () => {
+      try {
+        const response = await publicApi.banners.list();
+        setBanners(response.data || []);
+      } catch (error) {
+        console.error('Failed to fetch banners:', error);
+        setBanners([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBanners();
+  }, []);
 
   // 自動輪播
   useEffect(() => {
-    if (!isAutoPlaying) return;
+    if (!isAutoPlaying || banners.length === 0) return;
 
     const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % BANNERS.length);
+      setCurrentIndex((prev) => (prev + 1) % banners.length);
     }, 5000); // 每 5 秒切換一次
 
     return () => clearInterval(interval);
-  }, [isAutoPlaying]);
+  }, [isAutoPlaying, banners.length]);
 
   const goToSlide = (index: number) => {
     setCurrentIndex(index);
@@ -26,22 +54,36 @@ const BannerCarousel: React.FC = () => {
   };
 
   const goToPrevious = () => {
-    setCurrentIndex((prev) => (prev - 1 + BANNERS.length) % BANNERS.length);
+    if (banners.length === 0) return;
+    setCurrentIndex((prev) => (prev - 1 + banners.length) % banners.length);
     setIsAutoPlaying(false);
     setTimeout(() => setIsAutoPlaying(true), 10000);
   };
 
   const goToNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % BANNERS.length);
+    if (banners.length === 0) return;
+    setCurrentIndex((prev) => (prev + 1) % banners.length);
     setIsAutoPlaying(false);
     setTimeout(() => setIsAutoPlaying(true), 10000);
   };
+
+  if (loading) {
+    return (
+      <section className="relative w-full h-[250px] md:h-[300px] overflow-hidden bg-gray-100 flex items-center justify-center">
+        <div className="text-gray-400">載入中...</div>
+      </section>
+    );
+  }
+
+  if (banners.length === 0) {
+    return null;
+  }
 
   return (
     <section className="relative w-full h-[250px] md:h-[300px] overflow-hidden bg-gray-100">
       {/* Banner 容器 */}
       <div className="relative w-full h-full">
-        {BANNERS.map((banner, index) => (
+        {banners.map((banner, index) => (
           <div
             key={banner.id}
             className={`absolute inset-0 transition-opacity duration-700 ${
@@ -51,7 +93,7 @@ const BannerCarousel: React.FC = () => {
             <div className="relative w-full h-full">
               {/* Banner 圖片 */}
               <img
-                src={banner.image}
+                src={banner.image_path ? `/storage/${banner.image_path}` : 'https://via.placeholder.com/1600x600'}
                 alt={banner.title}
                 className="w-full h-full object-cover"
               />
@@ -62,18 +104,20 @@ const BannerCarousel: React.FC = () => {
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full px-16 md:px-24">
                   <div className="max-w-xs md:max-w-sm">
-                    <h2 className="text-white/80 text-xs md:text-sm font-medium tracking-wider uppercase mb-2">
-                      {banner.subtitle}
-                    </h2>
+                    {banner.subtitle && (
+                      <h2 className="text-white/80 text-xs md:text-sm font-medium tracking-wider uppercase mb-2">
+                        {banner.subtitle}
+                      </h2>
+                    )}
                     <h1 className="text-2xl md:text-4xl font-bold text-white mb-4 serif">
                       {banner.title}
                     </h1>
-                    {banner.link && banner.buttonText && (
+                    {banner.link && banner.button_text && (
                       <Link
                         to={banner.link}
                         className="inline-flex items-center gap-2 bg-white text-black px-6 py-3 rounded-full text-sm font-bold hover:bg-teal-500 hover:text-white transition-all group"
                       >
-                        {banner.buttonText}
+                        {banner.button_text}
                         <ChevronRight 
                           size={18} 
                           className="group-hover:translate-x-1 transition-transform"
@@ -108,7 +152,7 @@ const BannerCarousel: React.FC = () => {
 
       {/* 指示器 */}
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex gap-2">
-        {BANNERS.map((_, index) => (
+        {banners.map((_, index) => (
           <button
             key={index}
             onClick={() => goToSlide(index)}

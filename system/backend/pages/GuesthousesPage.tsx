@@ -1,29 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, Edit2, Image as ImageIcon, X, Loader2 } from 'lucide-react';
-import { bannersApi } from '../lib/api';
-import { inputClasses, labelClasses, uploadAreaBaseClasses, modalCancelButtonClasses, modalSubmitButtonClasses } from '../styles';
+import { Plus, Search, Edit2, Trash2, Image as ImageIcon, X, Loader2 } from 'lucide-react';
+import { guesthousesApi } from '../lib/api';
+import { inputClasses, labelClasses, searchInputClasses, uploadAreaBaseClasses, modalCancelButtonClasses, modalSubmitButtonClasses } from '../styles';
 
-interface Banner {
+interface Guesthouse {
   id: number;
-  title: string;
-  subtitle: string | null;
+  name: string;
+  description: string | null;
   image_path: string | null;
   link: string | null;
-  button_text: string | null;
   sort_order: number;
   is_active: boolean;
 }
 
-const BannersPage: React.FC = () => {
+const GuesthousesPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingBanner, setEditingBanner] = useState<Banner | null>(null);
-  const [banners, setBanners] = useState<Banner[]>([]);
+  const [editingGuesthouse, setEditingGuesthouse] = useState<Guesthouse | null>(null);
+  const [guesthouses, setGuesthouses] = useState<Guesthouse[]>([]);
   const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const [formData, setFormData] = useState({
-    title: '',
-    subtitle: '',
+    name: '',
+    description: '',
     link: '',
-    button_text: '',
     sort_order: 0,
     is_active: true,
   });
@@ -32,41 +31,39 @@ const BannersPage: React.FC = () => {
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
-    fetchBanners();
-  }, []);
+    fetchGuesthouses();
+  }, [searchTerm]);
 
-  const fetchBanners = async () => {
+  const fetchGuesthouses = async () => {
     setLoading(true);
     try {
-      const response = await bannersApi.list();
-      setBanners(response.data || []);
+      const response = await guesthousesApi.list(searchTerm ? { search: searchTerm } : undefined);
+      setGuesthouses(response.data || []);
     } catch (error) {
-      console.error('Failed to fetch banners:', error);
-      setBanners([]);
+      console.error('Failed to fetch guesthouses:', error);
+      setGuesthouses([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleOpenModal = (banner?: Banner) => {
-    if (banner) {
-      setEditingBanner(banner);
+  const handleOpenModal = (guesthouse?: Guesthouse) => {
+    if (guesthouse) {
+      setEditingGuesthouse(guesthouse);
       setFormData({
-        title: banner.title,
-        subtitle: banner.subtitle || '',
-        link: banner.link || '',
-        button_text: banner.button_text || '',
-        sort_order: banner.sort_order,
-        is_active: banner.is_active,
+        name: guesthouse.name,
+        description: guesthouse.description || '',
+        link: guesthouse.link || '',
+        sort_order: guesthouse.sort_order,
+        is_active: guesthouse.is_active,
       });
-      setImagePreview(banner.image_path ? `/storage/${banner.image_path}` : null);
+      setImagePreview(guesthouse.image_path ? `/storage/${guesthouse.image_path}` : null);
     } else {
-      setEditingBanner(null);
+      setEditingGuesthouse(null);
       setFormData({
-        title: '',
-        subtitle: '',
+        name: '',
+        description: '',
         link: '',
-        button_text: '',
         sort_order: 0,
         is_active: true,
       });
@@ -78,12 +75,11 @@ const BannersPage: React.FC = () => {
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    setEditingBanner(null);
+    setEditingGuesthouse(null);
     setFormData({
-      title: '',
-      subtitle: '',
+      name: '',
+      description: '',
       link: '',
-      button_text: '',
       sort_order: 0,
       is_active: true,
     });
@@ -101,22 +97,22 @@ const BannersPage: React.FC = () => {
         sort_order: parseInt(formData.sort_order.toString()),
       };
 
-      if (editingBanner) {
-        await bannersApi.update(editingBanner.id, submitData);
+      if (editingGuesthouse) {
+        await guesthousesApi.update(editingGuesthouse.id, submitData);
         if (imageFile) {
-          await bannersApi.uploadImage(editingBanner.id, imageFile);
+          await guesthousesApi.uploadImage(editingGuesthouse.id, imageFile);
         }
       } else {
-        const response = await bannersApi.create(submitData);
+        const response = await guesthousesApi.create(submitData);
         if (imageFile && response.data) {
-          await bannersApi.uploadImage(response.data.id, imageFile);
+          await guesthousesApi.uploadImage(response.data.id, imageFile);
         }
       }
 
-      await fetchBanners();
+      await fetchGuesthouses();
       handleCloseModal();
     } catch (error: any) {
-      console.error('Failed to save banner:', error);
+      console.error('Failed to save guesthouse:', error);
       alert(error.message || '儲存失敗');
     } finally {
       setUploading(false);
@@ -124,13 +120,13 @@ const BannersPage: React.FC = () => {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('確定要刪除此輪播圖嗎？')) return;
+    if (!confirm('確定要刪除此民宿推薦嗎？')) return;
 
     try {
-      await bannersApi.delete(id);
-      await fetchBanners();
+      await guesthousesApi.delete(id);
+      await fetchGuesthouses();
     } catch (error: any) {
-      console.error('Failed to delete banner:', error);
+      console.error('Failed to delete guesthouse:', error);
       alert(error.message || '刪除失敗');
     }
   };
@@ -151,16 +147,29 @@ const BannersPage: React.FC = () => {
     <div className="px-6 pb-6 pt-0 dark:text-gray-100">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">首頁輪播圖管理</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">管理官網首頁大型看板與活動促銷圖</p>
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">民宿推薦管理</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">管理官網民宿推薦資訊</p>
         </div>
         <button
           onClick={() => handleOpenModal()}
           className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors"
         >
           <Plus size={18} />
-          <span>上傳新看板</span>
+          <span>新增民宿</span>
         </button>
+      </div>
+
+      <div className="mb-6">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+          <input
+            type="text"
+            placeholder="搜尋民宿名稱或描述..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className={searchInputClasses}
+          />
+        </div>
       </div>
 
       {loading ? (
@@ -169,59 +178,51 @@ const BannersPage: React.FC = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {banners.map((banner) => (
-            <div key={banner.id} className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden group">
-              <div className="aspect-[16/9] relative bg-gray-100 dark:bg-gray-700">
-                {banner.image_path ? (
+          {guesthouses.map((guesthouse) => (
+            <div key={guesthouse.id} className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+              <div className="aspect-video relative bg-gray-100 dark:bg-gray-700">
+                {guesthouse.image_path ? (
                   <img
-                    src={`/storage/${banner.image_path}`}
+                    src={`/storage/${guesthouse.image_path}`}
+                    alt={guesthouse.name}
                     className="w-full h-full object-cover"
-                    alt={banner.title}
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
                     <ImageIcon className="text-gray-400" size={48} />
                   </div>
                 )}
-                <div className="absolute top-2 left-2 bg-black/60 text-white px-2 py-1 rounded text-[10px] font-bold">
-                  順序: {banner.sort_order}
-                </div>
-                {!banner.is_active && (
-                  <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-[10px] font-bold">
+                {!guesthouse.is_active && (
+                  <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-bold">
                     已停用
                   </div>
                 )}
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-3">
-                  <button
-                    onClick={() => handleOpenModal(banner)}
-                    className="p-2 bg-white rounded-full text-gray-800 hover:bg-orange-50 hover:text-orange-600 transition-colors"
-                  >
-                    <Edit2 size={18} />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(banner.id)}
-                    className="p-2 bg-white rounded-full text-red-600 hover:bg-red-50 transition-colors"
-                  >
-                    <Trash2 size={18} />
-                  </button>
-                </div>
               </div>
               <div className="p-4">
-                <h3 className="text-sm font-bold text-gray-800 dark:text-gray-100">{banner.title}</h3>
-                {banner.subtitle && (
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{banner.subtitle}</p>
-                )}
+                <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-2">{guesthouse.name}</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 line-clamp-2">
+                  {guesthouse.description || '無描述'}
+                </p>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-500 dark:text-gray-400">排序: {guesthouse.sort_order}</span>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => handleOpenModal(guesthouse)}
+                      className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                    >
+                      <Edit2 size={18} />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(guesthouse.id)}
+                      className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           ))}
-
-          <button
-            onClick={() => handleOpenModal()}
-            className="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl flex flex-col items-center justify-center p-8 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-orange-300 dark:hover:border-orange-600 transition-all text-gray-400 dark:text-gray-500 hover:text-orange-500 dark:hover:text-orange-400"
-          >
-            <Plus size={32} className="mb-2" />
-            <span className="text-sm font-medium">點擊上傳新橫幅</span>
-          </button>
         </div>
       )}
 
@@ -230,7 +231,7 @@ const BannersPage: React.FC = () => {
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
               <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">
-                {editingBanner ? '編輯輪播圖' : '新增輪播圖'}
+                {editingGuesthouse ? '編輯民宿推薦' : '新增民宿推薦'}
               </h2>
               <button
                 onClick={handleCloseModal}
@@ -242,25 +243,25 @@ const BannersPage: React.FC = () => {
 
             <form onSubmit={handleSubmit} className="p-6 space-y-6">
               <div>
-                <label className={labelClasses}>標題 *</label>
+                <label className={labelClasses}>民宿名稱 *</label>
                 <input
                   type="text"
                   required
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   className={inputClasses}
-                  placeholder="例如: 開幕慶典"
+                  placeholder="例如: 海景民宿 A"
                 />
               </div>
 
               <div>
-                <label className={labelClasses}>副標題</label>
-                <input
-                  type="text"
-                  value={formData.subtitle}
-                  onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
+                <label className={labelClasses}>描述</label>
+                <textarea
+                  rows={4}
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   className={inputClasses}
-                  placeholder="例如: 線上預約即享 8 折優惠"
+                  placeholder="輸入民宿描述..."
                 />
               </div>
 
@@ -271,18 +272,7 @@ const BannersPage: React.FC = () => {
                   value={formData.link}
                   onChange={(e) => setFormData({ ...formData, link: e.target.value })}
                   className={inputClasses}
-                  placeholder="例如: /booking"
-                />
-              </div>
-
-              <div>
-                <label className={labelClasses}>按鈕文字</label>
-                <input
-                  type="text"
-                  value={formData.button_text}
-                  onChange={(e) => setFormData({ ...formData, button_text: e.target.value })}
-                  className={inputClasses}
-                  placeholder="例如: 立即預約"
+                  placeholder="例如: https://example.com"
                 />
               </div>
 
@@ -310,7 +300,7 @@ const BannersPage: React.FC = () => {
               </div>
 
               <div>
-                <label className={labelClasses}>圖片 *</label>
+                <label className={labelClasses}>圖片</label>
                 <div className={uploadAreaBaseClasses}>
                   {imagePreview ? (
                     <div className="relative">
@@ -366,4 +356,4 @@ const BannersPage: React.FC = () => {
   );
 };
 
-export default BannersPage;
+export default GuesthousesPage;

@@ -13,6 +13,11 @@ const ScootersPage = React.lazy(() => import('./pages/ScootersPage'));
 const FinesPage = React.lazy(() => import('./pages/FinesPage'));
 const AccessoriesPage = React.lazy(() => import('./pages/AccessoriesPage'));
 const AdminsPage = React.lazy(() => import('./pages/AdminsPage'));
+const BannersPage = React.lazy(() => import('./pages/BannersPage'));
+const RentalPlansPage = React.lazy(() => import('./pages/RentalPlansPage'));
+const GuidelinesPage = React.lazy(() => import('./pages/GuidelinesPage'));
+const LocationPage = React.lazy(() => import('./pages/LocationPage'));
+const GuesthousesPage = React.lazy(() => import('./pages/GuesthousesPage'));
 
 const LoadingFallback: React.FC = () => (
   <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
@@ -89,6 +94,31 @@ const App: React.FC = () => {
             <Route path="admins" element={
               <Suspense fallback={<LoadingFallback />}>
                 <AdminsPage />
+              </Suspense>
+            } />
+            <Route path="banners" element={
+              <Suspense fallback={<LoadingFallback />}>
+                <BannersPage />
+              </Suspense>
+            } />
+            <Route path="rental-plans" element={
+              <Suspense fallback={<LoadingFallback />}>
+                <RentalPlansPage />
+              </Suspense>
+            } />
+            <Route path="guidelines" element={
+              <Suspense fallback={<LoadingFallback />}>
+                <GuidelinesPage />
+              </Suspense>
+            } />
+            <Route path="location" element={
+              <Suspense fallback={<LoadingFallback />}>
+                <LocationPage />
+              </Suspense>
+            } />
+            <Route path="guesthouses" element={
+              <Suspense fallback={<LoadingFallback />}>
+                <GuesthousesPage />
               </Suspense>
             } />
           </Route>
