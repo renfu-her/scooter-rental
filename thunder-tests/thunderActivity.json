@@ -1,0 +1,14 @@
+[
+    {
+        "_id": "6985f549-4517-4c40-9fce-b571d1d7d6f0",
+        "colId": "history",
+        "containerId": "",
+        "name": "https://scooter-rental.ai-tracks.com/api/contact/test",
+        "url": "https://scooter-rental.ai-tracks.com/api/contact/test",
+        "method": "POST",
+        "sortNum": 0,
+        "created": "2026-01-04T13:20:27.207Z",
+        "modified": "2026-01-04T13:20:27.207Z",
+        "headers": []
+    }
+]

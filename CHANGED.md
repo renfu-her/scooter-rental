@@ -3575,3 +3575,25 @@ php artisan db:seed --class=ScooterModelColorSeeder
 - 航運顯示「來」而非「去」
 - 已建立 storage link 用於圖片存取
 
+---
+
+## 2026-01-04 21:22:23 - 修復郵件發送錯誤
+
+### 問題
+- 發送測試郵件時發生錯誤：「Email \"測試使用者\" does not comply with addr-spec of RFC 2822.」
+- 原因：在 `ContactMail.php` 中使用陣列格式設置 `replyTo` 時，中文名稱編碼處理不當
+
+### 修復內容
+
+- **ContactMail.php** (`app/Mail/ContactMail.php`)
+  - 導入 `Illuminate\Mail\Mailables\Address` 類
+  - 修改 `envelope()` 方法中的 `replyTo` 設置
+  - 從 `replyTo: [$this->data['email'] => $this->data['name']]` 改為使用 `Address` 類
+  - 新格式：`replyTo: [new Address($this->data['email'], $this->data['name'] ?? '')]`
+  - 這樣可以正確處理包含中文字符的名稱，符合 RFC 2822 標準
+
+### 技術細節
+- 使用 Laravel 的 `Address` 類可以正確處理郵件地址和名稱的編碼
+- 確保中文名稱在郵件標頭中正確編碼
+- 符合 RFC 2822 郵件標準規範
+

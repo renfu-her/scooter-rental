@@ -5,6 +5,7 @@ namespace App\Mail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -30,7 +31,9 @@ class ContactMail extends Mailable
     {
         return new Envelope(
             subject: '【蘭光租賃中心】聯絡表單 - ' . ($this->data['name'] ?? '新訊息'),
-            replyTo: [$this->data['email'] => $this->data['name']],
+            replyTo: [
+                new Address($this->data['email'], $this->data['name'] ?? ''),
+            ],
         );
     }
 
