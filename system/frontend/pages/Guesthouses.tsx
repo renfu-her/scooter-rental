@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { ExternalLink } from 'lucide-react';
 import { publicApi } from '../lib/api';
 
@@ -65,20 +66,12 @@ const Guesthouses: React.FC = () => {
                       <p className="text-gray-500 text-sm leading-relaxed">{gh.short_description}</p>
                     )}
                   </div>
-                  {gh.link ? (
-                    <a
-                      href={gh.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-teal-600 hover:text-black transition-colors"
-                    >
-                      VIEW DETAILS <ExternalLink size={14} />
-                    </a>
-                  ) : (
-                    <button className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-teal-600 hover:text-black transition-colors">
-                      VIEW DETAILS <ExternalLink size={14} />
-                    </button>
-                  )}
+                  <Link
+                    to={`/guesthouses/${gh.id}`}
+                    className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-teal-600 hover:text-black transition-colors"
+                  >
+                    VIEW DETAILS <ExternalLink size={14} />
+                  </Link>
                 </div>
               </div>
             ))}

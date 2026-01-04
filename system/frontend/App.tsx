@@ -10,6 +10,7 @@ import Guidelines from './pages/Guidelines';
 import Booking from './pages/Booking';
 import Location from './pages/Location';
 import Guesthouses from './pages/Guesthouses';
+import GuesthouseDetail from './pages/GuesthouseDetail';
 import Contact from './pages/Contact';
 
 const App: React.FC = () => {
@@ -28,6 +29,7 @@ const App: React.FC = () => {
           <Route path="/booking" element={<Booking />} /> {/* 線上預約 */}
           <Route path="/location" element={<Location />} /> {/* 交通位置 */}
           <Route path="/guesthouses" element={<Guesthouses />} /> {/* 民宿推薦 */}
+          <Route path="/guesthouses/:id" element={<GuesthouseDetail />} /> {/* 民宿詳細頁面 */}
           <Route path="/contact" element={<Contact />} /> {/* 聯絡我們 */}
           
           {/* Fallback */}

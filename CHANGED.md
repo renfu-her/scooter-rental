@@ -1,5 +1,38 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-04 15:45:00 - 添加民宿詳細頁面 / Add Guesthouse Detail Page
+
+### Frontend Changes
+
+- **api.ts** (`system/frontend/lib/api.ts`)
+  - 添加 `guesthouses.get(id)` 方法：獲取單個民宿資訊
+
+- **GuesthouseDetail.tsx** (`system/frontend/pages/GuesthouseDetail.tsx`) - 新建
+  - 創建民宿詳細頁面組件
+  - 顯示民宿名稱、簡短說明、圖片、詳細描述
+  - 如果有關聯連結，顯示「前往官方網站」按鈕
+  - 添加返回列表的連結
+  - 處理載入和錯誤狀態
+
+- **App.tsx** (`system/frontend/App.tsx`)
+  - 添加 `/guesthouses/:id` 路由，對應 GuesthouseDetail 組件
+
+- **Guesthouses.tsx** (`system/frontend/pages/Guesthouses.tsx`)
+  - 更新 VIEW DETAILS 按鈕：從外部連結改為內部路由連結
+  - 使用 `Link` 組件鏈接到 `/guesthouses/{id}`
+  - 移除條件判斷，所有民宿都顯示 VIEW DETAILS 按鈕並鏈接到詳細頁面
+
+### Features
+- **詳細頁面**：每個民宿現在都有獨立的詳細頁面
+- **路由整合**：使用 React Router 進行客戶端路由
+- **完整資訊**：詳細頁面顯示所有民宿資訊，包括圖片和詳細描述（HTML 格式）
+- **外部連結**：如果有官方網站連結，在詳細頁面底部顯示「前往官方網站」按鈕
+
+### Technical Details
+- **路由結構**：`/guesthouses/:id` 用於顯示單個民宿的詳細資訊
+- **API 端點**：使用 `GET /api/guesthouses/{id}` 獲取單個民宿資訊
+- **導航**：使用 React Router 的 `Link` 和 `useNavigate` 進行頁面導航
+
 ## 2026-01-04 15:39:01 - 民宿推薦添加簡短說明欄位，移除列表中的描述顯示 / Add Short Description Field to Guesthouses, Remove Description from Lists
 
 ### Database Changes

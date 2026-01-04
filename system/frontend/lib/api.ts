@@ -64,5 +64,6 @@ export const publicApi = {
   },
   guesthouses: {
     list: () => api.get('/guesthouses', { active_only: true }),
+    get: (id: string | number) => api.get(`/guesthouses/${id}`),
   },
 };
