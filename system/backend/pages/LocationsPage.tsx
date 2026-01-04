@@ -178,58 +178,56 @@ const LocationsPage: React.FC = () => {
           <p className="text-gray-500 dark:text-gray-400">目前沒有門市據點</p>
         </div>
       ) : (
-        <div className="grid gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {locations.map((location) => (
             <div
               key={location.id}
-              className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6"
+              className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6 flex flex-col"
             >
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100">{location.name}</h3>
-                    {!location.is_active && (
-                      <span className="text-xs bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 px-2 py-1 rounded">
-                        已停用
-                      </span>
-                    )}
-                  </div>
-                  {location.address && (
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">{location.address}</p>
+              {location.image_path && (
+                <div className="w-full h-40 rounded-lg overflow-hidden mb-4">
+                  <img
+                    src={`/storage/${location.image_path}`}
+                    alt={location.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-2">
+                  <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100">{location.name}</h3>
+                  {!location.is_active && (
+                    <span className="text-xs bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 px-2 py-1 rounded">
+                      已停用
+                    </span>
                   )}
-                  {location.phone && (
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">電話: {location.phone}</p>
-                  )}
-                  {location.hours && (
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">營業時間: {location.hours}</p>
-                  )}
-                  <div className="flex items-center justify-between mt-2">
-                    <span className="text-xs text-gray-500 dark:text-gray-400">排序: {location.sort_order}</span>
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => handleOpenModal(location)}
-                        className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
-                      >
-                        <Edit2 size={18} />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(location.id)}
-                        className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    </div>
+                </div>
+                {location.address && (
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">{location.address}</p>
+                )}
+                {location.phone && (
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">電話: {location.phone}</p>
+                )}
+                {location.hours && (
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">營業時間: {location.hours}</p>
+                )}
+                <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <span className="text-xs text-gray-500 dark:text-gray-400">排序: {location.sort_order}</span>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => handleOpenModal(location)}
+                      className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                    >
+                      <Edit2 size={18} />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(location.id)}
+                      className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                    >
+                      <Trash2 size={18} />
+                    </button>
                   </div>
                 </div>
-                {location.image_path && (
-                  <div className="ml-4 w-24 h-24 rounded-lg overflow-hidden">
-                    <img
-                      src={`/storage/${location.image_path}`}
-                      alt={location.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                )}
               </div>
             </div>
           ))}
