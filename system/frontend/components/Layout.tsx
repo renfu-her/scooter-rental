@@ -117,9 +117,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <div className="flex flex-col items-center md:items-start">
                   <Logo />
                   <div className="mt-4 text-sm text-gray-500 text-center md:text-left">
-                    <p>地址：臺北市中正路 123 號</p>
-                    <p>信箱：info-demo@gmail.com</p>
-                    <p>電話：02-2345-5555</p>
+                    <p>地址：屏東縣琉球鄉相埔路86之5</p>
                   </div>
                 </div>
 

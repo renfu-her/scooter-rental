@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Mail, Phone, MapPin, Send } from 'lucide-react';
+import { MapPin, Send } from 'lucide-react';
 import { publicApi } from '../lib/api';
 
 interface LocationData {
@@ -91,30 +91,6 @@ const Contact: React.FC = () => {
                     </div>
                   </div>
                 )}
-                {locations.length > 0 && locations[0].phone && (
-                  <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 bg-[#fff4f9] text-pink-600 rounded-full flex items-center justify-center shrink-0">
-                      <Phone size={20} />
-                    </div>
-                    <div>
-                      <p className="font-bold mb-1">電話</p>
-                      <a href={`tel:${locations[0].phone}`} className="text-gray-600 hover:text-teal-600 transition-colors">
-                        {locations[0].phone}
-                      </a>
-                    </div>
-                  </div>
-                )}
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-[#f0f3f9] text-blue-600 rounded-full flex items-center justify-center shrink-0">
-                    <Mail size={20} />
-                  </div>
-                  <div>
-                    <p className="font-bold mb-1">電子信箱</p>
-                    <a href="mailto:info@languang-rental.com" className="text-gray-600 hover:text-teal-600 transition-colors">
-                      info@languang-rental.com
-                    </a>
-                  </div>
-                </div>
                 {locations.length > 0 && locations[0].hours && (
                   <div className="flex items-start gap-4">
                     <div className="w-10 h-10 bg-[#f0f3f9] text-blue-600 rounded-full flex items-center justify-center shrink-0">
