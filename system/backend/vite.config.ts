@@ -58,6 +58,10 @@ export default defineConfig(({ mode }) => {
                 if (id.includes('lucide-react')) {
                   return 'icons-vendor';
                 }
+                // CKEditor 5 in its own chunk
+                if (id.includes('ckeditor5') || id.includes('@ckeditor')) {
+                  return 'ckeditor-vendor';
+                }
                 // All other node_modules
                 return 'vendor';
               }
