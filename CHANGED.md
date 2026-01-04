@@ -3824,3 +3824,27 @@ php artisan db:seed --class=ScooterModelColorSeeder
   - 更新 LINE @ 連結網址從 `https://line.me` 改為 `https://lin.ee/7Fr9eko`
   - 連結已設定 `target="_blank"` 和 `rel="noopener noreferrer"`，會在新分頁開啟
 
+---
+
+## 2026-01-04 22:36:12 - Footer 增加電話號碼
+
+### 變更內容
+- **Layout.tsx** (`system/frontend/components/Layout.tsx`)
+  - 在 footer 的地址下方增加電話號碼顯示
+  - 電話號碼：0911306011
+  - 電話號碼使用 `tel:0911306011` 連結，點擊可在手機上撥打電話
+  - 電話號碼連結添加 hover 效果（hover:text-teal-600），提升用戶體驗
+
+---
+
+## 2026-01-04 22:42:15 - Footer 增加 LINE ID 和地址連結
+
+### 變更內容
+- **Layout.tsx** (`system/frontend/components/Layout.tsx`)
+  - 在電話上方增加 LINE ID 顯示：@623czmsm
+  - LINE ID 使用 `https://lin.ee/7Fr9eko` 連結，在新分頁開啟
+  - 地址「屏東縣琉球鄉相埔路86之5」增加 Google Maps 連結
+  - 地址連結使用 `https://www.google.com.tw/maps/search/...`，在新分頁開啟
+  - 所有連結都添加 hover 效果（hover:text-teal-600），提升用戶體驗
+  - Footer 資訊順序：地址（有連結） → LINE ID（有連結） → 電話（有連結）
+
