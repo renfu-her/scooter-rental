@@ -51,6 +51,7 @@ const CKEditorComponent: React.FC<CKEditorProps> = ({
       <CKEditor
         editor={ClassicEditor}
         config={{
+          licenseKey: 'GPL',
           plugins: [
             Essentials,
             Paragraph,

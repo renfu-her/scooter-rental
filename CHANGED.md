@@ -1,5 +1,17 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-04 15:27:23 - 修復 CKEditor 5 License Key 錯誤 / Fix CKEditor 5 License Key Error
+
+### Backend Changes
+
+- **CKEditor.tsx** (`system/backend/components/CKEditor.tsx`)
+  - 添加 `licenseKey: 'GPL'` 配置：使用 GPL（Community）版本許可證
+  - 修復 `license-key-missing` 錯誤：CKEditor 5 v44+ 需要明確設置 license key
+
+### Technical Details
+- **License 配置**：CKEditor 5 從 v44.0.0 開始，即使是 Community 版本也需要設置 `licenseKey: 'GPL'`
+- **GPL 許可證**：使用 GPL 許可證時，編輯器會顯示 "Powered by CKEditor" 標誌
+
 ## 2026-01-04 15:18:08 - 為民宿推薦描述添加 CKEditor 5 富文本編輯功能 / Add CKEditor 5 Rich Text Editor for Guesthouse Description
 
 ### Backend Changes
