@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\RentalPlanController;
 use App\Http\Controllers\Api\GuidelineController;
 use App\Http\Controllers\Api\LocationController;
 use App\Http\Controllers\Api\GuesthouseController;
+use App\Http\Controllers\Api\UploadController;
 
 // Auth Routes (Public)
 Route::post('/login', [AuthController::class, 'login']);
@@ -26,6 +27,11 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanc
 // Captcha Routes (Public)
 Route::get('/captcha/generate', [CaptchaController::class, 'generate']);
 Route::post('/captcha/verify', [CaptchaController::class, 'verify']);
+
+// Upload Routes (Protected for admin)
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/upload/image', [UploadController::class, 'uploadImage']);
+});
 
 // Orders API
 Route::prefix('orders')->group(function () {

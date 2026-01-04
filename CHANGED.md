@@ -1,5 +1,38 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-04 15:31:03 - 為 CKEditor 5 添加圖片上傳功能 / Add Image Upload Functionality to CKEditor 5
+
+### Backend Changes
+
+- **UploadController.php** (`app/Http/Controllers/Api/UploadController.php`) - 新建
+  - 創建通用的圖片上傳控制器，用於 CKEditor 5 圖片上傳
+  - 使用 ImageService 處理圖片上傳（轉換為 webp 格式，使用 UUID 文件名）
+  - 返回 CKEditor 5 期望的 JSON 格式：`{ "url": "..." }`
+  - 圖片保存到 `storage/app/public/editor/` 目錄
+
+- **api.php** (`routes/api.php`)
+  - 添加 `/api/upload/image` 端點（需要認證）
+  - 用於 CKEditor 5 圖片上傳
+
+- **CKEditor.tsx** (`system/backend/components/CKEditor.tsx`)
+  - 添加圖片相關插件：Image, ImageUpload, ImageToolbar, ImageCaption, ImageStyle, ImageResize
+  - 創建自定義圖片上傳適配器 `CustomUploadAdapter`，處理圖片上傳到服務器
+  - 配置圖片工具欄選項：inline、block、side 樣式，圖片標題，替代文字
+  - 在工具欄中添加 `uploadImage` 按鈕
+  - 配置上傳端點為 `/api/upload/image`，使用 Bearer token 認證
+
+### Features
+- **圖片上傳**：支援從本地選擇圖片上傳到服務器
+- **圖片編輯**：支援調整圖片樣式（inline、block、side）、添加標題和替代文字
+- **圖片管理**：圖片自動轉換為 webp 格式，使用 UUID 文件名
+- **認證支持**：圖片上傳需要認證，使用 Bearer token
+
+### Technical Details
+- **上傳適配器**：創建自定義 `CustomUploadAdapter` 類，實現 UploadAdapter 接口
+- **上傳端點**：`POST /api/upload/image`，接收 `upload` 字段的圖片文件
+- **返回格式**：服務器返回 `{ "url": "..." }` 格式的 JSON
+- **圖片格式**：自動轉換為 webp 格式，使用 UUID 文件名
+
 ## 2026-01-04 15:27:23 - 修復 CKEditor 5 License Key 錯誤 / Fix CKEditor 5 License Key Error
 
 ### Backend Changes
