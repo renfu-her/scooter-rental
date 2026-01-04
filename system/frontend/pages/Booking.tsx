@@ -198,6 +198,9 @@ const Booking: React.FC = () => {
                   onChange={e => setFormData({...formData, note: e.target.value})}
                 ></textarea>
               </div>
+            </div>
+
+            <div className="md:col-span-2">
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-2">
                   驗證碼 <span className="text-red-500">*</span>
