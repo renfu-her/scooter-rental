@@ -59,8 +59,8 @@ export const publicApi = {
   guidelines: {
     list: (params?: { category?: string }) => api.get('/guidelines', { active_only: true, ...params }),
   },
-  location: {
-    get: () => api.get('/location'),
+  locations: {
+    list: () => api.get('/locations', { active_only: true }),
   },
   guesthouses: {
     list: () => api.get('/guesthouses', { active_only: true }),

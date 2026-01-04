@@ -9,15 +9,22 @@ class Location extends Model
 {
     use HasFactory;
 
-    protected $table = 'location';
+    protected $table = 'locations';
 
     protected $fillable = [
-        'title',
+        'name',
         'address',
         'phone',
         'hours',
         'description',
         'image_path',
-        'map_url',
+        'map_embed',
+        'sort_order',
+        'is_active',
+    ];
+
+    protected $casts = [
+        'is_active' => 'boolean',
+        'sort_order' => 'integer',
     ];
 }

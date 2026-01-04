@@ -273,11 +273,15 @@ export const guidelinesApi = {
   delete: (id: string | number) => api.delete(`/guidelines/${id}`),
 };
 
-export const locationApi = {
-  get: () => api.get('/location'),
-  update: (data: any) => api.put('/location', data),
-  uploadImage: (file: File) =>
-    api.uploadFile('/location/upload-image', file, 'image'),
+export const locationsApi = {
+  list: (params?: { active_only?: boolean; search?: string }) =>
+    api.get('/locations', params),
+  get: (id: string | number) => api.get(`/locations/${id}`),
+  create: (data: any) => api.post('/locations', data),
+  update: (id: string | number, data: any) => api.put(`/locations/${id}`, data),
+  delete: (id: string | number) => api.delete(`/locations/${id}`),
+  uploadImage: (id: string | number, file: File) =>
+    api.uploadFile(`/locations/${id}/upload-image`, file, 'image'),
 };
 
 export const guesthousesApi = {

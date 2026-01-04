@@ -16,7 +16,7 @@ const AdminsPage = React.lazy(() => import('./pages/AdminsPage'));
 const BannersPage = React.lazy(() => import('./pages/BannersPage'));
 const RentalPlansPage = React.lazy(() => import('./pages/RentalPlansPage'));
 const GuidelinesPage = React.lazy(() => import('./pages/GuidelinesPage'));
-const LocationPage = React.lazy(() => import('./pages/LocationPage'));
+const LocationsPage = React.lazy(() => import('./pages/LocationsPage'));
 const GuesthousesPage = React.lazy(() => import('./pages/GuesthousesPage'));
 
 const LoadingFallback: React.FC = () => (
@@ -111,9 +111,9 @@ const App: React.FC = () => {
                 <GuidelinesPage />
               </Suspense>
             } />
-            <Route path="location" element={
+            <Route path="locations" element={
               <Suspense fallback={<LoadingFallback />}>
-                <LocationPage />
+                <LocationsPage />
               </Suspense>
             } />
             <Route path="guesthouses" element={

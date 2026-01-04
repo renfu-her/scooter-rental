@@ -144,12 +144,15 @@ Route::prefix('guidelines')->group(function () {
     });
 });
 
-// Location API (Public for frontend, Protected for admin)
-Route::prefix('location')->group(function () {
-    Route::get('/', [LocationController::class, 'show']); // Public
+// Locations API (Public for frontend, Protected for admin)
+Route::prefix('locations')->group(function () {
+    Route::get('/', [LocationController::class, 'index']); // Public
     Route::middleware('auth:sanctum')->group(function () {
-        Route::put('/', [LocationController::class, 'update']);
-        Route::post('/upload-image', [LocationController::class, 'uploadImage']);
+        Route::post('/', [LocationController::class, 'store']);
+        Route::get('/{location}', [LocationController::class, 'show']);
+        Route::put('/{location}', [LocationController::class, 'update']);
+        Route::delete('/{location}', [LocationController::class, 'destroy']);
+        Route::post('/{location}/upload-image', [LocationController::class, 'uploadImage']);
     });
 });
 

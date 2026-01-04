@@ -36,7 +36,7 @@ export const NAV_ITEMS = [
       { name: '首頁 Banner', path: '/banners' },
       { name: '租車方案', path: '/rental-plans' },
       { name: '租車須知', path: '/guidelines' },
-      { name: '交通位置', path: '/location' },
+      { name: '門市據點', path: '/locations' },
       { name: '民宿推薦', path: '/guesthouses' }
     ]
   },
