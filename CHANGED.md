@@ -3664,3 +3664,13 @@ php artisan db:seed --class=ScooterModelColorSeeder
 - 驗證碼包含多種視覺干擾：200 個雜訊點、5 條干擾線、3 條波浪線、字符隨機旋轉和偏移
 - 字符集：`ABCDEFGHIJKLMNPQRSTUVWXYZ123456789`（排除 O 和 0）
 
+---
+
+## 2026-01-04 21:32:15 - 調整聯絡表單驗證碼位置
+
+### 變更內容
+- **Contact.tsx** (`system/frontend/pages/Contact.tsx`)
+  - 將驗證碼輸入框與訊息內容輸入框的位置對調
+  - 驗證碼輸入框現在位於訊息內容輸入框之後
+  - 表單順序：姓名 → 電子信箱 → 聯絡電話 → 訊息內容 → 驗證碼 → 送出按鈕
+

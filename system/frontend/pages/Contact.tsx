@@ -212,6 +212,21 @@ const Contact: React.FC = () => {
                 </div>
 
                 <div>
+                  <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
+                    訊息內容 <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    id="message"
+                    required
+                    rows={6}
+                    value={formData.message}
+                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none transition-all resize-none"
+                    placeholder="請輸入您的問題或建議..."
+                  />
+                </div>
+
+                <div>
                   <label htmlFor="captcha" className="block text-sm font-medium text-gray-700 mb-2">
                     驗證碼 <span className="text-red-500">*</span>
                   </label>
@@ -257,21 +272,6 @@ const Contact: React.FC = () => {
                     disabled={submitting || !captcha}
                     maxLength={6}
                     pattern="[A-NP-Z1-9]{6}"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
-                    訊息內容 <span className="text-red-500">*</span>
-                  </label>
-                  <textarea
-                    id="message"
-                    required
-                    rows={6}
-                    value={formData.message}
-                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none transition-all resize-none"
-                    placeholder="請輸入您的問題或建議..."
                   />
                 </div>
 
