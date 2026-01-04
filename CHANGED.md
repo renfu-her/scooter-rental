@@ -1,5 +1,68 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-04 20:35:00 - 實作聯絡表單郵件發送功能（Gmail） / Implement Contact Form Email Sending (Gmail)
+
+### Backend Changes
+
+- **ContactController.php** (`app/Http/Controllers/Api/ContactController.php`) - 新建
+  - 創建聯絡表單控制器
+  - 處理表單驗證（姓名、信箱、電話、訊息）
+  - 使用 ContactMail 類發送郵件到指定信箱（zau1110216@gmail.com）
+  - 錯誤處理和日誌記錄
+
+- **ContactMail.php** (`app/Mail/ContactMail.php`)
+  - 更新郵件類以接收表單資料
+  - 設置郵件標題：包含發送者姓名
+  - 設置 Reply-To：使用表單提交者的信箱
+  - 使用 contact.blade.php 作為郵件模板
+
+- **contact.blade.php** (`resources/views/emails/contact.blade.php`) - 新建
+  - 創建郵件模板視圖
+  - 美觀的 HTML 郵件格式
+  - 顯示所有表單欄位（姓名、信箱、電話、訊息）
+  - 包含發送時間資訊
+
+- **api.php** (`routes/api.php`)
+  - 添加 `POST /api/contact` 路由（公開路由）
+
+### Frontend Changes
+
+- **api.ts** (`system/frontend/lib/api.ts`)
+  - 添加 `contact.send(data)` 方法到 publicApi
+
+- **Contact.tsx** (`system/frontend/pages/Contact.tsx`)
+  - 更新 `handleSubmit` 函數：調用 API 發送郵件
+  - 添加錯誤處理
+  - 成功後顯示提示並清空表單
+
+### Configuration Required
+
+需要在 `.env` 文件中配置以下 Gmail SMTP 設定：
+
+```env
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=zau1110216@gmail.com
+MAIL_PASSWORD=fdpdunlbfoyhgtfh
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS=zau1110216@gmail.com
+MAIL_FROM_NAME="${APP_NAME}"
+```
+
+### Features
+- **郵件發送**：聯絡表單提交後自動發送郵件到指定 Gmail 信箱
+- **美觀格式**：使用 HTML 郵件模板，呈現專業的郵件格式
+- **Reply-To 設置**：郵件設置 Reply-To 為表單提交者的信箱，方便直接回覆
+- **錯誤處理**：完整的錯誤處理和用戶友好的錯誤訊息
+- **表單驗證**：後端驗證表單資料確保資料完整性
+
+### Technical Details
+- **SMTP 配置**：使用 Gmail SMTP (smtp.gmail.com:587) 發送郵件
+- **郵件模板**：使用 Blade 模板引擎創建 HTML 郵件
+- **安全性**：使用應用程式密碼而非一般密碼進行認證
+- **API 端點**：`POST /api/contact` 接收表單資料並發送郵件
+
 ## 2026-01-04 20:30:00 - 改進前台頁面空資料顯示訊息 / Improve Empty Data Messages for Frontend Pages
 
 ### Frontend Changes

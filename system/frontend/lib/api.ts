@@ -12,7 +12,7 @@ class FrontendApiClient {
     this.baseUrl = baseUrl;
   }
 
-  private async request<T>(endpoint: string): Promise<ApiResponse<T>> {
+  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
     const url = `${this.baseUrl}${endpoint}`;
     
     try {
@@ -20,11 +20,21 @@ class FrontendApiClient {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          ...options.headers,
         },
+        ...options,
       });
 
       if (!response.ok) {
-        throw new Error(`API request failed: ${response.statusText}`);
+        const errorData = await response.json().catch(() => ({}));
+        const error: any = new Error(errorData.message || `API request failed: ${response.statusText}`);
+        error.response = {
+          status: response.status,
+          statusText: response.statusText,
+          data: errorData,
+        };
+        throw error;
       }
 
       return await response.json();
@@ -43,6 +53,13 @@ class FrontendApiClient {
       endpoint = queryString ? `${endpoint}?${queryString}` : endpoint;
     }
     return this.request<T>(endpoint);
+  }
+
+  async post<T>(endpoint: string, data?: any): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
   }
 }
 
@@ -65,5 +82,9 @@ export const publicApi = {
   guesthouses: {
     list: () => api.get('/guesthouses', { active_only: true }),
     get: (id: string | number) => api.get(`/guesthouses/${id}`),
+  },
+  contact: {
+    send: (data: { name: string; email: string; phone?: string; message: string }) => 
+      api.post('/contact', data),
   },
 };

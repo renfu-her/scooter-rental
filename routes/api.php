@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\GuidelineController;
 use App\Http\Controllers\Api\LocationController;
 use App\Http\Controllers\Api\GuesthouseController;
 use App\Http\Controllers\Api\UploadController;
+use App\Http\Controllers\Api\ContactController;
 
 // Auth Routes (Public)
 Route::post('/login', [AuthController::class, 'login']);
@@ -27,6 +28,9 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanc
 // Captcha Routes (Public)
 Route::get('/captcha/generate', [CaptchaController::class, 'generate']);
 Route::post('/captcha/verify', [CaptchaController::class, 'verify']);
+
+// Contact Routes (Public)
+Route::post('/contact', [ContactController::class, 'send']);
 
 // Upload Routes (Protected for admin)
 Route::middleware('auth:sanctum')->group(function () {

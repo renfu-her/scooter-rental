@@ -45,15 +45,16 @@ const Contact: React.FC = () => {
     e.preventDefault();
     setSubmitting(true);
     
-    // TODO: 實作表單提交邏輯
-    console.log('Form submitted:', formData);
-    
-    // 模擬提交延遲
-    setTimeout(() => {
+    try {
+      await publicApi.contact.send(formData);
       alert('感謝您的訊息！我們會盡快與您聯繫。');
       setFormData({ name: '', email: '', phone: '', message: '' });
+    } catch (error: any) {
+      console.error('Failed to send contact form:', error);
+      alert(error.response?.data?.message || '發送訊息時發生錯誤，請稍後再試。');
+    } finally {
       setSubmitting(false);
-    }, 1000);
+    }
   };
 
   return (
