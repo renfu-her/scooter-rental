@@ -3597,3 +3597,70 @@ php artisan db:seed --class=ScooterModelColorSeeder
 - 確保中文名稱在郵件標頭中正確編碼
 - 符合 RFC 2822 郵件標準規範
 
+---
+
+## 2026-01-04 21:31:38 - 聯絡表單增加驗證碼功能
+
+### 功能需求
+- 在聯絡表單中增加驗證碼功能
+- 驗證碼至少 6 位數
+- 排除字母 O 和數字 0（避免混淆）
+- 輸入框強制大寫
+- 驗證碼也是大寫
+- 加上視覺干擾（雜訊點、干擾線條、波浪線等）
+- 驗證碼輸入框放在訊息輸入框前面
+
+### Backend Changes
+
+- **ContactController.php** (`app/Http/Controllers/Api/ContactController.php`)
+  - 在 `send()` 方法中添加驗證碼驗證
+  - 添加 `captcha_id` 和 `captcha_answer` 驗證規則
+  - 驗證驗證碼是否過期或錯誤
+  - 驗證成功後刪除驗證碼（防止重複使用）
+  - 驗證碼錯誤時返回適當的錯誤訊息
+
+### Frontend Changes
+
+- **api.ts** (`system/frontend/lib/api.ts`)
+  - 在 `publicApi` 中添加 `captcha` 物件
+  - 添加 `captcha.generate()` 方法：生成驗證碼圖片
+  - 添加 `captcha.verify()` 方法：驗證驗證碼答案
+  - 更新 `contact.send()` 方法簽名，添加 `captcha_id` 和 `captcha_answer` 參數
+
+- **Contact.tsx** (`system/frontend/pages/Contact.tsx`)
+  - 導入必要的圖標：`RefreshCw`, `Loader2`
+  - 添加 `Captcha` 介面定義
+  - 在狀態中添加 `captcha` 和 `isLoadingCaptcha`
+  - 在 `formData` 中添加 `captchaAnswer` 欄位
+  - 添加 `fetchCaptcha()` 函數：獲取驗證碼圖片
+  - 在 `useEffect` 中自動載入驗證碼
+  - 更新 `handleSubmit()` 函數：
+    - 驗證驗證碼是否存在和完整
+    - 提交時包含驗證碼 ID 和答案
+    - 驗證碼錯誤時重新獲取驗證碼
+    - 成功提交後重新獲取驗證碼
+  - 在表單中添加驗證碼輸入區塊（放在訊息輸入框前面）：
+    - 驗證碼圖片顯示（可點擊刷新）
+    - 刷新按鈕
+    - 驗證碼輸入框：
+      - 強制大寫（`uppercase` class 和 `toUpperCase()`）
+      - 排除 O 和 0（`replace(/[O0]/g, '')`）
+      - 最多 6 位數（`maxLength={6}`）
+      - 等寬字體和寬字距（`font-mono tracking-widest`）
+      - 文字置中（`text-center`）
+
+### Features
+- **圖片驗證碼**：使用現有的 CaptchaController 生成帶干擾的驗證碼圖片
+- **自動載入**：頁面載入時自動獲取驗證碼
+- **點擊刷新**：可以點擊驗證碼圖片或刷新按鈕重新獲取驗證碼
+- **強制大寫**：輸入框自動轉換為大寫，並排除 O 和 0
+- **錯誤處理**：驗證碼錯誤或過期時顯示適當的錯誤訊息並重新獲取驗證碼
+- **安全性**：驗證碼使用後立即刪除，防止重複使用
+
+### Technical Details
+- 使用現有的 CaptchaController，無需重複實現驗證碼生成邏輯
+- 驗證碼存儲在 Cache 中，5 分鐘過期
+- 驗證碼圖片使用 Base64 編碼，無需額外圖片存儲
+- 驗證碼包含多種視覺干擾：200 個雜訊點、5 條干擾線、3 條波浪線、字符隨機旋轉和偏移
+- 字符集：`ABCDEFGHIJKLMNPQRSTUVWXYZ123456789`（排除 O 和 0）
+

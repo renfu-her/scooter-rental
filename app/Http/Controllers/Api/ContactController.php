@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Cache;
 
 class ContactController extends Controller
 {
@@ -21,6 +22,8 @@ class ContactController extends Controller
             'email' => 'required|email|max:255',
             'phone' => 'nullable|string|max:20',
             'message' => 'required|string|max:5000',
+            'captcha_id' => 'required|string',
+            'captcha_answer' => 'required|string|size:6',
         ]);
 
         if ($validator->fails()) {
@@ -30,11 +33,35 @@ class ContactController extends Controller
             ], 422);
         }
 
+        // 驗證驗證碼
+        $captchaId = $request->get('captcha_id');
+        $userAnswer = strtoupper(trim($request->get('captcha_answer')));
+        $correctAnswer = Cache::get("captcha_{$captchaId}");
+
+        if ($correctAnswer === null) {
+            return response()->json([
+                'message' => '驗證碼已過期，請重新獲取',
+                'errors' => ['captcha_answer' => ['驗證碼已過期，請重新獲取']],
+            ], 422);
+        }
+
+        if ($userAnswer !== $correctAnswer) {
+            return response()->json([
+                'message' => '驗證碼錯誤',
+                'errors' => ['captcha_answer' => ['驗證碼錯誤']],
+            ], 422);
+        }
+
         try {
             $data = $validator->validated();
+            // 移除驗證碼相關欄位，只保留郵件需要的資料
+            unset($data['captcha_id'], $data['captcha_answer']);
             
             // 發送郵件到指定信箱
             Mail::to('renfu.her@gmail.com')->send(new ContactMail($data));
+
+            // 驗證成功後刪除驗證碼
+            Cache::forget("captcha_{$captchaId}");
 
             return response()->json([
                 'message' => '訊息已成功送出，我們會盡快與您聯繫！',

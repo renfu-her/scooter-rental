@@ -84,7 +84,11 @@ export const publicApi = {
     get: (id: string | number) => api.get(`/guesthouses/${id}`),
   },
   contact: {
-    send: (data: { name: string; email: string; phone?: string; message: string }) => 
+    send: (data: { name: string; email: string; phone?: string; message: string; captcha_id: string; captcha_answer: string }) => 
       api.post('/contact', data),
+  },
+  captcha: {
+    generate: () => api.get('/captcha/generate'),
+    verify: (captchaId: string, answer: string) => api.post('/captcha/verify', { captcha_id: captchaId, answer }),
   },
 };
