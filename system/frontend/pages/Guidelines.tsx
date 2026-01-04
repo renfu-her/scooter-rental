@@ -96,7 +96,12 @@ const Guidelines: React.FC = () => {
               </div>
             ))}
             {filteredFaqs.length === 0 && (
-              <div className="text-center py-12 text-gray-400">目前尚無相關問題</div>
+              <div className="flex flex-col items-center justify-center py-20">
+                <div className="text-gray-400 text-center">
+                  <p className="text-lg mb-2">目前尚無相關問題</p>
+                  <p className="text-sm">我們正在整理常見問題，請稍後再來查看，或透過聯絡我們頁面直接詢問。</p>
+                </div>
+              </div>
             )}
           </div>
         </div>

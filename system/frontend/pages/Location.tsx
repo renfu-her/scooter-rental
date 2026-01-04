@@ -53,8 +53,11 @@ const Location: React.FC = () => {
         </section>
       ) : locations.length === 0 ? (
         <section className="container mx-auto px-6 max-w-6xl py-12">
-          <div className="flex justify-center items-center py-12">
-            <div className="text-gray-400">目前沒有門市據點</div>
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="text-gray-400 text-center">
+              <p className="text-lg mb-2">目前沒有門市據點資訊</p>
+              <p className="text-sm">我們正在整理相關資訊，請稍後再來查看，或透過其他方式與我們聯繫。</p>
+            </div>
           </div>
         </section>
       ) : (

@@ -49,8 +49,11 @@ const RentalPlans: React.FC = () => {
         </section>
       ) : plans.length === 0 ? (
         <section className="py-20 px-6">
-          <div className="flex justify-center items-center">
-            <div className="text-gray-400">目前沒有可用的租車方案</div>
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="text-gray-400 text-center">
+              <p className="text-lg mb-2">目前沒有可用的租車方案</p>
+              <p className="text-sm">我們正在準備更多優質的租車選擇，請稍後再來查看。</p>
+            </div>
           </div>
         </section>
       ) : (

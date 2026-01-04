@@ -47,6 +47,15 @@ const Guesthouses: React.FC = () => {
             <div className="text-gray-400">載入中...</div>
           </div>
         </section>
+      ) : guesthouses.length === 0 ? (
+        <section className="container mx-auto px-6 max-w-6xl pb-24">
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="text-gray-400 text-center">
+              <p className="text-lg mb-2">目前沒有可用的民宿推薦</p>
+              <p className="text-sm">我們正在積極尋找優質的合作夥伴，請稍後再來查看。</p>
+            </div>
+          </div>
+        </section>
       ) : (
         <section className="container mx-auto px-6 max-w-6xl pb-24">
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">

@@ -1,5 +1,35 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-04 20:30:00 - 改進前台頁面空資料顯示訊息 / Improve Empty Data Messages for Frontend Pages
+
+### Frontend Changes
+
+- **Guesthouses.tsx** (`system/frontend/pages/Guesthouses.tsx`)
+  - 添加空資料狀態顯示
+  - 顯示友好的訊息：「目前沒有可用的民宿推薦」和說明文字
+
+- **RentalPlans.tsx** (`system/frontend/pages/RentalPlans.tsx`)
+  - 改進空資料訊息顯示
+  - 添加說明文字，使訊息更加友好
+
+- **Location.tsx** (`system/frontend/pages/Location.tsx`)
+  - 改進空資料訊息顯示
+  - 添加說明文字和替代聯繫方式的提示
+
+- **Guidelines.tsx** (`system/frontend/pages/Guidelines.tsx`)
+  - 改進空資料訊息顯示（過濾後無結果時）
+  - 添加說明文字和替代聯繫方式的提示
+
+### Features
+- **友好的空資料訊息**：所有頁面（除首頁外）現在都顯示友好的空資料訊息
+- **統一樣式**：使用統一的樣式和佈局來顯示空資料狀態
+- **提供替代方案**：在空資料訊息中提供替代聯繫方式或說明
+
+### Technical Details
+- **統一格式**：所有空資料訊息使用相同的佈局結構（flex-col, items-center, text-center）
+- **兩行文字**：主要訊息（text-lg）和說明文字（text-sm）
+- **一致的間距**：使用 py-20 確保足夠的垂直間距
+
 ## 2026-01-04 15:45:00 - 添加民宿詳細頁面 / Add Guesthouse Detail Page
 
 ### Backend Changes
