@@ -61,7 +61,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <ChevronRight size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
             </Link>
 
-            <a href="https://lin.ee/7Fr9eko" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between bg-[#1a1a1a] text-white px-5 py-3 rounded-full hover:bg-black transition-all group">
+            <a href="https://line.me/R/ti/p/@623czmsm?oat_content=url&ts=01042332" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between bg-[#1a1a1a] text-white px-5 py-3 rounded-full hover:bg-black transition-all group">
               <div className="flex items-center gap-3">
                 <MessageCircle size={18} />
                 <div className="flex flex-col">
@@ -118,7 +118,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   <Logo />
                   <div className="mt-4 text-sm text-gray-500 text-center md:text-left">
                     <p>地址：<a href="https://www.google.com.tw/maps/search/%E5%B1%8F%E6%9D%B1%E7%B8%A3%E7%90%89%E7%90%83%E9%84%89%E7%9B%B8%E5%9F%94%E8%B7%AF86%E4%B9%8B5" target="_blank" rel="noopener noreferrer" className="hover:text-teal-600 transition-colors">屏東縣琉球鄉相埔路86之5</a></p>
-                    <p className="mt-2">LINE ID：<a href="https://lin.ee/7Fr9eko" target="_blank" rel="noopener noreferrer" className="hover:text-teal-600 transition-colors">@623czmsm</a></p>
+                    <p className="mt-2">LINE ID：<a href="https://line.me/R/ti/p/@623czmsm?oat_content=url&ts=01042332" target="_blank" rel="noopener noreferrer" className="hover:text-teal-600 transition-colors">@623czmsm</a></p>
                     <p className="mt-2">電話：<a href="tel:0911306011" className="hover:text-teal-600 transition-colors">0911306011</a></p>
                   </div>
                 </div>
