@@ -4477,3 +4477,30 @@ php artisan db:seed --class=ScooterModelColorSeeder
 ### 說明
 執行此 migration 後，預約表單可以正常提交，不會再出現 `scooter_type` 欄位錯誤。
 
+
+---
+
+## 2026-01-06 14:22:11 - 更新預約確認郵件模板以支援新表單欄位
+
+### 變更內容
+- **booking.blade.php** (`resources/views/emails/booking.blade.php`)
+  - 移除舊欄位：`scooterType`、`date`、`days`
+  - 新增欄位顯示：
+    - 所需租車類型/數量（使用 `scooters` JSON 陣列）
+    - 預約日期（使用 `appointmentDate`）
+    - 結束日期（使用 `endDate`）
+    - 船運公司（使用 `shippingCompany`）
+    - 船班時間（來）（使用 `shipArrivalTime`）
+    - 人數（大人、小孩，使用 `adults` 和 `children`）
+  - 所有新欄位都使用條件判斷，只在有值時顯示
+
+### 問題修正
+- 修正錯誤：`Undefined array key "scooterType"`
+- 郵件模板現在完全支援新的預約表單欄位結構
+- 保持向後兼容，使用 `??` 運算符處理可能不存在的舊欄位
+
+### 說明
+- 郵件模板現在會正確顯示新的預約表單資料
+- 租車類型會以列表形式顯示（例如：VIVA MIX 白牌 x 1）
+- 所有新欄位都有適當的條件判斷，避免顯示空值
+

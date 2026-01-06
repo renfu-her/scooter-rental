@@ -90,20 +90,25 @@
                                 </tr>
                                 @endif
                                 
-                                <!-- 選擇車款 -->
+                                <!-- 所需租車類型/數量 -->
+                                @if(!empty($data['scooters']) && is_array($data['scooters']))
                                 <tr>
                                     <td style="padding-bottom: 20px;">
                                         <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                                             <tr>
                                                 <td style="padding-bottom: 5px;">
-                                                    <span style="font-weight: bold; color: #374151; font-size: 14px;">選擇車款：</span>
+                                                    <span style="font-weight: bold; color: #374151; font-size: 14px;">所需租車類型/數量：</span>
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td>
                                                     <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 4px;">
                                                         <tr>
-                                                            <td style="padding: 10px; color: #6b7280; font-size: 14px;">{{ $data['scooterType'] }}</td>
+                                                            <td style="padding: 10px; color: #6b7280; font-size: 14px;">
+                                                                @foreach($data['scooters'] as $scooter)
+                                                                    {{ $scooter['model'] }} x {{ $scooter['count'] }}<br>
+                                                                @endforeach
+                                                            </td>
                                                         </tr>
                                                     </table>
                                                 </td>
@@ -111,6 +116,7 @@
                                         </table>
                                     </td>
                                 </tr>
+                                @endif
                                 
                                 <!-- 預約日期 -->
                                 <tr>
@@ -125,7 +131,7 @@
                                                 <td>
                                                     <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 4px;">
                                                         <tr>
-                                                            <td style="padding: 10px; color: #6b7280; font-size: 14px;">{{ $data['date'] }}</td>
+                                                            <td style="padding: 10px; color: #6b7280; font-size: 14px;">{{ $data['appointmentDate'] ?? $data['date'] ?? '-' }}</td>
                                                         </tr>
                                                     </table>
                                                 </td>
@@ -134,20 +140,21 @@
                                     </td>
                                 </tr>
                                 
-                                <!-- 租借天數 -->
+                                <!-- 結束日期 -->
+                                @if(!empty($data['endDate']))
                                 <tr>
                                     <td style="padding-bottom: 20px;">
                                         <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                                             <tr>
                                                 <td style="padding-bottom: 5px;">
-                                                    <span style="font-weight: bold; color: #374151; font-size: 14px;">租借天數：</span>
+                                                    <span style="font-weight: bold; color: #374151; font-size: 14px;">結束日期：</span>
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td>
                                                     <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 4px;">
                                                         <tr>
-                                                            <td style="padding: 10px; color: #6b7280; font-size: 14px;">{{ $data['days'] }}</td>
+                                                            <td style="padding: 10px; color: #6b7280; font-size: 14px;">{{ $data['endDate'] }}</td>
                                                         </tr>
                                                     </table>
                                                 </td>
@@ -155,6 +162,89 @@
                                         </table>
                                     </td>
                                 </tr>
+                                @endif
+                                
+                                <!-- 船運公司 -->
+                                @if(!empty($data['shippingCompany']))
+                                <tr>
+                                    <td style="padding-bottom: 20px;">
+                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                            <tr>
+                                                <td style="padding-bottom: 5px;">
+                                                    <span style="font-weight: bold; color: #374151; font-size: 14px;">船運公司：</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 4px;">
+                                                        <tr>
+                                                            <td style="padding: 10px; color: #6b7280; font-size: 14px;">{{ $data['shippingCompany'] }}</td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                @endif
+                                
+                                <!-- 船班時間（來） -->
+                                @if(!empty($data['shipArrivalTime']))
+                                <tr>
+                                    <td style="padding-bottom: 20px;">
+                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                            <tr>
+                                                <td style="padding-bottom: 5px;">
+                                                    <span style="font-weight: bold; color: #374151; font-size: 14px;">船班時間（來）：</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 4px;">
+                                                        <tr>
+                                                            <td style="padding: 10px; color: #6b7280; font-size: 14px;">{{ $data['shipArrivalTime'] }}</td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                @endif
+                                
+                                <!-- 人數 -->
+                                @if(!empty($data['adults']) || !empty($data['children']))
+                                <tr>
+                                    <td style="padding-bottom: 20px;">
+                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                            <tr>
+                                                <td style="padding-bottom: 5px;">
+                                                    <span style="font-weight: bold; color: #374151; font-size: 14px;">人數：</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 4px;">
+                                                        <tr>
+                                                            <td style="padding: 10px; color: #6b7280; font-size: 14px;">
+                                                                @if(!empty($data['adults']))
+                                                                    大人：{{ $data['adults'] }} 人
+                                                                @endif
+                                                                @if(!empty($data['adults']) && !empty($data['children']))
+                                                                    <br>
+                                                                @endif
+                                                                @if(!empty($data['children']))
+                                                                    小孩（12歲以下）：{{ $data['children'] }} 人
+                                                                @endif
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                @endif
                                 
                                 @if(!empty($data['note']))
                                 <!-- 備註 -->
