@@ -4896,3 +4896,18 @@ php artisan db:seed --class=ScooterModelColorSeeder
 ### 說明
 - 讓聯絡我們頁面中的地址、電話與 LINE ID 更顯眼，字體更大更容易閱讀
 
+
+---
+
+## 2026-01-06 17:32:23 - 放大聯絡資訊內容文字（實際套用）
+
+### 變更內容
+- **Contact.tsx** (`system/frontend/pages/Contact.tsx`)
+  - 將以下三行從 `text-base text-gray-600` 改為 `text-lg text-gray-600`：
+    - 地址內容行
+    - 電話內容行
+    - LINE ID 內容行
+
+### 說明
+- 讓聯絡我們頁面中的地址、電話與 LINE ID 文字實際放大，畫面更飽滿、可讀性更好
+
