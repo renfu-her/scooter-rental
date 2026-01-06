@@ -117,23 +117,24 @@ const Guidelines: React.FC = () => {
             <h3 className="text-xl md:text-2xl font-semibold mb-4">民宿推薦</h3>
             <div className="text-gray-700 leading-relaxed space-y-4 text-base md:text-lg">
               <div>
-                <p className="font-medium mb-2">小琉球極の宿<span className="text-gray-600 font-normal">。極の宿 一館、極の宿 觀海二館、極の宿 包棟小館</span></p>
+                <p className="font-medium mb-2">小琉球極の宿</p>
+                <p className="text-gray-600"><span className="mr-2">•</span>極の宿 一館、極の宿 觀海二館、極の宿 包棟小館</p>
               </div>
               <div>
                 <p className="font-medium mb-2">微浮包棟民宿</p>
-                <p className="text-gray-600">全新落成的微浮包棟民宿，擁有四間現代風裝潢的舒適客房，可容納8-18人入住</p>
+                <p className="text-gray-600"><span className="mr-2">•</span>全新落成的微浮包棟民宿，擁有四間現代風裝潢的舒適客房，可容納8-18人入住</p>
               </div>
               <div>
                 <p className="font-medium mb-2">外泊家民宿</p>
-                <p className="text-gray-600">希望能讓入住旅客就像到"外婆家"一樣親切，有雙人房、四人房、六人房，還有溜小孩專用的親子房！</p>
+                <p className="text-gray-600"><span className="mr-2">•</span>希望能讓入住旅客就像到"外婆家"一樣親切，有雙人房、四人房、六人房，還有溜小孩專用的親子房！</p>
               </div>
               <div>
                 <p className="font-medium mb-2">灣DAO包棟民宿</p>
-                <p className="text-gray-600">提供三個套房包棟，一間雙人房與兩間四人房，簡單的空間、舒適的環境</p>
+                <p className="text-gray-600"><span className="mr-2">•</span>提供三個套房包棟，一間雙人房與兩間四人房，簡單的空間、舒適的環境</p>
               </div>
               <div>
                 <p className="font-medium mb-2">77旗下包棟民宿</p>
-                <p className="text-gray-600">"77"起初從一位旅宿業指標老闆的幸運和成功數字，演變成一個團隊目標，突破自我並期許打造琉球在地觀光品牌</p>
+                <p className="text-gray-600"><span className="mr-2">•</span>"77"起初從一位旅宿業指標老闆的幸運和成功數字，演變成一個團隊目標，突破自我並期許打造琉球在地觀光品牌</p>
               </div>
             </div>
           </div>
