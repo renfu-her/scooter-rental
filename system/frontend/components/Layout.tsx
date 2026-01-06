@@ -70,6 +70,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               </div>
               <ChevronRight size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
             </a>
+            </div>
           </div>
         </aside>
 

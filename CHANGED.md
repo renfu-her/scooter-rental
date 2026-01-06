@@ -4954,3 +4954,17 @@ php artisan db:seed --class=ScooterModelColorSeeder
 - 桌面版側邊欄的「線上預約」和「LINE @」按鈕現在會顯示在「聯絡我們」下方，而不是在整個側邊欄的底部
 - 提升使用者體驗，讓重要功能按鈕更容易被發現
 
+
+---
+
+## 2026-01-06 20:46:02 - 修復 Layout 組件標籤結構錯誤
+
+### 變更內容
+- **Layout.tsx** (`system/frontend/components/Layout.tsx`)
+  - 修復 JSX 標籤結構錯誤：補上缺失的 `</div>` 標籤
+  - 確保第 22 行的外層 `<div>` 容器正確關閉
+
+### 說明
+- 修正了構建錯誤：`Unexpected closing "aside" tag does not match opening "div" tag`
+- 現在標籤結構正確：外層容器 `<div>` → Logo → nav → 按鈕區域 `<div>` → 關閉按鈕區域 `</div>` → 關閉外層容器 `</div>` → 關閉 `</aside>`
+
