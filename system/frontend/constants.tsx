@@ -94,6 +94,11 @@ export const BANNERS: Banner[] = [
 
 export const Logo = () => (
   <div className="flex flex-col items-center">
+    <img 
+      src="/logo.png" 
+      alt="蘭光電動機車 Logo" 
+      className="w-auto h-12 mb-2 object-contain"
+    />
     <div className="text-2xl font-bold tracking-tighter serif">蘭光電動機車</div>
     <div className="text-[10px] uppercase tracking-widest text-gray-500 font-medium">Languang Rental</div>
   </div>

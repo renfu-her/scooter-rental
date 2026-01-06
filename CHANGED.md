@@ -4212,3 +4212,24 @@ php artisan db:seed --class=ScooterModelColorSeeder
 ### 說明
 統一後端系統的品牌名稱，將所有「蘭光租賃」改為「蘭光電動機車」，確保與前端品牌名稱一致。
 
+
+---
+
+## 2026-01-06 11:30:34 - 添加 Logo 圖片和 Favicon
+
+### 變更內容
+- **constants.tsx** (`system/frontend/constants.tsx`)
+  - 在 Logo 組件中添加 logo 圖片顯示
+  - Logo 圖片顯示在「蘭光電動機車」文字上方，左右置中
+  - 使用 `/logo.png` 作為圖片路徑
+  - Logo 圖片高度設為 `h-12`，並使用 `object-contain` 保持比例
+
+- **index.html** (`system/frontend/index.html`)
+  - 添加 favicon 連結：`<link rel="icon" type="image/png" href="/favicon.png">`
+  - Favicon 使用 `/favicon.png` 作為路徑
+
+### 說明
+- Logo 圖片需放置在 `public/logo.png`
+- Favicon 圖片需放置在 `public/favicon.png`
+- Logo 會顯示在側邊欄和 footer 的 Logo 組件中
+
