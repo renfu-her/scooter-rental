@@ -4812,3 +4812,29 @@ php artisan db:seed --class=ScooterModelColorSeeder
 - 「預約查詢」功能暫時隱藏，用戶無法在前臺看到此按鈕
 - 代碼保留在註釋中，方便未來需要時恢復
 
+
+---
+
+## 2026-01-06 17:08:51 - 移除首頁的 RENTAL PLAN 區塊
+
+### 變更內容
+- **Home.tsx** (`system/frontend/pages/Home.tsx`)
+  - 移除整個「RENTAL PLAN」區塊（包含標題、VIVA MIX 白牌和 VIVA 綠牌的展示卡片）
+
+### 說明
+- 首頁現在只保留 Banner Carousel、Hero Section 和 Featured Images Grid
+- 用戶仍可通過側邊欄導航到「租車方案」頁面查看詳細資訊
+
+
+---
+
+## 2026-01-06 17:10:24 - 更新預約表單人數標籤格式
+
+### 變更內容
+- **Booking.tsx** (`system/frontend/pages/Booking.tsx`)
+  - 將「大人」標籤改為「大人 / 人數」
+  - 將「小孩（12歲以下）」標籤改為「小孩（12歲以下）/ 人數」
+
+### 說明
+- 標籤格式統一，更清楚地表示這是人數輸入欄位
+

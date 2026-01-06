@@ -69,38 +69,6 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Quick Access Grid */}
-      <section className="py-20 bg-[#fafafa]">
-        <div className="container mx-auto px-6">
-           <div className="text-center mb-16">
-              <h2 className="serif text-3xl md:text-4xl mb-4">RENTAL PLAN</h2>
-              <div className="w-20 h-1 bg-black mx-auto"></div>
-           </div>
-           
-           <div className="grid md:grid-cols-2 gap-12 max-w-5xl mx-auto">
-              {/* Viva Mix Placeholder */}
-              <Link to="/rental" className="group cursor-pointer">
-                 <div className="aspect-[4/3] rounded-[100px] overflow-hidden mb-8 shadow-lg">
-                    <img src="https://picsum.photos/seed/scoot1/800/600" alt="Viva Mix" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                 </div>
-                 <div className="text-center">
-                    <h3 className="text-2xl font-bold mb-2">VIVA MIX 白牌</h3>
-                    <p className="text-gray-500">極致奢華租車環境，隨車附贈安全帽</p>
-                 </div>
-              </Link>
-              {/* Viva Green Placeholder */}
-              <Link to="/rental" className="group cursor-pointer">
-                 <div className="aspect-[4/3] rounded-[100px] overflow-hidden mb-8 shadow-lg">
-                    <img src="https://picsum.photos/seed/scoot2/800/600" alt="Viva Green" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                 </div>
-                 <div className="text-center">
-                    <h3 className="text-2xl font-bold mb-2">VIVA 綠牌</h3>
-                    <p className="text-gray-500">輕巧環保，兩天一夜最划算選擇</p>
-                 </div>
-              </Link>
-           </div>
-        </div>
-      </section>
     </div>
   );
 };
