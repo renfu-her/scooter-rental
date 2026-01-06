@@ -4866,3 +4866,33 @@ php artisan db:seed --class=ScooterModelColorSeeder
 - 圖標幫助用戶快速識別不同類型的聯絡方式
 - 更大的字體和間距提升可讀性
 
+
+---
+
+## 2026-01-06 17:22:10 - 放大聯絡我們頁面地址/電話/LINE ID 字體
+
+### 變更內容
+- **Contact.tsx** (`system/frontend/pages/Contact.tsx`)
+  - 將聯絡資訊內容文字從 `text-base` 放大為 `text-lg`：
+    - 地址內容行改為 `text-lg text-gray-600`
+    - 電話內容行改為 `text-lg text-gray-600`
+    - LINE ID 內容行改為 `text-lg text-gray-600`
+
+### 說明
+- 讓地址、電話與 LINE ID 更醒目，減少留白感，提升可讀性
+
+
+---
+
+## 2026-01-06 17:24:30 - 放大聯絡資訊內容文字
+
+### 變更內容
+- **Contact.tsx** (`system/frontend/pages/Contact.tsx`)
+  - 將以下內容文字從 `text-base` 改為 `text-lg`：
+    - 地址內容 `<p className="text-lg text-gray-600">`
+    - 電話內容 `<p className="text-lg text-gray-600">`
+    - LINE ID 內容 `<p className="text-lg text-gray-600">`
+
+### 說明
+- 讓聯絡我們頁面中的地址、電話與 LINE ID 更顯眼，字體更大更容易閱讀
+

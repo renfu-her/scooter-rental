@@ -64,7 +64,7 @@ const Contact: React.FC = () => {
                   </div>
                   <div className="flex-1">
                     <p className="text-base font-bold text-gray-700 mb-1">地址</p>
-                    <p className="text-base text-gray-600">
+                    <p className="text-lg text-gray-600">
                       <a href="https://www.google.com.tw/maps/search/%E5%B1%8F%E6%9D%B1%E7%B8%A3%E7%90%89%E7%90%83%E9%84%89%E7%9B%B8%E5%9F%94%E8%B7%AF86%E4%B9%8B5" target="_blank" rel="noopener noreferrer" className="hover:text-teal-600 transition-colors">屏東縣琉球鄉相埔路86之5</a>
                     </p>
                   </div>
@@ -76,7 +76,7 @@ const Contact: React.FC = () => {
                   </div>
                   <div className="flex-1">
                     <p className="text-base font-bold text-gray-700 mb-1">電話</p>
-                    <p className="text-base text-gray-600">
+                    <p className="text-lg text-gray-600">
                       <a href="tel:0911306011" className="hover:text-teal-600 transition-colors">0911306011</a>
                     </p>
                   </div>
@@ -88,7 +88,7 @@ const Contact: React.FC = () => {
                   </div>
                   <div className="flex-1">
                     <p className="text-base font-bold text-gray-700 mb-1">LINE ID</p>
-                    <p className="text-base text-gray-600">
+                    <p className="text-lg text-gray-600">
                       <a href="https://line.me/R/ti/p/@623czmsm?oat_content=url&ts=01042332" target="_blank" rel="noopener noreferrer" className="hover:text-teal-600 transition-colors">@623czmsm</a>
                     </p>
                   </div>
