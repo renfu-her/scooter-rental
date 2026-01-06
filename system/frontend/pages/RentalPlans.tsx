@@ -97,6 +97,21 @@ const RentalPlans: React.FC = () => {
         </section>
       )}
 
+      <section className="py-12 px-6 bg-white border-t border-gray-100">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-8">
+            <p className="text-gray-600 text-sm mb-2">「價格」/24H</p>
+            <p className="text-gray-600 text-sm mb-6">隨車附安全帽，並提供衛生帽套供使用</p>
+            <div className="bg-gray-50 rounded-xl p-6 text-left">
+              <p className="text-sm font-semibold text-gray-800 mb-3">*注意事項：</p>
+              <p className="text-sm text-gray-600 leading-relaxed">
+                逾時15分以一小時計，每小時以$50/小時計算；逾時6小時以1日計算；連續與國定假日每小時以$100/小時計算（上限$500）
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="py-24 bg-white border-t border-gray-100">
          <div className="max-w-4xl mx-auto px-6 text-center">
             <p className="text-gray-400 uppercase tracking-widest text-xs mb-4">Premium Service</p>
