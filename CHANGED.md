@@ -4518,3 +4518,20 @@ php artisan db:seed --class=ScooterModelColorSeeder
 - 後端選單 Logo 現在使用 `/favicon.png` 作為路徑
 - 與前端和後端 index.html 中的 favicon 路徑保持一致
 
+
+---
+
+## 2026-01-06 14:33:06 - 線上預約表單 LINE ID 改為非必填
+
+### 變更內容
+- **Booking.tsx** (`system/frontend/pages/Booking.tsx`)
+  - 將表單標籤從「Line」改為「LINE ID」
+  - 移除必填標記（紅色星號）
+  - 移除 input 的 `required` 屬性
+  - LINE ID 欄位現在為可選填寫
+
+### 說明
+- 符合用戶需求，LINE ID 不再強制填寫
+- 標籤文字改為「LINE ID」，更加明確
+- 後端 API 已經支援 LINE ID 為可選（nullable）
+
