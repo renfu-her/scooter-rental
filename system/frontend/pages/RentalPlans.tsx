@@ -97,7 +97,7 @@ const RentalPlans: React.FC = () => {
                     {/* Price Badge */}
                     <div className="absolute bottom-[-20px] left-1/2 -translate-x-1/2 w-48 h-48 rounded-full bg-white shadow-xl flex flex-col items-center justify-center p-6 text-center border-4 border-white">
                       <span className="text-xs font-bold uppercase tracking-widest text-gray-800">{plan.model || '未命名方案'}</span>
-                      <span className="text-3xl font-bold serif text-black">${Math.floor(plan.price || 0)} / 24H</span>
+                      <span className="text-2xl font-bold serif text-black">${Math.floor(plan.price || 0)} / 24H</span>
                     </div>
                   </div>
                 </div>
