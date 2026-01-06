@@ -297,28 +297,28 @@ const Booking: React.FC = () => {
                 </label>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs text-gray-600 mb-1">大人</label>
+                    <label className="block text-base font-bold text-gray-700 mb-1">大人</label>
                     <input 
                       type="number" 
                       min="0"
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-black focus:ring-0 transition-all" 
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-black focus:ring-0 transition-all text-base" 
                       placeholder="0"
                       value={formData.adults}
                       onChange={e => setFormData({...formData, adults: e.target.value})}
                     />
-                    <span className="text-xs text-gray-500 mt-1 block">人</span>
+                    <span className="text-sm text-gray-500 mt-1 block">人</span>
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-600 mb-1">小孩（12歲以下）</label>
+                    <label className="block text-base font-bold text-gray-700 mb-1">小孩（12歲以下）</label>
                     <input 
                       type="number" 
                       min="0"
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-black focus:ring-0 transition-all" 
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-black focus:ring-0 transition-all text-base" 
                       placeholder="0"
                       value={formData.children}
                       onChange={e => setFormData({...formData, children: e.target.value})}
                     />
-                    <span className="text-xs text-gray-500 mt-1 block">人</span>
+                    <span className="text-sm text-gray-500 mt-1 block">人</span>
                   </div>
                 </div>
               </div>
