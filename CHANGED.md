@@ -4674,3 +4674,18 @@ php artisan db:seed --class=ScooterModelColorSeeder
 - 選項顯示格式為「機車型號 + 類型」（例如：「ES-2000 白牌」）
 - 後端 API 保持向後兼容，將單一選擇轉換為陣列格式儲存
 
+
+---
+
+## 2026-01-06 15:47:57 - 放大線上預約表單「人數」區塊字體
+
+### 變更內容
+- **Booking.tsx** (`system/frontend/pages/Booking.tsx`)
+  - 將「大人」和「小孩（12歲以下）」標籤字體從 `text-xs` 改為 `text-base font-bold`
+  - 將輸入框數字字體改為 `text-base`（較大）
+  - 將「人」單位字體從 `text-xs` 改為 `text-sm`
+
+### 說明
+- 根據用戶要求，將「人數」區塊中被紅色線標記的標籤字體放大
+- 提升視覺清晰度和可讀性
+
