@@ -4091,3 +4091,54 @@ php artisan db:seed --class=ScooterModelColorSeeder
 - 狀態欄位使用 enum 類型，確保資料一致性
 - API 路由使用 `auth:sanctum` middleware 保護
 
+---
+
+## 2026-01-06 10:49:30 - 聯絡我們頁面改為與 footer 相同格式
+
+### 變更內容
+- **Contact.tsx** (`system/frontend/pages/Contact.tsx`)
+  - 移除整個聯絡表單區塊（填寫表單功能）
+  - 移除所有表單相關的 state 和函數（formData, captcha, handleSubmit, fetchCaptcha 等）
+  - 移除不需要的 import（Send, RefreshCw, Loader2, MapPin）
+  - 將聯絡資訊區塊改為與 footer 相同的格式
+  - 聯絡資訊顯示：
+    - 地址：屏東縣琉球鄉相埔路86之5（有 Google Maps 連結）
+    - LINE ID：@623czmsm（有連結）
+    - 電話：0911306011（有 tel: 連結）
+  - 所有連結都添加 hover 效果（hover:text-teal-600），提升用戶體驗
+  - 格式與 footer 保持一致，使用相同的樣式和連結結構
+
+---
+
+## 2026-01-06 10:49:30 - 聯絡我們頁面改為與 footer 相同格式
+
+### 變更內容
+- **Contact.tsx** (`system/frontend/pages/Contact.tsx`)
+  - 移除整個聯絡表單區塊（填寫表單功能）
+  - 移除所有表單相關的 state 和函數（formData, captcha, handleSubmit, fetchCaptcha 等）
+  - 移除不需要的 import（Send, RefreshCw, Loader2, MapPin）
+  - 將聯絡資訊區塊改為與 footer 相同的格式
+  - 聯絡資訊顯示：
+    - 地址：屏東縣琉球鄉相埔路86之5（有 Google Maps 連結）
+    - LINE ID：@623czmsm（有連結）
+    - 電話：0911306011（有 tel: 連結）
+  - 所有連結都添加 hover 效果（hover:text-teal-600），提升用戶體驗
+  - 格式與 footer 保持一致，使用相同的樣式和連結結構
+
+
+---
+
+## 2026-01-06 10:51:58 - 移除後端聯絡管理選單
+
+### 變更內容
+- **constants.tsx** (`system/backend/constants.tsx`)
+  - 從「網站內容管理」區塊移除「聯絡管理」選單項目
+
+- **App.tsx** (`system/backend/App.tsx`)
+  - 移除 ContactsPage 的 lazy load import
+  - 移除 `/contacts` 路由
+
+### 說明
+- 由於前端已移除聯絡表單功能，後端不再需要聯絡管理選單
+- 聯絡管理相關的 API 和資料庫功能仍保留，但後端介面已移除
+

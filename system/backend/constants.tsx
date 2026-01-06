@@ -38,8 +38,7 @@ export const NAV_ITEMS = [
       { name: '租車須知', path: '/guidelines' },
       { name: '門市據點', path: '/locations' },
       { name: '民宿推薦', path: '/guesthouses' },
-      { name: '預約管理', path: '/bookings' },
-      { name: '聯絡管理', path: '/contacts' }
+      { name: '預約管理', path: '/bookings' }
     ]
   },
   { 

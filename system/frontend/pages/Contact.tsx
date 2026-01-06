@@ -1,6 +1,5 @@
 
-import React, { useState, useEffect, useRef } from 'react';
-import { MapPin, Send, RefreshCw, Loader2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
 import { publicApi } from '../lib/api';
 
 interface LocationData {
@@ -14,24 +13,9 @@ interface LocationData {
   map_embed: string | null;
 }
 
-interface Captcha {
-  captcha_id: string;
-  image: string; // Base64 encoded image
-}
-
 const Contact: React.FC = () => {
   const [locations, setLocations] = useState<LocationData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [formData, setFormData] = useState({
-    name: '',
-    lineId: '',
-    phone: '',
-    message: '',
-    captchaAnswer: '',
-  });
-  const [captcha, setCaptcha] = useState<Captcha | null>(null);
-  const [isLoadingCaptcha, setIsLoadingCaptcha] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     const fetchLocations = async () => {
@@ -47,63 +31,7 @@ const Contact: React.FC = () => {
     };
 
     fetchLocations();
-    fetchCaptcha();
   }, []);
-
-  const fetchCaptcha = async () => {
-    setIsLoadingCaptcha(true);
-    try {
-      const response = await publicApi.captcha.generate();
-      if (response && response.data) {
-        setCaptcha(response.data);
-        setFormData(prev => ({ ...prev, captchaAnswer: '' }));
-      }
-    } catch (error) {
-      console.error('Failed to fetch captcha:', error);
-    } finally {
-      setIsLoadingCaptcha(false);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!captcha) {
-      alert('請先獲取驗證碼');
-      return;
-    }
-
-    if (!formData.captchaAnswer || formData.captchaAnswer.length !== 6) {
-      alert('請輸入完整的 6 位驗證碼');
-      return;
-    }
-
-    setSubmitting(true);
-    
-    try {
-      await publicApi.contact.send({
-        name: formData.name,
-        lineId: formData.lineId,
-        phone: formData.phone,
-        message: formData.message,
-        captcha_id: captcha.captcha_id,
-        captcha_answer: formData.captchaAnswer.toUpperCase().trim(),
-      });
-      alert('感謝您的訊息！我們會盡快與您聯繫。');
-      setFormData({ name: '', lineId: '', phone: '', message: '', captchaAnswer: '' });
-      fetchCaptcha(); // 重新獲取驗證碼
-    } catch (error: any) {
-      console.error('Failed to send contact form:', error);
-      const errorMessage = error.response?.data?.message || '發送訊息時發生錯誤，請稍後再試。';
-      alert(errorMessage);
-      // 如果驗證碼錯誤，重新獲取驗證碼
-      if (error.response?.status === 422) {
-        fetchCaptcha();
-      }
-    } finally {
-      setSubmitting(false);
-    }
-  };
 
   return (
     <div className="animate-in fade-in duration-700">
@@ -128,171 +56,11 @@ const Contact: React.FC = () => {
             {/* 聯絡資訊 */}
             <div className="bg-white p-8 rounded-[40px] shadow-sm border border-gray-100">
               <h3 className="text-2xl font-bold mb-6 serif">聯絡資訊</h3>
-              <div className="space-y-6">
-                {locations.length > 0 && locations[0].address && (
-                  <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 bg-[#f0f9f6] text-teal-600 rounded-full flex items-center justify-center shrink-0">
-                      <MapPin size={20} />
-                    </div>
-                    <div>
-                      <p className="font-bold mb-1">地址</p>
-                      <p className="text-gray-600">{locations[0].address}</p>
-                    </div>
-                  </div>
-                )}
-                {locations.length > 0 && locations[0].hours && (
-                  <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 bg-[#f0f3f9] text-blue-600 rounded-full flex items-center justify-center shrink-0">
-                      <MapPin size={20} />
-                    </div>
-                    <div>
-                      <p className="font-bold mb-1">營業時間</p>
-                      <p className="text-gray-600">{locations[0].hours}</p>
-                    </div>
-                  </div>
-                )}
+              <div className="text-sm text-gray-500">
+                <p>地址：<a href="https://www.google.com.tw/maps/search/%E5%B1%8F%E6%9D%B1%E7%B8%A3%E7%90%89%E7%90%83%E9%84%89%E7%9B%B8%E5%9F%94%E8%B7%AF86%E4%B9%8B5" target="_blank" rel="noopener noreferrer" className="hover:text-teal-600 transition-colors">屏東縣琉球鄉相埔路86之5</a></p>
+                <p className="mt-2">LINE ID：<a href="https://line.me/R/ti/p/@623czmsm?oat_content=url&ts=01042332" target="_blank" rel="noopener noreferrer" className="hover:text-teal-600 transition-colors">@623czmsm</a></p>
+                <p className="mt-2">電話：<a href="tel:0911306011" className="hover:text-teal-600 transition-colors">0911306011</a></p>
               </div>
-
-              {locations.length > 0 && locations[0].description && (
-                <div className="mt-6 pt-6 border-t border-gray-200">
-                  <div 
-                    className="text-gray-600 leading-relaxed prose prose-sm max-w-none"
-                    dangerouslySetInnerHTML={{ __html: locations[0].description }}
-                  />
-                </div>
-              )}
-            </div>
-
-            {/* 聯絡表單 */}
-            <div className="bg-white p-8 rounded-[40px] shadow-sm border border-gray-100">
-              <h3 className="text-2xl font-bold mb-6 serif">填寫表單</h3>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                    姓名 <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    id="name"
-                    required
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none transition-all"
-                    placeholder="請輸入您的姓名"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="lineId" className="block text-sm font-medium text-gray-700 mb-2">
-                    LINE ID <span className="text-red-500">*</span>
-                    <span className="ml-2 text-xs text-gray-500 font-normal">
-                      （<a href="https://line.me/R/ti/p/@623czmsm?oat_content=url&ts=01042332" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700 underline">請加入 LINE 好友，點此連結</a>）
-                    </span>
-                  </label>
-                  <input
-                    type="text"
-                    id="lineId"
-                    required
-                    value={formData.lineId}
-                    onChange={(e) => setFormData({ ...formData, lineId: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none transition-all"
-                    placeholder="請輸入您的 LINE ID（例如：@623czmsm）"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-                    聯絡電話
-                  </label>
-                  <input
-                    type="tel"
-                    id="phone"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none transition-all"
-                    placeholder="請輸入您的電話號碼"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
-                    訊息內容 <span className="text-red-500">*</span>
-                  </label>
-                  <textarea
-                    id="message"
-                    required
-                    rows={6}
-                    value={formData.message}
-                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none transition-all resize-none"
-                    placeholder="請輸入您的問題或建議..."
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="captcha" className="block text-sm font-medium text-gray-700 mb-2">
-                    驗證碼 <span className="text-red-500">*</span>
-                  </label>
-                  <div className="flex items-center space-x-3 mb-2">
-                    <div className="flex-1 bg-gray-50 border border-gray-300 rounded-xl px-4 py-3 flex items-center justify-center min-h-[60px]">
-                      {isLoadingCaptcha ? (
-                        <Loader2 size={20} className="animate-spin text-gray-400" />
-                      ) : captcha ? (
-                        <img 
-                          src={captcha.image} 
-                          alt="驗證碼" 
-                          className="h-12 w-auto select-none cursor-pointer"
-                          style={{ imageRendering: 'auto' }}
-                          onClick={fetchCaptcha}
-                          title="點擊刷新驗證碼"
-                        />
-                      ) : (
-                        <span className="text-sm text-gray-400">載入驗證碼中...</span>
-                      )}
-                    </div>
-                    <button
-                      type="button"
-                      onClick={fetchCaptcha}
-                      disabled={isLoadingCaptcha || submitting}
-                      className="p-3 bg-gray-100 hover:bg-gray-200 rounded-xl transition-all disabled:opacity-50"
-                      title="重新獲取驗證碼"
-                    >
-                      <RefreshCw size={18} className={`text-gray-600 ${isLoadingCaptcha ? 'animate-spin' : ''}`} />
-                    </button>
-                  </div>
-                  <input
-                    type="text"
-                    id="captcha"
-                    required
-                    value={formData.captchaAnswer}
-                    onChange={(e) => {
-                      // 只允許字母和數字，排除 O 和 0，最多 6 位，強制大寫
-                      const value = e.target.value.toUpperCase().replace(/[O0]/g, '').slice(0, 6);
-                      setFormData({ ...formData, captchaAnswer: value });
-                    }}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none transition-all uppercase font-mono tracking-widest text-center text-lg"
-                    placeholder="輸入 6 位驗證碼"
-                    disabled={submitting || !captcha}
-                    maxLength={6}
-                    pattern="[A-NP-Z1-9]{6}"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="w-full bg-black text-white px-6 py-4 rounded-full font-bold hover:bg-teal-600 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {submitting ? (
-                    '送出中...'
-                  ) : (
-                    <>
-                      <Send size={18} />
-                      送出訊息
-                    </>
-                  )}
-                </button>
-              </form>
             </div>
           </div>
         </section>
