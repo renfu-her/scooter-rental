@@ -13,23 +13,28 @@ git pull
 echo "✓ Git 更新完成"
 echo ""
 
-echo "[3/6] 清除並快取 Laravel 路由..."
+echo "[3/6] 資料庫遷移..."
+php artisan migrate
+echo "✓ 資料庫遷移完成"
+echo ""
+
+echo "[4/6] 清除並快取 Laravel 路由..."
 php artisan r:cache
 echo "✓ 路由快取完成"
 echo ""
 
-echo "[4/6] 清除並快取 Laravel 配置..."
+echo "[5/6] 清除並快取 Laravel 配置..."
 php artisan config:cache
 echo "✓ 配置快取完成"
 echo ""
 
-echo "[5/6] 構建後端 (React)..."
+echo "[6/6] 構建後端 (React)..."
 cd ~/htdocs/scooter-rental.ai-tracks.com/system/backend
 pnpm build
 echo "✓ 後端構建完成"
 echo ""
 
-echo "[6/6] 構建前端 (React)..."
+echo "[7/7] 構建前端 (React)..."
 cd ~/htdocs/scooter-rental.ai-tracks.com/system/frontend
 pnpm build
 echo "✓ 前端構建完成"
