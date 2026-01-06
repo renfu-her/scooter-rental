@@ -12,7 +12,7 @@ interface Booking {
   booking_date: string;
   rental_days: string;
   note: string | null;
-  status: '執行中' | '已經回覆' | '取消';
+  status: '預約中' | '執行中' | '已經回覆' | '取消' | '已轉訂單';
   created_at: string;
   updated_at: string;
 }
@@ -32,7 +32,7 @@ const BookingsPage: React.FC = () => {
     booking_date: '',
     rental_days: '',
     note: '',
-    status: '執行中' as '執行中' | '已經回覆' | '取消',
+    status: '預約中' as '預約中' | '執行中' | '已經回覆' | '取消' | '已轉訂單',
   });
 
   useEffect(() => {
@@ -78,7 +78,7 @@ const BookingsPage: React.FC = () => {
         booking_date: '',
         rental_days: '',
         note: '',
-        status: '執行中',
+        status: '預約中',
       });
     }
     setIsModalOpen(true);
@@ -122,7 +122,7 @@ const BookingsPage: React.FC = () => {
     }
   };
 
-  const handleStatusChange = async (id: number, status: '執行中' | '已經回覆' | '取消') => {
+  const handleStatusChange = async (id: number, status: '預約中' | '執行中' | '已經回覆' | '取消' | '已轉訂單') => {
     try {
       await bookingsApi.updateStatus(id, status);
       await fetchBookings();
@@ -134,12 +134,16 @@ const BookingsPage: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
+      case '預約中':
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400';
       case '執行中':
         return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400';
       case '已經回覆':
         return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400';
       case '取消':
         return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400';
+      case '已轉訂單':
+        return 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400';
       default:
         return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400';
     }
@@ -147,12 +151,16 @@ const BookingsPage: React.FC = () => {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
+      case '預約中':
+        return <Clock size={14} className="mr-1" />;
       case '執行中':
         return <Clock size={14} className="mr-1" />;
       case '已經回覆':
         return <CheckCircle size={14} className="mr-1" />;
       case '取消':
         return <XCircle size={14} className="mr-1" />;
+      case '已轉訂單':
+        return <CheckCircle size={14} className="mr-1" />;
       default:
         return null;
     }
@@ -195,9 +203,11 @@ const BookingsPage: React.FC = () => {
           className="px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all dark:text-gray-200"
         >
           <option value="">全部狀態</option>
+          <option value="預約中">預約中</option>
           <option value="執行中">執行中</option>
           <option value="已經回覆">已經回覆</option>
           <option value="取消">取消</option>
+          <option value="已轉訂單">已轉訂單</option>
         </select>
       </div>
 
@@ -388,12 +398,14 @@ const BookingsPage: React.FC = () => {
                 <select
                   required
                   value={formData.status}
-                  onChange={(e) => setFormData({ ...formData, status: e.target.value as '執行中' | '已經回覆' | '取消' })}
+                  onChange={(e) => setFormData({ ...formData, status: e.target.value as '預約中' | '執行中' | '已經回覆' | '取消' | '已轉訂單' })}
                   className={inputClasses}
                 >
+                  <option value="預約中">預約中</option>
                   <option value="執行中">執行中</option>
                   <option value="已經回覆">已經回覆</option>
                   <option value="取消">取消</option>
+                  <option value="已轉訂單">已轉訂單</option>
                 </select>
               </div>
 

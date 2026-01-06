@@ -169,7 +169,7 @@ class BookingController extends Controller
             'booking_date' => 'required|date',
             'rental_days' => 'required|string|max:20',
             'note' => 'nullable|string|max:1000',
-            'status' => 'required|in:預約中,執行中,已經回覆,取消',
+            'status' => 'required|in:預約中,執行中,已經回覆,取消,已轉訂單',
         ]);
 
         if ($validator->fails()) {
@@ -193,7 +193,7 @@ class BookingController extends Controller
     public function updateStatus(Request $request, Booking $booking): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'status' => 'required|in:預約中,執行中,已經回覆,取消',
+            'status' => 'required|in:預約中,執行中,已經回覆,取消,已轉訂單',
         ]);
 
         if ($validator->fails()) {
@@ -321,8 +321,8 @@ class BookingController extends Controller
             // 關聯機車
             $order->scooters()->sync($scooterIds);
 
-            // 更新預約狀態為「執行中」
-            $booking->update(['status' => '執行中']);
+            // 更新預約狀態為「已轉訂單」
+            $booking->update(['status' => '已轉訂單']);
 
             DB::commit();
 

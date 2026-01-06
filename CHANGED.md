@@ -4766,3 +4766,35 @@ php artisan db:seed --class=ScooterModelColorSeeder
 - 用戶現在可以從 footer 直接訪問 Facebook 和 Instagram 頁面
 - 所有社交媒體圖標統一風格，提升品牌一致性
 
+
+---
+
+## 2026-01-06 16:40:41 - 修改預約轉訂單功能：狀態改為「已轉訂單」
+
+### 變更內容
+
+#### Database Migration
+- **add_converted_to_order_status_to_bookings_table.php** (`database/migrations/2026_01_06_163905_add_converted_to_order_status_to_bookings_table.php`) - 新建
+  - 添加「已轉訂單」狀態到 `bookings` 表的 `status` enum
+  - 新的 enum 值：`['預約中', '執行中', '已經回覆', '取消', '已轉訂單']`
+
+#### Backend API
+- **BookingController.php** (`app/Http/Controllers/Api/BookingController.php`)
+  - `convertToOrder()` 方法：將預約狀態從「執行中」改為「已轉訂單」
+  - 更新所有驗證規則中的 `status` enum，添加「已轉訂單」選項
+  - 更新 `update()` 和 `updateStatus()` 方法的驗證規則
+
+#### Backend Interface
+- **BookingsPage.tsx** (`system/backend/pages/BookingsPage.tsx`)
+  - 更新 `Booking` interface 的 `status` 類型，包含「預約中」和「已轉訂單」
+  - 更新 `getStatusColor()` 函數：添加「預約中」（黃色）和「已轉訂單」（紫色）的顏色
+  - 更新 `getStatusIcon()` 函數：添加「預約中」和「已轉訂單」的圖標
+  - 更新狀態過濾器選項，包含所有狀態
+  - 更新表單中的狀態選項，包含所有狀態
+  - 預設狀態改為「預約中」
+
+### 說明
+- 當預約轉為訂單時，預約的狀態會自動更新為「已轉訂單」，而不是「執行中」
+- 後端界面可以正確顯示和過濾「已轉訂單」狀態的預約
+- 「已轉訂單」狀態使用紫色標籤顯示，與其他狀態區分
+
