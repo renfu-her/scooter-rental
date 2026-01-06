@@ -4926,3 +4926,31 @@ php artisan db:seed --class=ScooterModelColorSeeder
 - 租車須知（Q&A）中的回答現在會依照文字內的換行顯示，不再擠成一行
 - 回答字體放大，閱讀體驗更好
 
+
+---
+
+## 2026-01-06 17:45:10 - 前臺選單暫時隱藏「民宿推薦」
+
+### 變更內容
+- **constants.tsx** (`system/frontend/constants.tsx`)
+  - 將 `NAV_ITEMS` 中的 `{ label: '民宿推薦', path: '/guesthouses' }` 以註釋方式 mark 起來：
+    - `// { label: '民宿推薦', path: '/guesthouses' }, // 暫時隱藏民宿推薦選單`
+
+### 說明
+- 前臺側邊選單不再顯示「民宿推薦」，但路由與頁面仍然存在
+- 之後若要重新啟用，只需取消註釋該行即可
+
+
+---
+
+## 2026-01-06 20:41:31 - 調整側邊欄按鈕位置
+
+### 變更內容
+- **Layout.tsx** (`system/frontend/components/Layout.tsx`)
+  - 將「線上預約」和「LINE @」按鈕從側邊欄底部（`mt-auto`）移動到「聯絡我們」選單項目下方
+  - 使用 `mt-8` 取代 `mt-auto`，讓按鈕緊接在選單下方顯示
+
+### 說明
+- 桌面版側邊欄的「線上預約」和「LINE @」按鈕現在會顯示在「聯絡我們」下方，而不是在整個側邊欄的底部
+- 提升使用者體驗，讓重要功能按鈕更容易被發現
+

@@ -36,9 +36,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </Link>
               ))}
             </nav>
-          </div>
 
-          <div className="space-y-3 mt-auto">
+            <div className="space-y-3 mt-8">
             <Link to="/booking" className="flex items-center justify-between bg-[#1a1a1a] text-white px-5 py-3 rounded-full hover:bg-black transition-all group">
               <div className="flex items-center gap-3">
                 <Calendar size={18} />
