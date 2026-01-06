@@ -9,7 +9,7 @@ echo "✓ 目錄切換完成"
 echo ""
 
 echo "[2/6] 更新程式碼 (git pull)..."
-git pull
+git pull --no-edit
 echo "✓ Git 更新完成"
 echo ""
 
