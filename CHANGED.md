@@ -4233,3 +4233,20 @@ php artisan db:seed --class=ScooterModelColorSeeder
 - Favicon 圖片需放置在 `public/favicon.png`
 - Logo 會顯示在側邊欄和 footer 的 Logo 組件中
 
+
+---
+
+## 2026-01-06 11:43:11 - 後端選單 Logo 改為使用 favicon.png
+
+### 變更內容
+- **DashboardLayout.tsx** (`system/backend/components/DashboardLayout.tsx`)
+  - 將後端選單最上方的「蘭」字橘紅色區塊替換為 favicon.png 圖片
+  - 移除原本的橘紅色背景和「蘭」字文字
+  - 使用 `<img>` 標籤顯示 favicon.png，路徑為 `./favicon.png`
+  - 保持相同的尺寸（w-10 h-10）和圓角樣式（rounded-xl）
+
+### 說明
+- 後端選單頂部的 Logo 現在使用 favicon.png 圖片
+- Favicon 圖片需放置在後端構建輸出目錄中（與 index.html 同目錄）
+- 其他部分保持不變
+

@@ -120,9 +120,11 @@ const DashboardLayout: React.FC = () => {
         
         {/* Logo 區域 */}
         <div className={`p-4 flex items-center transition-all duration-300 ${sidebarOpen ? 'space-x-3' : 'justify-center'}`}>
-          <div className="w-10 h-10 bg-orange-500 rounded-xl flex items-center justify-center text-white font-black shadow-lg shadow-orange-100 flex-shrink-0">
-            蘭
-          </div>
+          <img 
+            src="./favicon.png" 
+            alt="蘭光電動機車 Logo" 
+            className="w-10 h-10 rounded-xl object-contain flex-shrink-0"
+          />
           {sidebarOpen && (
             <span className={`text-lg font-black whitespace-nowrap animate-in fade-in slide-in-from-left-2 duration-300 ${theme === 'dark' ? 'text-gray-100' : 'text-gray-800'}`}>
               蘭光電動機車
