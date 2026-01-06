@@ -4747,3 +4747,22 @@ php artisan db:seed --class=ScooterModelColorSeeder
 - 因為 `lineId` 是可選欄位，需要在使用前檢查是否存在
 - 現在當用戶未填寫 LINE ID 時，郵件不會顯示該欄位，也不會產生錯誤
 
+
+---
+
+## 2026-01-06 16:27:25 - 在前臺 footer 新增 Facebook 和 Instagram 社交媒體連結
+
+### 變更內容
+- **Layout.tsx** (`system/frontend/components/Layout.tsx`)
+  - 在 footer 的社交媒體圖標區域新增 Facebook 和 Instagram 連結
+  - Facebook 連結：https://www.facebook.com/share/1KYnY8BMeV/?mibextid=wwXIfr
+  - Instagram 連結：https://www.instagram.com/languan_smart?igsh=M2IxaDN5cTFsZnJ2&utm_source=qr
+  - 三個社交媒體圖標（Facebook、Instagram、LINE）並列顯示，使用 `gap-3` 間距
+  - Facebook 使用藍色背景 `bg-[#1877F2]`
+  - Instagram 使用漸層背景（從紫色到紅色到橙色）
+  - 保持與 LINE 圖標相同的樣式和大小
+
+### 說明
+- 用戶現在可以從 footer 直接訪問 Facebook 和 Instagram 頁面
+- 所有社交媒體圖標統一風格，提升品牌一致性
+
