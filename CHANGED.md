@@ -4608,3 +4608,16 @@ php artisan db:seed --class=ScooterModelColorSeeder
 - 價格後面統一顯示 "/ 24H" 表示每 24 小時的價格
 - 例如：原本顯示 `$400.00` 現在顯示 `$400 / 24H`
 
+
+---
+
+## 2026-01-06 15:04:37 - 調整租車方案價錢字體大小
+
+### 變更內容
+- **RentalPlans.tsx** (`system/frontend/pages/RentalPlans.tsx`)
+  - 將價錢顯示字體從 `text-3xl` 改為 `text-2xl`
+  - 讓 `$金額 / 24H` 看起來較小、更精緻，維持整體版面平衡
+
+### 說明
+- 價格內容仍為整數且附上「/ 24H」，只調整視覺字級大小
+
