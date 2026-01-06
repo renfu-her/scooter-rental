@@ -32,9 +32,9 @@ class BookingController extends Controller
             'shipArrivalTime' => 'required|date',
             'adults' => 'nullable|integer|min:0',
             'children' => 'nullable|integer|min:0',
-            'scooters' => 'required|array|min:1',
-            'scooters.*.model' => 'required|string|max:255',
-            'scooters.*.count' => 'required|integer|min:1',
+            'scooterModel' => 'required|string|max:255',
+            'scooterType' => 'required|in:白牌,綠牌,電輔車,三輪車',
+            'scooterCount' => 'required|integer|min:1',
             'note' => 'nullable|string|max:1000',
             'captcha_id' => 'required|string',
             'captcha_answer' => 'required|string|size:6',
@@ -71,6 +71,12 @@ class BookingController extends Controller
             // 移除驗證碼相關欄位
             unset($data['captcha_id'], $data['captcha_answer']);
             
+            // 將單一選擇轉換為陣列格式（保持與資料庫結構一致）
+            $scooters = [[
+                'model' => $data['scooterModel'] . ' ' . $data['scooterType'],
+                'count' => $data['scooterCount'],
+            ]];
+            
             // 儲存到資料庫
             $booking = Booking::create([
                 'name' => $data['name'],
@@ -82,7 +88,7 @@ class BookingController extends Controller
                 'ship_arrival_time' => $data['shipArrivalTime'],
                 'adults' => $data['adults'] ?? null,
                 'children' => $data['children'] ?? null,
-                'scooters' => $data['scooters'],
+                'scooters' => $scooters,
                 'note' => $data['note'] ?? null,
                 'status' => '預約中', // 預設狀態為「預約中」
             ]);

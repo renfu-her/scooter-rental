@@ -4638,3 +4638,39 @@ php artisan db:seed --class=ScooterModelColorSeeder
 - 參考 77go 的設計風格，將重要資訊以紅色標示並放大，提升視覺重點
 - 讓用戶更容易注意到關鍵資訊（預約狀態、時效、聯絡方式）
 
+
+---
+
+## 2026-01-06 15:42:57 - 修改預約表單為單選機車型號（從後臺機車清單獲取）
+
+### 變更內容
+
+#### 後端 API
+- **ScooterController.php** (`app/Http/Controllers/Api/ScooterController.php`)
+  - 新增 `models()` 方法，獲取唯一的 `model + type` 組合列表
+  - 返回格式：`{ model: string, type: string, label: string }`（label 為 "model type" 組合，例如 "ES-2000 白牌"）
+
+- **routes/api.php**
+  - 新增公開路由 `GET /api/scooters/models`，供前端預約表單使用
+
+- **BookingController.php** (`app/Http/Controllers/Api/BookingController.php`)
+  - 更新驗證規則：從 `scooters` 陣列改為單一選擇 `scooterModel`, `scooterType`, `scooterCount`
+  - 在儲存時將單一選擇轉換為陣列格式（保持與資料庫結構一致）
+
+#### 前端
+- **api.ts** (`system/frontend/lib/api.ts`)
+  - 更新 `booking.send` 的參數類型，改為單一選擇格式
+  - 新增 `scooters.models()` 方法，獲取機車型號列表
+
+- **Booking.tsx** (`system/frontend/pages/Booking.tsx`)
+  - 移除多選機車功能（`addScooter`, `removeScooter`, `updateScooter` 等函數）
+  - 改為單選下拉選單，從 API 獲取機車型號列表（顯示 "model + type" 組合）
+  - 表單狀態從 `scooters: []` 改為 `scooterModel`, `scooterType`, `scooterCount`
+  - 移除「需求說明」欄位（根據用戶要求）
+  - 下拉選單字體大小改為 `text-base`（較大）
+
+### 說明
+- 預約表單現在只允許選擇一種機車類型，選項來自後臺機車清單的唯一 `model + type` 組合
+- 選項顯示格式為「機車型號 + 類型」（例如：「ES-2000 白牌」）
+- 後端 API 保持向後兼容，將單一選擇轉換為陣列格式儲存
+

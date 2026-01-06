@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { RefreshCw, Loader2, Plus, X } from 'lucide-react';
+import { RefreshCw, Loader2 } from 'lucide-react';
 import { publicApi } from '../lib/api';
 
 interface Captcha {
@@ -8,10 +8,10 @@ interface Captcha {
   image: string; // Base64 encoded image
 }
 
-interface ScooterSelection {
-  id: string;
+interface ScooterModel {
   model: string;
-  count: number;
+  type: string;
+  label: string; // model + type 組合，例如 "ES-2000 白牌"
 }
 
 const Booking: React.FC = () => {
@@ -25,16 +25,21 @@ const Booking: React.FC = () => {
     shipArrivalTime: '',
     adults: '',
     children: '',
-    scooters: [] as ScooterSelection[],
+    scooterModel: '', // 機車型號
+    scooterType: '', // 機車類型
+    scooterCount: 1, // 數量
     note: '',
     captchaAnswer: '',
   });
   const [captcha, setCaptcha] = useState<Captcha | null>(null);
   const [isLoadingCaptcha, setIsLoadingCaptcha] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [scooterModels, setScooterModels] = useState<ScooterModel[]>([]);
+  const [isLoadingModels, setIsLoadingModels] = useState(false);
 
   useEffect(() => {
     fetchCaptcha();
+    fetchScooterModels();
   }, []);
 
   const fetchCaptcha = async () => {
@@ -52,27 +57,29 @@ const Booking: React.FC = () => {
     }
   };
 
-  const addScooter = () => {
-    setFormData(prev => ({
-      ...prev,
-      scooters: [...prev.scooters, { id: Date.now().toString(), model: '', count: 1 }]
-    }));
+  const fetchScooterModels = async () => {
+    setIsLoadingModels(true);
+    try {
+      const response = await publicApi.scooters.models();
+      if (response && response.data) {
+        setScooterModels(response.data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch scooter models:', error);
+    } finally {
+      setIsLoadingModels(false);
+    }
   };
 
-  const removeScooter = (id: string) => {
-    setFormData(prev => ({
-      ...prev,
-      scooters: prev.scooters.filter(s => s.id !== id)
-    }));
-  };
-
-  const updateScooter = (id: string, field: 'model' | 'count', value: string | number) => {
-    setFormData(prev => ({
-      ...prev,
-      scooters: prev.scooters.map(s => 
-        s.id === id ? { ...s, [field]: value } : s
-      )
-    }));
+  const handleScooterChange = (label: string) => {
+    const selectedModel = scooterModels.find(m => m.label === label);
+    if (selectedModel) {
+      setFormData(prev => ({
+        ...prev,
+        scooterModel: selectedModel.model,
+        scooterType: selectedModel.type,
+      }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -88,8 +95,13 @@ const Booking: React.FC = () => {
       return;
     }
 
-    if (formData.scooters.length === 0) {
-      alert('請至少選擇一種租車類型');
+    if (!formData.scooterModel || !formData.scooterType) {
+      alert('請選擇租車類型');
+      return;
+    }
+
+    if (formData.scooterCount < 1) {
+      alert('請輸入有效的租車數量');
       return;
     }
 
@@ -98,16 +110,18 @@ const Booking: React.FC = () => {
     try {
       await publicApi.booking.send({
         name: formData.name,
-        lineId: formData.lineId,
+        lineId: formData.lineId || undefined,
         phone: formData.phone,
         appointmentDate: formData.appointmentDate,
         endDate: formData.endDate,
         shippingCompany: formData.shippingCompany,
         shipArrivalTime: formData.shipArrivalTime,
-        adults: formData.adults,
-        children: formData.children,
-        scooters: formData.scooters,
-        note: formData.note,
+        adults: formData.adults ? parseInt(formData.adults) : undefined,
+        children: formData.children ? parseInt(formData.children) : undefined,
+        scooterModel: formData.scooterModel,
+        scooterType: formData.scooterType,
+        scooterCount: formData.scooterCount,
+        note: formData.note || undefined,
         captcha_id: captcha.captcha_id,
         captcha_answer: formData.captchaAnswer.toUpperCase().trim(),
       });
@@ -122,7 +136,9 @@ const Booking: React.FC = () => {
         shipArrivalTime: '',
         adults: '',
         children: '',
-        scooters: [],
+        scooterModel: '',
+        scooterType: '',
+        scooterCount: 1,
         note: '',
         captchaAnswer: '',
       });
@@ -311,62 +327,36 @@ const Booking: React.FC = () => {
                 <label className="block text-sm font-bold text-gray-700 mb-2">
                   所需租車類型/數量 <span className="text-red-500">*</span>
                 </label>
-                <div className="space-y-3">
-                  {formData.scooters.map((scooter) => (
-                    <div key={scooter.id} className="flex gap-3 items-end">
-                      <div className="flex-1">
-                        <select 
-                          required
-                          className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-black focus:ring-0 transition-all"
-                          value={scooter.model}
-                          onChange={e => updateScooter(scooter.id, 'model', e.target.value)}
-                        >
-                          <option value="">請選擇車型</option>
-                          <option value="VIVA MIX 白牌">VIVA MIX 白牌</option>
-                          <option value="VIVA 綠牌">VIVA 綠牌</option>
-                          <option value="電輔車">電輔車</option>
-                          <option value="三輪車">三輪車</option>
-                        </select>
-                      </div>
-                      <div className="w-24">
-                        <input 
-                          type="number" 
-                          min="1"
-                          required
-                          className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-black focus:ring-0 transition-all"
-                          value={scooter.count}
-                          onChange={e => updateScooter(scooter.id, 'count', parseInt(e.target.value) || 1)}
-                        />
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => removeScooter(scooter.id)}
-                        className="p-3 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition-all"
-                      >
-                        <X size={18} />
-                      </button>
-                    </div>
-                  ))}
-                  <button
-                    type="button"
-                    onClick={addScooter}
-                    className="flex items-center gap-2 text-teal-600 hover:text-teal-700 font-medium text-sm"
-                  >
-                    <Plus size={18} />
-                    增加租車類型
-                  </button>
+                <div className="flex gap-3 items-end">
+                  <div className="flex-1">
+                    <select 
+                      required
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-black focus:ring-0 transition-all text-base"
+                      value={formData.scooterModel && formData.scooterType ? `${formData.scooterModel} ${formData.scooterType}` : ''}
+                      onChange={e => handleScooterChange(e.target.value)}
+                      disabled={isLoadingModels}
+                    >
+                      <option value="">請選擇車型</option>
+                      {scooterModels.map((model, index) => (
+                        <option key={index} value={model.label}>
+                          {model.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="w-24">
+                    <input 
+                      type="number" 
+                      min="1"
+                      required
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-black focus:ring-0 transition-all"
+                      value={formData.scooterCount}
+                      onChange={e => setFormData({...formData, scooterCount: parseInt(e.target.value) || 1})}
+                    />
+                  </div>
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">需求說明</label>
-                <textarea 
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-black focus:ring-0 transition-all h-32 resize-none"
-                  placeholder="如有特殊需求請告知"
-                  value={formData.note}
-                  onChange={e => setFormData({...formData, note: e.target.value})}
-                ></textarea>
-              </div>
             </div>
 
             {/* 驗證碼 */}
@@ -423,7 +413,7 @@ const Booking: React.FC = () => {
             <div className="md:col-span-2 pt-6">
               <button 
                 type="submit"
-                disabled={submitting || !captcha || formData.scooters.length === 0}
+                disabled={submitting || !captcha || !formData.scooterModel || !formData.scooterType}
                 className="w-full bg-black text-white py-5 rounded-full font-bold text-lg hover:bg-teal-700 transition-all shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {submitting ? '提交中...' : '確認送出'}

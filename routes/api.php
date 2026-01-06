@@ -94,6 +94,7 @@ Route::prefix('stores')->group(function () {
 
 // Scooters API
 Route::prefix('scooters')->group(function () {
+    Route::get('/models', [ScooterController::class, 'models']); // Public: 獲取機車型號列表（供預約表單使用）
     Route::get('/', [ScooterController::class, 'index']);
     Route::get('/available', [ScooterController::class, 'available']);
     Route::post('/', [ScooterController::class, 'store']);

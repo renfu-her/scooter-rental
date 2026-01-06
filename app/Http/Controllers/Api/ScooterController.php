@@ -63,6 +63,29 @@ class ScooterController extends Controller
     }
 
     /**
+     * Get unique model + type combinations for booking form (Public)
+     */
+    public function models(): JsonResponse
+    {
+        $models = Scooter::select('model', 'type')
+            ->distinct()
+            ->orderBy('model')
+            ->orderBy('type')
+            ->get()
+            ->map(function ($scooter) {
+                return [
+                    'model' => $scooter->model,
+                    'type' => $scooter->type,
+                    'label' => $scooter->model . ' ' . $scooter->type, // 組合顯示：例如 "ES-2000 白牌"
+                ];
+            });
+
+        return response()->json([
+            'data' => $models,
+        ]);
+    }
+
+    /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request): JsonResponse

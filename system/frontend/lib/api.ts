@@ -88,8 +88,11 @@ export const publicApi = {
       api.post('/contact', data),
   },
   booking: {
-    send: (data: { name: string; lineId: string; phone?: string; scooterType: string; date: string; days: string; note?: string; captcha_id: string; captcha_answer: string }) => 
+    send: (data: { name: string; lineId?: string; phone: string; appointmentDate: string; endDate: string; shippingCompany: string; shipArrivalTime: string; adults?: number; children?: number; scooterModel: string; scooterType: string; scooterCount: number; note?: string; captcha_id: string; captcha_answer: string }) => 
       api.post('/booking', data),
+  },
+  scooters: {
+    models: () => api.get<Array<{ model: string; type: string; label: string }>>('/scooters/models'),
   },
   captcha: {
     generate: () => api.get('/captcha/generate'),
