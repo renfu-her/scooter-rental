@@ -125,7 +125,7 @@ const DashboardLayout: React.FC = () => {
           </div>
           {sidebarOpen && (
             <span className={`text-lg font-black whitespace-nowrap animate-in fade-in slide-in-from-left-2 duration-300 ${theme === 'dark' ? 'text-gray-100' : 'text-gray-800'}`}>
-              蘭光租賃
+              蘭光電動機車
             </span>
           )}
         </div>

@@ -91,7 +91,7 @@ const LoginPage: React.FC = () => {
         <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-8 space-y-6">
           {/* Logo/Title */}
           <div className="text-center space-y-2">
-            <h1 className="text-3xl font-black text-gray-800 dark:text-gray-100">蘭光租賃管理系統</h1>
+            <h1 className="text-3xl font-black text-gray-800 dark:text-gray-100">蘭光電動機車管理系統</h1>
             <p className="text-sm text-gray-500 dark:text-gray-400">請登入您的帳號</p>
           </div>
 

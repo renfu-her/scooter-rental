@@ -4180,3 +4180,35 @@ php artisan db:seed --class=ScooterModelColorSeeder
 ### 說明
 統一品牌名稱，將所有「蘭光租賃中心」改為「蘭光電動機車」，確保整個系統的品牌一致性。
 
+
+---
+
+## 2026-01-06 11:08:55 - 將後端所有「蘭光租賃」改為「蘭光電動機車」
+
+### 變更內容
+將後端系統中所有出現「蘭光租賃」的地方統一改為「蘭光電動機車」：
+
+- **package.json** (`system/backend/package.json`)
+  - 專案名稱：從「蘭光租賃管理系統」改為「蘭光電動機車管理系統」
+
+- **DashboardLayout.tsx** (`system/backend/components/DashboardLayout.tsx`)
+  - 側邊欄標題：從「蘭光租賃」改為「蘭光電動機車」
+
+- **index.html** (`system/backend/index.html`)
+  - 頁面標題：從「蘭光租賃管理系統」改為「蘭光電動機車管理系統」
+
+- **LoginPage.tsx** (`system/backend/pages/LoginPage.tsx`)
+  - 登入頁面標題：從「蘭光租賃管理系統」改為「蘭光電動機車管理系統」
+
+- **gemini.ts** (`system/backend/lib/gemini.ts`)
+  - AI 助手系統指令：從「蘭光租賃」改為「蘭光電動機車」
+
+- **AIChatAssistant.tsx** (`system/backend/components/AIChatAssistant.tsx`)
+  - AI 助手歡迎訊息：從「蘭光租賃」改為「蘭光電動機車」
+
+- **metadata.json** (`system/backend/metadata.json`)
+  - 專案名稱：從「蘭光租賃管理系統」改為「蘭光電動機車管理系統」
+
+### 說明
+統一後端系統的品牌名稱，將所有「蘭光租賃」改為「蘭光電動機車」，確保與前端品牌名稱一致。
+

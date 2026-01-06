@@ -79,7 +79,7 @@ const AIChatAssistant: React.FC = () => {
                   <Bot size={40} className="opacity-10" />
                 </div>
                 <p className="text-xs font-bold leading-relaxed text-gray-400">
-                  您好！我是蘭光租賃的 AI 助手。<br/>
+                  您好！我是蘭光電動機車的 AI 助手。<br/>
                   我可以協助您查詢車況、計算租金<br/>
                   或了解租賃流程，請隨時提問。
                 </p>
