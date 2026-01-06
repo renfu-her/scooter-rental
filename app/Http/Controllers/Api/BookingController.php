@@ -71,6 +71,10 @@ class BookingController extends Controller
             // 移除驗證碼相關欄位
             unset($data['captcha_id'], $data['captcha_answer']);
             
+            // 確保 lineId 存在於郵件資料中（即使為空）
+            $mailData = $data;
+            $mailData['lineId'] = $data['lineId'] ?? null;
+            
             // 將單一選擇轉換為陣列格式（保持與資料庫結構一致）
             $scooters = [[
                 'model' => $data['scooterModel'] . ' ' . $data['scooterType'],
@@ -94,7 +98,7 @@ class BookingController extends Controller
             ]);
             
             // 發送郵件給管理員（因為沒有 email，無法發送給用戶）
-            Mail::to('zau1110216@gmail.com')->send(new BookingMail($data));
+            Mail::to('zau1110216@gmail.com')->send(new BookingMail($mailData));
 
             // 驗證成功後刪除驗證碼
             Cache::forget("captcha_{$captchaId}");

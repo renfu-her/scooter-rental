@@ -4728,3 +4728,22 @@ php artisan db:seed --class=ScooterModelColorSeeder
 ### 說明
 - 簡化表單外觀，移除多餘的標籤文字
 
+
+---
+
+## 2026-01-06 16:04:58 - 修復預約郵件模板中 lineId 未定義錯誤
+
+### 變更內容
+- **booking.blade.php** (`resources/views/emails/booking.blade.php`)
+  - 將 LINE ID 區塊包在 `@if(!empty($data['lineId']))` 條件中
+  - 當 `lineId` 不存在或為空時，不顯示 LINE ID 欄位
+
+- **BookingController.php** (`app/Http/Controllers/Api/BookingController.php`)
+  - 確保 `lineId` 在傳遞給郵件的資料中存在（即使為 null）
+  - 使用 `$mailData` 變數確保所有必要欄位都存在
+
+### 說明
+- 修復 "Undefined array key 'lineId'" 錯誤
+- 因為 `lineId` 是可選欄位，需要在使用前檢查是否存在
+- 現在當用戶未填寫 LINE ID 時，郵件不會顯示該欄位，也不會產生錯誤
+

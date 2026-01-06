@@ -45,6 +45,7 @@
                                 </tr>
                                 
                                 <!-- LINE ID -->
+                                @if(!empty($data['lineId']))
                                 <tr>
                                     <td style="padding-bottom: 20px;">
                                         <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
@@ -65,6 +66,7 @@
                                         </table>
                                     </td>
                                 </tr>
+                                @endif
                                 
                                 @if(!empty($data['phone']))
                                 <!-- 聯絡電話 -->
