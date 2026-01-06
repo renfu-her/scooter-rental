@@ -89,7 +89,7 @@ const Guidelines: React.FC = () => {
                   </div>
                 </button>
                 {openIndex === idx && (
-                  <div className="pl-12 pr-6 pb-4 text-gray-600 leading-relaxed text-sm animate-in fade-in slide-in-from-top-1 duration-300">
+                  <div className="pl-12 pr-6 pb-4 text-gray-600 leading-relaxed text-base md:text-lg whitespace-pre-line animate-in fade-in slide-in-from-top-1 duration-300">
                     {faq.answer}
                   </div>
                 )}

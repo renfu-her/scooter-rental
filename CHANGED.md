@@ -4911,3 +4911,18 @@ php artisan db:seed --class=ScooterModelColorSeeder
 ### 說明
 - 讓聯絡我們頁面中的地址、電話與 LINE ID 文字實際放大，畫面更飽滿、可讀性更好
 
+
+---
+
+## 2026-01-06 17:40:10 - 調整租車須知回答換行與字體大小
+
+### 變更內容
+- **Guidelines.tsx** (`system/frontend/pages/Guidelines.tsx`)
+  - 將回答區塊的樣式從：
+    - `text-sm` 改為 `text-base md:text-lg`
+  - 新增 `whitespace-pre-line`，讓後端文字中的 `\n` 會正確顯示為換行
+
+### 說明
+- 租車須知（Q&A）中的回答現在會依照文字內的換行顯示，不再擠成一行
+- 回答字體放大，閱讀體驗更好
+
