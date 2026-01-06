@@ -4702,3 +4702,29 @@ php artisan db:seed --class=ScooterModelColorSeeder
 ### 說明
 - 根據用戶要求，直接移除「人數」區塊中的「人」單位顯示，簡化表單外觀
 
+
+---
+
+## 2026-01-06 15:56:29 - 調整「大人」「小孩」標籤字體與「租車類型」一致
+
+### 變更內容
+- **Booking.tsx** (`system/frontend/pages/Booking.tsx`)
+  - 將「大人」標籤字體從 `text-base` 改為 `text-sm`
+  - 將「小孩（12歲以下）」標籤字體從 `text-base` 改為 `text-sm`
+  - 現在與「所需租車類型/數量」標籤字體一致（`text-sm font-bold text-gray-700`）
+
+### 說明
+- 統一表單標籤字體大小，提升視覺一致性
+
+
+---
+
+## 2026-01-06 15:57:37 - 移除線上預約表單「人數」標籤
+
+### 變更內容
+- **Booking.tsx** (`system/frontend/pages/Booking.tsx`)
+  - 移除「人數」標籤，直接顯示「大人」和「小孩（12歲以下）」輸入欄位
+
+### 說明
+- 簡化表單外觀，移除多餘的標籤文字
+

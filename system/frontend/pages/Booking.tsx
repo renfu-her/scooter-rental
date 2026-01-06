@@ -292,12 +292,9 @@ const Booking: React.FC = () => {
             {/* 右欄 */}
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">
-                  人數
-                </label>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-base font-bold text-gray-700 mb-1">大人</label>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">大人</label>
                     <input 
                       type="number" 
                       min="0"
@@ -308,7 +305,7 @@ const Booking: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-base font-bold text-gray-700 mb-1">小孩（12歲以下）</label>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">小孩（12歲以下）</label>
                     <input 
                       type="number" 
                       min="0"
