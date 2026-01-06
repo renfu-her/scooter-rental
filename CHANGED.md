@@ -4535,3 +4535,20 @@ php artisan db:seed --class=ScooterModelColorSeeder
 - 標籤文字改為「LINE ID」，更加明確
 - 後端 API 已經支援 LINE ID 為可選（nullable）
 
+
+---
+
+## 2026-01-06 14:39:39 - 將 bookings 表的 line_id 欄位改為可選
+
+### 變更內容
+- **Migration** (`database/migrations/2026_01_06_143900_make_line_id_nullable_in_bookings_table.php`) - 新建
+  - 將 `line_id` 欄位改為可選（nullable）
+  - 因為前端表單已將 LINE ID 改為非必填，資料庫欄位也需要支援 null 值
+
+### 問題修正
+- 修正錯誤：`Column 'line_id' cannot be null`
+- 當用戶不填寫 LINE ID 時，可以正常提交預約表單
+
+### 說明
+執行此 migration 後，預約表單可以不填寫 LINE ID 也能正常提交。
+
