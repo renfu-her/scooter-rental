@@ -4838,3 +4838,31 @@ php artisan db:seed --class=ScooterModelColorSeeder
 ### 說明
 - 標籤格式統一，更清楚地表示這是人數輸入欄位
 
+
+---
+
+## 2026-01-06 17:19:19 - 優化聯絡資訊頁面：添加圖標並增大樣式
+
+### 變更內容
+- **Contact.tsx** (`system/frontend/pages/Contact.tsx`)
+  - 導入 `MapPin`, `Phone`, `MessageCircle` 圖標（來自 lucide-react）
+  - 為每個聯絡資訊項目添加對應圖標：
+    - 地址：MapPin 圖標（綠色）
+    - 電話：Phone 圖標（綠色）
+    - LINE ID：MessageCircle 圖標（綠色）
+  - 增大整體樣式：
+    - 標題從 `text-2xl` 改為 `text-3xl`
+    - 內邊距從 `p-8` 改為 `p-10 md:p-12`
+    - 標題下邊距從 `mb-6` 改為 `mb-8`
+    - 項目間距從 `mt-2` 改為 `space-y-6`
+    - 文字大小從 `text-sm` 改為 `text-base`
+  - 改進布局：
+    - 使用 flex 布局，圖標和文字並排顯示
+    - 每個項目有標題（粗體）和內容
+    - 圖標使用綠色（`text-teal-600`）突出顯示
+
+### 說明
+- 聯絡資訊頁面現在更加充實，視覺效果更好
+- 圖標幫助用戶快速識別不同類型的聯絡方式
+- 更大的字體和間距提升可讀性
+

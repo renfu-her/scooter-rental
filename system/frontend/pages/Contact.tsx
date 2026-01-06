@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { MapPin, Phone, MessageCircle } from 'lucide-react';
 import { publicApi } from '../lib/api';
 
 interface LocationData {
@@ -54,12 +55,44 @@ const Contact: React.FC = () => {
         <section className="container mx-auto px-6 max-w-4xl py-12">
           <div className="space-y-12">
             {/* 聯絡資訊 */}
-            <div className="bg-white p-8 rounded-[40px] shadow-sm border border-gray-100">
-              <h3 className="text-2xl font-bold mb-6 serif">聯絡資訊</h3>
-              <div className="text-sm text-gray-500">
-                <p>地址：<a href="https://www.google.com.tw/maps/search/%E5%B1%8F%E6%9D%B1%E7%B8%A3%E7%90%89%E7%90%83%E9%84%89%E7%9B%B8%E5%9F%94%E8%B7%AF86%E4%B9%8B5" target="_blank" rel="noopener noreferrer" className="hover:text-teal-600 transition-colors">屏東縣琉球鄉相埔路86之5</a></p>
-                <p className="mt-2">LINE ID：<a href="https://line.me/R/ti/p/@623czmsm?oat_content=url&ts=01042332" target="_blank" rel="noopener noreferrer" className="hover:text-teal-600 transition-colors">@623czmsm</a></p>
-                <p className="mt-2">電話：<a href="tel:0911306011" className="hover:text-teal-600 transition-colors">0911306011</a></p>
+            <div className="bg-white p-10 md:p-12 rounded-[40px] shadow-sm border border-gray-100">
+              <h3 className="text-3xl font-bold mb-8 serif">聯絡資訊</h3>
+              <div className="space-y-6">
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 mt-1">
+                    <MapPin size={24} className="text-teal-600" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-base font-bold text-gray-700 mb-1">地址</p>
+                    <p className="text-base text-gray-600">
+                      <a href="https://www.google.com.tw/maps/search/%E5%B1%8F%E6%9D%B1%E7%B8%A3%E7%90%89%E7%90%83%E9%84%89%E7%9B%B8%E5%9F%94%E8%B7%AF86%E4%B9%8B5" target="_blank" rel="noopener noreferrer" className="hover:text-teal-600 transition-colors">屏東縣琉球鄉相埔路86之5</a>
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 mt-1">
+                    <Phone size={24} className="text-teal-600" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-base font-bold text-gray-700 mb-1">電話</p>
+                    <p className="text-base text-gray-600">
+                      <a href="tel:0911306011" className="hover:text-teal-600 transition-colors">0911306011</a>
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 mt-1">
+                    <MessageCircle size={24} className="text-teal-600" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-base font-bold text-gray-700 mb-1">LINE ID</p>
+                    <p className="text-base text-gray-600">
+                      <a href="https://line.me/R/ti/p/@623czmsm?oat_content=url&ts=01042332" target="_blank" rel="noopener noreferrer" className="hover:text-teal-600 transition-colors">@623czmsm</a>
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
