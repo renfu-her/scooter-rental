@@ -5326,3 +5326,15 @@ php artisan db:seed --class=ScooterModelColorSeeder
 ### 說明
 - 車子卡片區塊現在使用白色背景，與淡粉藍色頁面背景形成對比，提升可讀性和視覺層次
 
+
+---
+
+## 2026-01-07 15:00:06 - 將線上預約表單區塊改回白色背景
+
+### 變更內容
+- **Booking.tsx** (`system/frontend/pages/Booking.tsx`)
+  - 將表單容器背景色從 `bg-[#f0f4ff]` 改回 `bg-white`
+
+### 說明
+- 線上預約表單區塊現在使用白色背景，與淡粉藍色頁面背景形成對比，提升可讀性和視覺層次
+
