@@ -5203,3 +5203,23 @@ php artisan db:seed --class=ScooterModelColorSeeder
 ### 說明
 - 調整顏色色階，使天藍色更加明亮醒目
 
+
+---
+
+## 2026-01-07 14:48:56 - 將整體底色從白色改為淡粉藍色
+
+### 變更內容
+- **Layout.tsx** (`system/frontend/components/Layout.tsx`)
+  - 將整體背景色從 `bg-[#fcfcfc]` 改為 `bg-[#f0f4ff]`（淡粉藍色）
+  - 將側邊欄背景色從 `bg-[#fcfcfc]` 改為 `bg-[#f0f4ff]`
+  - 將手機版 header 背景色從 `bg-white` 改為 `bg-[#f0f4ff]`
+  - 將手機版選單背景色從 `bg-white` 改為 `bg-[#f0f4ff]`
+  - 將 Footer 背景色從 `bg-white` 改為 `bg-[#f0f4ff]`
+
+- **Home.tsx** (`system/frontend/pages/Home.tsx`)
+  - 將 Featured Images Grid 區塊背景色從 `bg-white` 改為 `bg-[#f0f4ff]`
+
+### 說明
+- 整體網站底色現在使用淡粉藍色（`#f0f4ff`），營造更柔和、溫馨的視覺感受
+- 側邊欄內容框（Logo 和導航）仍保持白色背景以確保可讀性
+

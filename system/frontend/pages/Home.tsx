@@ -49,7 +49,7 @@ const Home: React.FC = () => {
       </section>
 
       {/* Featured Images Grid (Based on Image 4 & 5) */}
-      <section className="py-24 bg-white overflow-hidden">
+      <section className="py-24 bg-[#f0f4ff] overflow-hidden">
         <div className="container mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
             <div className="aspect-[4/5] rounded-[50px] overflow-hidden transform translate-y-12">

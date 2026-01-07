@@ -15,10 +15,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
 
   return (
-    <div className="min-h-screen bg-[#fcfcfc] flex flex-col relative">
+    <div className="min-h-screen bg-[#f0f4ff] flex flex-col relative">
       <div className="flex flex-col md:flex-row flex-1">
         {/* Sidebar - Desktop */}
-        <aside className="hidden md:flex flex-col w-64 h-screen sticky top-0 bg-[#fcfcfc] border-r border-gray-100 p-8 z-50">
+        <aside className="hidden md:flex flex-col w-64 h-screen sticky top-0 bg-[#f0f4ff] border-r border-gray-100 p-8 z-50">
           <div className="flex flex-col items-center mb-12 border border-black rounded-[50px] py-10 px-4 bg-white shadow-sm">
             <Link to="/" className="mb-10">
               <Logo />
@@ -75,7 +75,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </aside>
 
         {/* Header - Mobile */}
-        <header className="md:hidden flex items-center justify-between p-4 bg-white border-b sticky top-0 z-[60]">
+        <header className="md:hidden flex items-center justify-between p-4 bg-[#f0f4ff] border-b sticky top-0 z-[60]">
           <Link to="/">
             <Logo />
           </Link>
@@ -86,7 +86,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
         {/* Mobile Menu Overlay */}
         {isMobileMenuOpen && (
-          <div className="fixed inset-0 bg-white z-[55] flex flex-col p-8 md:hidden pt-24">
+          <div className="fixed inset-0 bg-[#f0f4ff] z-[55] flex flex-col p-8 md:hidden pt-24">
             <nav className="flex flex-col space-y-6 text-center">
               {NAV_ITEMS.map((item) => (
                 <Link
@@ -113,7 +113,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
 
           {/* Footer Content */}
-          <footer className="bg-white py-12 px-6 md:px-12 border-t border-gray-100">
+          <footer className="bg-[#f0f4ff] py-12 px-6 md:px-12 border-t border-gray-100">
             <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
                 <div className="flex flex-col items-center md:items-start">
                   <Logo />
