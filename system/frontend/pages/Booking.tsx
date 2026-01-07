@@ -1,11 +1,19 @@
 
 import React, { useState, useEffect } from 'react';
+import { Plus, X } from 'lucide-react';
 import { publicApi } from '../lib/api';
 
 interface ScooterModel {
   model: string;
   type: string;
   label: string; // model + type 組合，例如 "ES-2000 白牌"
+}
+
+interface ScooterItem {
+  id: string;
+  model: string;
+  type: string;
+  count: number;
 }
 
 const Booking: React.FC = () => {
@@ -19,11 +27,11 @@ const Booking: React.FC = () => {
     shipArrivalTime: '',
     adults: '',
     children: '',
-    scooterModel: '', // 機車型號
-    scooterType: '', // 機車類型
-    scooterCount: 1, // 數量
     note: '',
   });
+  const [scooterItems, setScooterItems] = useState<ScooterItem[]>([
+    { id: '1', model: '', type: '', count: 1 }
+  ]);
   const [submitting, setSubmitting] = useState(false);
   const [scooterModels, setScooterModels] = useState<ScooterModel[]>([]);
   const [isLoadingModels, setIsLoadingModels] = useState(false);
@@ -46,27 +54,43 @@ const Booking: React.FC = () => {
     }
   };
 
-  const handleScooterChange = (label: string) => {
+  const handleScooterChange = (id: string, label: string) => {
     const selectedModel = scooterModels.find(m => m.label === label);
     if (selectedModel) {
-      setFormData(prev => ({
-        ...prev,
-        scooterModel: selectedModel.model,
-        scooterType: selectedModel.type,
-      }));
+      setScooterItems(prev => prev.map(item => 
+        item.id === id 
+          ? { ...item, model: selectedModel.model, type: selectedModel.type }
+          : item
+      ));
+    }
+  };
+
+  const handleScooterCountChange = (id: string, count: number) => {
+    setScooterItems(prev => prev.map(item => 
+      item.id === id 
+        ? { ...item, count: Math.max(1, count) }
+        : item
+    ));
+  };
+
+  const addScooterItem = () => {
+    const newId = Date.now().toString();
+    setScooterItems(prev => [...prev, { id: newId, model: '', type: '', count: 1 }]);
+  };
+
+  const removeScooterItem = (id: string) => {
+    if (scooterItems.length > 1) {
+      setScooterItems(prev => prev.filter(item => item.id !== id));
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.scooterModel || !formData.scooterType) {
-      alert('請選擇租車類型');
-      return;
-    }
-
-    if (formData.scooterCount < 1) {
-      alert('請輸入有效的租車數量');
+    // 驗證所有租車項目都已選擇
+    const invalidItems = scooterItems.filter(item => !item.model || !item.type || item.count < 1);
+    if (invalidItems.length > 0) {
+      alert('請完整填寫所有租車類型/數量');
       return;
     }
 
@@ -83,9 +107,11 @@ const Booking: React.FC = () => {
         shipArrivalTime: formData.shipArrivalTime,
         adults: formData.adults ? parseInt(formData.adults) : undefined,
         children: formData.children ? parseInt(formData.children) : undefined,
-        scooterModel: formData.scooterModel,
-        scooterType: formData.scooterType,
-        scooterCount: formData.scooterCount,
+        scooters: scooterItems.map(item => ({
+          model: item.model,
+          type: item.type,
+          count: item.count,
+        })),
         note: formData.note || undefined,
       });
       alert('預約已成功提交！我們會盡快與您聯繫確認詳情。');
@@ -99,11 +125,9 @@ const Booking: React.FC = () => {
         shipArrivalTime: '',
         adults: '',
         children: '',
-        scooterModel: '',
-        scooterType: '',
-        scooterCount: 1,
         note: '',
       });
+      setScooterItems([{ id: '1', model: '', type: '', count: 1 }]);
     } catch (error: any) {
       console.error('Failed to submit booking:', error);
       const errorMessage = error.response?.data?.message || '提交預約時發生錯誤，請稍後再試。';
@@ -280,33 +304,55 @@ const Booking: React.FC = () => {
                 <label className="block text-sm font-bold text-gray-700 mb-2">
                   所需租車類型/數量 <span className="text-red-500">*</span>
                 </label>
-                <div className="flex gap-3 items-end">
-                  <div className="flex-1">
-                    <select 
-                      required
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-black focus:ring-0 transition-all text-base"
-                      value={formData.scooterModel && formData.scooterType ? `${formData.scooterModel} ${formData.scooterType}` : ''}
-                      onChange={e => handleScooterChange(e.target.value)}
-                      disabled={isLoadingModels}
-                    >
-                      <option value="">請選擇車型</option>
-                      {scooterModels.map((model, index) => (
-                        <option key={index} value={model.label}>
-                          {model.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="w-24">
-                    <input 
-                      type="number" 
-                      min="1"
-                      required
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-black focus:ring-0 transition-all"
-                      value={formData.scooterCount}
-                      onChange={e => setFormData({...formData, scooterCount: parseInt(e.target.value) || 1})}
-                    />
-                  </div>
+                <div className="space-y-3">
+                  {scooterItems.map((item, index) => (
+                    <div key={item.id} className="flex gap-3 items-end">
+                      <div className="flex-1">
+                        <select 
+                          required
+                          className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-black focus:ring-0 transition-all text-base"
+                          value={item.model && item.type ? `${item.model} ${item.type}` : ''}
+                          onChange={e => handleScooterChange(item.id, e.target.value)}
+                          disabled={isLoadingModels}
+                        >
+                          <option value="">請選擇車型</option>
+                          {scooterModels.map((model, idx) => (
+                            <option key={idx} value={model.label}>
+                              {model.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="w-24">
+                        <input 
+                          type="number" 
+                          min="1"
+                          required
+                          className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-black focus:ring-0 transition-all"
+                          value={item.count}
+                          onChange={e => handleScooterCountChange(item.id, parseInt(e.target.value) || 1)}
+                        />
+                      </div>
+                      {scooterItems.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeScooterItem(item.id)}
+                          className="p-3 bg-red-100 hover:bg-red-200 text-red-600 rounded-xl transition-all"
+                          title="移除"
+                        >
+                          <X size={18} />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={addScooterItem}
+                    className="flex items-center gap-2 px-4 py-2 text-sm text-teal-600 hover:text-teal-700 font-medium border border-teal-300 rounded-xl hover:bg-teal-50 transition-all"
+                  >
+                    <Plus size={16} />
+                    新增租車類型
+                  </button>
                 </div>
               </div>
 
@@ -316,7 +362,7 @@ const Booking: React.FC = () => {
             <div className="md:col-span-2 pt-6">
               <button 
                 type="submit"
-                disabled={submitting || !formData.scooterModel || !formData.scooterType}
+                disabled={submitting || scooterItems.some(item => !item.model || !item.type)}
                 className="w-full bg-black text-white py-5 rounded-full font-bold text-lg hover:bg-teal-700 transition-all shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {submitting ? '提交中...' : '確認送出'}

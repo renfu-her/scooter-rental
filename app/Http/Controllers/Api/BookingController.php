@@ -31,9 +31,10 @@ class BookingController extends Controller
             'shipArrivalTime' => 'required|date',
             'adults' => 'nullable|integer|min:0',
             'children' => 'nullable|integer|min:0',
-            'scooterModel' => 'required|string|max:255',
-            'scooterType' => 'required|in:白牌,綠牌,電輔車,三輪車',
-            'scooterCount' => 'required|integer|min:1',
+            'scooters' => 'required|array|min:1',
+            'scooters.*.model' => 'required|string|max:255',
+            'scooters.*.type' => 'required|in:白牌,綠牌,電輔車,三輪車',
+            'scooters.*.count' => 'required|integer|min:1',
             'note' => 'nullable|string|max:1000',
         ]);
 
@@ -51,11 +52,13 @@ class BookingController extends Controller
             $mailData = $data;
             $mailData['lineId'] = $data['lineId'] ?? null;
             
-            // 將單一選擇轉換為陣列格式（保持與資料庫結構一致）
-            $scooters = [[
-                'model' => $data['scooterModel'] . ' ' . $data['scooterType'],
-                'count' => $data['scooterCount'],
-            ]];
+            // 將 scooters 陣列轉換為資料庫格式（model + type 組合）
+            $scooters = array_map(function($item) {
+                return [
+                    'model' => $item['model'] . ' ' . $item['type'],
+                    'count' => $item['count'],
+                ];
+            }, $data['scooters']);
             
             // 儲存到資料庫
             $booking = Booking::create([

@@ -5105,3 +5105,37 @@ php artisan db:seed --class=ScooterModelColorSeeder
 - 簡化表單流程，提升用戶體驗
 - 後端 API 已同步移除驗證碼相關驗證
 
+
+---
+
+## 2026-01-07 11:49:09 - 修改線上預約表單支援多個租車類型/數量
+
+### 變更內容
+- **Booking.tsx** (`system/frontend/pages/Booking.tsx`)
+  - 新增 `ScooterItem` interface 定義租車項目結構
+  - 將單一租車選擇改為動態列表（`scooterItems` state）
+  - 新增 `addScooterItem()` 函數，允許用戶添加多個租車項目
+  - 新增 `removeScooterItem()` 函數，允許用戶移除租車項目（至少保留一個）
+  - 新增 `handleScooterChange()` 和 `handleScooterCountChange()` 處理多個項目的變更
+  - 更新表單 UI，顯示多個租車選擇框，每個項目都有移除按鈕（至少保留一個時）
+  - 新增「新增租車類型」按鈕，使用 Plus 圖標
+  - 更新表單提交邏輯，將多個租車項目組合成陣列發送
+  - 更新表單驗證邏輯，檢查所有租車項目是否完整填寫
+  - 更新提交按鈕的 disabled 條件，檢查所有租車項目
+
+- **BookingController.php** (`app/Http/Controllers/Api/BookingController.php`)
+  - 更新驗證規則，將 `scooterModel`、`scooterType`、`scooterCount` 改為 `scooters` 陣列
+  - 新增 `scooters.*.model`、`scooters.*.type`、`scooters.*.count` 的驗證規則
+  - 更新資料處理邏輯，將接收到的 `scooters` 陣列轉換為資料庫格式（model + type 組合）
+  - 移除單一租車項目的處理邏輯
+
+- **api.ts** (`system/frontend/lib/api.ts`)
+  - 更新 `booking.send()` 的 TypeScript 類型定義
+  - 將參數從單一的 `scooterModel`、`scooterType`、`scooterCount` 改為 `scooters` 陣列
+
+### 說明
+- 用戶現在可以在線上預約表單中添加多個不同的租車類型/數量
+- 每個租車項目都可以獨立選擇車型和數量
+- 至少需要保留一個租車項目，可以動態添加或移除其他項目
+- Email 模板已支援顯示多個租車項目（無需修改）
+
