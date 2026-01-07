@@ -5350,3 +5350,15 @@ php artisan db:seed --class=ScooterModelColorSeeder
 ### 說明
 - 頁面上所有使用 `Logo` 元件的地方（側邊欄、Footer 等）現在都會顯示新的 `logo2.png`
 
+
+---
+
+## 2026-01-07 15:07:36 - 將網站 Logo 圖檔改為 logo2.png
+
+### 變更內容
+- **constants.tsx** (`system/frontend/constants.tsx`)
+  - 將 `Logo` 元件中的圖片來源從 `/logo.png` 改為 `/logo2.png`
+
+### 說明
+- 頁面上所有使用 `Logo` 元件的地方（側邊欄、Footer 等）現在都會顯示新的 `logo2.png`
+
