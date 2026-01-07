@@ -5223,3 +5223,17 @@ php artisan db:seed --class=ScooterModelColorSeeder
 - 整體網站底色現在使用淡粉藍色（`#f0f4ff`），營造更柔和、溫馨的視覺感受
 - 側邊欄內容框（Logo 和導航）仍保持白色背景以確保可讀性
 
+
+---
+
+## 2026-01-07 14:52:48 - 將關於我們頁面的背景色改為淡粉藍色
+
+### 變更內容
+- **About.tsx** (`system/frontend/pages/About.tsx`)
+  - 將 Header Section 背景色從 `bg-white` 改為 `bg-[#f0f4ff]`（淡粉藍色）
+  - 將「我們的環境」區塊背景色從 `bg-white` 改為 `bg-[#f0f4ff]`
+
+### 說明
+- 關於我們頁面的背景色現在與整體網站一致，使用淡粉藍色
+- 「我們的 story」內容卡片仍保持白色背景以確保內容的可讀性和對比度
+

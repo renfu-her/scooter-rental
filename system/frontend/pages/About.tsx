@@ -5,7 +5,7 @@ const About: React.FC = () => {
   return (
     <div className="animate-in slide-in-from-right-4 duration-700">
       {/* Header Section */}
-      <header className="py-20 px-6 bg-white text-center">
+      <header className="py-20 px-6 bg-[#f0f4ff] text-center">
         <div className="max-w-4xl mx-auto">
           <p className="text-gray-400 tracking-[0.3em] uppercase mb-2">About Us</p>
           <h1 className="text-5xl md:text-6xl serif font-light mb-4">關於我們</h1>
@@ -124,7 +124,7 @@ const About: React.FC = () => {
       </section>
 
       {/* Image Gallery */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-[#f0f4ff]">
         <div className="max-w-6xl mx-auto px-6">
           <h2 className="text-3xl md:text-4xl font-bold serif text-center mb-12">我們的環境</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
