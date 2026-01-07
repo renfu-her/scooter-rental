@@ -32,7 +32,7 @@ const RentalPlans: React.FC = () => {
 
   return (
     <div className="animate-in slide-in-from-bottom-4 duration-700">
-      <header className="py-20 px-6 bg-white text-center">
+      <header className="py-20 px-6 bg-[#f0f4ff] text-center">
         <div className="max-w-4xl mx-auto">
           <p className="text-gray-400 tracking-[0.3em] uppercase mb-2 text-sm">Rental Plans</p>
           <h1 className="text-5xl md:text-6xl serif font-light mb-4">租車方案</h1>
@@ -95,7 +95,7 @@ const RentalPlans: React.FC = () => {
                     </div>
                     
                     {/* Price Badge */}
-                    <div className="absolute bottom-[-20px] left-1/2 -translate-x-1/2 w-48 h-48 rounded-full bg-white shadow-xl flex flex-col items-center justify-center p-6 text-center border-4 border-white">
+                    <div className="absolute bottom-[-20px] left-1/2 -translate-x-1/2 w-48 h-48 rounded-full bg-[#f0f4ff] shadow-xl flex flex-col items-center justify-center p-6 text-center border-4 border-[#f0f4ff]">
                       <span className="text-xs font-bold uppercase tracking-widest text-gray-800">{plan.model || '未命名方案'}</span>
                       <span className="text-2xl font-bold serif text-black">${Math.floor(plan.price || 0)} / 24H</span>
                     </div>
@@ -107,7 +107,7 @@ const RentalPlans: React.FC = () => {
         </section>
       )}
 
-      <section className="py-24 bg-white border-t border-gray-100">
+      <section className="py-24 bg-[#f0f4ff] border-t border-gray-100">
          <div className="max-w-4xl mx-auto px-6 text-center">
             <p className="text-gray-400 uppercase tracking-widest text-xs mb-4">Premium Service</p>
             <h3 className="text-3xl font-bold mb-8 serif">提供顧客尊榮級服務</h3>

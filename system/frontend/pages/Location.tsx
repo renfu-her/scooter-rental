@@ -36,7 +36,7 @@ const Location: React.FC = () => {
 
   return (
     <div className="animate-in fade-in duration-700">
-      <header className="py-20 px-6 bg-white text-center">
+      <header className="py-20 px-6 bg-[#f0f4ff] text-center">
         <div className="max-w-4xl mx-auto">
           <p className="text-gray-400 tracking-[0.3em] uppercase mb-2 text-sm">Location & Contact</p>
           <h1 className="text-5xl md:text-6xl serif font-light mb-4">門市據點</h1>
@@ -64,7 +64,7 @@ const Location: React.FC = () => {
         <section className="container mx-auto px-6 max-w-6xl py-12">
           <div className="space-y-16">
             {locations.map((location) => (
-              <div key={location.id} className="bg-white rounded-[40px] shadow-sm border border-gray-100 overflow-hidden">
+              <div key={location.id} className="bg-[#f0f4ff] rounded-[40px] shadow-sm border border-gray-100 overflow-hidden">
                 {/* 上方：交通位置和地址資訊 */}
                 <div className="p-8">
                   <h3 className="text-2xl font-bold mb-6 serif">{location.name}</h3>

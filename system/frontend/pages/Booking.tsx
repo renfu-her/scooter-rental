@@ -152,7 +152,7 @@ const Booking: React.FC = () => {
       </header>
 
       <div className="container mx-auto px-6 max-w-6xl -mt-10 relative z-20">
-        <div className="bg-white rounded-[40px] shadow-2xl p-8 md:p-12">
+        <div className="bg-[#f0f4ff] rounded-[40px] shadow-2xl p-8 md:p-12">
           {/* 注意事項 */}
           <div className="mb-8 bg-gray-50 rounded-xl p-6 border-l-4 border-teal-600">
             <h3 className="text-lg font-bold text-gray-800 mb-4">注意事項</h3>

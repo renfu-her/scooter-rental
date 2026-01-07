@@ -60,7 +60,7 @@ const Guesthouses: React.FC = () => {
         <section className="container mx-auto px-6 max-w-6xl pb-24">
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {guesthouses.map((gh) => (
-              <div key={gh.id} className="group bg-white rounded-[40px] overflow-hidden shadow-sm hover:shadow-xl transition-all border border-gray-100">
+              <div key={gh.id} className="group bg-[#f0f4ff] rounded-[40px] overflow-hidden shadow-sm hover:shadow-xl transition-all border border-gray-100">
                 <div className="aspect-[4/3] overflow-hidden">
                   <img
                     src={gh.image_path ? `/storage/${gh.image_path}` : 'https://via.placeholder.com/600x450'}

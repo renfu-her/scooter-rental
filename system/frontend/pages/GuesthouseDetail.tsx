@@ -44,7 +44,7 @@ const GuesthouseDetail: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="animate-in fade-in duration-700 bg-[#fcfcfc] min-h-screen">
+      <div className="animate-in fade-in duration-700 bg-[#f0f4ff] min-h-screen">
         <div className="container mx-auto px-6 max-w-4xl py-24">
           <div className="flex justify-center items-center py-12">
             <div className="text-gray-400">載入中...</div>
@@ -56,9 +56,9 @@ const GuesthouseDetail: React.FC = () => {
 
   if (error || !guesthouse) {
     return (
-      <div className="animate-in fade-in duration-700 bg-[#fcfcfc] min-h-screen">
+      <div className="animate-in fade-in duration-700 bg-[#f0f4ff] min-h-screen">
         <div className="container mx-auto px-6 max-w-4xl py-24">
-          <div className="bg-white rounded-[40px] shadow-sm border border-gray-100 p-12 text-center">
+          <div className="bg-[#f0f4ff] rounded-[40px] shadow-sm border border-gray-100 p-12 text-center">
             <p className="text-gray-500 mb-6">{error || '找不到此民宿'}</p>
             <Link
               to="/guesthouses"
@@ -75,7 +75,7 @@ const GuesthouseDetail: React.FC = () => {
 
   return (
     <div className="animate-in fade-in duration-700 bg-[#fcfcfc] min-h-screen">
-      <header className="py-20 px-6 bg-white">
+      <header className="py-20 px-6 bg-[#f0f4ff]">
         <div className="container mx-auto max-w-4xl">
           <Link
             to="/guesthouses"
@@ -93,7 +93,7 @@ const GuesthouseDetail: React.FC = () => {
       </header>
 
       <section className="container mx-auto px-6 max-w-4xl pb-24">
-        <div className="bg-white rounded-[40px] shadow-sm border border-gray-100 overflow-hidden">
+        <div className="bg-[#f0f4ff] rounded-[40px] shadow-sm border border-gray-100 overflow-hidden">
           {guesthouse.image_path && (
             <div className="aspect-[16/9] overflow-hidden">
               <img

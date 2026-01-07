@@ -41,7 +41,7 @@ const Guidelines: React.FC = () => {
 
   return (
     <div className="animate-in slide-in-from-right-4 duration-700">
-      <header className="py-20 px-6 bg-white text-center relative overflow-hidden">
+      <header className="py-20 px-6 bg-[#f0f4ff] text-center relative overflow-hidden">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-3xl md:text-4xl serif mb-2">租賃須知</h1>
           <h2 className="text-5xl md:text-7xl font-light serif tracking-tighter mb-4">Q&A</h2>
@@ -140,7 +140,7 @@ const Guidelines: React.FC = () => {
       </div>
       
       {/* Decorative Wave Bottom */}
-      <div className="h-40 bg-white relative overflow-hidden">
+      <div className="h-40 bg-[#f0f4ff] relative overflow-hidden">
           <svg className="absolute bottom-0 w-full" viewBox="0 0 1440 320" preserveAspectRatio="none">
             <path fill="#fcfcfc" fillOpacity="1" d="M0,224L80,213.3C160,203,320,181,480,181.3C640,181,800,203,960,192C1120,181,1280,139,1360,117.3L1440,96L1440,320L1360,320C1280,320,1120,320,960,320C800,320,640,320,480,320C320,320,160,320,80,320L0,320Z"></path>
           </svg>
