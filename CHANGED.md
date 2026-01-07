@@ -5338,3 +5338,15 @@ php artisan db:seed --class=ScooterModelColorSeeder
 ### 說明
 - 線上預約表單區塊現在使用白色背景，與淡粉藍色頁面背景形成對比，提升可讀性和視覺層次
 
+
+---
+
+## 2026-01-07 15:06:30 - 將網站 Logo 圖檔改為 logo2.png
+
+### 變更內容
+- **constants.tsx** (`system/frontend/constants.tsx`)
+  - 將 `Logo` 元件中的圖片來源從 `/logo.png` 改為 `/logo2.png`
+
+### 說明
+- 頁面上所有使用 `Logo` 元件的地方（側邊欄、Footer 等）現在都會顯示新的 `logo2.png`
+
