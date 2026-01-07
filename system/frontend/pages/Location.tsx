@@ -64,7 +64,7 @@ const Location: React.FC = () => {
         <section className="container mx-auto px-6 max-w-6xl py-12">
           <div className="space-y-16">
             {locations.map((location) => (
-              <div key={location.id} className="bg-[#f0f4ff] rounded-[40px] shadow-sm border border-gray-100 overflow-hidden">
+              <div key={location.id} className="bg-white rounded-[40px] shadow-sm border border-gray-100 overflow-hidden">
                 {/* 上方：交通位置和地址資訊 */}
                 <div className="p-8">
                   <h3 className="text-2xl font-bold mb-6 serif">{location.name}</h3>

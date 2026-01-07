@@ -55,7 +55,7 @@ const Contact: React.FC = () => {
         <section className="container mx-auto px-6 max-w-4xl py-12">
           <div className="space-y-12">
             {/* 聯絡資訊 */}
-            <div className="bg-[#f0f4ff] p-10 md:p-12 rounded-[40px] shadow-sm border border-gray-100">
+            <div className="bg-white p-10 md:p-12 rounded-[40px] shadow-sm border border-gray-100">
               <h3 className="text-3xl font-bold mb-8 serif">聯絡資訊</h3>
               <div className="space-y-6">
                 <div className="flex items-start gap-4">

@@ -57,23 +57,24 @@ const Guidelines: React.FC = () => {
         </div>
       ) : (
         <div className="container mx-auto px-6 max-w-4xl py-12">
-          <div className="flex flex-wrap justify-center gap-2 mb-12">
-            {allCategories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setFilter(cat)}
-                className={`px-6 py-2 rounded-lg text-sm transition-all ${
-                  filter === cat 
-                  ? 'bg-[#1a1a1a] text-white shadow-lg' 
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
+          <div className="bg-white rounded-[40px] p-8 md:p-12 shadow-sm">
+            <div className="flex flex-wrap justify-center gap-2 mb-12">
+              {allCategories.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setFilter(cat)}
+                  className={`px-6 py-2 rounded-lg text-sm transition-all ${
+                    filter === cat 
+                    ? 'bg-[#1a1a1a] text-white shadow-lg' 
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
 
-          <div className="space-y-4">
+            <div className="space-y-4">
             {filteredFaqs.map((faq, idx) => (
               <div key={faq.id} className="border-b border-gray-100 pb-4">
                 <button
@@ -103,6 +104,7 @@ const Guidelines: React.FC = () => {
                 </div>
               </div>
             )}
+            </div>
           </div>
         </div>
       )}

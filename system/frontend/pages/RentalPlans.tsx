@@ -68,12 +68,13 @@ const RentalPlans: React.FC = () => {
         </section>
       ) : (
         <section className="py-20 px-6">
-          <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 md:gap-24">
-            {plans.map((plan, index) => {
-              return (
-                <div key={plan.id} className="flex flex-col items-center">
-                  <div className="relative w-full h-[500px] mb-12">
-                    <div className="absolute inset-0 bg-gray-50 rounded-[100px] -z-10 transform -rotate-3"></div>
+          <div className="max-w-6xl mx-auto bg-white rounded-[40px] p-8 md:p-12 shadow-sm">
+            <div className="grid md:grid-cols-2 gap-16 md:gap-24">
+              {plans.map((plan, index) => {
+                return (
+                  <div key={plan.id} className="flex flex-col items-center">
+                    <div className="relative w-full h-[500px] mb-12">
+                      <div className="absolute inset-0 bg-gray-50 rounded-[100px] -z-10 transform -rotate-3"></div>
                     <div className="w-full h-full rounded-[100px] overflow-hidden shadow-2xl">
                       {plan.image_path ? (
                         <img
@@ -99,10 +100,11 @@ const RentalPlans: React.FC = () => {
                       <span className="text-xs font-bold uppercase tracking-widest text-gray-800">{plan.model || '未命名方案'}</span>
                       <span className="text-2xl font-bold serif text-black">${Math.floor(plan.price || 0)} / 24H</span>
                     </div>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </section>
       )}

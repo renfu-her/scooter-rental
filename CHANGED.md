@@ -5276,3 +5276,53 @@ php artisan db:seed --class=ScooterModelColorSeeder
 - 所有頁面的背景色現在統一使用淡粉藍色（`#f0f4ff`），與整體網站設計保持一致
 - 部分功能性元素（如按鈕）仍保持原有顏色以確保可讀性和對比度
 
+
+---
+
+## 2026-01-07 14:57:01 - 將聯絡資訊卡片改回白色背景
+
+### 變更內容
+- **Contact.tsx** (`system/frontend/pages/Contact.tsx`)
+  - 將聯絡資訊卡片背景色從 `bg-[#f0f4ff]` 改回 `bg-white`
+
+### 說明
+- 聯絡資訊卡片使用白色背景，與淡粉藍色頁面背景形成對比，提升可讀性和視覺層次
+
+
+---
+
+## 2026-01-07 14:57:35 - 將門市據點卡片改回白色背景
+
+### 變更內容
+- **Location.tsx** (`system/frontend/pages/Location.tsx`)
+  - 將門市據點卡片背景色從 `bg-[#f0f4ff]` 改回 `bg-white`
+
+### 說明
+- 門市據點卡片使用白色背景，與淡粉藍色頁面背景形成對比，提升可讀性和視覺層次
+
+
+---
+
+## 2026-01-07 14:58:29 - 將租車須知頁面的問題列表區塊改為白色背景
+
+### 變更內容
+- **Guidelines.tsx** (`system/frontend/pages/Guidelines.tsx`)
+  - 將問題列表區塊（包含分類按鈕和問題列表）包在白色背景的容器中
+  - 添加 `bg-white rounded-[40px] p-8 md:p-12 shadow-sm` 樣式
+
+### 說明
+- 問題列表區塊現在使用白色背景，與淡粉藍色頁面背景形成對比，提升可讀性和視覺層次
+
+
+---
+
+## 2026-01-07 14:59:15 - 將租車方案頁面的車子卡片區塊改為白色背景
+
+### 變更內容
+- **RentalPlans.tsx** (`system/frontend/pages/RentalPlans.tsx`)
+  - 將車子卡片區塊包在白色背景的容器中
+  - 添加 `bg-white rounded-[40px] p-8 md:p-12 shadow-sm` 樣式
+
+### 說明
+- 車子卡片區塊現在使用白色背景，與淡粉藍色頁面背景形成對比，提升可讀性和視覺層次
+
