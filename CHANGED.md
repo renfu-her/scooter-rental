@@ -5362,3 +5362,15 @@ php artisan db:seed --class=ScooterModelColorSeeder
 ### 說明
 - 頁面上所有使用 `Logo` 元件的地方（側邊欄、Footer 等）現在都會顯示新的 `logo2.png`
 
+
+---
+
+## 2026-01-07 15:32:01 - 修改關於我們頁面的開幕日期文字
+
+### 變更內容
+- **About.tsx** (`system/frontend/pages/About.tsx`)
+  - 將「我們的 story」區塊第一句從「蘭光電動機車於2025/07/20於小琉球」改為「蘭光電動機車2025/07/20首度於小琉球開幕」
+
+### 說明
+- 更新了公司開幕資訊的表達方式，使文字更加流暢自然
+
