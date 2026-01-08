@@ -5649,3 +5649,20 @@ php artisan db:seed --class=ScooterModelColorSeeder
 - 民宿推薦現在以圖文並排的方式顯示，更符合圖片中的設計風格
 - 每個民宿佔據一整行，左圖右文的布局更突出民宿的特色
 
+
+---
+
+## 2026-01-08 17:27:26 - 將民宿詳情頁面的返回連結改為「返回租車須知」
+
+### 變更內容
+- **GuesthouseDetail.tsx** (`system/frontend/pages/GuesthouseDetail.tsx`)
+  - 將「返回民宿列表」改為「返回租車須知」
+  - 將返回連結從 `/guesthouses` 改為 `/guidelines`
+  - 更新兩個位置的返回連結：
+    - 錯誤頁面的返回連結
+    - 正常頁面 header 中的返回連結
+
+### 說明
+- 現在從民宿詳情頁面點擊返回，會回到租車須知頁面（民宿推薦區塊）
+- 更符合用戶從租車須知頁面進入民宿詳情的流程
+

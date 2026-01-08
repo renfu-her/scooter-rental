@@ -62,11 +62,11 @@ const GuesthouseDetail: React.FC = () => {
           <div className="bg-[#f0f4ff] rounded-[40px] shadow-sm border border-gray-100 p-12 text-center">
             <p className="text-gray-500 mb-6">{error || '找不到此民宿'}</p>
             <Link
-              to="/guesthouses"
+              to="/guidelines"
               className="inline-flex items-center gap-2 text-teal-600 hover:text-black transition-colors"
             >
               <ArrowLeft size={18} />
-              <span>返回民宿列表</span>
+              <span>返回租車須知</span>
             </Link>
           </div>
         </div>
@@ -79,11 +79,11 @@ const GuesthouseDetail: React.FC = () => {
       <header className="py-20 px-6 bg-[#f0f4ff]">
         <div className="container mx-auto max-w-4xl">
           <Link
-            to="/guesthouses"
+            to="/guidelines"
             className="inline-flex items-center gap-2 text-gray-500 hover:text-black transition-colors mb-6"
           >
             <ArrowLeft size={18} />
-            <span>返回民宿列表</span>
+            <span>返回租車須知</span>
           </Link>
           <p className="text-gray-400 tracking-[0.3em] uppercase mb-2 text-sm">Partner Stays</p>
           <h1 className="text-4xl md:text-6xl serif font-light mb-4">{guesthouse.name}</h1>
