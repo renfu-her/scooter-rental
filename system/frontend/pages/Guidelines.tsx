@@ -141,29 +141,35 @@ const Guidelines: React.FC = () => {
           <div>
             <h3 className="text-xl md:text-2xl font-semibold mb-4">民宿推薦</h3>
             {guesthouses.length > 0 ? (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+              <div className="space-y-6 mt-6">
                 {guesthouses.map((gh) => (
                   <div key={gh.id} className="bg-white rounded-lg overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-                    {gh.image_path && (
-                      <div className="aspect-[4/3] overflow-hidden">
-                        <img
-                          src={`/storage/${gh.image_path}`}
-                          alt={gh.name}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    )}
-                    <div className="p-4">
-                      <h4 className="text-lg font-bold mb-2">{gh.name}</h4>
-                      {gh.short_description && (
-                        <p className="text-sm text-gray-600 mb-4 line-clamp-2">{gh.short_description}</p>
+                    <div className="flex flex-col md:flex-row">
+                      {/* 左側圖片 */}
+                      {gh.image_path && (
+                        <div className="md:w-1/2 aspect-[4/3] md:aspect-auto overflow-hidden">
+                          <img
+                            src={`/storage/${gh.image_path}`}
+                            alt={gh.name}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
                       )}
-                      <Link
-                        to={`/guesthouses/${gh.id}`}
-                        className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-teal-600 hover:text-black transition-colors"
-                      >
-                        VIEW DETAILS <ExternalLink size={14} />
-                      </Link>
+                      {/* 右側文字 */}
+                      <div className="md:w-1/2 p-6 md:p-8 flex flex-col justify-between">
+                        <div>
+                          <h4 className="text-xl md:text-2xl font-bold mb-3">{gh.name}</h4>
+                          {gh.short_description && (
+                            <p className="text-gray-600 mb-4 leading-relaxed">{gh.short_description}</p>
+                          )}
+                        </div>
+                        <Link
+                          to={`/guesthouses/${gh.id}`}
+                          className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-teal-600 hover:text-black transition-colors self-start"
+                        >
+                          VIEW DETAILS <ExternalLink size={14} />
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 ))}
