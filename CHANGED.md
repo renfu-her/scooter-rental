@@ -5374,3 +5374,100 @@ php artisan db:seed --class=ScooterModelColorSeeder
 ### 說明
 - 更新了公司開幕資訊的表達方式，使文字更加流暢自然
 
+
+---
+
+## 2026-01-08 16:51:29 - 修復後台預約管理編輯功能，支援所有欄位
+
+### 問題
+- 後台預約管理頁面只能查看，無法修改預約資料
+- 前端表單缺少新欄位（end_date, shipping_company, ship_arrival_time, adults, children, scooters）
+- 後端 API 的 update 方法只接受舊欄位，沒有支援新欄位
+
+### 變更內容
+
+#### Backend Changes
+- **BookingController.php** (`app/Http/Controllers/Api/BookingController.php`)
+  - 更新 `update()` 方法的驗證規則，支援所有新欄位：
+    - `end_date`: 結束日期（可選）
+    - `shipping_company`: 船運公司（可選）
+    - `ship_arrival_time`: 船班時間（可選）
+    - `adults`: 大人人數（可選）
+    - `children`: 小孩人數（可選）
+    - `scooters`: 租車類型/數量陣列（可選）
+    - `line_id`: 改為可選（nullable）
+    - `scooter_type`: 改為可選（nullable）
+    - `rental_days`: 改為可選（nullable）
+
+#### Frontend Changes
+- **BookingsPage.tsx** (`system/backend/pages/BookingsPage.tsx`)
+  - 更新 `Booking` interface，添加所有新欄位
+  - 更新 `formData` state，包含所有新欄位
+  - 更新 `handleOpenModal()`，正確初始化所有欄位（包括 scooters 陣列和日期格式化）
+  - 更新 `handleSubmit()`，正確提交所有欄位資料
+  - 新增 `addScooter()`, `removeScooter()`, `updateScooter()` 函數，支援動態編輯租車項目
+  - 更新表單 UI，添加所有新欄位：
+    - 結束日期
+    - 船運公司
+    - 船班時間（來）
+    - 大人 / 人數
+    - 小孩 (12歲以下) / 人數
+    - 所需租車類型/數量（動態列表，可新增/刪除）
+  - 更新列表顯示，正確顯示 `scooters` JSON 資料（如果有的話，顯示多個租車項目；否則顯示舊的 `scooter_type`）
+
+### 說明
+- 現在後台預約管理頁面可以完整編輯所有預約資料
+- 支援新舊資料格式（scooters 陣列和舊的 scooter_type 欄位）
+- 表單包含所有必要欄位，可以完整編輯預約資訊
+
+
+---
+
+## 2026-01-08 16:55:07 - 優化預約管理功能：添加拒絕按鈕和詳情視圖
+
+### 需求
+- 預約管理通常只有兩個操作：轉為訂單、拒絕
+- 鈴鐺按下「確認轉為訂單」後，應該跳到預約管理頁面的該訂單的 detail 視圖
+
+### 變更內容
+
+#### Frontend Changes
+- **OrdersPage.tsx** (`system/backend/pages/OrdersPage.tsx`)
+  - 添加 `useNavigate` hook 用於頁面跳轉
+  - 添加 `handleRejectBooking()` 函數，將預約狀態改為「取消」
+  - 修改 `handleConvertSuccess()`，在轉為訂單成功後跳轉到預約管理頁面的 detail 視圖（`/bookings?detail={bookingId}`）
+  - 在未確認預約列表中添加「拒絕」按鈕，與「確認轉為訂單」按鈕並列顯示
+  - 添加 `XCircle` icon 用於拒絕按鈕
+
+- **BookingsPage.tsx** (`system/backend/pages/BookingsPage.tsx`)
+  - 添加 `useSearchParams` hook 用於讀取 URL 參數
+  - 添加 `detailBooking` state 和 `detailLoading` state
+  - 添加 `fetchBookingDetail()` 函數，根據 ID 獲取單個預約詳情
+  - 添加 `handleCloseDetail()` 函數，關閉詳情視圖並返回列表
+  - 添加詳情視圖 UI，當 URL 參數包含 `detail` 時顯示：
+    - 顯示所有預約欄位（姓名、LINE ID、電話、日期、船運資訊、人數、租車類型等）
+    - 顯示狀態標籤
+    - 顯示建立時間和更新時間
+    - 提供「返回列表」和「編輯」按鈕
+  - 當有 `detail` 參數時，不顯示列表，只顯示詳情視圖
+
+- **ConvertBookingModal.tsx** (`system/backend/components/ConvertBookingModal.tsx`)
+  - 修改 `onSuccess` prop 類型，從 `() => void` 改為 `(bookingId: number) => void`
+  - 修改 `handleSubmit()`，在轉為訂單成功後調用 `onSuccess(booking.id)` 傳遞預約 ID
+
+### 功能說明
+1. **拒絕預約**：
+   - 在未確認預約列表中，每個預約都有「拒絕」和「確認轉為訂單」兩個按鈕
+   - 點擊「拒絕」會將預約狀態改為「取消」
+   - 拒絕後會自動刷新未確認預約列表
+
+2. **轉為訂單後跳轉**：
+   - 點擊「確認轉為訂單」並完成轉換後，會自動跳轉到預約管理頁面的詳情視圖
+   - URL 格式：`/bookings?detail={bookingId}`
+   - 詳情視圖顯示完整的預約資訊，可以編輯或返回列表
+
+3. **詳情視圖**：
+   - 支援通過 URL 參數 `detail` 顯示單個預約的詳情
+   - 顯示所有預約欄位，包括新舊格式的租車類型
+   - 提供編輯和返回列表功能
+

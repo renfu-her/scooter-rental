@@ -139,11 +139,19 @@ class BookingController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'line_id' => 'required|string|max:255',
+            'line_id' => 'nullable|string|max:255',
             'phone' => 'nullable|string|max:20',
-            'scooter_type' => 'required|string|max:50',
+            'scooter_type' => 'nullable|string|max:50',
             'booking_date' => 'required|date',
-            'rental_days' => 'required|string|max:20',
+            'end_date' => 'nullable|date|after_or_equal:booking_date',
+            'rental_days' => 'nullable|string|max:20',
+            'shipping_company' => 'nullable|in:泰富,藍白,聯營,大福',
+            'ship_arrival_time' => 'nullable|date',
+            'adults' => 'nullable|integer|min:0',
+            'children' => 'nullable|integer|min:0',
+            'scooters' => 'nullable|array',
+            'scooters.*.model' => 'required_with:scooters|string|max:255',
+            'scooters.*.count' => 'required_with:scooters|integer|min:1',
             'note' => 'nullable|string|max:1000',
             'status' => 'required|in:預約中,執行中,已經回覆,取消,已轉訂單',
         ]);

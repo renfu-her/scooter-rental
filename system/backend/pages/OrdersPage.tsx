@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { Search, Plus, Filter, FileText, ChevronLeft, ChevronRight, MoreHorizontal, Bike, X, TrendingUp, Loader2, Edit3, Trash2, ChevronDown, Download, Check, Bell } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Search, Plus, Filter, FileText, ChevronLeft, ChevronRight, MoreHorizontal, Bike, X, TrendingUp, Loader2, Edit3, Trash2, ChevronDown, Download, Check, Bell, XCircle } from 'lucide-react';
 import { OrderStatus } from '../types';
 import AddOrderModal from '../components/AddOrderModal';
 import ConvertBookingModal from '../components/ConvertBookingModal';
@@ -185,6 +186,7 @@ const ChartModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statis
 };
 
 const OrdersPage: React.FC = () => {
+  const navigate = useNavigate();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
   const [isChartModalOpen, setIsChartModalOpen] = useState(false);
@@ -774,7 +776,7 @@ const OrdersPage: React.FC = () => {
     setIsConvertModalOpen(true);
   };
 
-  const handleConvertSuccess = async () => {
+  const handleConvertSuccess = async (bookingId: number) => {
     await fetchPendingBookings();
     // 重新載入訂單列表
     const response = await ordersApi.list({
@@ -786,6 +788,22 @@ const OrdersPage: React.FC = () => {
     setOrders(Array.isArray(ordersData) ? ordersData : []);
     setSelectedBooking(null);
     setIsConvertModalOpen(false);
+    // 跳轉到預約管理頁面的 detail 視圖
+    navigate(`/bookings?detail=${bookingId}`);
+  };
+
+  // 處理拒絕預約
+  const handleRejectBooking = async (bookingId: number) => {
+    if (!confirm('確定要拒絕此預約嗎？')) return;
+
+    try {
+      await bookingsApi.updateStatus(bookingId, '取消');
+      await fetchPendingBookings();
+      alert('預約已拒絕');
+    } catch (error: any) {
+      console.error('Failed to reject booking:', error);
+      alert(error.message || '拒絕失敗');
+    }
   };
 
   return (
@@ -871,12 +889,21 @@ const OrdersPage: React.FC = () => {
                       </div>
                     )}
                   </div>
-                  <button
-                    onClick={() => handleConvertBookingClick(booking)}
-                    className="ml-4 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-sm font-medium transition-colors"
-                  >
-                    確認轉為訂單
-                  </button>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => handleRejectBooking(booking.id)}
+                      className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center space-x-1"
+                    >
+                      <XCircle size={16} />
+                      <span>拒絕</span>
+                    </button>
+                    <button
+                      onClick={() => handleConvertBookingClick(booking)}
+                      className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-sm font-medium transition-colors"
+                    >
+                      確認轉為訂單
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}

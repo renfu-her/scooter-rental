@@ -36,7 +36,7 @@ interface ConvertBookingModalProps {
   isOpen: boolean;
   onClose: () => void;
   booking: Booking | null;
-  onSuccess: () => void;
+  onSuccess: (bookingId: number) => void;
 }
 
 const ConvertBookingModal: React.FC<ConvertBookingModalProps> = ({ isOpen, onClose, booking, onSuccess }) => {
@@ -115,7 +115,7 @@ const ConvertBookingModal: React.FC<ConvertBookingModalProps> = ({ isOpen, onClo
         payment_amount: parseFloat(formData.payment_amount),
         scooter_ids: selectedScooterIds,
       });
-      onSuccess();
+      onSuccess(booking.id);
       onClose();
     } catch (error: any) {
       console.error('Failed to convert booking to order:', error);
