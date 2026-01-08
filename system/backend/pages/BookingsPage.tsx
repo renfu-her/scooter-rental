@@ -571,8 +571,8 @@ const BookingsPage: React.FC = () => {
         </div>
       )}
 
-      {/* 編輯 Modal */}
-      {isModalOpen && (
+      {/* 編輯 Modal - 只在非詳情視圖模式下顯示 */}
+      {isModalOpen && !detailId && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleCloseModal} />
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl relative animate-in fade-in zoom-in duration-200 overflow-hidden flex flex-col max-h-[90vh]">
