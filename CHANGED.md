@@ -5485,3 +5485,19 @@ php artisan db:seed --class=ScooterModelColorSeeder
 - 預約詳情視圖現在只能查看，無法修改
 - 如需編輯預約，需返回列表頁面進行操作
 
+
+---
+
+## 2026-01-08 17:01:24 - 將預約列表中的編輯按鈕改為查看按鈕
+
+### 變更內容
+- **BookingsPage.tsx** (`system/backend/pages/BookingsPage.tsx`)
+  - 將列表中的「編輯」按鈕（Edit2 圖標）改為「查看」按鈕（Eye 圖標）
+  - 點擊「查看」按鈕會跳轉到詳情視圖（使用 `setSearchParams({ detail: booking.id.toString() })`）
+  - 添加 `Eye` icon 的 import
+
+### 說明
+- 預約列表中的操作按鈕現在是「查看」和「刪除」
+- 點擊「查看」會跳轉到只讀的詳情視圖，而不是編輯表單
+- 符合預約管理以查看為主的設計需求
+

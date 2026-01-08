@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Search, Edit2, Trash2, X, Loader2, Calendar, MessageCircle, Phone, CheckCircle, XCircle, Clock, Plus, Minus, ArrowLeft } from 'lucide-react';
+import { Search, Edit2, Trash2, X, Loader2, Calendar, MessageCircle, Phone, CheckCircle, XCircle, Clock, Plus, Minus, ArrowLeft, Eye } from 'lucide-react';
 import { bookingsApi } from '../lib/api';
 import { inputClasses, labelClasses, modalCancelButtonClasses, modalSubmitButtonClasses } from '../styles';
 
@@ -548,11 +548,11 @@ const BookingsPage: React.FC = () => {
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-center space-x-2">
                         <button
-                          onClick={() => handleOpenModal(booking)}
+                          onClick={() => setSearchParams({ detail: booking.id.toString() })}
                           className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
-                          title="編輯"
+                          title="查看"
                         >
-                          <Edit2 size={18} />
+                          <Eye size={18} />
                         </button>
                         <button
                           onClick={() => handleDelete(booking.id)}
