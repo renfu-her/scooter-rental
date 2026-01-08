@@ -1,10 +1,52 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
 import BannerCarousel from '../components/BannerCarousel';
+import { publicApi } from '../lib/api';
+
+interface HomeImage {
+  id: number;
+  key: string;
+  image_path: string | null;
+  alt_text: string | null;
+}
+
+const DEFAULT_IMAGES: Record<string, string> = {
+  hero_image: 'https://picsum.photos/seed/hero/1200/800',
+  featured_image_1: 'https://picsum.photos/seed/view1/600/800',
+  featured_image_2: 'https://picsum.photos/seed/view2/600/800',
+  featured_image_3: 'https://picsum.photos/seed/view3/600/800',
+  featured_image_4: 'https://picsum.photos/seed/view4/600/800',
+};
 
 const Home: React.FC = () => {
+  const [homeImages, setHomeImages] = useState<Record<string, HomeImage>>({});
+
+  useEffect(() => {
+    const fetchHomeImages = async () => {
+      try {
+        const response = await publicApi.homeImages.list();
+        setHomeImages(response.data || {});
+      } catch (error) {
+        console.error('Failed to fetch home images:', error);
+        setHomeImages({});
+      }
+    };
+
+    fetchHomeImages();
+  }, []);
+
+  const getImageSrc = (key: string): string => {
+    if (homeImages[key]?.image_path) {
+      return `/storage/${homeImages[key].image_path}`;
+    }
+    return DEFAULT_IMAGES[key] || '';
+  };
+
+  const getImageAlt = (key: string, defaultAlt: string): string => {
+    return homeImages[key]?.alt_text || defaultAlt;
+  };
   return (
     <div className="animate-in fade-in duration-700">
       {/* Banner Carousel */}
@@ -39,8 +81,8 @@ const Home: React.FC = () => {
           <div className="md:w-1/2 relative">
             <div className="w-full aspect-square md:aspect-video rounded-[80px] overflow-hidden shadow-2xl blob-shape">
               <img 
-                src="https://picsum.photos/seed/hero/1200/800" 
-                alt="Scooter riding at sunset" 
+                src={getImageSrc('hero_image')} 
+                alt={getImageAlt('hero_image', 'Scooter riding at sunset')} 
                 className="w-full h-full object-cover"
               />
             </div>
@@ -53,16 +95,16 @@ const Home: React.FC = () => {
         <div className="container mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
             <div className="aspect-[4/5] rounded-[50px] overflow-hidden transform translate-y-12">
-              <img src="https://picsum.photos/seed/view1/600/800" alt="Scenic" className="w-full h-full object-cover" />
+              <img src={getImageSrc('featured_image_1')} alt={getImageAlt('featured_image_1', 'Scenic')} className="w-full h-full object-cover" />
             </div>
             <div className="aspect-[4/5] rounded-full overflow-hidden">
-              <img src="https://picsum.photos/seed/view2/600/800" alt="Scooter Detail" className="w-full h-full object-cover" />
+              <img src={getImageSrc('featured_image_2')} alt={getImageAlt('featured_image_2', 'Scooter Detail')} className="w-full h-full object-cover" />
             </div>
             <div className="aspect-[4/5] rounded-[60px] overflow-hidden transform translate-y-24">
-              <img src="https://picsum.photos/seed/view3/600/800" alt="Couple Riding" className="w-full h-full object-cover" />
+              <img src={getImageSrc('featured_image_3')} alt={getImageAlt('featured_image_3', 'Couple Riding')} className="w-full h-full object-cover" />
             </div>
             <div className="aspect-[4/5] rounded-[30px] overflow-hidden transform -translate-y-8">
-              <img src="https://picsum.photos/seed/view4/600/800" alt="Shop Interior" className="w-full h-full object-cover" />
+              <img src={getImageSrc('featured_image_4')} alt={getImageAlt('featured_image_4', 'Shop Interior')} className="w-full h-full object-cover" />
             </div>
           </div>
         </div>

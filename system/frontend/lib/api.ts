@@ -70,6 +70,9 @@ export const publicApi = {
   banners: {
     list: () => api.get('/banners', { active_only: true }),
   },
+  homeImages: {
+    list: () => api.get('/home-images'),
+  },
   rentalPlans: {
     list: () => api.get('/rental-plans', { active_only: true }),
   },

@@ -5683,3 +5683,62 @@ php artisan db:seed --class=ScooterModelColorSeeder
 - 現在點擊民宿推薦卡片的任意位置（圖片、標題、描述、VIEW DETAILS 文字）都可以進入該民宿的詳情頁
 - 提升用戶體驗，讓操作更直覺
 
+
+---
+
+## 2026-01-08 22:20:35 - 創建首頁圖片管理後端界面
+
+### 變更內容
+
+#### 資料庫
+- **Migration** (`database/migrations/2026_01_08_221709_create_home_images_table.php`)
+  - 創建 `home_images` 表，包含 `key`（唯一）、`image_path`、`alt_text` 欄位
+- **Seeder** (`database/seeders/HomeImageSeeder.php`)
+  - 初始化 5 張首頁圖片記錄：
+    - `hero_image` - 首頁 Hero 區塊圖片（右側大圖）
+    - `featured_image_1` - 首頁精選圖片 1
+    - `featured_image_2` - 首頁精選圖片 2
+    - `featured_image_3` - 首頁精選圖片 3
+    - `featured_image_4` - 首頁精選圖片 4
+
+#### 後端
+- **Model** (`app/Models/HomeImage.php`)
+  - 創建 HomeImage 模型，定義 fillable 欄位
+- **Controller** (`app/Http/Controllers/Api/HomeImageController.php`)
+  - `index()` - 列出所有首頁圖片（公開 API）
+  - `show($key)` - 根據 key 獲取單個圖片（公開 API）
+  - `update($key)` - 更新圖片資訊（需要認證）
+  - `uploadImage($key)` - 上傳圖片（需要認證）
+- **Routes** (`routes/api.php`)
+  - 添加 `/api/home-images` 路由群組
+  - 公開路由：`GET /home-images`、`GET /home-images/{key}`
+  - 需要認證：`PUT /home-images/{key}`、`POST /home-images/{key}/upload-image`
+
+#### 後端管理界面
+- **HomeImagesPage** (`system/backend/pages/HomeImagesPage.tsx`)
+  - 創建首頁圖片管理頁面
+  - 顯示 5 張圖片的預覽和上傳界面
+  - 支援上傳新圖片、預覽、取消上傳
+  - 如果沒有上傳圖片，顯示預設圖片
+  - 標示「預設圖片」或「已上傳自訂圖片」狀態
+- **API Client** (`system/backend/lib/api.ts`)
+  - 添加 `homeImagesApi` 包含 `list`、`get`、`update`、`uploadImage` 方法
+- **路由** (`system/backend/App.tsx`)
+  - 添加 `/home-images` 路由
+- **側邊欄** (`system/backend/constants.tsx`)
+  - 在「網站內容管理」下添加「首頁圖片」選單項目
+
+#### 前端
+- **API** (`system/frontend/lib/api.ts`)
+  - 添加 `publicApi.homeImages.list()` 方法
+- **首頁** (`system/frontend/pages/Home.tsx`)
+  - 從 API 獲取首頁圖片配置
+  - 如果資料庫有圖片，使用上傳的圖片；否則使用預設圖片
+  - 支援動態 alt text
+
+### 說明
+- 後端管理員可以在「網站內容管理 > 首頁圖片」頁面管理首頁的 5 張圖片
+- 每張圖片都可以獨立上傳，如果沒有上傳則使用預設的 picsum.photos 圖片
+- 前端首頁會自動從 API 獲取圖片配置，優先使用上傳的圖片
+- 圖片上傳後會自動轉換為 webp 格式並使用 UUID 命名
+

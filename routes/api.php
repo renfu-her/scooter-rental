@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\GuesthouseController;
 use App\Http\Controllers\Api\UploadController;
 use App\Http\Controllers\Api\ContactController;
 use App\Http\Controllers\Api\BookingController;
+use App\Http\Controllers\Api\HomeImageController;
 
 // Auth Routes (Public)
 Route::post('/login', [AuthController::class, 'login']);
@@ -200,5 +201,15 @@ Route::prefix('guesthouses')->group(function () {
         Route::post('/{guesthouse}/upload-image', [GuesthouseController::class, 'uploadImage']);
         Route::post('/{guesthouse}/upload-images', [GuesthouseController::class, 'uploadImages']);
         Route::delete('/{guesthouse}/delete-image', [GuesthouseController::class, 'deleteImage']);
+    });
+});
+
+// Home Images API (Public for frontend, Protected for admin)
+Route::prefix('home-images')->group(function () {
+    Route::get('/', [HomeImageController::class, 'index']); // Public
+    Route::get('/{key}', [HomeImageController::class, 'show']); // Public
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::put('/{key}', [HomeImageController::class, 'update']);
+        Route::post('/{key}/upload-image', [HomeImageController::class, 'uploadImage']);
     });
 });

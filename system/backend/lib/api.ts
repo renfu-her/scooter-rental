@@ -334,6 +334,14 @@ export const guesthousesApi = {
     api.delete(`/guesthouses/${id}/delete-image`, { image_path: imagePath }),
 };
 
+export const homeImagesApi = {
+  list: () => api.get('/home-images'),
+  get: (key: string) => api.get(`/home-images/${key}`),
+  update: (key: string, data: { alt_text?: string }) => api.put(`/home-images/${key}`, data),
+  uploadImage: (key: string, file: File) =>
+    api.uploadFile(`/home-images/${key}/upload-image`, file, 'image'),
+};
+
 export const bookingsApi = {
   list: (params?: { search?: string; status?: string }) =>
     api.get('/bookings', params),
