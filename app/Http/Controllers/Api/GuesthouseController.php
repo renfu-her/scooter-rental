@@ -145,7 +145,7 @@ class GuesthouseController extends Controller
     public function uploadImage(Request $request, Guesthouse $guesthouse): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:10240',
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:10240',
         ]);
 
         if ($validator->fails()) {
@@ -165,6 +165,80 @@ class GuesthouseController extends Controller
 
         return response()->json([
             'message' => 'Image uploaded successfully',
+            'data' => $guesthouse->fresh(),
+        ]);
+    }
+
+    /**
+     * Upload multiple guesthouse images
+     */
+    public function uploadImages(Request $request, Guesthouse $guesthouse): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'images' => 'required|array|min:1|max:10',
+            'images.*' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:10240',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation error',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $uploadedImages = [];
+        foreach ($request->file('images') as $image) {
+            $imagePath = $this->imageService->uploadImage(
+                $image,
+                'guesthouses',
+                null
+            );
+            $uploadedImages[] = $imagePath;
+        }
+
+        // Merge with existing images
+        $existingImages = $guesthouse->images ?? [];
+        $allImages = array_merge($existingImages, $uploadedImages);
+
+        $guesthouse->update(['images' => $allImages]);
+
+        return response()->json([
+            'message' => 'Images uploaded successfully',
+            'data' => $guesthouse->fresh(),
+        ]);
+    }
+
+    /**
+     * Delete a guesthouse image from images array
+     */
+    public function deleteImage(Request $request, Guesthouse $guesthouse): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'image_path' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation error',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $imagePath = $request->get('image_path');
+        $images = $guesthouse->images ?? [];
+
+        // Remove the image from array
+        $images = array_values(array_filter($images, function($img) use ($imagePath) {
+            return $img !== $imagePath;
+        }));
+
+        // Delete the physical file
+        $this->imageService->deleteImage($imagePath);
+
+        $guesthouse->update(['images' => $images]);
+
+        return response()->json([
+            'message' => 'Image deleted successfully',
             'data' => $guesthouse->fresh(),
         ]);
     }

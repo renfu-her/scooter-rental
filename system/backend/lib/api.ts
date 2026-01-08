@@ -142,6 +142,41 @@ class ApiClient {
 
     return data;
   }
+
+  async uploadFiles<T>(
+    endpoint: string,
+    files: File[],
+    fieldName: string = 'images'
+  ): Promise<ApiResponse<T>> {
+    const formData = new FormData();
+    files.forEach((file) => {
+      formData.append(`${fieldName}[]`, file);
+    });
+
+    const url = `${this.baseUrl}${endpoint}`;
+    const token = localStorage.getItem('auth_token');
+    const response = await fetch(url, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        ...(token && { 'Authorization': `Bearer ${token}` }),
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        localStorage.removeItem('auth_token');
+        if (window.location.hash !== '#/login') {
+          window.location.hash = '/login';
+        }
+      }
+      throw new Error(data.message || 'Upload failed');
+    }
+
+    return data;
+  }
 }
 
 export const api = new ApiClient(API_BASE_URL);
@@ -293,6 +328,10 @@ export const guesthousesApi = {
   delete: (id: string | number) => api.delete(`/guesthouses/${id}`),
   uploadImage: (id: string | number, file: File) =>
     api.uploadFile(`/guesthouses/${id}/upload-image`, file, 'image'),
+  uploadImages: (id: string | number, files: File[]) =>
+    api.uploadFiles(`/guesthouses/${id}/upload-images`, files, 'images'),
+  deleteImage: (id: string | number, imagePath: string) =>
+    api.delete(`/guesthouses/${id}/delete-image`, { image_path: imagePath }),
 };
 
 export const bookingsApi = {

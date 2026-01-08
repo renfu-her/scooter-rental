@@ -5501,3 +5501,100 @@ php artisan db:seed --class=ScooterModelColorSeeder
 - 點擊「查看」會跳轉到只讀的詳情視圖，而不是編輯表單
 - 符合預約管理以查看為主的設計需求
 
+
+---
+
+## 2026-01-08 17:02:12 - 確保詳情視圖完全只讀，禁用編輯功能
+
+### 變更內容
+- **BookingsPage.tsx** (`system/backend/pages/BookingsPage.tsx`)
+  - 在編輯 Modal 的顯示條件中添加 `!detailId` 檢查
+  - 確保在詳情視圖模式下（有 `detail` URL 參數時），編輯 Modal 不會顯示
+
+### 說明
+- 當進入詳情視圖時，編輯 Modal 不會被觸發或顯示
+- 詳情視圖現在完全只讀，無法進行任何編輯操作
+- 符合預約管理以查看為主的設計需求
+
+
+---
+
+## 2026-01-08 17:13:27 - 添加民宿多圖片支援功能
+
+### 需求
+- 添加嘿城寶民宿資料
+- 支援上傳 4 張圖片（類似最後一張圖片的樣式）
+
+### 變更內容
+
+#### Database Changes
+- **Migration** (`database/migrations/2026_01_08_171007_add_images_to_guesthouses_table.php`) - 新建
+  - 添加 `images` JSON 欄位，支援存儲多張圖片路徑陣列
+
+#### Backend Changes
+- **Guesthouse.php** (`app/Models/Guesthouse.php`)
+  - 更新 `$fillable` 陣列，添加 `images` 欄位
+  - 更新 `$casts`，將 `images` 設為 `array` 類型
+
+- **GuesthouseController.php** (`app/Http/Controllers/Api/GuesthouseController.php`)
+  - 添加 `uploadImages()` 方法：支援上傳多張圖片（最多 10 張）
+  - 添加 `deleteImage()` 方法：從 images 陣列中刪除單張圖片
+  - 更新 `uploadImage()` 方法，支援 webp 格式
+
+- **routes/api.php** (`routes/api.php`)
+  - 添加路由：`POST /guesthouses/{guesthouse}/upload-images` - 上傳多張圖片
+  - 添加路由：`DELETE /guesthouses/{guesthouse}/delete-image` - 刪除單張圖片
+
+#### Frontend Backend Changes
+- **api.ts** (`system/backend/lib/api.ts`)
+  - 添加 `uploadFiles()` 方法到 `ApiClient` 類別，支援上傳多個文件
+  - 更新 `guesthousesApi`，添加 `uploadImages()` 和 `deleteImage()` 方法
+
+- **GuesthousesPage.tsx** (`system/backend/pages/GuesthousesPage.tsx`)
+  - 更新 `Guesthouse` interface，添加 `images` 欄位
+  - 添加多圖片上傳功能：
+    - `imageFiles` 和 `imagePreviews` state 用於管理新上傳的圖片
+    - `existingImages` state 用於顯示已存在的圖片
+    - `handleImagesChange()` 函數處理多圖片選擇
+    - `removeImagePreview()` 函數移除新上傳的圖片預覽
+    - `removeExistingImage()` 函數刪除已存在的圖片
+  - 更新表單 UI：
+    - 保留原有的單圖片上傳（主圖片）
+    - 添加多圖片上傳區域，支援選擇多張圖片
+    - 顯示現有圖片網格，可刪除單張圖片
+    - 顯示新上傳圖片的預覽網格
+  - 更新 `handleSubmit()`，在上傳時同時處理單圖片和多圖片
+
+#### Frontend Changes
+- **GuesthouseDetail.tsx** (`system/frontend/pages/GuesthouseDetail.tsx`)
+  - 更新 `Guesthouse` interface，添加 `images` 欄位
+  - 更新圖片顯示邏輯：
+    - 優先顯示 `images` 陣列中的多張圖片（2 欄網格布局）
+    - 如果沒有 `images`，則顯示 `image_path` 主圖片
+    - 支援顯示 4 張或更多圖片
+
+### 使用說明
+1. **添加新民宿**：
+   - 進入後端管理系統的「民宿推薦管理」頁面
+   - 點擊「新增民宿」按鈕
+   - 填寫民宿資訊：
+     - 名稱：嘿城寶民宿
+     - 簡短說明：（可選）
+     - 描述：海景、夕陽與星空，是這裡每天的風景。簡約建築環繞著寬闊草皮，觀景平台一覽無際的海天景色。寵物友善讓你與毛孩一起入住，共享純粹又美好的渡假時光。
+     - 連結：（可選）
+   - 上傳主圖片（單張，用於列表顯示）
+   - 上傳多張圖片（4 張，用於詳情頁顯示）
+   - 設定排序和啟用狀態
+   - 點擊「儲存」
+
+2. **圖片上傳**：
+   - 主圖片：用於列表頁面顯示的單張圖片
+   - 多張圖片：用於詳情頁面顯示的圖片網格（建議 4 張）
+   - 可以隨時添加或刪除圖片
+
+### 說明
+- 系統現在支援每個民宿有多張圖片
+- 前端詳情頁會以 2 欄網格顯示多張圖片
+- 如果沒有多圖片，則顯示主圖片
+- 所有圖片都會轉換為 webp 格式並使用 UUID 命名
+

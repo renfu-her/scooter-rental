@@ -14,6 +14,7 @@ class Guesthouse extends Model
         'description',
         'short_description',
         'image_path',
+        'images',
         'link',
         'sort_order',
         'is_active',
@@ -22,5 +23,6 @@ class Guesthouse extends Model
     protected $casts = [
         'is_active' => 'boolean',
         'sort_order' => 'integer',
+        'images' => 'array',
     ];
 }

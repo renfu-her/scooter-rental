@@ -198,5 +198,7 @@ Route::prefix('guesthouses')->group(function () {
         Route::put('/{guesthouse}', [GuesthouseController::class, 'update']);
         Route::delete('/{guesthouse}', [GuesthouseController::class, 'destroy']);
         Route::post('/{guesthouse}/upload-image', [GuesthouseController::class, 'uploadImage']);
+        Route::post('/{guesthouse}/upload-images', [GuesthouseController::class, 'uploadImages']);
+        Route::delete('/{guesthouse}/delete-image', [GuesthouseController::class, 'deleteImage']);
     });
 });

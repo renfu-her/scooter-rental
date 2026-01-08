@@ -10,6 +10,7 @@ interface Guesthouse {
   description: string | null;
   short_description: string | null;
   image_path: string | null;
+  images: string[] | null;
   link: string | null;
   sort_order: number;
   is_active: boolean;
@@ -31,6 +32,9 @@ const GuesthousesPage: React.FC = () => {
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [existingImages, setExistingImages] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
@@ -62,6 +66,7 @@ const GuesthousesPage: React.FC = () => {
         is_active: guesthouse.is_active,
       });
       setImagePreview(guesthouse.image_path ? `/storage/${guesthouse.image_path}` : null);
+      setExistingImages(guesthouse.images && Array.isArray(guesthouse.images) ? guesthouse.images.map(img => `/storage/${img}`) : []);
     } else {
       setEditingGuesthouse(null);
       setFormData({
@@ -73,8 +78,11 @@ const GuesthousesPage: React.FC = () => {
         is_active: true,
       });
       setImagePreview(null);
+      setExistingImages([]);
     }
     setImageFile(null);
+    setImageFiles([]);
+    setImagePreviews([]);
     setIsModalOpen(true);
   };
 
@@ -91,6 +99,9 @@ const GuesthousesPage: React.FC = () => {
     });
     setImageFile(null);
     setImagePreview(null);
+    setImageFiles([]);
+    setImagePreviews([]);
+    setExistingImages([]);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -108,10 +119,16 @@ const GuesthousesPage: React.FC = () => {
         if (imageFile) {
           await guesthousesApi.uploadImage(editingGuesthouse.id, imageFile);
         }
+        if (imageFiles.length > 0) {
+          await guesthousesApi.uploadImages(editingGuesthouse.id, imageFiles);
+        }
       } else {
         const response = await guesthousesApi.create(submitData);
         if (imageFile && response.data) {
           await guesthousesApi.uploadImage(response.data.id, imageFile);
+        }
+        if (imageFiles.length > 0 && response.data) {
+          await guesthousesApi.uploadImages(response.data.id, imageFiles);
         }
       }
 
@@ -146,6 +163,41 @@ const GuesthousesPage: React.FC = () => {
         setImagePreview(reader.result as string);
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const handleImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      setImageFiles([...imageFiles, ...files]);
+      files.forEach((file) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setImagePreviews(prev => [...prev, reader.result as string]);
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  };
+
+  const removeImagePreview = (index: number) => {
+    setImageFiles(imageFiles.filter((_, i) => i !== index));
+    setImagePreviews(imagePreviews.filter((_, i) => i !== index));
+  };
+
+  const removeExistingImage = async (imagePath: string) => {
+    if (!editingGuesthouse) return;
+    if (!confirm('確定要刪除此圖片嗎？')) return;
+    
+    try {
+      // Extract the path without /storage/ prefix
+      const path = imagePath.replace('/storage/', '');
+      await guesthousesApi.deleteImage(editingGuesthouse.id, path);
+      setExistingImages(existingImages.filter(img => img !== imagePath));
+      await fetchGuesthouses();
+    } catch (error: any) {
+      console.error('Failed to delete image:', error);
+      alert(error.message || '刪除圖片失敗');
     }
   };
 
@@ -386,6 +438,63 @@ const GuesthousesPage: React.FC = () => {
                     onChange={handleImageChange}
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                   />
+                </div>
+              </div>
+
+              <div>
+                <label className={labelClasses}>多張圖片（可上傳多張，最多 10 張）</label>
+                <div className="space-y-4">
+                  {/* 現有圖片 */}
+                  {existingImages.length > 0 && (
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {existingImages.map((img, idx) => (
+                        <div key={idx} className="relative group">
+                          <img src={img} alt={`Existing ${idx + 1}`} className="w-full h-32 object-cover rounded" />
+                          <button
+                            type="button"
+                            onClick={() => removeExistingImage(img)}
+                            className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <X size={16} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {/* 新上傳的圖片預覽 */}
+                  {imagePreviews.length > 0 && (
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {imagePreviews.map((preview, idx) => (
+                        <div key={idx} className="relative group">
+                          <img src={preview} alt={`Preview ${idx + 1}`} className="w-full h-32 object-cover rounded" />
+                          <button
+                            type="button"
+                            onClick={() => removeImagePreview(idx)}
+                            className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <X size={16} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* 上傳區域 */}
+                  <div className={uploadAreaBaseClasses}>
+                    <div className="text-center">
+                      <ImageIcon className="mx-auto text-gray-400 mb-2" size={32} />
+                      <p className="text-sm text-gray-500">點擊或拖放多張圖片到此處</p>
+                      <p className="text-xs text-gray-400 mt-1">可選擇多張圖片（最多 10 張）</p>
+                    </div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handleImagesChange}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    />
+                  </div>
                 </div>
               </div>
 

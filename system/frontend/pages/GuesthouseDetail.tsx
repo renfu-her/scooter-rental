@@ -10,6 +10,7 @@ interface Guesthouse {
   description: string | null;
   short_description: string | null;
   image_path: string | null;
+  images: string[] | null;
   link: string | null;
 }
 
@@ -94,7 +95,20 @@ const GuesthouseDetail: React.FC = () => {
 
       <section className="container mx-auto px-6 max-w-4xl pb-24">
         <div className="bg-[#f0f4ff] rounded-[40px] shadow-sm border border-gray-100 overflow-hidden">
-          {guesthouse.image_path && (
+          {/* 顯示多圖片或主圖片 */}
+          {guesthouse.images && Array.isArray(guesthouse.images) && guesthouse.images.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
+              {guesthouse.images.map((img, idx) => (
+                <div key={idx} className="aspect-[4/3] overflow-hidden rounded-lg">
+                  <img
+                    src={`/storage/${img}`}
+                    alt={`${guesthouse.name} ${idx + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ))}
+            </div>
+          ) : guesthouse.image_path ? (
             <div className="aspect-[16/9] overflow-hidden">
               <img
                 src={`/storage/${guesthouse.image_path}`}
@@ -102,7 +116,7 @@ const GuesthouseDetail: React.FC = () => {
                 className="w-full h-full object-cover"
               />
             </div>
-          )}
+          ) : null}
 
           {guesthouse.description && (
             <div className="p-8 md:p-12">
