@@ -5471,3 +5471,17 @@ php artisan db:seed --class=ScooterModelColorSeeder
    - 顯示所有預約欄位，包括新舊格式的租車類型
    - 提供編輯和返回列表功能
 
+
+---
+
+## 2026-01-08 16:57:54 - 移除預約詳情視圖中的編輯功能
+
+### 變更內容
+- **BookingsPage.tsx** (`system/backend/pages/BookingsPage.tsx`)
+  - 移除詳情視圖中的「編輯」按鈕
+  - 詳情視圖現在只保留「返回列表」按鈕，改為只讀模式
+
+### 說明
+- 預約詳情視圖現在只能查看，無法修改
+- 如需編輯預約，需返回列表頁面進行操作
+

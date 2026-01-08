@@ -433,18 +433,12 @@ const BookingsPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex justify-end space-x-3 pt-4">
+            <div className="flex justify-end pt-4">
               <button
                 onClick={handleCloseDetail}
                 className={modalCancelButtonClasses}
               >
                 返回列表
-              </button>
-              <button
-                onClick={() => handleOpenModal(detailBooking)}
-                className={modalSubmitButtonClasses}
-              >
-                編輯
               </button>
             </div>
           </div>
