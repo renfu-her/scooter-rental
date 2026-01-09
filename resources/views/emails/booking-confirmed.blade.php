@@ -32,7 +32,14 @@
                                 <tr>
                                     <td style="padding-bottom: 20px;">
                                         <p style="margin: 0; color: #374151; font-size: 16px; line-height: 1.8;">
-                                            您 {{ \Carbon\Carbon::parse($booking->booking_date)->format('n') }} 月 {{ \Carbon\Carbon::parse($booking->booking_date)->format('j') }} 日與蘭光電動機車下定之訂單已成立
+                                            您於 {{ \Carbon\Carbon::parse($booking->booking_date)->format('n') }} 月 {{ \Carbon\Carbon::parse($booking->booking_date)->format('j') }} 日下定之訂單已成立
+                                        </p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-bottom: 20px;">
+                                        <p style="margin: 0; color: #374151; font-size: 16px; line-height: 1.8;">
+                                            蘭光電動寄出祝您旅途愉快！
                                         </p>
                                     </td>
                                 </tr>

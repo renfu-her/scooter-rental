@@ -17,6 +17,29 @@ interface ScooterItem {
 }
 
 const Booking: React.FC = () => {
+  // 獲取今天的日期（格式：YYYY-MM-DD）
+  const getTodayDate = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  // 獲取今天的日期時間（格式：YYYY-MM-DDTHH:mm）
+  const getTodayDateTime = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    const hours = String(today.getHours()).padStart(2, '0');
+    const minutes = String(today.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
+
+  const todayDate = getTodayDate();
+  const todayDateTime = getTodayDateTime();
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -236,7 +259,10 @@ const Booking: React.FC = () => {
                 <input 
                   type="date" 
                   required
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-black focus:ring-0 transition-all"
+                  min={todayDate}
+                  readOnly
+                  onKeyDown={(e) => e.preventDefault()}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-black focus:ring-0 transition-all cursor-pointer"
                   value={formData.appointmentDate}
                   onChange={e => setFormData({...formData, appointmentDate: e.target.value})}
                 />
@@ -249,10 +275,12 @@ const Booking: React.FC = () => {
                 <input 
                   type="date" 
                   required
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-black focus:ring-0 transition-all"
+                  readOnly
+                  onKeyDown={(e) => e.preventDefault()}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-black focus:ring-0 transition-all cursor-pointer"
                   value={formData.endDate}
                   onChange={e => setFormData({...formData, endDate: e.target.value})}
-                  min={formData.appointmentDate}
+                  min={formData.appointmentDate || todayDate}
                 />
               </div>
 
@@ -281,7 +309,10 @@ const Booking: React.FC = () => {
                 <input 
                   type="datetime-local" 
                   required
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-black focus:ring-0 transition-all"
+                  min={todayDateTime}
+                  readOnly
+                  onKeyDown={(e) => e.preventDefault()}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-black focus:ring-0 transition-all cursor-pointer"
                   value={formData.shipArrivalTime}
                   onChange={e => setFormData({...formData, shipArrivalTime: e.target.value})}
                 />
