@@ -143,13 +143,13 @@ const HomeImagesPage: React.FC = () => {
               <div key={key} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 flex flex-col h-full">
                 <label className={labelClasses}>{IMAGE_LABELS[key]}</label>
                 
-                <div className="mt-4 flex flex-col flex-1 space-y-4">
+                <div className="mt-4 flex flex-col flex-1 min-h-0">
                   {/* 圖片預覽 */}
-                  <div>
-                    <div className={uploadAreaBaseClasses}>
+                  <div className="flex-shrink-0 mb-4">
+                    <div className={`${uploadAreaBaseClasses} min-h-[320px]`}>
                       {currentImageSrc ? (
-                        <div className="relative">
-                          <img src={currentImageSrc} alt={IMAGE_LABELS[key]} className="max-h-80 w-full object-cover rounded" />
+                        <div className="relative w-full h-full">
+                          <img src={currentImageSrc} alt={IMAGE_LABELS[key]} className="w-full h-full max-h-80 object-cover rounded" />
                           {hasNewImage && (
                             <div className="absolute top-2 right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded">
                               新圖片
@@ -162,7 +162,7 @@ const HomeImagesPage: React.FC = () => {
                           )}
                         </div>
                       ) : (
-                        <div className="text-center">
+                        <div className="text-center h-full flex flex-col items-center justify-center">
                           <ImageIcon className="mx-auto text-gray-400 mb-2" size={32} />
                           <p className="text-sm text-gray-500">點擊或拖放圖片到此處</p>
                         </div>
@@ -178,7 +178,7 @@ const HomeImagesPage: React.FC = () => {
                   </div>
 
                   {/* 操作按鈕 */}
-                  <div className="flex flex-col space-y-2 mt-auto">
+                  <div className="flex flex-col space-y-2 mt-auto flex-shrink-0">
                     {hasNewImage && (
                       <button
                         onClick={() => handleUpload(key)}
