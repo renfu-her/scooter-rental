@@ -260,8 +260,8 @@ const Booking: React.FC = () => {
                   type="date" 
                   required
                   min={todayDate}
-                  readOnly
                   onKeyDown={(e) => e.preventDefault()}
+                  onPaste={(e) => e.preventDefault()}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-black focus:ring-0 transition-all cursor-pointer"
                   value={formData.appointmentDate}
                   onChange={e => setFormData({...formData, appointmentDate: e.target.value})}
@@ -275,8 +275,8 @@ const Booking: React.FC = () => {
                 <input 
                   type="date" 
                   required
-                  readOnly
                   onKeyDown={(e) => e.preventDefault()}
+                  onPaste={(e) => e.preventDefault()}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-black focus:ring-0 transition-all cursor-pointer"
                   value={formData.endDate}
                   onChange={e => setFormData({...formData, endDate: e.target.value})}
@@ -310,8 +310,8 @@ const Booking: React.FC = () => {
                   type="datetime-local" 
                   required
                   min={todayDateTime}
-                  readOnly
                   onKeyDown={(e) => e.preventDefault()}
+                  onPaste={(e) => e.preventDefault()}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-black focus:ring-0 transition-all cursor-pointer"
                   value={formData.shipArrivalTime}
                   onChange={e => setFormData({...formData, shipArrivalTime: e.target.value})}
