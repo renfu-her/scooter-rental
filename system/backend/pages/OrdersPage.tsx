@@ -778,11 +778,11 @@ const OrdersPage: React.FC = () => {
     }
 
     try {
-      // 直接轉換為訂單，使用預設值
+      // 直接轉換為訂單，使用預設值，不傳送 scooter_ids 讓後端自動選擇
       await bookingsApi.convertToOrder(booking.id, {
         payment_method: '現金',
         payment_amount: 0,
-        scooter_ids: [], // 讓後端自動選擇
+        // 不傳送 scooter_ids，讓後端根據預約的車型需求自動選擇
       });
       
       // 重新載入預約列表和訂單列表
