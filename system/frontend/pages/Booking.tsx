@@ -19,6 +19,7 @@ interface ScooterItem {
 const Booking: React.FC = () => {
   const [formData, setFormData] = useState({
     name: '',
+    email: '',
     lineId: '',
     phone: '',
     appointmentDate: '',
@@ -99,6 +100,7 @@ const Booking: React.FC = () => {
     try {
       await publicApi.booking.send({
         name: formData.name,
+        email: formData.email,
         lineId: formData.lineId || undefined,
         phone: formData.phone,
         appointmentDate: formData.appointmentDate,
@@ -117,6 +119,7 @@ const Booking: React.FC = () => {
       alert('預約已成功提交！我們會盡快與您聯繫確認詳情。');
       setFormData({ 
         name: '', 
+        email: '',
         lineId: '', 
         phone: '', 
         appointmentDate: '',
@@ -179,6 +182,20 @@ const Booking: React.FC = () => {
                   placeholder="請輸入姓名"
                   value={formData.name}
                   onChange={e => setFormData({...formData, name: e.target.value})}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">
+                  Email <span className="text-red-500">*</span>
+                </label>
+                <input 
+                  type="email" 
+                  required
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-black focus:ring-0 transition-all" 
+                  placeholder="請輸入您的 Email"
+                  value={formData.email}
+                  onChange={e => setFormData({...formData, email: e.target.value})}
                 />
               </div>
 

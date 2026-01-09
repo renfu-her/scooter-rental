@@ -91,7 +91,7 @@ export const publicApi = {
       api.post('/contact', data),
   },
   booking: {
-    send: (data: { name: string; lineId?: string; phone: string; appointmentDate: string; endDate: string; shippingCompany: string; shipArrivalTime: string; adults?: number; children?: number; scooters: Array<{ model: string; type: string; count: number }>; note?: string }) => 
+    send: (data: { name: string; email: string; lineId?: string; phone: string; appointmentDate: string; endDate: string; shippingCompany: string; shipArrivalTime: string; adults?: number; children?: number; scooters: Array<{ model: string; type: string; count: number }>; note?: string }) => 
       api.post('/booking', data),
   },
   scooters: {

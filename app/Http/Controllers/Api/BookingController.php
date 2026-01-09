@@ -25,6 +25,7 @@ class BookingController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
             'lineId' => 'nullable|string|max:255', // 改為可選
             'phone' => 'required|string|max:20',
             'appointmentDate' => 'required|date',
@@ -50,9 +51,10 @@ class BookingController extends Controller
         try {
             $data = $validator->validated();
             
-            // 確保 lineId 存在於郵件資料中（即使為空）
+            // 確保 lineId 和 email 存在於郵件資料中（即使為空）
             $mailData = $data;
             $mailData['lineId'] = $data['lineId'] ?? null;
+            $mailData['email'] = $data['email'] ?? null;
             
             // 將 scooters 陣列轉換為資料庫格式（model + type 組合）
             $scooters = array_map(function($item) {
@@ -65,6 +67,7 @@ class BookingController extends Controller
             // 儲存到資料庫
             $booking = Booking::create([
                 'name' => $data['name'],
+                'email' => $data['email'],
                 'line_id' => $data['lineId'] ?? null,
                 'phone' => $data['phone'],
                 'booking_date' => $data['appointmentDate'],
@@ -106,6 +109,7 @@ class BookingController extends Controller
             $search = $request->get('search');
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
                   ->orWhere('line_id', 'like', "%{$search}%")
                   ->orWhere('phone', 'like', "%{$search}%");
             });
