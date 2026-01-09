@@ -296,80 +296,144 @@ class BookingController extends Controller
         $paymentAmount = $request->get('payment_amount') ?: 0;
         $scooterIds = $request->get('scooter_ids');
 
-        // 如果沒有提供機車 ID，自動選擇可用機車
-        if (!$scooterIds || count($scooterIds) === 0) {
-            // 根據預約的車型需求，選擇對應的可用機車
-            $requiredCount = 0;
-            if ($booking->scooters && is_array($booking->scooters)) {
-                $requiredCount = array_sum(array_column($booking->scooters, 'count'));
-            } elseif ($booking->scooter_type) {
-                $requiredCount = 1;
-            }
+        // 計算開始和結束時間
+        $bookingDate = $booking->booking_date instanceof Carbon 
+            ? $booking->booking_date->format('Y-m-d') 
+            : $booking->booking_date;
+        
+        $endDate = $booking->end_date 
+            ? ($booking->end_date instanceof Carbon 
+                ? $booking->end_date->format('Y-m-d') 
+                : $booking->end_date)
+            : null;
 
-            if ($requiredCount > 0) {
-                // 獲取可用機車（狀態為「待出租」）
-                $availableScooters = Scooter::where('status', '待出租')
-                    ->limit($requiredCount)
-                    ->pluck('id')
-                    ->toArray();
-
-                if (count($availableScooters) < $requiredCount) {
-                    return response()->json([
-                        'message' => '可用機車數量不足，無法自動轉換訂單。請手動選擇機車。',
-                    ], 422);
-                }
-
-                $scooterIds = array_slice($availableScooters, 0, $requiredCount);
-            } else {
-                return response()->json([
-                    'message' => '無法確定需要的機車數量，請手動選擇機車。',
-                ], 422);
-            }
-        }
+        $startTime = $booking->ship_arrival_time 
+            ? $booking->ship_arrival_time 
+            : ($bookingDate . ' 08:00:00');
+        
+        $endTime = $endDate 
+            ? ($endDate . ' 18:00:00') 
+            : ($bookingDate . ' 18:00:00');
 
         try {
             DB::beginTransaction();
 
-            // 計算開始和結束時間
-            // 確保日期格式正確（只取日期部分，不包含時間）
-            $bookingDate = $booking->booking_date instanceof Carbon 
-                ? $booking->booking_date->format('Y-m-d') 
-                : $booking->booking_date;
-            
-            $endDate = $booking->end_date 
-                ? ($booking->end_date instanceof Carbon 
-                    ? $booking->end_date->format('Y-m-d') 
-                    : $booking->end_date)
-                : null;
+            $createdOrders = [];
 
-            $startTime = $booking->ship_arrival_time 
-                ? $booking->ship_arrival_time 
-                : ($bookingDate . ' 08:00:00');
-            
-            $endTime = $endDate 
-                ? ($endDate . ' 18:00:00') 
-                : ($bookingDate . ' 18:00:00');
+            // 如果提供了機車 ID，創建單一訂單
+            if ($scooterIds && count($scooterIds) > 0) {
+                $order = Order::create([
+                    'partner_id' => $request->get('partner_id') ?: null,
+                    'tenant' => $booking->name,
+                    'appointment_date' => $bookingDate,
+                    'start_time' => $startTime,
+                    'end_time' => $endTime,
+                    'expected_return_time' => $endDate ? ($endDate . ' 18:00:00') : null,
+                    'phone' => $booking->phone,
+                    'shipping_company' => $booking->shipping_company,
+                    'ship_arrival_time' => $booking->ship_arrival_time,
+                    'ship_return_time' => null,
+                    'payment_method' => $paymentMethod,
+                    'payment_amount' => $paymentAmount,
+                    'status' => '已預訂',
+                    'remark' => $booking->note,
+                ]);
 
-            // 創建訂單（訂單編號會由 Order 模型的 boot 方法自動生成）
-            $order = Order::create([
-                'partner_id' => $request->get('partner_id') ?: null,
-                'tenant' => $booking->name,
-                'appointment_date' => $bookingDate,
-                'start_time' => $startTime,
-                'end_time' => $endTime,
-                'expected_return_time' => $endDate ? ($endDate . ' 18:00:00') : null,
-                'phone' => $booking->phone,
-                'shipping_company' => $booking->shipping_company,
-                'ship_arrival_time' => $booking->ship_arrival_time,
-                'ship_return_time' => null,
-                'payment_method' => $paymentMethod,
-                'payment_amount' => $paymentAmount,
-                'status' => '已預訂',
-                'remark' => $booking->note,
-            ]);
+                $order->scooters()->sync($scooterIds);
+                $createdOrders[] = $order;
+            } else {
+                // 如果沒有提供機車 ID，根據預約的車型需求，為每個車型創建訂單
+                if ($booking->scooters && is_array($booking->scooters) && count($booking->scooters) > 0) {
+                    foreach ($booking->scooters as $scooterItem) {
+                        $modelString = $scooterItem['model']; // 例如 "EB-500 電輔車"
+                        $requiredCount = $scooterItem['count'];
 
-            // 關聯機車
-            $order->scooters()->sync($scooterIds);
+                        // 解析 model 和 type（格式：model + " " + type）
+                        $parts = explode(' ', $modelString, 2);
+                        $model = $parts[0] ?? '';
+                        $type = $parts[1] ?? '';
+
+                        // 根據 model 和 type 匹配可用機車
+                        $query = Scooter::where('status', '待出租');
+                        if ($model) {
+                            $query->where('model', $model);
+                        }
+                        if ($type) {
+                            $query->where('type', $type);
+                        }
+
+                        $availableScooters = $query->limit($requiredCount)->pluck('id')->toArray();
+
+                        if (count($availableScooters) < $requiredCount) {
+                            DB::rollBack();
+                            return response()->json([
+                                'message' => "{$modelString} 可用機車數量不足（需要 {$requiredCount} 台，僅有 " . count($availableScooters) . " 台），無法自動轉換訂單。請手動選擇機車。",
+                            ], 422);
+                        }
+
+                        $selectedScooterIds = array_slice($availableScooters, 0, $requiredCount);
+
+                        // 為每個車型創建一個訂單
+                        $order = Order::create([
+                            'partner_id' => $request->get('partner_id') ?: null,
+                            'tenant' => $booking->name,
+                            'appointment_date' => $bookingDate,
+                            'start_time' => $startTime,
+                            'end_time' => $endTime,
+                            'expected_return_time' => $endDate ? ($endDate . ' 18:00:00') : null,
+                            'phone' => $booking->phone,
+                            'shipping_company' => $booking->shipping_company,
+                            'ship_arrival_time' => $booking->ship_arrival_time,
+                            'ship_return_time' => null,
+                            'payment_method' => $paymentMethod,
+                            'payment_amount' => $paymentAmount,
+                            'status' => '已預訂',
+                            'remark' => $booking->note . ($booking->note ? "\n" : '') . "車型: {$modelString} x {$requiredCount}",
+                        ]);
+
+                        $order->scooters()->sync($selectedScooterIds);
+                        $createdOrders[] = $order;
+                    }
+                } elseif ($booking->scooter_type) {
+                    // 舊格式：只有 scooter_type
+                    $availableScooters = Scooter::where('status', '待出租')
+                        ->limit(1)
+                        ->pluck('id')
+                        ->toArray();
+
+                    if (count($availableScooters) < 1) {
+                        DB::rollBack();
+                        return response()->json([
+                            'message' => '可用機車數量不足，無法自動轉換訂單。請手動選擇機車。',
+                        ], 422);
+                    }
+
+                    $order = Order::create([
+                        'partner_id' => $request->get('partner_id') ?: null,
+                        'tenant' => $booking->name,
+                        'appointment_date' => $bookingDate,
+                        'start_time' => $startTime,
+                        'end_time' => $endTime,
+                        'expected_return_time' => $endDate ? ($endDate . ' 18:00:00') : null,
+                        'phone' => $booking->phone,
+                        'shipping_company' => $booking->shipping_company,
+                        'ship_arrival_time' => $booking->ship_arrival_time,
+                        'ship_return_time' => null,
+                        'payment_method' => $paymentMethod,
+                        'payment_amount' => $paymentAmount,
+                        'status' => '已預訂',
+                        'remark' => $booking->note,
+                    ]);
+
+                    $order->scooters()->sync($availableScooters);
+                    $createdOrders[] = $order;
+                } else {
+                    DB::rollBack();
+                    return response()->json([
+                        'message' => '無法確定需要的機車數量，請手動選擇機車。',
+                    ], 422);
+                }
+            }
 
             // 更新預約狀態為「已轉訂單」
             $booking->update(['status' => '已轉訂單']);
@@ -385,8 +449,8 @@ class BookingController extends Controller
             }
 
             return response()->json([
-                'message' => '預約已成功轉為訂單',
-                'data' => $order,
+                'message' => '預約已成功轉為 ' . count($createdOrders) . ' 筆訂單',
+                'data' => $createdOrders,
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
