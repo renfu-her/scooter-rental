@@ -152,6 +152,7 @@ const About: React.FC = () => {
       {!loading && environmentImages.length > 0 && (
         <section className="py-20 bg-[#f0f4ff]">
           <div className="max-w-6xl mx-auto px-6">
+            <h2 className="text-3xl md:text-4xl font-bold serif text-center mb-12">我們的環境</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {environmentImages.map((image) => (
                 <div key={image.id} className="aspect-square rounded-[30px] overflow-hidden">

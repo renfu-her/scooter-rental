@@ -1,5 +1,35 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-09 22:40:09 - 在關於我們頁面環境圖片區塊添加「我們的環境」標題
+
+### 變更內容
+- **About.tsx** (`system/frontend/pages/About.tsx`)
+  - 在環境圖片區塊添加「我們的環境」標題
+  - 標題樣式：`text-3xl md:text-4xl font-bold serif text-center mb-12`
+
+### 說明
+- 環境圖片區塊現在顯示「我們的環境」標題
+- 標題位於圖片網格上方，居中顯示
+- 只有在有環境圖片時才會顯示整個區塊（包括標題）
+
+---
+
+## 2026-01-09 22:29:24 - 修正環境圖片排序邏輯
+
+### 變更內容
+- **EnvironmentImagesPage.tsx** (`system/backend/pages/EnvironmentImagesPage.tsx`)
+  - 在 `fetchImages()` 方法中添加重複排序值檢查，如果發現重複則自動重新分配為 0, 1, 2, 3...
+  - 在 `handleUpload()` 方法中，自動設置新圖片的排序值為當前最大排序值 + 1
+  - 在 `handleMoveUp()` 和 `handleMoveDown()` 方法中，確保交換排序值後重新獲取列表
+  - 修正 `handleUpdateSortOrder()` 方法，移除重複的 `fetchImages()` 調用
+
+### 說明
+- 現在當載入圖片時，如果發現有重複的排序值，會自動重新分配
+- 新增圖片時會自動設置為當前最大排序值 + 1，避免排序值重複
+- 上下移動按鈕現在可以正確交換排序值並更新顯示
+
+---
+
 ## 2026-01-09 22:15:24 - 移除 environment_images 表的 alt_text 欄位
 
 ### 變更內容
