@@ -25,7 +25,24 @@ const EnvironmentImagesPage: React.FC = () => {
     setLoading(true);
     try {
       const response = await environmentImagesApi.list();
-      setImages(response.data || []);
+      const fetchedImages = response.data || [];
+      
+      // 檢查是否有重複的排序值，如果有則重新分配
+      const sortOrders = fetchedImages.map(img => img.sort_order);
+      const hasDuplicates = sortOrders.length !== new Set(sortOrders).size;
+      
+      if (hasDuplicates && fetchedImages.length > 0) {
+        // 重新分配排序值：0, 1, 2, 3...
+        const updates = fetchedImages.map((img, index) => 
+          environmentImagesApi.update(img.id, { sort_order: index })
+        );
+        await Promise.all(updates);
+        // 重新獲取列表
+        const updatedResponse = await environmentImagesApi.list();
+        setImages(updatedResponse.data || []);
+      } else {
+        setImages(fetchedImages);
+      }
     } catch (error) {
       console.error('Failed to fetch environment images:', error);
       setImages([]);
@@ -57,7 +74,13 @@ const EnvironmentImagesPage: React.FC = () => {
 
     setUploading(true);
     try {
-      await environmentImagesApi.create(imageFile, sortOrder);
+      // 自動設置排序值為當前最大排序值 + 1
+      let finalSortOrder = sortOrder;
+      if (images.length > 0) {
+        const maxSortOrder = Math.max(...images.map(img => img.sort_order));
+        finalSortOrder = maxSortOrder + 1;
+      }
+      await environmentImagesApi.create(imageFile, finalSortOrder);
       await fetchImages();
       handleRemovePreview();
     } catch (error: any) {
@@ -83,10 +106,10 @@ const EnvironmentImagesPage: React.FC = () => {
   const handleUpdateSortOrder = async (id: number, newSortOrder: number) => {
     try {
       await environmentImagesApi.update(id, { sort_order: newSortOrder });
-      await fetchImages();
     } catch (error: any) {
       console.error('Failed to update sort order:', error);
       alert(error.message || '更新順序失敗');
+      throw error;
     }
   };
 
@@ -94,18 +117,24 @@ const EnvironmentImagesPage: React.FC = () => {
     if (index === 0) return;
     const image = images[index];
     const prevImage = images[index - 1];
+    // 交換排序值
     const tempSortOrder = image.sort_order;
     await handleUpdateSortOrder(image.id, prevImage.sort_order);
     await handleUpdateSortOrder(prevImage.id, tempSortOrder);
+    // 重新獲取列表以更新顯示
+    await fetchImages();
   };
 
   const handleMoveDown = async (index: number) => {
     if (index === images.length - 1) return;
     const image = images[index];
     const nextImage = images[index + 1];
+    // 交換排序值
     const tempSortOrder = image.sort_order;
     await handleUpdateSortOrder(image.id, nextImage.sort_order);
     await handleUpdateSortOrder(nextImage.id, tempSortOrder);
+    // 重新獲取列表以更新顯示
+    await fetchImages();
   };
 
   if (loading) {
