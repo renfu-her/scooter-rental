@@ -32,14 +32,29 @@
                                 <tr>
                                     <td style="padding-bottom: 20px;">
                                         <p style="margin: 0; color: #374151; font-size: 16px; line-height: 1.8;">
-                                            您於 {{ \Carbon\Carbon::parse($booking->booking_date)->format('n') }} 月 {{ \Carbon\Carbon::parse($booking->booking_date)->format('j') }} 日下定之訂單已成立
+                                            感謝您的預訂。
                                         </p>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td style="padding-bottom: 20px;">
                                         <p style="margin: 0; color: #374151; font-size: 16px; line-height: 1.8;">
-                                            蘭光電動寄出祝您旅途愉快！
+                                            {{ \Carbon\Carbon::parse($booking->booking_date)->format('Y') }}年{{ \Carbon\Carbon::parse($booking->booking_date)->format('n') }}月{{ \Carbon\Carbon::parse($booking->booking_date)->format('j') }}日 車輛訂單已確認成立。
+                                        </p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-bottom: 20px;">
+                                        <p style="margin: 0; color: #374151; font-size: 16px; line-height: 1.8;">
+                                            請依約定時間前來取車，若逾時且現場已有其他訂單，<br>
+                                            將依當日訂單順序安排接駁，訂單順序將順延，敬請見諒。
+                                        </p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-bottom: 20px;">
+                                        <p style="margin: 0; color: #374151; font-size: 16px; line-height: 1.8;">
+                                            蘭光電動機車祝您旅途愉快！
                                         </p>
                                     </td>
                                 </tr>
