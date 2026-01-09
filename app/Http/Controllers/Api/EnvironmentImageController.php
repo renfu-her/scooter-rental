@@ -37,7 +37,6 @@ class EnvironmentImageController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:10240',
-            'alt_text' => 'nullable|string|max:255',
             'sort_order' => 'nullable|integer|min:0',
         ]);
 
@@ -55,7 +54,6 @@ class EnvironmentImageController extends Controller
 
         $image = EnvironmentImage::create([
             'image_path' => $imagePath,
-            'alt_text' => $request->input('alt_text'),
             'sort_order' => $request->input('sort_order', 0),
         ]);
 
@@ -71,7 +69,6 @@ class EnvironmentImageController extends Controller
     public function update(Request $request, EnvironmentImage $environmentImage): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'alt_text' => 'nullable|string|max:255',
             'sort_order' => 'nullable|integer|min:0',
         ]);
 

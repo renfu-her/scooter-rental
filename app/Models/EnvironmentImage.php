@@ -11,7 +11,6 @@ class EnvironmentImage extends Model
 
     protected $fillable = [
         'image_path',
-        'alt_text',
         'sort_order',
     ];
 

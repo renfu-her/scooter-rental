@@ -5,7 +5,6 @@ import { publicApi } from '../lib/api';
 interface EnvironmentImage {
   id: number;
   image_path: string;
-  alt_text: string | null;
   sort_order: number;
 }
 
@@ -158,7 +157,7 @@ const About: React.FC = () => {
                 <div key={image.id} className="aspect-square rounded-[30px] overflow-hidden">
                   <img
                     src={`/storage/${image.image_path}`}
-                    alt={image.alt_text || 'Environment image'}
+                    alt="Environment image"
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                   />
                 </div>

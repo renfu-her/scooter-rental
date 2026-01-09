@@ -6,7 +6,6 @@ import { labelClasses, uploadAreaBaseClasses, modalCancelButtonClasses, modalSub
 interface EnvironmentImage {
   id: number;
   image_path: string;
-  alt_text: string | null;
   sort_order: number;
 }
 
@@ -16,7 +15,6 @@ const EnvironmentImagesPage: React.FC = () => {
   const [uploading, setUploading] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [altText, setAltText] = useState('');
   const [sortOrder, setSortOrder] = useState(0);
 
   useEffect(() => {
@@ -60,7 +58,7 @@ const EnvironmentImagesPage: React.FC = () => {
 
     setUploading(true);
     try {
-      await environmentImagesApi.create(imageFile, altText || null, sortOrder);
+      await environmentImagesApi.create(imageFile, sortOrder);
       await fetchImages();
       handleRemovePreview();
     } catch (error: any) {
@@ -195,16 +193,6 @@ const EnvironmentImagesPage: React.FC = () => {
 
             <div className="space-y-4">
               <div>
-                <label className={labelClasses}>替代文字</label>
-                <input
-                  type="text"
-                  value={altText}
-                  onChange={(e) => setAltText(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  placeholder="圖片描述（選填）"
-                />
-              </div>
-              <div>
                 <label className={labelClasses}>排序</label>
                 <input
                   type="number"
@@ -235,15 +223,11 @@ const EnvironmentImagesPage: React.FC = () => {
                   <div className="relative mb-4">
                     <img
                       src={`/storage/${image.image_path}`}
-                      alt={image.alt_text || 'Environment image'}
+                      alt="Environment image"
                       className="w-full h-64 object-cover rounded"
                     />
                   </div>
                   <div className="space-y-2">
-                    <div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">替代文字</p>
-                      <p className="text-sm text-gray-800 dark:text-gray-100">{image.alt_text || '-'}</p>
-                    </div>
                     <div>
                       <p className="text-xs text-gray-500 dark:text-gray-400">排序</p>
                       <p className="text-sm text-gray-800 dark:text-gray-100">{image.sort_order}</p>

@@ -344,10 +344,9 @@ export const homeImagesApi = {
 
 export const environmentImagesApi = {
   list: () => api.get('/environment-images'),
-  create: async (file: File, altText: string | null, sortOrder: number) => {
+  create: async (file: File, sortOrder: number) => {
     const formData = new FormData();
     formData.append('image', file);
-    if (altText) formData.append('alt_text', altText);
     formData.append('sort_order', sortOrder.toString());
 
     const url = `${API_BASE_URL}/environment-images`;
