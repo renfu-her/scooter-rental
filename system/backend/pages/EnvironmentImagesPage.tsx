@@ -49,7 +49,6 @@ const EnvironmentImagesPage: React.FC = () => {
   const handleRemovePreview = () => {
     setImageFile(null);
     setImagePreview(null);
-    setAltText('');
     setSortOrder(0);
   };
 
