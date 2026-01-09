@@ -878,119 +878,55 @@ const OrdersPage: React.FC = () => {
               return (
                 <div key={booking.id} className="p-6 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                   <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1">
-                      <div className="grid grid-cols-2 gap-4 mb-4">
-                        {/* 承租人姓名 */}
-                        <div>
-                          <label className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 block">承租人姓名</label>
-                          <div className="text-base text-gray-800 dark:text-gray-100 bg-white dark:bg-gray-600 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-500">
-                            {booking.name}
-                          </div>
-                        </div>
-
-                        {/* Email（可編輯） */}
-                        <div>
-                          <label className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 block">Email</label>
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="email"
-                              value={currentEmail}
-                              onChange={(e) => handleEmailChange(booking.id, e.target.value)}
-                              className="flex-1 px-3 py-2 bg-white dark:bg-gray-600 border border-gray-200 dark:border-gray-500 rounded-lg text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
-                              placeholder="example@email.com"
-                            />
-                            {isEditingEmail && (
-                              <button
-                                onClick={() => handleEmailSave(booking.id)}
-                                className="px-3 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-sm font-medium transition-colors"
-                              >
-                                儲存
-                              </button>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* LINE ID */}
-                        <div>
-                          <label className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 block">LINE ID</label>
-                          <div className="text-base text-gray-800 dark:text-gray-100 bg-white dark:bg-gray-600 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-500">
-                            {booking.line_id || '-'}
-                          </div>
-                        </div>
-
-                        {/* 行動電話 */}
-                        <div>
-                          <label className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 block">行動電話</label>
-                          <div className="text-base text-gray-800 dark:text-gray-100 bg-white dark:bg-gray-600 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-500">
-                            {booking.phone || '-'}
-                          </div>
-                        </div>
-
-                        {/* 預約日期 */}
-                        <div>
-                          <label className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 block">預約日期</label>
-                          <div className="text-base text-gray-800 dark:text-gray-100 bg-white dark:bg-gray-600 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-500">
-                            {new Date(booking.booking_date).toLocaleDateString('zh-TW')}
-                          </div>
-                        </div>
-
-                        {/* 結束日期 */}
-                        <div>
-                          <label className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 block">結束日期</label>
-                          <div className="text-base text-gray-800 dark:text-gray-100 bg-white dark:bg-gray-600 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-500">
-                            {booking.end_date ? new Date(booking.end_date).toLocaleDateString('zh-TW') : '-'}
-                          </div>
-                        </div>
-
-                        {/* 船運公司 */}
-                        <div>
-                          <label className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 block">船運公司</label>
-                          <div className="text-base text-gray-800 dark:text-gray-100 bg-white dark:bg-gray-600 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-500">
-                            {booking.shipping_company || '-'}
-                          </div>
-                        </div>
-
-                        {/* 船班時間（來） */}
-                        <div>
-                          <label className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 block">船班時間（來）</label>
-                          <div className="text-base text-gray-800 dark:text-gray-100 bg-white dark:bg-gray-600 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-500">
-                            {booking.ship_arrival_time ? new Date(booking.ship_arrival_time).toLocaleString('zh-TW') : '-'}
-                          </div>
-                        </div>
-
-                        {/* 大人 / 人數 */}
-                        <div>
-                          <label className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 block">大人 / 人數</label>
-                          <div className="text-base text-gray-800 dark:text-gray-100 bg-white dark:bg-gray-600 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-500">
-                            {booking.adults !== null ? booking.adults : '-'}
-                          </div>
-                        </div>
-
-                        {/* 小孩 (12歲以下) / 人數 */}
-                        <div>
-                          <label className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 block">小孩 (12歲以下) / 人數</label>
-                          <div className="text-base text-gray-800 dark:text-gray-100 bg-white dark:bg-gray-600 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-500">
-                            {booking.children !== null ? booking.children : '-'}
-                          </div>
+                    <div className="flex-1 space-y-3">
+                      {/* Email（可編輯，第一個） */}
+                      <div>
+                        <label className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 block">Email</label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="email"
+                            value={currentEmail}
+                            onChange={(e) => handleEmailChange(booking.id, e.target.value)}
+                            className="flex-1 px-3 py-2 bg-white dark:bg-gray-600 border border-gray-200 dark:border-gray-500 rounded-lg text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+                            placeholder="example@email.com"
+                          />
+                          {isEditingEmail && (
+                            <button
+                              onClick={() => handleEmailSave(booking.id)}
+                              className="px-3 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-sm font-medium transition-colors"
+                            >
+                              儲存
+                            </button>
+                          )}
                         </div>
                       </div>
 
-                      {/* 所需租車類型/數量 */}
-                      <div>
-                        <label className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 block">所需租車類型/數量</label>
-                        {booking.scooters && Array.isArray(booking.scooters) && booking.scooters.length > 0 ? (
-                          <div className="flex flex-wrap gap-2">
-                            {booking.scooters.map((scooter: any, idx: number) => (
-                              <span key={idx} className="px-3 py-2 bg-white dark:bg-gray-600 rounded-lg border border-gray-200 dark:border-gray-500 text-sm text-gray-800 dark:text-gray-100">
-                                {scooter.model} x {scooter.count}
-                              </span>
-                            ))}
-                          </div>
-                        ) : (
-                          <div className="text-base text-gray-800 dark:text-gray-100 bg-white dark:bg-gray-600 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-500">
-                            -
-                          </div>
-                        )}
+                      {/* 其他欄位以文字形式顯示 */}
+                      <div className="text-sm text-gray-700 dark:text-gray-300 space-y-1">
+                        <div>承租人姓名: <span className="font-medium text-gray-800 dark:text-gray-100">{booking.name}</span></div>
+                        <div>LINE ID: <span className="font-medium text-gray-800 dark:text-gray-100">{booking.line_id || '-'}</span></div>
+                        <div>行動電話: <span className="font-medium text-gray-800 dark:text-gray-100">{booking.phone || '-'}</span></div>
+                        <div>預約日期: <span className="font-medium text-gray-800 dark:text-gray-100">{new Date(booking.booking_date).toLocaleDateString('zh-TW')}</span></div>
+                        <div>結束日期: <span className="font-medium text-gray-800 dark:text-gray-100">{booking.end_date ? new Date(booking.end_date).toLocaleDateString('zh-TW') : '-'}</span></div>
+                        <div>船運公司: <span className="font-medium text-gray-800 dark:text-gray-100">{booking.shipping_company || '-'}</span></div>
+                        <div>船班時間（來）: <span className="font-medium text-gray-800 dark:text-gray-100">{booking.ship_arrival_time ? new Date(booking.ship_arrival_time).toLocaleString('zh-TW') : '-'}</span></div>
+                        <div>大人 / 人數: <span className="font-medium text-gray-800 dark:text-gray-100">{booking.adults !== null ? booking.adults : '-'}</span></div>
+                        <div>小孩 (12歲以下) / 人數: <span className="font-medium text-gray-800 dark:text-gray-100">{booking.children !== null ? booking.children : '-'}</span></div>
+                        <div>
+                          所需租車類型/數量: 
+                          {booking.scooters && Array.isArray(booking.scooters) && booking.scooters.length > 0 ? (
+                            <span className="font-medium text-gray-800 dark:text-gray-100 ml-2">
+                              {booking.scooters.map((scooter: any, idx: number) => (
+                                <span key={idx}>
+                                  {scooter.model} x {scooter.count}
+                                  {idx < booking.scooters.length - 1 && ', '}
+                                </span>
+                              ))}
+                            </span>
+                          ) : (
+                            <span className="font-medium text-gray-800 dark:text-gray-100 ml-2">-</span>
+                          )}
+                        </div>
                       </div>
                     </div>
                     <div className="flex flex-col items-end space-y-2">
