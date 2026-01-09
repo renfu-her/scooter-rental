@@ -132,7 +132,7 @@ const HomeImagesPage: React.FC = () => {
       </div>
 
       <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
-        <div className="p-6 space-y-8">
+        <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
           {imageKeys.map((key) => {
             const image = homeImages[key];
             const hasNewImage = imageFiles[key] !== null;
@@ -140,16 +140,16 @@ const HomeImagesPage: React.FC = () => {
             const currentImageSrc = getImageSrc(key);
 
             return (
-              <div key={key} className="border-b border-gray-200 dark:border-gray-700 pb-8 last:border-b-0 last:pb-0">
+              <div key={key} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                 <label className={labelClasses}>{IMAGE_LABELS[key]}</label>
                 
-                <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="mt-4 space-y-4">
                   {/* 圖片預覽 */}
                   <div>
                     <div className={uploadAreaBaseClasses}>
                       {currentImageSrc ? (
                         <div className="relative">
-                          <img src={currentImageSrc} alt={IMAGE_LABELS[key]} className="max-h-64 mx-auto rounded" />
+                          <img src={currentImageSrc} alt={IMAGE_LABELS[key]} className="max-h-48 w-full object-cover rounded" />
                           {hasNewImage && (
                             <div className="absolute top-2 right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded">
                               新圖片
@@ -178,7 +178,7 @@ const HomeImagesPage: React.FC = () => {
                   </div>
 
                   {/* 操作按鈕 */}
-                  <div className="flex flex-col justify-center space-y-4">
+                  <div className="flex flex-col space-y-2">
                     {hasNewImage && (
                       <button
                         onClick={() => handleUpload(key)}

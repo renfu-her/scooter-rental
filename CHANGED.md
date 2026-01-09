@@ -1,5 +1,22 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-09 21:24:23 - 將首頁圖片管理改為一列兩張圖片的佈局
+
+### 變更內容
+- **HomeImagesPage.tsx** (`system/backend/pages/HomeImagesPage.tsx`)
+  - 將外層容器從 `space-y-8`（垂直堆疊）改為 `grid grid-cols-1 md:grid-cols-2 gap-6`（響應式網格佈局）
+  - 每個圖片區塊現在使用 `border` 和 `rounded-lg` 來區分，而不是 `border-b`
+  - 調整圖片預覽區域，使用 `max-h-48` 和 `w-full object-cover` 來優化顯示
+  - 將內部佈局從 `grid grid-cols-1 md:grid-cols-2` 改為 `space-y-4`（垂直堆疊），因為外層已經是兩列佈局
+
+### 說明
+- 首頁圖片管理頁面現在以兩列網格佈局顯示圖片區塊
+- 在桌面版（md 以上）每行顯示兩張圖片，手機版仍然單列顯示
+- 每個圖片區塊有獨立的邊框和圓角，視覺上更清晰
+- 優化了圖片預覽的顯示效果
+
+---
+
 ## 2026-01-09 21:20:39 - 從輪播圖列表移除連結欄位顯示
 
 ### 變更內容
