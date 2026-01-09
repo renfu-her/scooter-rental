@@ -1,5 +1,25 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-09 21:17:15 - 將 banners 表的 link 欄位改為 TEXT 類型
+
+### 變更內容
+- **Migration** (`database/migrations/2026_01_09_211646_change_link_to_text_in_banners_table.php`) - 新建
+  - 將 `banners` 表的 `link` 欄位從 `string`（VARCHAR）改為 `text`（TEXT）類型
+  - 允許存儲更長的連結 URL
+
+- **BannerController.php** (`app/Http/Controllers/Api/BannerController.php`)
+  - 在 `store()` 方法中，將 `link` 驗證規則從 `'nullable|string|max:255'` 改為 `'nullable|string'`
+  - 在 `update()` 方法中，將 `link` 驗證規則從 `'nullable|string|max:255'` 改為 `'nullable|string'`
+  - 移除長度限制，允許存儲任意長度的連結
+
+### 說明
+- `link` 欄位現在可以存儲更長的 URL 連結
+- 資料庫欄位類型從 VARCHAR 改為 TEXT
+- API 驗證規則移除 255 字元長度限制
+- 需要執行 migration：`php artisan migrate`
+
+---
+
 ## 2026-01-09 21:05:20 - 修正日期欄位日曆圖標點擊功能
 
 ### 變更內容
