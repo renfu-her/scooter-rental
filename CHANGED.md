@@ -5948,3 +5948,23 @@ php artisan db:seed --class=ScooterModelColorSeeder
 - 按鈕與輸入框底部對齊，視覺效果更整齊
 - 其他欄位和租車類型標籤保持不變
 
+
+---
+
+## 2026-01-09 15:29:46 - 拒絕和確認按鈕直接跳轉到預約管理 detail 頁面
+
+### 變更內容
+
+#### 後端管理界面
+- **OrdersPage** (`system/backend/pages/OrdersPage.tsx`)
+  - 修改 `handleRejectBooking` 函數：拒絕預約後直接跳轉到預約管理的 detail 頁面
+  - 修改 `handleConvertBookingClick` 函數：點擊「確認轉為訂單」後直接跳轉到預約管理的 detail 頁面，不再打開確認模態框
+  - 移除 `ConvertBookingModal` 的導入和使用
+  - 移除不再使用的狀態：`isConvertModalOpen`、`selectedBooking`、`convertingBookingId`
+  - 移除 `handleConvertSuccess` 函數（不再需要）
+
+### 功能說明
+- 點擊「拒絕」按鈕後，會先確認，然後更新預約狀態為「取消」，並直接跳轉到預約管理的 detail 頁面
+- 點擊「確認轉為訂單」按鈕後，直接跳轉到預約管理的 detail 頁面，用戶可以在那裡完成轉換訂單的操作
+- 簡化了操作流程，不需要額外的確認模態框
+

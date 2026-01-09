@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { Search, Plus, Filter, FileText, ChevronLeft, ChevronRight, MoreHorizontal, Bike, X, TrendingUp, Loader2, Edit3, Trash2, ChevronDown, Download, Check, Bell, XCircle } from 'lucide-react';
 import { OrderStatus } from '../types';
 import AddOrderModal from '../components/AddOrderModal';
-import ConvertBookingModal from '../components/ConvertBookingModal';
 import { ordersApi, partnersApi, scootersApi, bookingsApi } from '../lib/api';
 import * as XLSX from 'xlsx';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
@@ -217,9 +216,6 @@ const OrdersPage: React.FC = () => {
   const [pendingBookings, setPendingBookings] = useState<any[]>([]);
   const [showPendingBookings, setShowPendingBookings] = useState(false);
   const [editingEmails, setEditingEmails] = useState<Record<number, string>>({});
-  const [convertingBookingId, setConvertingBookingId] = useState<number | null>(null);
-  const [isConvertModalOpen, setIsConvertModalOpen] = useState(false);
-  const [selectedBooking, setSelectedBooking] = useState<any | null>(null);
 
   // 車款類型對應的顏色（與機車管理頁面一致）
   const typeColorMap: Record<string, string> = {
@@ -771,26 +767,10 @@ const OrdersPage: React.FC = () => {
     setExpandedRemarkId(expandedRemarkId === orderId ? null : orderId);
   };
 
-  // 處理預約轉訂單
+  // 處理預約轉訂單 - 直接跳轉到 detail 頁面
   const handleConvertBookingClick = (booking: any) => {
-    setSelectedBooking(booking);
-    setIsConvertModalOpen(true);
-  };
-
-  const handleConvertSuccess = async (bookingId: number) => {
-    await fetchPendingBookings();
-    // 重新載入訂單列表
-    const response = await ordersApi.list({
-      month: selectedMonthString,
-      search: searchTerm || undefined,
-      page: currentPage,
-    });
-    const ordersData = response.data || [];
-    setOrders(Array.isArray(ordersData) ? ordersData : []);
-    setSelectedBooking(null);
-    setIsConvertModalOpen(false);
-    // 跳轉到預約管理頁面的 detail 視圖
-    navigate(`/bookings?detail=${bookingId}`);
+    // 直接跳轉到預約管理頁面的 detail 視圖
+    navigate(`/bookings?detail=${booking.id}`);
   };
 
   // 處理拒絕預約
@@ -800,7 +780,8 @@ const OrdersPage: React.FC = () => {
     try {
       await bookingsApi.updateStatus(bookingId, '取消');
       await fetchPendingBookings();
-      alert('預約已拒絕');
+      // 直接跳轉到預約管理頁面的 detail 視圖
+      navigate(`/bookings?detail=${bookingId}`);
     } catch (error: any) {
       console.error('Failed to reject booking:', error);
       alert(error.message || '拒絕失敗');
@@ -1469,15 +1450,6 @@ const OrdersPage: React.FC = () => {
 
       <StatsModal isOpen={isStatsModalOpen} onClose={() => setIsStatsModalOpen(false)} stats={stats} />
 
-      <ConvertBookingModal
-        isOpen={isConvertModalOpen}
-        onClose={() => {
-          setIsConvertModalOpen(false);
-          setSelectedBooking(null);
-        }}
-        booking={selectedBooking}
-        onSuccess={handleConvertSuccess}
-      />
       <ChartModal isOpen={isChartModalOpen} onClose={() => setIsChartModalOpen(false)} stats={stats} />
       
       {/* 狀態下拉選單使用 fixed 定位，避免被表格 overflow 裁剪 */}
