@@ -1,5 +1,46 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-09 22:15:24 - 移除 environment_images 表的 alt_text 欄位
+
+### 變更內容
+
+#### 資料庫
+- **Migration** (`database/migrations/2026_01_09_221413_remove_alt_text_from_environment_images_table.php`) - 新建
+  - 從 `environment_images` 表移除 `alt_text` 欄位
+
+#### 後端
+- **Model** (`app/Models/EnvironmentImage.php`)
+  - 從 `fillable` 陣列中移除 `alt_text`
+
+- **Controller** (`app/Http/Controllers/Api/EnvironmentImageController.php`)
+  - 在 `store()` 方法中，移除 `alt_text` 驗證規則
+  - 在 `store()` 方法中，移除 `alt_text` 的儲存邏輯
+  - 在 `update()` 方法中，移除 `alt_text` 驗證規則
+
+#### 後端管理界面
+- **EnvironmentImagesPage.tsx** (`system/backend/pages/EnvironmentImagesPage.tsx`)
+  - 從 `EnvironmentImage` interface 移除 `alt_text` 欄位
+  - 移除 `altText` state 變數
+  - 移除替代文字輸入欄位
+  - 從圖片列表中移除替代文字顯示
+  - 更新 `handleUpload` 方法，移除 `altText` 參數
+  - 更新 `handleRemovePreview` 方法，移除 `altText` 重置
+
+- **API Client** (`system/backend/lib/api.ts`)
+  - 更新 `environmentImagesApi.create()` 方法，移除 `altText` 參數
+
+#### 前端
+- **About.tsx** (`system/frontend/pages/About.tsx`)
+  - 從 `EnvironmentImage` interface 移除 `alt_text` 欄位
+  - 更新圖片 alt 屬性為固定文字 "Environment image"
+
+### 說明
+- 環境圖片不再需要替代文字欄位
+- 簡化了資料結構和管理界面
+- 需要執行 migration：`php artisan migrate`
+
+---
+
 ## 2026-01-09 22:13:16 - 更新關於我們頁面使用環境圖片 API 並移除標題
 
 ### 變更內容
