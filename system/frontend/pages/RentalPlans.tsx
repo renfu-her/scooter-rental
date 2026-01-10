@@ -108,23 +108,6 @@ const RentalPlans: React.FC = () => {
           </div>
         </section>
       )}
-
-      <section className="py-24 bg-[#f0f4ff] border-t border-gray-100">
-         <div className="max-w-4xl mx-auto px-6 text-center">
-            <p className="text-gray-400 uppercase tracking-widest text-xs mb-4">Premium Service</p>
-            <h3 className="text-3xl font-bold mb-8 serif">提供顧客尊榮級服務</h3>
-            <p className="text-gray-500 leading-relaxed mb-12">
-               極致奢華租車環境，安靜又舒適的騎乘體驗，寬敞舒適簡約帶點文青風格、唯美的網美牆、貴賓休憩區，還有像畫廊的聽雨軒...
-            </p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-               {[1,2,3,4].map(i => (
-                 <div key={i} className="aspect-square rounded-[30px] bg-gray-100 overflow-hidden">
-                    <img src={`https://picsum.photos/seed/service${i}/400/400`} alt="Service" className="w-full h-full object-cover" />
-                 </div>
-               ))}
-            </div>
-         </div>
-      </section>
     </div>
   );
 };
