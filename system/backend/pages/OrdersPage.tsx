@@ -1022,32 +1022,8 @@ const OrdersPage: React.FC = () => {
                   {isExpanded && (
                     <div className="px-4 pb-6 pt-0 border-t border-gray-200 dark:border-gray-700">
                       <div className="pt-4 space-y-3">
-                        {/* Email、拒絕、確認按鈕同一排 */}
-                        <div className="flex items-end gap-3">
-                          <div className="flex-1">
-                            <label className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 block">Email</label>
-                            <div className="flex items-center gap-2">
-                              <input
-                                type="email"
-                                value={currentEmail}
-                                onChange={(e) => handleEmailChange(booking.id, e.target.value)}
-                                onClick={(e) => e.stopPropagation()}
-                                className="flex-1 px-3 py-2 bg-white dark:bg-gray-600 border border-gray-200 dark:border-gray-500 rounded-lg text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
-                                placeholder="example@email.com"
-                              />
-                              {isEditingEmail && (
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleEmailSave(booking.id);
-                                  }}
-                                  className="px-3 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-sm font-medium transition-colors"
-                                >
-                                  儲存
-                                </button>
-                              )}
-                            </div>
-                          </div>
+                        {/* 拒絕、確認按鈕 */}
+                        <div className="flex items-center justify-end gap-3">
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
@@ -1069,18 +1045,36 @@ const OrdersPage: React.FC = () => {
                           </button>
                         </div>
 
-                    {/* 其他欄位以三列形式顯示 */}
-                    <div className="grid grid-cols-3 gap-x-6 gap-y-2 text-sm text-gray-700 dark:text-gray-300">
-                      <div>承租人姓名: <span className="font-medium text-gray-800 dark:text-gray-100">{booking.name}</span></div>
-                      <div>LINE ID: <span className="font-medium text-gray-800 dark:text-gray-100">{booking.line_id || '-'}</span></div>
-                      <div>行動電話: <span className="font-medium text-gray-800 dark:text-gray-100">{booking.phone || '-'}</span></div>
-                      <div>預約日期: <span className="font-medium text-gray-800 dark:text-gray-100">{new Date(booking.booking_date).toLocaleDateString('zh-TW')}</span></div>
-                      <div>結束日期: <span className="font-medium text-gray-800 dark:text-gray-100">{booking.end_date ? new Date(booking.end_date).toLocaleDateString('zh-TW') : '-'}</span></div>
-                      <div>船運公司: <span className="font-medium text-gray-800 dark:text-gray-100">{booking.shipping_company || '-'}</span></div>
-                      <div>船班時間（來）: <span className="font-medium text-gray-800 dark:text-gray-100">{booking.ship_arrival_time ? new Date(booking.ship_arrival_time).toLocaleString('zh-TW') : '-'}</span></div>
-                      <div>大人 / 人數: <span className="font-medium text-gray-800 dark:text-gray-100">{booking.adults !== null ? booking.adults : '-'}</span></div>
-                      <div>小孩 (12歲以下) / 人數: <span className="font-medium text-gray-800 dark:text-gray-100">{booking.children !== null ? booking.children : '-'}</span></div>
-                    </div>
+                        {/* 所需租車類型/數量 */}
+                        <div className="text-sm text-gray-700 dark:text-gray-300">
+                          <label className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 block">所需租車類型/數量</label>
+                          {booking.scooters && Array.isArray(booking.scooters) && booking.scooters.length > 0 ? (
+                            <div className="space-y-2">
+                              {booking.scooters.map((scooter: any, idx: number) => {
+                                // 根據車型生成不同顏色
+                                const colors = [
+                                  'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+                                  'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+                                  'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
+                                  'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
+                                  'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400',
+                                  'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
+                                  'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400',
+                                  'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400',
+                                ];
+                                const colorClass = colors[idx % colors.length];
+                                
+                                return (
+                                  <div key={idx} className={`px-3 py-2 rounded-lg text-sm font-medium ${colorClass}`}>
+                                    {scooter.model} x {scooter.count}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          ) : (
+                            <span className="font-medium text-gray-800 dark:text-gray-100">-</span>
+                          )}
+                        </div>
 
 
                       </div>
