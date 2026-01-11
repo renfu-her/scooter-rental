@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Search, Plus, Filter, FileText, ChevronLeft, ChevronRight, MoreHorizontal, Bike, X, TrendingUp, Loader2, Edit3, Trash2, ChevronDown, Download, Bell, XCircle } from 'lucide-react';
 import AddOrderModal from '../components/AddOrderModal';
 import ConvertBookingModal from '../components/ConvertBookingModal';
-import { ordersApi, partnersApi, bookingsApi } from '../lib/api';
+import { ordersApi, partnersApi, bookingsApi, rentalPlansApi } from '../lib/api';
 import * as XLSX from 'xlsx';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
@@ -218,6 +218,10 @@ const OrdersPage: React.FC = () => {
   const [pendingBookings, setPendingBookings] = useState<any[]>([]);
   const [showPendingBookings, setShowPendingBookings] = useState(false);
   const [editingEmails, setEditingEmails] = useState<Record<number, string>>({});
+  const [partners, setPartners] = useState<any[]>([]);
+  const [rentalPlans, setRentalPlans] = useState<any[]>([]);
+  const [bookingPartners, setBookingPartners] = useState<Record<number, number | null>>({});
+  const [bookingPrices, setBookingPrices] = useState<Record<number, Record<string, number>>>({});
 
   // 車款類型對應的顏色（與機車管理頁面一致）
   const typeColorMap: Record<string, string> = {
@@ -295,7 +299,38 @@ const OrdersPage: React.FC = () => {
         bookingsApi.pending(),
       ]);
       setPendingBookingsCount(countResponse.count || 0);
-      setPendingBookings(listResponse.data || []);
+      const bookings = listResponse.data || [];
+      setPendingBookings(bookings);
+      
+      // 初始化每個預約的合作商
+      const initialPartners: Record<number, number | null> = {};
+      bookings.forEach((booking: any) => {
+        // 設置預設合作商：優先使用 booking 的 partner_id，否則使用預設合作商
+        let defaultPartnerId: number | null = booking.partner_id || null;
+        if (!defaultPartnerId && partners.length > 0) {
+          const defaultPartner = partners.find((p: any) => p.is_default_for_booking);
+          defaultPartnerId = defaultPartner ? defaultPartner.id : null;
+        }
+        initialPartners[booking.id] = defaultPartnerId;
+      });
+      setBookingPartners(prev => ({ ...prev, ...initialPartners }));
+      
+      // 初始化每個預約的基本價格
+      const initialPrices: Record<number, Record<string, number>> = {};
+      bookings.forEach((booking: any) => {
+        const prices: Record<string, number> = {};
+        if (booking.scooters && Array.isArray(booking.scooters)) {
+          booking.scooters.forEach((scooter: any) => {
+            const parts = scooter.model.split(' ', 2);
+            const model = parts[0] || '';
+            const plan = rentalPlans.find((p: any) => p.model === model);
+            const basePrice = plan ? parseFloat(plan.price.toString()) : 0;
+            prices[scooter.model] = basePrice;
+          });
+        }
+        initialPrices[booking.id] = prices;
+      });
+      setBookingPrices(prev => ({ ...prev, ...initialPrices }));
     } catch (error) {
       console.error('Failed to fetch pending bookings:', error);
       setPendingBookingsCount(0);
@@ -308,7 +343,7 @@ const OrdersPage: React.FC = () => {
     // 每 30 秒刷新一次未確認預約數量
     const interval = setInterval(fetchPendingBookings, 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [partners, rentalPlans]);
 
   // Fetch orders
   useEffect(() => {
@@ -512,9 +547,10 @@ const OrdersPage: React.FC = () => {
     const fetchPartners = async () => {
       try {
         const response = await partnersApi.list();
-        const partners = response.data || [];
+        const partnersList = response.data || [];
+        setPartners(partnersList);
         const colorMap: Record<string, string> = {};
-        partners.forEach((partner: { name: string; color: string | null }) => {
+        partnersList.forEach((partner: { name: string; color: string | null }) => {
           if (partner.color) {
             colorMap[partner.name] = partner.color;
           }
@@ -525,6 +561,19 @@ const OrdersPage: React.FC = () => {
       }
     };
     fetchPartners();
+  }, []);
+
+  // 獲取租車方案價格
+  useEffect(() => {
+    const fetchRentalPlans = async () => {
+      try {
+        const response = await rentalPlansApi.list({ active_only: true });
+        setRentalPlans(response.data || []);
+      } catch (error) {
+        console.error('Failed to fetch rental plans:', error);
+      }
+    };
+    fetchRentalPlans();
   }, []);
 
 
@@ -769,19 +818,36 @@ const OrdersPage: React.FC = () => {
     setExpandedRemarkId(expandedRemarkId === orderId ? null : orderId);
   };
 
-  // 處理預約轉訂單 - 打開 Modal
-  const handleConvertBookingClick = (booking: any) => {
+  // 處理預約轉訂單 - 直接轉換
+  const handleConvertBookingClick = async (booking: any) => {
     // 檢查 email
     if (!booking.email) {
       alert('此預約沒有填寫 email，無法確認轉為訂單。請先編輯預約資料添加 email。');
       return;
     }
-    setSelectedBooking(booking);
-    setIsConvertModalOpen(true);
+
+    if (!confirm('確定要將此預約轉為訂單嗎？')) return;
+
+    try {
+      const partnerId = bookingPartners[booking.id] || null;
+      const totalAmount = calculateTotalAmount(booking);
+      
+      await bookingsApi.convertToOrder(booking.id, {
+        partner_id: partnerId,
+        payment_method: '現金',
+        payment_amount: totalAmount,
+      });
+      
+      await handleConvertSuccess(booking.id);
+    } catch (error: any) {
+      console.error('Failed to convert booking:', error);
+      const errorMessage = error.response?.data?.message || '轉換訂單時發生錯誤，請稍後再試。';
+      alert(errorMessage);
+    }
   };
 
   // 處理轉換成功
-  const handleConvertSuccess = async () => {
+  const handleConvertSuccess = async (bookingId?: number) => {
     // 重新載入預約列表和訂單列表
     await fetchPendingBookings();
     const response = await ordersApi.list({
@@ -793,7 +859,9 @@ const OrdersPage: React.FC = () => {
     setOrders(Array.isArray(ordersData) ? ordersData : []);
     
     // 跳轉到預約管理頁面的 detail 視圖
-    if (selectedBooking) {
+    if (bookingId) {
+      navigate(`/bookings?detail=${bookingId}`);
+    } else if (selectedBooking) {
       navigate(`/bookings?detail=${selectedBooking.id}`);
     }
   };
@@ -834,6 +902,46 @@ const OrdersPage: React.FC = () => {
       console.error('Failed to update email:', error);
       alert(error.message || '更新 email 失敗');
     }
+  };
+
+  // 處理合作商變更
+  const handlePartnerChange = (bookingId: number, partnerId: number | null) => {
+    setBookingPartners(prev => ({ ...prev, [bookingId]: partnerId }));
+  };
+
+  // 處理價格變更
+  const handlePriceChange = (bookingId: number, model: string, price: number) => {
+    setBookingPrices(prev => ({
+      ...prev,
+      [bookingId]: {
+        ...prev[bookingId],
+        [model]: price,
+      },
+    }));
+  };
+
+  // 計算租借天數
+  const calculateRentalDays = (booking: any): number => {
+    const startDate = new Date(booking.booking_date);
+    const endDate = booking.end_date ? new Date(booking.end_date) : startDate;
+    const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+  };
+
+  // 計算總金額
+  const calculateTotalAmount = (booking: any): number => {
+    const days = calculateRentalDays(booking);
+    const prices = bookingPrices[booking.id] || {};
+    let total = 0;
+    
+    if (booking.scooters && Array.isArray(booking.scooters)) {
+      booking.scooters.forEach((scooter: any) => {
+        const basePrice = prices[scooter.model] || 0;
+        total += basePrice * scooter.count * days;
+      });
+    }
+    
+    return total;
   };
 
   return (
@@ -934,36 +1042,79 @@ const OrdersPage: React.FC = () => {
                       <div>小孩 (12歲以下) / 人數: <span className="font-medium text-gray-800 dark:text-gray-100">{booking.children !== null ? booking.children : '-'}</span></div>
                     </div>
 
-                    {/* 所需租車類型/數量 */}
-                    <div className="text-sm text-gray-700 dark:text-gray-300">
-                      <span>所需租車類型/數量: </span>
-                      {booking.scooters && Array.isArray(booking.scooters) && booking.scooters.length > 0 ? (
-                        <span className="ml-2">
-                          {booking.scooters.map((scooter: any, idx: number) => {
-                            // 根據車型生成不同顏色
-                            const colors = [
-                              'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
-                              'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
-                              'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
-                              'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
-                              'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400',
-                              'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
-                              'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400',
-                              'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400',
-                            ];
-                            const colorClass = colors[idx % colors.length];
-                            
-                            return (
-                              <span key={idx} className={`px-2 py-1 rounded text-xs font-medium ${colorClass} ${idx > 0 ? 'ml-2' : ''}`}>
-                                {scooter.model} x {scooter.count}
-                              </span>
-                            );
-                          })}
-                        </span>
-                      ) : (
-                        <span className="font-medium text-gray-800 dark:text-gray-100 ml-2">-</span>
-                      )}
+                    {/* 合作商選擇 */}
+                    <div>
+                      <label className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 block">合作商</label>
+                      <select
+                        value={bookingPartners[booking.id] || ''}
+                        onChange={(e) => handlePartnerChange(booking.id, e.target.value ? parseInt(e.target.value) : null)}
+                        className="w-full px-3 py-2 bg-white dark:bg-gray-600 border border-gray-200 dark:border-gray-500 rounded-lg text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+                      >
+                        <option value="">請選擇合作商（可選）</option>
+                        {partners.map((partner: any) => (
+                          <option key={partner.id} value={partner.id}>
+                            {partner.name}
+                          </option>
+                        ))}
+                      </select>
                     </div>
+
+                    {/* 價格計算 */}
+                    {booking.scooters && Array.isArray(booking.scooters) && booking.scooters.length > 0 && (() => {
+                      const days = calculateRentalDays(booking);
+                      const prices = bookingPrices[booking.id] || {};
+                      
+                      return (
+                        <div className="space-y-3">
+                          <label className="text-sm font-bold text-gray-700 dark:text-gray-300 block">價格明細</label>
+                          <div className="space-y-2">
+                            {booking.scooters.map((scooter: any, idx: number) => {
+                              const basePrice = prices[scooter.model] || 0;
+                              const amount = basePrice * scooter.count * days;
+                              
+                              return (
+                                <div
+                                  key={idx}
+                                  className="p-3 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-900/50"
+                                >
+                                  <div className="flex items-center justify-between gap-4">
+                                    <div className="flex-1">
+                                      <div className="font-medium text-gray-800 dark:text-gray-200 mb-1 text-sm">{scooter.model}</div>
+                                      <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
+                                        <input
+                                          type="number"
+                                          min="0"
+                                          step="1"
+                                          value={basePrice}
+                                          onChange={(e) => handlePriceChange(booking.id, scooter.model, parseFloat(e.target.value) || 0)}
+                                          className="w-20 px-2 py-1 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-right text-xs"
+                                        />
+                                        <span>× {scooter.count} 台 × {days} 天 =</span>
+                                        <span className="font-bold text-orange-600 dark:text-orange-400">
+                                          ${amount.toLocaleString()}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })()}
+
+                    {/* 總金額 */}
+                    {booking.scooters && Array.isArray(booking.scooters) && booking.scooters.length > 0 && (
+                      <div className="p-3 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-bold text-gray-800 dark:text-gray-200">總金額</span>
+                          <span className="text-lg font-bold text-orange-600 dark:text-orange-400">
+                            ${calculateTotalAmount(booking).toLocaleString()}
+                          </span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               );
