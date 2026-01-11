@@ -70,7 +70,6 @@ const PartnersPage: React.FC = () => {
         manager: partner.manager || '',
         color: partner.color || '',
         is_default_for_booking: partner.is_default_for_booking || false,
-        default_shipping_company: partner.default_shipping_company || '',
       });
       setPhotoPreview(partner.photo_path || null);
     } else {
@@ -83,7 +82,6 @@ const PartnersPage: React.FC = () => {
         manager: '',
         color: '',
         is_default_for_booking: false,
-        default_shipping_company: '',
       });
       setPhotoPreview(null);
     }
@@ -456,24 +454,6 @@ const PartnersPage: React.FC = () => {
                   </label>
                   <p className="mt-1 text-xs text-gray-500 dark:text-gray-400 ml-8">
                     勾選後，此合作商將成為前台線上預約的預設合作商。當設置一個合作商為預設時，其他合作商的自動取消預設狀態。
-                  </p>
-                </div>
-                <div className="col-span-2">
-                  <label className={labelClasses}>預設船運公司</label>
-                  <select
-                    value={formData.default_shipping_company}
-                    onChange={(e) => setFormData({ ...formData, default_shipping_company: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  >
-                    <option value="">請選擇（可選）</option>
-                    <option value="泰富">泰富</option>
-                    <option value="藍白">藍白</option>
-                    <option value="聯營">聯營</option>
-                    <option value="大福">大福</option>
-                    <option value="公船">公船</option>
-                  </select>
-                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                    設定此合作商的預設船運公司。當此合作商被設為預設線上預約合作商時，前台預約表單的船運公司欄位會自動填入此值。
                   </p>
                 </div>
               </div>
