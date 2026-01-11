@@ -1,5 +1,21 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-11 19:48:00 (+8) - 調整訂單管理操作下拉菜單位置：向下 6px 並向右 30px
+
+### 變更內容
+
+#### 前端
+- **OrdersPage** (`system/backend/pages/OrdersPage.tsx`)
+  - 調整操作下拉菜單的定位：
+    - 將 `top` 從 `rect.top + window.scrollY + (rect.height / 2)` 調整為 `rect.top + window.scrollY + (rect.height / 2) + 6`（向下移動 6px）
+    - 將 `right` 從 `window.innerWidth - rect.right` 調整為 `window.innerWidth - rect.right - 30`（向右移動 30px，減少 right 值等於向右移動）
+
+### 功能說明
+- 操作下拉菜單現在向下偏移 6px，向右偏移 30px
+- 改善了視覺對齊和可用性
+
+---
+
 ## 2026-01-11 19:46:00 (+8) - 調整訂單管理操作下拉菜單定位：對齊到按鈕位置
 
 ### 變更內容

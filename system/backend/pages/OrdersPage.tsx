@@ -674,12 +674,12 @@ const OrdersPage: React.FC = () => {
       const button = buttonRefs.current[orderId];
       if (button) {
         const rect = button.getBoundingClientRect();
-        // 計算下拉菜單位置，使其對齊到按鈕位置
-        // top: 按鈕頂部位置 + 滾動距離，稍微向下偏移以對齊按鈕中心
-        // right: 從右邊計算，使下拉菜單右邊緣對齊按鈕右邊緣
+        // 計算下拉菜單位置
+        // top: 按鈕頂部位置 + 滾動距離 + 按鈕高度的一半 + 向下 6px
+        // right: 從右邊計算，減少 30px 使其靠右邊約 30px
         setDropdownPosition({
-          top: rect.top + window.scrollY + (rect.height / 2), // 對齊到按鈕垂直中心
-          right: window.innerWidth - rect.right, // 右邊緣對齊
+          top: rect.top + window.scrollY + (rect.height / 2) + 6, // 對齊到按鈕垂直中心並向下 6px
+          right: window.innerWidth - rect.right - 30, // 靠右邊約 30px（減少 right 值等於向右移動）
         });
       }
       setOpenDropdownId(orderId);
