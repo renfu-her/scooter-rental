@@ -675,8 +675,8 @@ const OrdersPage: React.FC = () => {
       if (button) {
         const rect = button.getBoundingClientRect();
         setDropdownPosition({
-          top: rect.top + window.scrollY, // 與按鈕同排（垂直對齊）
-          right: window.innerWidth - rect.right,
+          top: rect.top + window.scrollY + 5, // 向下 5px
+          right: window.innerWidth - rect.right + 20, // 向左 20px（增加 right 值等於向左移動）
         });
       }
       setOpenDropdownId(orderId);
