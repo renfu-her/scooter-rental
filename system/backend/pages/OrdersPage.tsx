@@ -1045,6 +1045,19 @@ const OrdersPage: React.FC = () => {
                           </button>
                         </div>
 
+                        {/* 其他欄位以三列形式顯示 */}
+                        <div className="grid grid-cols-3 gap-x-6 gap-y-2 text-sm text-gray-700 dark:text-gray-300">
+                          <div>承租人姓名: <span className="font-medium text-gray-800 dark:text-gray-100">{booking.name}</span></div>
+                          <div>LINE ID: <span className="font-medium text-gray-800 dark:text-gray-100">{booking.line_id || '-'}</span></div>
+                          <div>行動電話: <span className="font-medium text-gray-800 dark:text-gray-100">{booking.phone || '-'}</span></div>
+                          <div>預約日期: <span className="font-medium text-gray-800 dark:text-gray-100">{new Date(booking.booking_date).toLocaleDateString('zh-TW')}</span></div>
+                          <div>結束日期: <span className="font-medium text-gray-800 dark:text-gray-100">{booking.end_date ? new Date(booking.end_date).toLocaleDateString('zh-TW') : '-'}</span></div>
+                          <div>船運公司: <span className="font-medium text-gray-800 dark:text-gray-100">{booking.shipping_company || '-'}</span></div>
+                          <div>船班時間（來）: <span className="font-medium text-gray-800 dark:text-gray-100">{booking.ship_arrival_time ? new Date(booking.ship_arrival_time).toLocaleString('zh-TW') : '-'}</span></div>
+                          <div>大人 / 人數: <span className="font-medium text-gray-800 dark:text-gray-100">{booking.adults !== null ? booking.adults : '-'}</span></div>
+                          <div>小孩 (12歲以下) / 人數: <span className="font-medium text-gray-800 dark:text-gray-100">{booking.children !== null ? booking.children : '-'}</span></div>
+                        </div>
+
                         {/* 所需租車類型/數量 */}
                         <div className="text-sm text-gray-700 dark:text-gray-300">
                           <label className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 block">所需租車類型/數量</label>
