@@ -1022,8 +1022,32 @@ const OrdersPage: React.FC = () => {
                   {isExpanded && (
                     <div className="px-4 pb-6 pt-0 border-t border-gray-200 dark:border-gray-700">
                       <div className="pt-4 space-y-3">
-                        {/* 拒絕、確認按鈕 */}
-                        <div className="flex items-center justify-end gap-3">
+                        {/* Email、拒絕、確認按鈕同一排 */}
+                        <div className="flex items-end gap-3">
+                          <div className="flex-1">
+                            <label className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 block">Email</label>
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="email"
+                                value={currentEmail}
+                                onChange={(e) => handleEmailChange(booking.id, e.target.value)}
+                                onClick={(e) => e.stopPropagation()}
+                                className="flex-1 px-3 py-2 bg-white dark:bg-gray-600 border border-gray-200 dark:border-gray-500 rounded-lg text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+                                placeholder="example@email.com"
+                              />
+                              {isEditingEmail && (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleEmailSave(booking.id);
+                                  }}
+                                  className="px-3 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-sm font-medium transition-colors"
+                                >
+                                  儲存
+                                </button>
+                              )}
+                            </div>
+                          </div>
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
