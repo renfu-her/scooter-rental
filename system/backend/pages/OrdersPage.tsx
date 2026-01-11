@@ -1084,30 +1084,16 @@ const OrdersPage: React.FC = () => {
 
                         {/* 所需租車類型/數量 */}
                         <div className="text-sm text-gray-700 dark:text-gray-300">
-                          <label className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 block">所需租車類型/數量</label>
+                          <span className="font-medium text-gray-800 dark:text-gray-100">所需租車類型/數量: </span>
                           {booking.scooters && Array.isArray(booking.scooters) && booking.scooters.length > 0 ? (
-                            <div className="space-y-2">
-                              {booking.scooters.map((scooter: any, idx: number) => {
-                                // 根據車型生成不同顏色
-                                const colors = [
-                                  'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
-                                  'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
-                                  'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
-                                  'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
-                                  'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400',
-                                  'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
-                                  'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400',
-                                  'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400',
-                                ];
-                                const colorClass = colors[idx % colors.length];
-                                
-                                return (
-                                  <div key={idx} className={`px-3 py-2 rounded-lg text-sm font-medium ${colorClass}`}>
-                                    {scooter.model} x {scooter.count}
-                                  </div>
-                                );
-                              })}
-                            </div>
+                            <span className="font-medium text-gray-800 dark:text-gray-100">
+                              {booking.scooters.map((scooter: any, idx: number) => (
+                                <span key={idx}>
+                                  {scooter.model} x {scooter.count}
+                                  {idx < booking.scooters.length - 1 ? '，' : ''}
+                                </span>
+                              ))}
+                            </span>
                           ) : (
                             <span className="font-medium text-gray-800 dark:text-gray-100">-</span>
                           )}
