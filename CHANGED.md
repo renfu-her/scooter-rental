@@ -1,5 +1,57 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-11 08:35:22 - 新增專車接送圖片管理功能
+
+### 變更內容
+- **資料庫 Migration**
+  - `database/migrations/2026_01_11_083250_create_shuttle_images_table.php`
+    - 創建 `shuttle_images` 表，包含 `id`, `image_path`, `sort_order`, `timestamps`
+
+- **ShuttleImage Model** (`app/Models/ShuttleImage.php`)
+  - 定義 `$fillable` 為 `['image_path', 'sort_order']`
+  - 定義 `$casts` 將 `sort_order` 轉為 integer
+
+- **ShuttleImageController** (`app/Http/Controllers/Api/ShuttleImageController.php`)
+  - 實現 `index()`, `store()`, `update()`, `destroy()` 方法
+  - 支援圖片上傳、刪除和排序管理
+  - 使用 `ImageService` 處理圖片上傳和刪除
+
+- **後台管理頁面** (`system/backend/pages/ShuttleImagesPage.tsx`)
+  - 創建專車接送圖片管理頁面
+  - 功能包括：新增圖片、刪除圖片、調整順序（上下移動）
+  - 自動檢測並修正重複的排序值
+  - 新上傳圖片自動設置為最大排序值 + 1
+
+- **後台選單** (`system/backend/constants.tsx`)
+  - 在「網站內容管理」下添加「專車接送圖片」選項，位於「環境圖片」之後
+
+- **後台路由** (`system/backend/App.tsx`)
+  - 添加 `/shuttle-images` 路由，對應 `ShuttleImagesPage`
+
+- **API Routes** (`routes/api.php`)
+  - 添加 `shuttle-images` API 路由
+  - `GET /shuttle-images` 為公開路由（供前端使用）
+  - `POST`, `PUT`, `DELETE` 需要認證（後台管理使用）
+
+- **後台 API Client** (`system/backend/lib/api.ts`)
+  - 添加 `shuttleImagesApi`，包含 `list()`, `create()`, `update()`, `delete()` 方法
+
+- **前端 API Client** (`system/frontend/lib/api.ts`)
+  - 在 `publicApi` 中添加 `shuttleImages.list()` 方法
+
+- **前端 Guidelines 頁面** (`system/frontend/pages/Guidelines.tsx`)
+  - 在「專車接送」區塊添加圖片顯示
+  - 使用 `grid grid-cols-1 md:grid-cols-2` 佈局顯示圖片（響應式，手機一列，桌面兩列）
+  - 按 `sort_order` 排序顯示圖片
+
+### 說明
+- 專車接送圖片管理功能與環境圖片管理功能完全一致
+- 後台管理員可以上傳、刪除和調整專車接送圖片的順序
+- 前端租車須知頁面的「專車接送」區塊會自動顯示已上傳的圖片
+- 圖片按排序順序顯示，支援響應式佈局
+
+---
+
 ## 2026-01-11 08:24:42 - 調整租車方案頁面價格顯示樣式
 
 ### 變更內容

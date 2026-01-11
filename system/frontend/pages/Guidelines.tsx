@@ -21,9 +21,16 @@ interface Guesthouse {
   link: string | null;
 }
 
+interface ShuttleImage {
+  id: number;
+  image_path: string;
+  sort_order: number;
+}
+
 const Guidelines: React.FC = () => {
   const [guidelines, setGuidelines] = useState<Guideline[]>([]);
   const [guesthouses, setGuesthouses] = useState<Guesthouse[]>([]);
+  const [shuttleImages, setShuttleImages] = useState<ShuttleImage[]>([]);
   const [loading, setLoading] = useState(true);
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const [filter, setFilter] = useState('所有問題');
@@ -51,8 +58,19 @@ const Guidelines: React.FC = () => {
       }
     };
 
+    const fetchShuttleImages = async () => {
+      try {
+        const response = await publicApi.shuttleImages.list();
+        setShuttleImages(response.data || []);
+      } catch (error) {
+        console.error('Failed to fetch shuttle images:', error);
+        setShuttleImages([]);
+      }
+    };
+
     fetchGuidelines();
     fetchGuesthouses();
+    fetchShuttleImages();
   }, []);
 
   const categories = Array.from(new Set(guidelines.map(g => g.category)));
@@ -195,9 +213,22 @@ const Guidelines: React.FC = () => {
           {/* 專車接送 */}
           <div>
             <h3 className="text-xl md:text-2xl font-semibold mb-4">專車接送</h3>
-            <div className="text-gray-700 leading-relaxed text-base md:text-lg">
+            <div className="text-gray-700 leading-relaxed text-base md:text-lg mb-6">
               <p>一趟美好旅程，從涼爽接駁開始，不畏風雨只為了提供尊貴的服務</p>
             </div>
+            {shuttleImages.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                {shuttleImages.map((image) => (
+                  <div key={image.id} className="rounded-lg overflow-hidden">
+                    <img
+                      src={`/storage/${image.image_path}`}
+                      alt="專車接送"
+                      className="w-full h-auto object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

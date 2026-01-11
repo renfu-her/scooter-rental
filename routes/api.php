@@ -22,6 +22,7 @@ use App\Http\Controllers\Api\ContactController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\HomeImageController;
 use App\Http\Controllers\Api\EnvironmentImageController;
+use App\Http\Controllers\Api\ShuttleImageController;
 
 // Auth Routes (Public)
 Route::post('/login', [AuthController::class, 'login']);
@@ -222,5 +223,15 @@ Route::prefix('environment-images')->group(function () {
         Route::post('/', [EnvironmentImageController::class, 'store']);
         Route::put('/{environmentImage}', [EnvironmentImageController::class, 'update']);
         Route::delete('/{environmentImage}', [EnvironmentImageController::class, 'destroy']);
+    });
+});
+
+// Shuttle Images API (Public for frontend, Protected for admin)
+Route::prefix('shuttle-images')->group(function () {
+    Route::get('/', [ShuttleImageController::class, 'index']); // Public
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/', [ShuttleImageController::class, 'store']);
+        Route::put('/{shuttleImage}', [ShuttleImageController::class, 'update']);
+        Route::delete('/{shuttleImage}', [ShuttleImageController::class, 'destroy']);
     });
 });
