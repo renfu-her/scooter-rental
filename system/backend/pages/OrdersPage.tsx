@@ -996,14 +996,8 @@ const OrdersPage: React.FC = () => {
                   {isExpanded && (
                     <div className="px-4 pb-6 pt-0 border-t border-gray-200 dark:border-gray-700">
                       <div className="pt-4 space-y-3">
-                        {/* Email、拒絕、確認按鈕同一排 */}
-                        <div className="flex items-end gap-3">
-                          <div className="flex-1">
-                            <label className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 block">Email</label>
-                            <div className="px-3 py-2 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-500 rounded-lg text-sm text-gray-800 dark:text-gray-100">
-                              {booking.email || '-'}
-                            </div>
-                          </div>
+                        {/* 拒絕、確認按鈕 */}
+                        <div className="flex items-center justify-end gap-3">
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
@@ -1027,6 +1021,7 @@ const OrdersPage: React.FC = () => {
 
                         {/* 其他欄位以三列形式顯示 */}
                         <div className="grid grid-cols-3 gap-x-6 gap-y-2 text-sm text-gray-700 dark:text-gray-300">
+                          <div>Email: <span className="font-medium text-gray-800 dark:text-gray-100">{booking.email || '-'}</span></div>
                           <div>承租人姓名: <span className="font-medium text-gray-800 dark:text-gray-100">{booking.name}</span></div>
                           <div>LINE ID: <span className="font-medium text-gray-800 dark:text-gray-100">{booking.line_id || '-'}</span></div>
                           <div>行動電話: <span className="font-medium text-gray-800 dark:text-gray-100">{booking.phone || '-'}</span></div>
