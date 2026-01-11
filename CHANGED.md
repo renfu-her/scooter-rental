@@ -1,5 +1,62 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-11 04:21:43 - 重構預約轉訂單功能：移除後端自動計算，新增前端價格明細界面
+
+### 變更內容
+
+#### 後端
+- **BookingController** (`app/Http/Controllers/Api/BookingController.php`)
+  - 移除自動金額計算邏輯（從 RentalPlan 表自動計算）
+  - 將 `payment_amount` 驗證規則從 `nullable` 改為 `required`（必須由前端提供）
+  - 移除 `RentalPlan` 的 import（不再使用）
+  - `convertToOrder()` 方法現在直接使用前端傳入的 `payment_amount`
+
+#### 前端
+- **ConvertBookingModal** (`system/backend/components/ConvertBookingModal.tsx`) - 新建
+  - 創建預約轉訂單的 Modal 組件
+  - 顯示合作商選擇欄位：
+    - 優先使用預約的 `partner_id`（如果存在）
+    - 否則使用系統預設合作商（`is_default_for_booking = true`）
+    - 允許手動更改合作商
+  - 顯示付款方式選擇（現金、月結、日結、匯款、刷卡、行動支付）
+  - 顯示預約資訊（只讀）：承租人姓名、Email、預約日期、結束日期、租借天數
+  - 顯示價格明細：
+    - 每種車型顯示：車型名稱、基本價格（可編輯）、數量、天數、金額
+    - 計算公式：基本價格 × 數量 × 天數 = 金額
+    - 例如：EB-500 電輔車 400 × 1 台 × 5 天 = 2000
+  - 自動從 `RentalPlan` API 獲取基本價格作為初始值
+  - 允許修改每種車型的基本價格
+  - 總金額自動計算為所有車型金額的總和
+  - 提交時將計算的總金額發送到後端
+
+- **OrdersPage** (`system/backend/pages/OrdersPage.tsx`)
+  - 導入 `ConvertBookingModal` 組件
+  - 添加 `isConvertModalOpen` 和 `selectedBooking` 狀態
+  - 修改 `handleConvertBookingClick` 函數：
+    - 改為打開 Modal 而不是直接調用 API
+    - 檢查 email 是否存在
+  - 添加 `handleConvertSuccess` 函數處理轉換成功後的刷新和跳轉
+  - 在頁面中添加 `ConvertBookingModal` 組件
+
+### 功能說明
+- **價格計算流程**：
+  1. 打開 Modal 時，自動從 `RentalPlan` API 獲取每種車型的基本價格
+  2. 根據預約的開始日期和結束日期計算租借天數
+  3. 為每種車型計算金額：基本價格 × 數量 × 天數
+  4. 顯示總金額（所有車型金額的總和）
+  5. 管理員可以修改每種車型的基本價格，總金額會自動重新計算
+
+- **合作商選擇**：
+  - 系統會自動使用預約關聯的合作商或系統預設合作商
+  - 管理員可以在 Modal 中更改合作商
+
+- **用戶體驗**：
+  - 提供清晰的價格明細顯示
+  - 允許靈活調整每種車型的基本價格
+  - 總金額即時更新
+
+---
+
 ## 2026-01-11 11:12:08 - 預約轉訂單時自動計算訂單金額
 
 ### 變更內容
