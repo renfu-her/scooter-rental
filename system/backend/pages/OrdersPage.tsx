@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Plus, Filter, FileText, ChevronLeft, ChevronRight, MoreHorizontal, Bike, X, TrendingUp, Loader2, Edit3, Trash2, ChevronDown, Download, Bell, XCircle } from 'lucide-react';
 import AddOrderModal from '../components/AddOrderModal';
+import ConvertBookingModal from '../components/ConvertBookingModal';
 import { ordersApi, partnersApi, bookingsApi } from '../lib/api';
 import * as XLSX from 'xlsx';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
@@ -188,6 +189,8 @@ const OrdersPage: React.FC = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
   const [isChartModalOpen, setIsChartModalOpen] = useState(false);
+  const [isConvertModalOpen, setIsConvertModalOpen] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState<any>(null);
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
   const [selectedYear, setSelectedYear] = useState(() => {
     const now = new Date();
@@ -766,40 +769,32 @@ const OrdersPage: React.FC = () => {
     setExpandedRemarkId(expandedRemarkId === orderId ? null : orderId);
   };
 
-  // 處理預約轉訂單 - 直接創建訂單
-  const handleConvertBookingClick = async (booking: any) => {
-    if (!confirm('確定要將此預約轉為訂單嗎？')) return;
-
+  // 處理預約轉訂單 - 打開 Modal
+  const handleConvertBookingClick = (booking: any) => {
     // 檢查 email
     if (!booking.email) {
       alert('此預約沒有填寫 email，無法確認轉為訂單。請先編輯預約資料添加 email。');
       return;
     }
+    setSelectedBooking(booking);
+    setIsConvertModalOpen(true);
+  };
 
-    try {
-      // 直接轉換為訂單，使用預設值，不傳送 scooter_ids 讓後端自動選擇
-      await bookingsApi.convertToOrder(booking.id, {
-        payment_method: '現金',
-        payment_amount: 0,
-        // 不傳送 scooter_ids，讓後端根據預約的車型需求自動選擇
-      });
-      
-      // 重新載入預約列表和訂單列表
-      await fetchPendingBookings();
-      const response = await ordersApi.list({
-        month: selectedMonthString,
-        search: searchTerm || undefined,
-        page: currentPage,
-      });
-      const ordersData = response.data || [];
-      setOrders(Array.isArray(ordersData) ? ordersData : []);
-      
-      // 跳轉到預約管理頁面的 detail 視圖
-      navigate(`/bookings?detail=${booking.id}`);
-    } catch (error: any) {
-      console.error('Failed to convert booking to order:', error);
-      const errorMessage = error.response?.data?.message || '轉換訂單時發生錯誤，請稍後再試。';
-      alert(errorMessage);
+  // 處理轉換成功
+  const handleConvertSuccess = async () => {
+    // 重新載入預約列表和訂單列表
+    await fetchPendingBookings();
+    const response = await ordersApi.list({
+      month: selectedMonthString,
+      search: searchTerm || undefined,
+      page: currentPage,
+    });
+    const ordersData = response.data || [];
+    setOrders(Array.isArray(ordersData) ? ordersData : []);
+    
+    // 跳轉到預約管理頁面的 detail 視圖
+    if (selectedBooking) {
+      navigate(`/bookings?detail=${selectedBooking.id}`);
     }
   };
 
@@ -1389,8 +1384,18 @@ const OrdersPage: React.FC = () => {
         </div>
       </div>
 
-      <AddOrderModal 
-        isOpen={isAddModalOpen} 
+      <ConvertBookingModal
+        isOpen={isConvertModalOpen}
+        onClose={() => {
+          setIsConvertModalOpen(false);
+          setSelectedBooking(null);
+        }}
+        booking={selectedBooking}
+        onSuccess={handleConvertSuccess}
+      />
+
+      <AddOrderModal
+        isOpen={isAddModalOpen}
         editingOrder={editingOrder}
         onYearChange={(year) => {
           if (year && year !== selectedYear) {

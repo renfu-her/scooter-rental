@@ -9,7 +9,6 @@ use App\Mail\BookingConfirmedMail;
 use App\Models\Booking;
 use App\Models\Order;
 use App\Models\Partner;
-use App\Models\RentalPlan;
 use App\Models\Scooter;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -295,7 +294,7 @@ class BookingController extends Controller
         $validator = Validator::make($request->all(), [
             'partner_id' => 'nullable|exists:partners,id',
             'payment_method' => 'sometimes|required|in:現金,月結,日結,匯款,刷卡,行動支付',
-            'payment_amount' => 'nullable|numeric|min:0', // 改為可選，如果沒有提供會自動計算
+            'payment_amount' => 'required|numeric|min:0',
             'scooter_ids' => 'sometimes|required|array|min:1',
             'scooter_ids.*' => 'required_with:scooter_ids|exists:scooters,id',
         ]);
@@ -309,55 +308,8 @@ class BookingController extends Controller
 
         // 如果沒有提供參數，使用預設值
         $paymentMethod = $request->get('payment_method') ?: '現金';
+        $paymentAmount = (float) $request->get('payment_amount');
         $scooterIds = $request->get('scooter_ids');
-        
-        // 計算租借天數
-        $bookingDateObj = $booking->booking_date instanceof Carbon 
-            ? $booking->booking_date 
-            : Carbon::parse($booking->booking_date);
-        $endDateObj = $booking->end_date 
-            ? ($booking->end_date instanceof Carbon 
-                ? $booking->end_date 
-                : Carbon::parse($booking->end_date))
-            : $bookingDateObj;
-        
-        // 計算天數（包含開始和結束日期）
-        $rentalDays = $bookingDateObj->diffInDays($endDateObj) + 1;
-        
-        // 如果沒有提供 payment_amount，自動計算
-        $paymentAmount = $request->get('payment_amount');
-        if ($paymentAmount === null || $paymentAmount === '') {
-            $calculatedAmount = 0;
-            
-            // 根據預約的車型需求計算總金額
-            if ($booking->scooters && is_array($booking->scooters) && count($booking->scooters) > 0) {
-                foreach ($booking->scooters as $scooterItem) {
-                    $modelString = $scooterItem['model']; // 例如 "EB-500 電輔車" 或 "ES-2000 綠牌"
-                    $requiredCount = $scooterItem['count'];
-                    
-                    // 解析 model（格式：model + " " + type，例如 "ES-2000 綠牌"）
-                    $parts = explode(' ', $modelString, 2);
-                    $model = $parts[0] ?? ''; // 例如 "ES-2000"
-                    
-                    // 從 RentalPlan 查找該車款的價格
-                    $rentalPlan = RentalPlan::where('model', $model)
-                        ->where('is_active', true)
-                        ->first();
-                    
-                    if ($rentalPlan) {
-                        // 價格是每 24 小時的價格
-                        // 總金額 = 每台車的價格 × 數量 × 天數
-                        $pricePerDay = $rentalPlan->price;
-                        $subtotal = $pricePerDay * $requiredCount * $rentalDays;
-                        $calculatedAmount += $subtotal;
-                    }
-                }
-            }
-            
-            $paymentAmount = $calculatedAmount;
-        } else {
-            $paymentAmount = (float) $paymentAmount;
-        }
 
         // 計算開始和結束時間
         $bookingDate = $booking->booking_date instanceof Carbon 
