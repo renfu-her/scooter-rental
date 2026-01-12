@@ -1,5 +1,37 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-12 15:51:00 (+8) - 修復 index.css 404 錯誤和 API CORS 問題
+
+### 變更內容
+
+#### 前端
+- **index.html** (`system/frontend/index.html`)
+  - 移除不存在的 `/index.css` 引用：
+    - 刪除 `<link rel="stylesheet" href="/index.css">` 標籤
+    - 項目使用 Tailwind CSS（通過 CDN），不需要額外的 CSS 文件
+
+#### 後端
+- **bootstrap/app.php** (`bootstrap/app.php`)
+  - 添加 CORS 中間件配置：
+    - 在 API 路由中添加 `HandleCors` 中間件
+    - 確保 API 請求可以正確處理跨域請求
+
+### 問題修復
+1. **index.css 404 錯誤**：
+   - 原因：`index.html` 中引用了不存在的 `/index.css` 文件
+   - 解決：移除該引用，因為項目使用 Tailwind CSS CDN，不需要額外的 CSS 文件
+
+2. **API captcha/generate 請求失敗**：
+   - 原因：缺少 CORS 配置，導致跨域請求被阻止
+   - 解決：在 `bootstrap/app.php` 中添加 `HandleCors` 中間件到 API 路由
+
+### 功能說明
+- 前端現在不會再嘗試加載不存在的 `index.css` 文件
+- API 請求現在可以正確處理跨域請求，包括 `captcha/generate` 端點
+- 確保前端（運行在 localhost:3000）可以正確訪問後端 API（運行在 localhost:8000）
+
+---
+
 ## 2026-01-12 14:50:00 (+8) - 完全移除 Banner 內容寬度限制，確保 Desktop 完整顯示
 
 ### 變更內容
