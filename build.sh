@@ -60,7 +60,7 @@ fi
 echo "✓ 路由快取完成"
 echo ""
 
-echo "[5/7] 清除並快取 Laravel 配置..."
+echo "[5/8] 清除並快取 Laravel 配置..."
 php artisan config:clear
 php artisan config:cache
 if [ $? -ne 0 ]; then
@@ -69,12 +69,26 @@ fi
 echo "✓ 配置快取完成"
 echo ""
 
-echo "[6/7] 構建後端 (React)..."
+echo "[6/8] 清除後端 React 緩存..."
 cd "$PROJECT_DIR/system/backend"
 if [ $? -ne 0 ]; then
     echo "✗ 錯誤：無法進入後端目錄"
     exit 1
 fi
+# 清除 Vite 緩存
+if [ -d "node_modules/.vite" ]; then
+    rm -rf node_modules/.vite
+    echo "  ✓ 已清除 node_modules/.vite"
+fi
+# 清除 dist 目錄（如果存在）
+if [ -d "dist" ]; then
+    rm -rf dist
+    echo "  ✓ 已清除 dist 目錄"
+fi
+echo "✓ 後端緩存清除完成"
+echo ""
+
+echo "[7/8] 構建後端 (React)..."
 pnpm build
 if [ $? -ne 0 ]; then
     echo "✗ 警告：後端構建失敗，繼續執行..."
@@ -82,12 +96,26 @@ fi
 echo "✓ 後端構建完成"
 echo ""
 
-echo "[7/7] 構建前端 (React)..."
+echo "[8/8] 清除前端 React 緩存..."
 cd "$PROJECT_DIR/system/frontend"
 if [ $? -ne 0 ]; then
     echo "✗ 錯誤：無法進入前端目錄"
     exit 1
 fi
+# 清除 Vite 緩存
+if [ -d "node_modules/.vite" ]; then
+    rm -rf node_modules/.vite
+    echo "  ✓ 已清除 node_modules/.vite"
+fi
+# 清除 dist 目錄（如果存在）
+if [ -d "dist" ]; then
+    rm -rf dist
+    echo "  ✓ 已清除 dist 目錄"
+fi
+echo "✓ 前端緩存清除完成"
+echo ""
+
+echo "[9/9] 構建前端 (React)..."
 pnpm build
 if [ $? -ne 0 ]; then
     echo "✗ 警告：前端構建失敗"
