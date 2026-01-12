@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { MapPin, Phone, MessageCircle } from 'lucide-react';
+import SEO from '../components/SEO';
 import { publicApi } from '../lib/api';
 
 interface LocationData {
@@ -34,8 +35,29 @@ const Contact: React.FC = () => {
     fetchLocations();
   }, []);
 
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'ContactPage',
+    name: '聯絡我們 - 蘭光電動機車',
+    description: '有任何問題或建議，歡迎透過以下方式與我們聯繫，我們將竭誠為您服務。',
+    url: `${window.location.origin}/contact`,
+    mainEntity: {
+      '@type': 'LocalBusiness',
+      name: '蘭光電動機車',
+      telephone: '+886-8-861-0000',
+      email: 'info@languang.com'
+    }
+  };
+
   return (
     <div className="animate-in fade-in duration-700">
+      <SEO
+        title="聯絡我們 - 蘭光電動機車"
+        description="有任何問題或建議，歡迎透過以下方式與我們聯繫，我們將竭誠為您服務。"
+        keywords="聯絡我們,客服,蘭光電動機車,小琉球租車聯絡"
+        url="/contact"
+        structuredData={structuredData}
+      />
       <header className="py-20 px-6 bg-[#f0f4ff] text-center">
         <div className="max-w-4xl mx-auto">
           <p className="text-gray-400 tracking-[0.3em] uppercase mb-2 text-sm">Contact Us</p>

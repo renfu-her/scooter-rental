@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ExternalLink } from 'lucide-react';
+import SEO from '../components/SEO';
 import { publicApi } from '../lib/api';
 
 interface Guesthouse {
@@ -33,8 +34,30 @@ const Guesthouses: React.FC = () => {
     fetchGuesthouses();
   }, []);
 
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: '民宿推薦 - 蘭光電動機車',
+    description: '蘭光電動機車精選合作民宿，給您最完整的旅遊套裝體驗。',
+    url: `${window.location.origin}/guesthouses`,
+    mainEntity: guesthouses.map(gh => ({
+      '@type': 'LodgingBusiness',
+      name: gh.name,
+      description: gh.short_description || gh.description,
+      image: gh.image_path ? `${window.location.origin}/storage/${gh.image_path}` : undefined,
+      url: gh.link || undefined
+    }))
+  };
+
   return (
     <div className="animate-in fade-in duration-700 bg-[#fcfcfc]">
+      <SEO
+        title="民宿推薦 - 蘭光電動機車"
+        description="蘭光電動機車精選合作民宿，給您最完整的旅遊套裝體驗。"
+        keywords="民宿推薦,小琉球民宿,合作民宿,小琉球住宿"
+        url="/guesthouses"
+        structuredData={structuredData}
+      />
       <header className="py-24 px-6 text-center">
         <p className="text-gray-400 tracking-[0.3em] uppercase mb-2">Partner Stays</p>
         <h1 className="text-5xl md:text-7xl serif font-light mb-4">民宿推薦</h1>

@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
 import BannerCarousel from '../components/BannerCarousel';
+import SEO from '../components/SEO';
 import { publicApi } from '../lib/api';
 
 interface HomeImage {
@@ -47,8 +48,38 @@ const Home: React.FC = () => {
   const getImageAlt = (key: string, defaultAlt: string): string => {
     return homeImages[key]?.alt_text || defaultAlt;
   };
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'LocalBusiness',
+    name: '蘭光電動機車',
+    description: '蘭光電動機車致力於為每一位旅客提供最優質的電動車租賃服務，讓您能夠以最環保、最舒適的方式探索小琉球的美麗風光。',
+    url: window.location.origin,
+    logo: `${window.location.origin}/logo2.png`,
+    image: `${window.location.origin}/logo2.png`,
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: '小琉球',
+      addressRegion: '屏東縣',
+      addressCountry: 'TW'
+    },
+    priceRange: '$$',
+    telephone: '+886-8-861-0000',
+    areaServed: {
+      '@type': 'City',
+      name: '小琉球'
+    },
+    serviceType: '電動機車租賃服務'
+  };
+
   return (
     <div className="animate-in fade-in duration-700">
+      <SEO
+        title="蘭光電動機車 - 小琉球電動車租賃首選"
+        description="蘭光電動機車致力於為每一位旅客提供最優質的電動車租賃服務，讓您能夠以最環保、最舒適的方式探索小琉球的美麗風光。"
+        keywords="小琉球,電動車,租車,機車租賃,蘭光電動機車,小琉球租車,電動機車,環保旅遊,小琉球旅遊"
+        url="/"
+        structuredData={structuredData}
+      />
       {/* Banner Carousel */}
       <BannerCarousel />
 

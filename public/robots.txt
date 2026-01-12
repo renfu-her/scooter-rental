@@ -1,2 +1,10 @@
 User-agent: *
-Disallow:
+Allow: /
+
+# Sitemap
+Sitemap: https://languangsmart.com/sitemap.xml
+
+# Disallow admin/backend routes
+Disallow: /admin/
+Disallow: /api/
+Disallow: /storage/

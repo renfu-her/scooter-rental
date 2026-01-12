@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Minus, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import SEO from '../components/SEO';
 import { publicApi } from '../lib/api';
 
 interface Guideline {
@@ -80,8 +81,31 @@ const Guidelines: React.FC = () => {
     ? guidelines 
     : guidelines.filter(f => f.category === filter);
 
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    name: '租車須知 - 蘭光電動機車',
+    description: '蘭光電動機車租車須知，包含常見問題、注意事項、專車接送服務等資訊，幫助您了解租車相關規定。',
+    url: `${window.location.origin}/guidelines`,
+    mainEntity: guidelines.map(g => ({
+      '@type': 'Question',
+      name: g.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: g.answer
+      }
+    }))
+  };
+
   return (
     <div className="animate-in slide-in-from-right-4 duration-700">
+      <SEO
+        title="租車須知 - 蘭光電動機車"
+        description="蘭光電動機車租車須知，包含常見問題、注意事項、專車接送服務等資訊，幫助您了解租車相關規定。"
+        keywords="租車須知,小琉球租車,電動車租賃,常見問題,租車注意事項"
+        url="/guidelines"
+        structuredData={structuredData}
+      />
       <header className="py-20 px-6 bg-[#f0f4ff] text-center relative overflow-hidden">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-3xl md:text-4xl serif mb-2">租賃須知</h1>

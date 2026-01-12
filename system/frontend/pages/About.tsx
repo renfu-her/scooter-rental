@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import SEO from '../components/SEO';
 import { publicApi } from '../lib/api';
 
 interface EnvironmentImage {
@@ -27,8 +28,28 @@ const About: React.FC = () => {
       setLoading(false);
     }
   };
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'AboutPage',
+    name: '關於我們 - 蘭光電動機車',
+    description: '蘭光電動機車致力於為每一位旅客提供最優質的電動車租賃服務，讓您能夠以最環保、最舒適的方式探索小琉球的美麗風光。',
+    url: `${window.location.origin}/about`,
+    mainEntity: {
+      '@type': 'LocalBusiness',
+      name: '蘭光電動機車',
+      description: '小琉球電動車租賃服務'
+    }
+  };
+
   return (
     <div className="animate-in slide-in-from-right-4 duration-700">
+      <SEO
+        title="關於我們 - 蘭光電動機車"
+        description="蘭光電動機車致力於為每一位旅客提供最優質的電動車租賃服務，讓您能夠以最環保、最舒適的方式探索小琉球的美麗風光。"
+        keywords="蘭光電動機車,關於我們,小琉球租車,電動車租賃,環保旅遊"
+        url="/about"
+        structuredData={structuredData}
+      />
       {/* Header Section */}
       <header className="py-20 px-6 bg-[#f0f4ff] text-center">
         <div className="max-w-4xl mx-auto">

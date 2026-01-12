@@ -1,5 +1,58 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-12 12:20:00 (+8) - 添加前端 SEO 功能以支援 Google Search Console
+
+### 變更內容
+
+#### 前端
+- **新增 SEO 組件** (`system/frontend/components/SEO.tsx`)
+  - 創建可重用的 SEO 組件，用於動態設置頁面的 meta tags
+  - 支援基本 SEO meta tags（title, description, keywords）
+  - 支援 Open Graph meta tags（用於 Facebook、LinkedIn 等社交媒體）
+  - 支援 Twitter Card meta tags
+  - 支援 Canonical URL
+  - 支援 Structured Data (JSON-LD) 用於 Google 搜尋結果
+
+- **更新 index.html** (`system/frontend/index.html`)
+  - 添加基礎 SEO meta tags（description, keywords, author, robots）
+  - 添加 canonical link 標籤
+
+- **為所有頁面添加 SEO 組件**
+  - **Home.tsx**: 添加 LocalBusiness structured data
+  - **About.tsx**: 添加 AboutPage structured data
+  - **RentalPlans.tsx**: 添加 Product structured data
+  - **Booking.tsx**: 添加 ReservationAction structured data
+  - **Guidelines.tsx**: 添加 FAQPage structured data
+  - **Location.tsx**: 添加 LocalBusiness structured data（包含地址、電話、營業時間）
+  - **Contact.tsx**: 添加 ContactPage structured data
+  - **Guesthouses.tsx**: 添加 CollectionPage structured data
+  - **GuesthouseDetail.tsx**: 添加 LodgingBusiness structured data
+
+- **創建 sitemap.xml** (`public/sitemap.xml`)
+  - 包含所有主要頁面的 URL
+  - 設置適當的 priority 和 changefreq
+  - 注意：需要將 `yourdomain.com` 替換為實際的域名
+
+- **更新 robots.txt** (`public/robots.txt`)
+  - 允許所有搜尋引擎爬取
+  - 添加 sitemap 位置
+  - 禁止爬取 admin、api、storage 目錄
+
+### 功能說明
+- 所有頁面現在都有適當的 SEO meta tags
+- 支援 Open Graph 和 Twitter Card，改善社交媒體分享效果
+- 使用 Structured Data (JSON-LD) 幫助 Google 更好地理解網站內容
+- sitemap.xml 幫助搜尋引擎發現和索引所有頁面
+- robots.txt 指導搜尋引擎爬蟲的行為
+
+### 注意事項
+- 需要將 `sitemap.xml` 中的 `yourdomain.com` 替換為實際的域名
+- 需要將 `robots.txt` 中的 `yourdomain.com` 替換為實際的域名
+- 建議在 Google Search Console 中提交 sitemap.xml
+- 建議定期更新 sitemap.xml 中的 lastmod 日期
+
+---
+
 ## 2026-01-11 19:48:00 (+8) - 調整訂單管理操作下拉菜單位置：向下 6px 並向右 30px
 
 ### 變更內容

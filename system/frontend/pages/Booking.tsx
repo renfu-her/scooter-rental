@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Plus, X } from 'lucide-react';
+import SEO from '../components/SEO';
 import { publicApi } from '../lib/api';
 
 interface ScooterModel {
@@ -180,8 +181,27 @@ const Booking: React.FC = () => {
     }
   };
 
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'ReservationAction',
+    name: '線上預約 - 蘭光電動機車',
+    description: '透過線上表單預約小琉球電動車租賃服務，方便快速，讓您輕鬆規劃小琉球之旅。',
+    url: `${window.location.origin}/booking`,
+    target: {
+      '@type': 'LocalBusiness',
+      name: '蘭光電動機車'
+    }
+  };
+
   return (
     <div className="animate-in fade-in duration-700 pb-24">
+      <SEO
+        title="線上預約 - 蘭光電動機車"
+        description="透過線上表單預約小琉球電動車租賃服務，方便快速，讓您輕鬆規劃小琉球之旅。"
+        keywords="線上預約,小琉球租車預約,電動車預約,蘭光電動機車預約"
+        url="/booking"
+        structuredData={structuredData}
+      />
       <header className="py-20 px-6 bg-black text-white text-center relative overflow-hidden">
         <div className="absolute inset-0 opacity-30">
           <img src="https://picsum.photos/seed/beach/1920/400" className="w-full h-full object-cover" alt="Beach" />

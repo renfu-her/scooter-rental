@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ExternalLink } from 'lucide-react';
+import SEO from '../components/SEO';
 import { publicApi } from '../lib/api';
 
 interface Guesthouse {
@@ -74,8 +75,27 @@ const GuesthouseDetail: React.FC = () => {
     );
   }
 
+  const structuredData = guesthouse ? {
+    '@context': 'https://schema.org',
+    '@type': 'LodgingBusiness',
+    name: guesthouse.name,
+    description: guesthouse.description || guesthouse.short_description || '小琉球精選民宿',
+    image: guesthouse.image_path ? `${window.location.origin}/storage/${guesthouse.image_path}` : undefined,
+    url: guesthouse.link || `${window.location.origin}/guesthouses/${guesthouse.id}`
+  } : undefined;
+
   return (
     <div className="animate-in fade-in duration-700 bg-[#fcfcfc] min-h-screen">
+      {guesthouse && (
+        <SEO
+          title={`${guesthouse.name} - 民宿推薦 - 蘭光電動機車`}
+          description={guesthouse.short_description || guesthouse.description || '小琉球精選合作民宿'}
+          keywords={`${guesthouse.name},小琉球民宿,合作民宿,小琉球住宿`}
+          url={`/guesthouses/${guesthouse.id}`}
+          image={guesthouse.image_path ? `/storage/${guesthouse.image_path}` : undefined}
+          structuredData={structuredData}
+        />
+      )}
       <header className="py-20 px-6 bg-[#f0f4ff]">
         <div className="container mx-auto max-w-4xl">
           <Link

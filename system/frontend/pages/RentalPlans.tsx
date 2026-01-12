@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
+import SEO from '../components/SEO';
 import { publicApi } from '../lib/api';
 
 interface RentalPlan {
@@ -30,8 +31,30 @@ const RentalPlans: React.FC = () => {
     fetchPlans();
   }, []);
 
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: '小琉球電動車租賃方案',
+    description: '蘭光電動機車提供多種電動車租賃方案，滿足您不同的旅遊需求，讓您輕鬆探索小琉球的美景。',
+    url: `${window.location.origin}/rental`,
+    offers: plans.map(plan => ({
+      '@type': 'Offer',
+      name: plan.model,
+      price: plan.price,
+      priceCurrency: 'TWD',
+      availability: 'https://schema.org/InStock'
+    }))
+  };
+
   return (
     <div className="animate-in slide-in-from-bottom-4 duration-700">
+      <SEO
+        title="租車方案 - 蘭光電動機車"
+        description="蘭光電動機車提供多種電動車租賃方案，滿足您不同的旅遊需求，讓您輕鬆探索小琉球的美景。"
+        keywords="租車方案,小琉球租車,電動車租賃,機車租賃方案,小琉球旅遊"
+        url="/rental"
+        structuredData={structuredData}
+      />
       <header className="py-20 px-6 bg-[#f0f4ff] text-center">
         <div className="max-w-4xl mx-auto">
           <p className="text-gray-400 tracking-[0.3em] uppercase mb-2 text-sm">Rental Plans</p>
