@@ -86,8 +86,19 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
         {/* Mobile Menu Overlay */}
         {isMobileMenuOpen && (
-          <div className="fixed inset-0 bg-[#f0f4ff] z-[65] flex flex-col p-8 md:hidden pt-24">
-            <nav className="flex flex-col space-y-6 text-center">
+          <div className="fixed inset-0 bg-[#f0f4ff] z-[65] flex flex-col md:hidden">
+            {/* Mobile Menu Header with Logo and Close Button */}
+            <div className="flex items-center justify-between p-4 border-b">
+              <Link to="/" onClick={toggleMobileMenu}>
+                <Logo />
+              </Link>
+              <button onClick={toggleMobileMenu} className="p-2">
+                <X size={24} />
+              </button>
+            </div>
+            
+            {/* Navigation Links */}
+            <nav className="flex flex-col space-y-6 text-center p-8 flex-1">
               {NAV_ITEMS.map((item) => (
                 <Link
                   key={item.path}
@@ -99,7 +110,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </Link>
               ))}
             </nav>
-            <div className="mt-auto space-y-4">
+            
+            {/* Action Buttons */}
+            <div className="p-8 space-y-4">
               <Link to="/booking" onClick={toggleMobileMenu} className="block w-full text-center bg-black text-white py-4 rounded-full font-bold">線上預約</Link>
               <Link to="/location" onClick={toggleMobileMenu} className="block w-full text-center border border-black py-4 rounded-full font-bold">聯絡我們</Link>
             </div>
