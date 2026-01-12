@@ -111,7 +111,7 @@ const Home: React.FC = () => {
           </div>
 
           <div className="md:w-1/2 relative w-full">
-            <div className="w-full aspect-square md:aspect-video overflow-hidden bg-gray-100 rounded-[40px] sm:rounded-[50px] md:rounded-[60px] lg:rounded-[80px]">
+            <div className="w-full aspect-square md:aspect-video overflow-hidden bg-gray-100 rounded-[60px] sm:rounded-[80px] md:rounded-[100px] lg:rounded-[120px] xl:rounded-[150px]">
               <img 
                 src={getImageSrc('hero_image')} 
                 alt={getImageAlt('hero_image', 'Scooter riding at sunset')} 

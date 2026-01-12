@@ -1,5 +1,24 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-12 17:15:00 (+8) - 增加 Hero Section 圖片圓角半徑，讓圓弧更圓
+
+### 變更內容
+
+#### 前端
+- **Home.tsx** (`system/frontend/pages/Home.tsx`)
+  - 增加 Hero Section 圖片容器的圓角半徑：
+    - 從 `rounded-[40px] sm:rounded-[50px] md:rounded-[60px] lg:rounded-[80px]` 
+    - 改為 `rounded-[60px] sm:rounded-[80px] md:rounded-[100px] lg:rounded-[120px] xl:rounded-[150px]`
+    - 圓角半徑大幅增加，讓圓弧效果更明顯、更圓潤
+    - 在超大螢幕上（xl）使用更大的圓角（150px）
+
+### 功能說明
+- Hero Section 圖片現在有更明顯的圓弧造型
+- 圓角半徑根據螢幕尺寸響應式調整，從 60px 到 150px
+- 提供更圓潤、更美觀的視覺效果
+
+---
+
 ## 2026-01-12 17:11:00 (+8) - 為 Hero Section 圖片添加四邊圓弧造型
 
 ### 變更內容
