@@ -1,5 +1,46 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-12 14:18:00 (+8) - 修改 build.sh 支援 production 和 develop 模式
+
+### 變更內容
+
+#### 部署腳本
+- **build.sh** (`build.sh`)
+  - 重構為支援多環境部署：
+    - 添加命令行參數檢查：`production` 或 `develop`
+    - **Production 模式**：
+      - 專案目錄：`~/htdocs/languangsmart.com`
+      - 完整的生產環境部署流程
+    - **Develop 模式**：
+      - 專案目錄：`~/htdocs/scooter-rental.ai-tracks.com`
+      - 開發環境部署流程
+    - 改進錯誤處理：
+      - 添加目錄切換錯誤檢查
+      - 添加命令執行錯誤檢查
+      - 非關鍵步驟失敗時顯示警告但繼續執行
+      - 關鍵步驟失敗時終止執行
+    - 修正路由快取命令：從 `php artisan r:cache` 改為 `php artisan route:clear && php artisan route:cache`
+    - 添加配置清除步驟：`php artisan config:clear` 在快取前清除舊配置
+    - 添加 shebang：`#!/bin/bash`
+    - 改進輸出訊息，顯示當前模式和專案目錄
+
+### 使用方式
+```bash
+# Production 環境部署
+./build.sh production
+
+# Develop 環境部署
+./build.sh develop
+```
+
+### 功能說明
+- 現在可以通過參數選擇部署到 production 或 develop 環境
+- Production 環境使用 `languangsmart.com` 目錄
+- Develop 環境使用 `scooter-rental.ai-tracks.com` 目錄
+- 改進了錯誤處理，確保部署過程的穩定性
+
+---
+
 ## 2026-01-12 14:14:00 (+8) - 添加首頁移動端/桌面端視圖切換功能
 
 ### 變更內容
