@@ -1,5 +1,27 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-12 17:05:00 (+8) - 修改 Hero Section 為完全滿版顯示，移除上下灰色框
+
+### 變更內容
+
+#### 前端
+- **Home.tsx** (`system/frontend/pages/Home.tsx`)
+  - 修改 Hero Section 為完全滿版顯示：
+    - 移除 section 的上下 padding（`py-12 sm:py-16 md:py-0`），改為無 padding
+    - 移除容器的左右 padding（`px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16`），改為 `px-0` 讓內容完全滿版
+    - 移除 gap（`gap-8 sm:gap-12`），改為 `gap-0` 讓左右內容緊貼
+    - 將 padding 移到文字區塊內部（`px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-8 md:py-0`），確保文字有適當間距但圖片滿版
+    - 移除圖片容器的圓角和陰影（`rounded-[40px] sm:rounded-[60px] md:rounded-[80px] overflow-hidden shadow-2xl blob-shape`），讓圖片完全滿版顯示
+    - 現在 Hero Section 在 desktop 和 mobile 上都完全滿版，沒有上下灰色框，左右內容在同一排
+
+### 功能說明
+- Hero Section 現在在 desktop 和 mobile 上都完全滿版顯示
+- 移除了上下灰色框（padding），讓內容填滿整個區塊
+- Desktop 上左右內容在同一排，沒有左右邊距
+- 圖片區域完全滿版，文字區域保持適當的內部 padding
+
+---
+
 ## 2026-01-12 17:01:00 (+8) - 修改 Hero Section 為滿版顯示（Desktop 和 Mobile）
 
 ### 變更內容
