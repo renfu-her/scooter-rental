@@ -7,7 +7,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: '租車方案', path: '/rental' },
   { label: '租車須知', path: '/guidelines' },
   { label: '交通位置', path: '/location' },
-  { label: '民宿推薦', path: '/guesthouses' }, // 暫時隱藏民宿推薦選單
+  // { label: '民宿推薦', path: '/guesthouses' }, // 暫時隱藏民宿推薦選單
   { label: '聯絡我們', path: '/contact' },
 ];
 
