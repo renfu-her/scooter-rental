@@ -150,7 +150,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   
                   {/* Instagram */}
                   <a 
-                    href="https://www.instagram.com/languan_smart?igsh=M2IxaDN5cTFsZnJ2&utm_source=qr" 
+                    href="https://www.instagram.com/languang_smart?igsh=M2IxaDN5cTFsZnJ2&utm_source=qr" 
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center bg-gradient-to-br from-[#833AB4] via-[#FD1D1D] to-[#FCB045] rounded-full hover:opacity-90 transition-all shadow-md hover:shadow-lg"

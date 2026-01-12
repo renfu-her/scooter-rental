@@ -69,7 +69,7 @@ const BannerCarousel: React.FC = () => {
 
   if (loading) {
     return (
-      <section className="relative w-full h-[600px] overflow-hidden bg-gray-100 flex items-center justify-center">
+      <section className="relative w-full aspect-[16/9] sm:aspect-[16/9] md:h-[600px] overflow-hidden bg-gray-100 flex items-center justify-center">
         <div className="text-gray-400">載入中...</div>
       </section>
     );
@@ -80,7 +80,7 @@ const BannerCarousel: React.FC = () => {
   }
 
   return (
-    <section className="relative w-full h-[400px] sm:h-[500px] md:h-[600px] overflow-hidden bg-gray-100">
+    <section className="relative w-full aspect-[16/9] sm:aspect-[16/9] md:h-[600px] overflow-hidden bg-gray-100">
       {/* Banner 容器 */}
       <div className="relative w-full h-full">
         {banners.map((banner, index) => (

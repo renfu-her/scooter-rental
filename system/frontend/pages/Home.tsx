@@ -131,10 +131,11 @@ const Home: React.FC = () => {
             <div className="aspect-[4/5] rounded-full sm:rounded-full overflow-hidden">
               <img src={getImageSrc('featured_image_2')} alt={getImageAlt('featured_image_2', 'Scooter Detail')} className="w-full h-full object-cover" />
             </div>
-            <div className="aspect-[4/5] rounded-[40px] sm:rounded-[50px] md:rounded-[60px] overflow-hidden transform translate-y-8 sm:translate-y-16 md:translate-y-24">
+            {/* 移動端：第三張圖片顯示在第二行左側，桌面端：第三張 */}
+            <div className="aspect-[4/5] rounded-[40px] sm:rounded-[50px] md:rounded-[60px] overflow-hidden transform translate-y-8 sm:translate-y-16 md:translate-y-24 order-3 md:order-3">
               <img src={getImageSrc('featured_image_3')} alt={getImageAlt('featured_image_3', 'Couple Riding')} className="w-full h-full object-cover" />
             </div>
-            <div className="aspect-[4/5] rounded-[20px] sm:rounded-[25px] md:rounded-[30px] overflow-hidden transform -translate-y-4 sm:-translate-y-6 md:-translate-y-8">
+            <div className="aspect-[4/5] rounded-[20px] sm:rounded-[25px] md:rounded-[30px] overflow-hidden transform -translate-y-4 sm:-translate-y-6 md:-translate-y-8 order-4 md:order-4">
               <img src={getImageSrc('featured_image_4')} alt={getImageAlt('featured_image_4', 'Shop Interior')} className="w-full h-full object-cover" />
             </div>
           </div>

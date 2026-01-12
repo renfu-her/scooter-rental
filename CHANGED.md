@@ -1,5 +1,41 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-12 14:08:00 (+8) - 更新 Instagram 連結
+
+### 變更內容
+
+#### 前端
+- **Layout.tsx** (`system/frontend/components/Layout.tsx`)
+  - 更新 Instagram 連結：
+    - 從 `https://www.instagram.com/languan_smart?igsh=M2IxaDN5cTFsZnJ2&utm_source=qr` 
+    - 更新為 `https://www.instagram.com/languang_smart?igsh=M2IxaDN5cTFsZnJ2&utm_source=qr`
+    - 修正 Instagram 用戶名從 `languan_smart` 改為 `languang_smart`
+
+---
+
+## 2026-01-12 12:36:00 (+8) - 修正移動端 Banner 比例和圖片顯示順序
+
+### 變更內容
+
+#### 前端
+- **BannerCarousel.tsx** (`system/frontend/components/BannerCarousel.tsx`)
+  - 修正移動端 Banner 比例為 16:9：
+    - 將高度從固定的 `h-[400px] sm:h-[500px] md:h-[600px]` 改為 `aspect-[16/9] sm:aspect-[16/9] md:h-[600px]`
+    - 確保在移動端和小屏幕設備上 Banner 保持 16:9 的寬高比
+    - 同時更新 loading 狀態的容器比例
+
+- **Home.tsx** (`system/frontend/pages/Home.tsx`)
+  - 優化 Featured Images Grid 的顯示順序：
+    - 為第三張和第四張圖片添加 `order-3` 和 `order-4` 類別
+    - 確保在移動端（2 列網格）中，第三張圖片正確顯示在第二行的左側位置
+    - 桌面端保持原有的 4 列顯示順序
+
+### 功能說明
+- Banner 在移動端現在使用 16:9 的標準比例，提供更好的視覺效果
+- Featured Images Grid 在移動端的顯示順序已優化，第三張圖片現在正確顯示在預期位置
+
+---
+
 ## 2026-01-12 12:32:00 (+8) - 優化前台響應式設計 (RWD)
 
 ### 變更內容
