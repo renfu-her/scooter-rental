@@ -1,5 +1,77 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-12 15:59:00 (+8) - 配置後端管理系統也使用自動 API URL 檢測
+
+### 變更內容
+
+#### 後端
+- **api.ts** (`system/backend/lib/api.ts`)
+  - 實現自動 API URL 檢測（與前端一致）：
+    - 根據當前域名自動判斷 API 基礎 URL
+    - Production 環境（languangsmart.com）使用 `https://languangsmart.com/api`
+    - Develop 環境（scooter-rental.ai-tracks.com）使用 `https://scooter-rental.ai-tracks.com/api`
+    - 開發環境默認使用 `http://localhost:8000/api`
+    - 優先使用環境變數 `VITE_API_BASE_URL`（如果設置）
+
+#### 部署腳本
+- **build.sh** (`build.sh`)
+  - 在構建後端時也自動設置環境變數：
+    - Production 模式：設置 `VITE_API_BASE_URL=https://languangsmart.com/api`
+    - Develop 模式：設置 `VITE_API_BASE_URL=https://scooter-rental.ai-tracks.com/api`
+  - 在構建輸出中顯示使用的 API URL
+
+### 功能說明
+- 後端管理系統現在也會自動根據域名判斷 API URL
+- 與前端保持一致的自動檢測邏輯
+- 構建腳本會為前端和後端都設置正確的 API URL
+
+---
+
+## 2026-01-12 15:55:00 (+8) - 配置 Production 環境使用 languangsmart.com API
+
+### 變更內容
+
+#### 前端
+- **api.ts** (`system/frontend/lib/api.ts`)
+  - 實現自動 API URL 檢測：
+    - 根據當前域名自動判斷 API 基礎 URL
+    - Production 環境（languangsmart.com）使用 `https://languangsmart.com/api`
+    - Develop 環境（scooter-rental.ai-tracks.com）使用 `https://scooter-rental.ai-tracks.com/api`
+    - 開發環境默認使用 `http://localhost:8000/api`
+    - 優先使用環境變數 `VITE_API_BASE_URL`（如果設置）
+
+#### 部署腳本
+- **build.sh** (`build.sh`)
+  - 在構建前端時自動設置環境變數：
+    - Production 模式：設置 `VITE_API_BASE_URL=https://languangsmart.com/api`
+    - Develop 模式：設置 `VITE_API_BASE_URL=https://scooter-rental.ai-tracks.com/api`
+  - 在構建輸出中顯示使用的 API URL
+
+### 功能說明
+- Production 環境現在會自動使用 `https://languangsmart.com/api` 作為 API 基礎 URL
+- 無需手動配置環境變數，系統會根據當前域名自動判斷
+- 構建腳本會自動設置正確的 API URL，確保構建後的應用使用正確的 API 端點
+
+---
+
+## 2026-01-12 15:53:00 (+8) - 添加故障排除文檔
+
+### 變更內容
+
+#### 文檔
+- **TROUBLESHOOTING.md** (新建)
+  - 添加故障排除指南，包含常見問題和解決方案：
+    - API 連接問題（ERR_CONNECTION_REFUSED）
+    - CSS 文件 404 錯誤
+    - CORS 問題
+  - 提供詳細的檢查步驟和解決方案
+
+### 功能說明
+- 幫助開發者快速診斷和解決常見的開發環境問題
+- 提供多種解決方案以適應不同的開發環境（Laravel serve、Laragon 等）
+
+---
+
 ## 2026-01-12 15:51:00 (+8) - 修復 index.css 404 錯誤和 API CORS 問題
 
 ### 變更內容

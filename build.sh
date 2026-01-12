@@ -89,6 +89,14 @@ echo "✓ 後端緩存清除完成"
 echo ""
 
 echo "[7/8] 構建後端 (React)..."
+# 設置 production 環境變數
+if [ "$MODE" = "production" ]; then
+    export VITE_API_BASE_URL=https://languangsmart.com/api
+    echo "  ℹ 使用 Production API: https://languangsmart.com/api"
+elif [ "$MODE" = "develop" ]; then
+    export VITE_API_BASE_URL=https://scooter-rental.ai-tracks.com/api
+    echo "  ℹ 使用 Develop API: https://scooter-rental.ai-tracks.com/api"
+fi
 pnpm build
 if [ $? -ne 0 ]; then
     echo "✗ 警告：後端構建失敗，繼續執行..."
@@ -116,6 +124,14 @@ echo "✓ 前端緩存清除完成"
 echo ""
 
 echo "[9/9] 構建前端 (React)..."
+# 設置 production 環境變數
+if [ "$MODE" = "production" ]; then
+    export VITE_API_BASE_URL=https://languangsmart.com/api
+    echo "  ℹ 使用 Production API: https://languangsmart.com/api"
+elif [ "$MODE" = "develop" ]; then
+    export VITE_API_BASE_URL=https://scooter-rental.ai-tracks.com/api
+    echo "  ℹ 使用 Develop API: https://scooter-rental.ai-tracks.com/api"
+fi
 pnpm build
 if [ $? -ne 0 ]; then
     echo "✗ 警告：前端構建失敗"

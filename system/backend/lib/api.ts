@@ -1,4 +1,26 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+// 根據當前域名自動判斷 API 基礎 URL
+const getApiBaseUrl = () => {
+  // 如果設置了環境變數，優先使用
+  if (import.meta.env.VITE_API_BASE_URL) {
+    return import.meta.env.VITE_API_BASE_URL;
+  }
+  
+  // 根據當前域名自動判斷
+  const hostname = window.location.hostname;
+  
+  if (hostname === 'languangsmart.com' || hostname === 'www.languangsmart.com') {
+    return 'https://languangsmart.com/api';
+  }
+  
+  if (hostname === 'scooter-rental.ai-tracks.com' || hostname === 'www.scooter-rental.ai-tracks.com') {
+    return 'https://scooter-rental.ai-tracks.com/api';
+  }
+  
+  // 開發環境默認值
+  return 'http://localhost:8000/api';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 interface ApiResponse<T> {
   data: T;
