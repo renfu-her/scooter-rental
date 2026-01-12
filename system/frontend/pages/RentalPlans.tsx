@@ -35,7 +35,7 @@ const RentalPlans: React.FC = () => {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: '小琉球電動車租賃方案',
-    description: '蘭光電動機車提供多種電動車租賃方案，滿足您不同的旅遊需求，讓您輕鬆探索小琉球的美景。',
+    description: '蘭光電動機車提供彈性且多樣化的租賃方案，適用於旅遊、通勤與短期移動等多種情境。我們依據不同使用需求，規劃完善的租期與車型選擇，讓顧客能以安心、便利的方式完成每一次出行。',
     url: `${window.location.origin}/rental`,
     offers: plans.map(plan => ({
       '@type': 'Offer',
@@ -50,7 +50,7 @@ const RentalPlans: React.FC = () => {
     <div className="animate-in slide-in-from-bottom-4 duration-700">
       <SEO
         title="租車方案 - 蘭光電動機車"
-        description="蘭光電動機車提供多種電動車租賃方案，滿足您不同的旅遊需求，讓您輕鬆探索小琉球的美景。"
+        description="蘭光電動機車提供彈性且多樣化的租賃方案，適用於旅遊、通勤與短期移動等多種情境。我們依據不同使用需求，規劃完善的租期與車型選擇，讓顧客能以安心、便利的方式完成每一次出行。"
         keywords="租車方案,小琉球租車,電動車租賃,機車租賃方案,小琉球旅遊"
         url="/rental"
         structuredData={structuredData}
@@ -59,7 +59,7 @@ const RentalPlans: React.FC = () => {
         <div className="max-w-4xl mx-auto">
           <p className="text-gray-400 tracking-[0.3em] uppercase mb-2 text-xs sm:text-sm">Rental Plans</p>
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl serif font-light mb-3 sm:mb-4">租車方案</h1>
-          <p className="text-gray-500 max-w-xl mx-auto text-sm sm:text-base mb-4 px-4">蘭光電動機車提供多種電動車租賃方案，滿足您不同的旅遊需求，讓您輕鬆探索小琉球的美景。</p>
+          <p className="text-gray-500 max-w-xl mx-auto text-sm sm:text-base mb-4 px-4">蘭光電動機車提供彈性且多樣化的租賃方案，適用於旅遊、通勤與短期移動等多種情境。我們依據不同使用需求，規劃完善的租期與車型選擇，讓顧客能以安心、便利的方式完成每一次出行。</p>
           <div className="mt-3 sm:mt-4 text-xs text-gray-400 mb-6 sm:mb-8">首頁 &gt; 租車方案</div>
           
           <div className="max-w-2xl mx-auto text-center px-4">
