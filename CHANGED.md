@@ -1,5 +1,25 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-12 22:24:00 (+8) - 移除後台表單提交按鈕中的 Plus 圖標
+
+### 變更內容
+
+#### 後台
+- **ContactInfosPage.tsx** (`system/backend/pages/ContactInfosPage.tsx`)
+  - 移除表單提交按鈕中的 `<Plus size={18} />` 圖標
+  - 現在只顯示文字「更新」或「新增」
+
+- **LocationsPage.tsx** (`system/backend/pages/LocationsPage.tsx`)
+  - 移除表單提交按鈕中的 `<Plus size={18} />` 圖標
+  - 現在只顯示文字「更新」或「新增」
+
+### 功能說明
+- 所有後台表單的提交按鈕現在只顯示文字，不再有 Plus 圖標
+- 保持一致的 UI 設計風格
+- 其他頁面（GuidelinesPage、RentalPlansPage、BannersPage、GuesthousesPage 等）已經沒有 Plus 圖標
+
+---
+
 ## 2026-01-12 22:21:00 (+8) - 修復後台「門市據點」圖片刪除功能
 
 ### 問題分析
