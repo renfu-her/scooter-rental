@@ -32,7 +32,7 @@ const About: React.FC = () => {
     '@context': 'https://schema.org',
     '@type': 'AboutPage',
     name: '關於我們 - 蘭光電動機車',
-    description: '蘭光電動機車致力於為每一位旅客提供最優質的電動車租賃服務，讓您能夠以最環保、最舒適的方式探索小琉球的美麗風光。',
+    description: '蘭光電動機車致力於為每一位旅客提供高品質的電動機車租賃服務，讓每一次出行，都能以更環保、更舒適且更安心的方式完成。',
     url: `${window.location.origin}/about`,
     mainEntity: {
       '@type': 'LocalBusiness',
@@ -45,7 +45,7 @@ const About: React.FC = () => {
     <div className="animate-in slide-in-from-right-4 duration-700">
       <SEO
         title="關於我們 - 蘭光電動機車"
-        description="蘭光電動機車致力於為每一位旅客提供最優質的電動車租賃服務，讓您能夠以最環保、最舒適的方式探索小琉球的美麗風光。"
+        description="蘭光電動機車致力於為每一位旅客提供高品質的電動機車租賃服務，讓每一次出行，都能以更環保、更舒適且更安心的方式完成。"
         keywords="蘭光電動機車,關於我們,小琉球租車,電動車租賃,環保旅遊"
         url="/about"
         structuredData={structuredData}
@@ -55,7 +55,7 @@ const About: React.FC = () => {
         <div className="max-w-4xl mx-auto">
           <p className="text-gray-400 tracking-[0.3em] uppercase mb-2 text-xs sm:text-sm">About Us</p>
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl serif font-light mb-3 sm:mb-4">關於我們</h1>
-          <p className="text-gray-500 max-w-xl mx-auto text-sm sm:text-base px-4">蘭光電動機車致力於為每一位旅客提供最優質的電動車租賃服務，讓您能夠以最環保、最舒適的方式探索小琉球的美麗風光。</p>
+          <p className="text-gray-500 max-w-xl mx-auto text-sm sm:text-base px-4">蘭光電動機車致力於為每一位旅客提供高品質的電動機車租賃服務，讓每一次出行，都能以更環保、更舒適且更安心的方式完成。</p>
           <div className="mt-3 sm:mt-4 text-xs text-gray-400">首頁 &gt; 關於我們</div>
         </div>
       </header>
@@ -67,10 +67,10 @@ const About: React.FC = () => {
           <div className="mb-12 sm:mb-16">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold serif mb-4 sm:mb-6 text-center">我們的使命</h2>
             <p className="text-gray-600 leading-relaxed text-base sm:text-lg mb-4 sm:mb-6 text-left">
-              蘭光電動機車致力於為每一位旅客提供最優質的電動車租賃服務，讓您能夠以最環保、最舒適的方式探索小琉球的美麗風光。
+              蘭光電動機車致力於為每一位旅客提供高品質的電動機車租賃服務，讓每一次出行，都能以更環保、更舒適且更安心的方式完成。
             </p>
             <p className="text-gray-600 leading-relaxed text-base sm:text-lg text-left">
-              我們相信，每一次的旅程都應該是一次難忘的體驗。因此，我們不僅提供高品質的電動車，更注重每一位顧客的服務體驗。
+              我們相信，交通不只是移動的工具，而是旅程體驗中不可或缺的一環。因此，我們不僅重視車輛品質，更專注於服務流程與細節，希望讓每一位顧客，都能自在地享受旅程的每一刻。
             </p>
           </div>
 
@@ -110,13 +110,19 @@ const About: React.FC = () => {
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold serif mb-4 sm:mb-6">我們的 story</h2>
             <div className="space-y-4 text-gray-600 leading-relaxed">
               <p>
-                蘭光電動機車2025/07/20首度於小琉球開幕，我們深知這片美麗島嶼的獨特魅力。從一開始，我們就致力於提供最優質的租車服務，讓每一位旅客都能夠輕鬆、安全地探索小琉球。
+                蘭光電動機車租賃開立於 2025 年7月，源自我們對旅遊品質與移動體驗的重視。
               </p>
               <p>
-                我們選擇電動車作為主要租賃車輛，不僅因為它們環保、安靜，更因為它們能夠讓您更貼近大自然，享受純淨的騎乘體驗。
+                在一次次的旅途中，我們深刻體會到，一趟好的行程，來自於安全、便利且值得信賴的交通選擇。因此，我們選擇以電動機車作為主要租賃車輛，希望在兼顧環保與舒適的同時，為旅客帶來更純粹的騎乘體驗。
               </p>
               <p>
-                多年來，我們不斷提升服務品質，從車輛的選擇、保養，到顧客服務的每一個細節，我們都用心經營。我們相信，只有用心，才能創造出真正優質的服務體驗。
+                電動機車不僅安靜、低碳，也能讓騎行過程更加輕鬆自在，無論是短程移動、日常代步，或旅途中自由探索，都能感受到流暢且安心的移動感受。
+              </p>
+              <p>
+                多年來，我們持續優化服務品質，從車輛選擇、定期保養、安全檢查，到現場服務與顧客體驗的每一個細節，始終以高標準自我要求。
+              </p>
+              <p>
+                我們相信，唯有用心經營與專業服務，才能讓每一次出行，都成為值得信賴且令人滿意的體驗。
               </p>
             </div>
           </div>
