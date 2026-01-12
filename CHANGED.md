@@ -1,5 +1,35 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-12 22:21:00 (+8) - 修復後台「門市據點」圖片刪除功能
+
+### 問題分析
+- 圖片刪除按鈕被 file input 覆蓋，點擊刪除按鈕時會觸發文件選擇對話框
+- 刪除圖片功能不完整，無法真正刪除已上傳的圖片
+
+### 變更內容
+
+#### 後端
+- **LocationController.php** (`app/Http/Controllers/Api/LocationController.php`)
+  - 在 `update` 方法的驗證規則中添加 `image_path` 欄位（允許 nullable）
+  - 當 `image_path` 被設為 `null` 時，自動刪除舊圖片檔案
+  - 使用 `ImageService` 刪除圖片檔案
+
+#### 後台
+- **LocationsPage.tsx** (`system/backend/pages/LocationsPage.tsx`)
+  - 新增 `handleDeleteImage` 函數處理圖片刪除
+  - 使用 `e.stopPropagation()` 和 `e.preventDefault()` 防止觸發 file input
+  - 為刪除按鈕添加 `z-10` 確保在 file input 之上
+  - 刪除圖片時會調用 API 更新 location，將 `image_path` 設為 `null`
+  - 刪除後重新獲取資料並更新編輯狀態
+
+### 功能說明
+- 圖片刪除按鈕現在可以正常工作，不會被 file input 覆蓋
+- 點擊刪除按鈕會顯示確認對話框
+- 確認後會真正刪除圖片檔案和資料庫記錄
+- 刪除後會自動更新列表和編輯狀態
+
+---
+
 ## 2026-01-12 22:18:00 (+8) - 修正「門市據點」頁面描述文字，添加「各地服務據點位置」高亮顯示
 
 ### 變更內容

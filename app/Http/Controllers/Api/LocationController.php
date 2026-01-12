@@ -99,6 +99,7 @@ class LocationController extends Controller
             'hours' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'map_embed' => 'nullable|string',
+            'image_path' => 'nullable|string',
             'sort_order' => 'nullable|integer|min:0',
             'is_active' => 'nullable|boolean',
         ]);
@@ -110,7 +111,14 @@ class LocationController extends Controller
             ], 422);
         }
 
-        $location->update($validator->validated());
+        $validated = $validator->validated();
+        
+        // 如果 image_path 被設為 null，刪除舊圖片
+        if (isset($validated['image_path']) && $validated['image_path'] === null && $location->image_path) {
+            $this->imageService->deleteImage($location->image_path);
+        }
+
+        $location->update($validated);
 
         return response()->json([
             'message' => 'Location updated successfully',
