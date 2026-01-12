@@ -1,5 +1,23 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-12 17:11:00 (+8) - 為 Hero Section 圖片添加四邊圓弧造型
+
+### 變更內容
+
+#### 前端
+- **Home.tsx** (`system/frontend/pages/Home.tsx`)
+  - 為 Hero Section 圖片容器添加圓角：
+    - 添加響應式圓角類別：`rounded-[40px] sm:rounded-[50px] md:rounded-[60px] lg:rounded-[80px]`
+    - 在保持滿版顯示的同時，為圖片添加四邊圓弧造型
+    - 圓角大小會根據螢幕尺寸自動調整
+
+### 功能說明
+- Hero Section 圖片現在有四邊圓弧造型
+- 圓角大小會根據螢幕尺寸響應式調整
+- 在保持滿版顯示的同時，提供更美觀的視覺效果
+
+---
+
 ## 2026-01-12 17:05:00 (+8) - 修改 Hero Section 為完全滿版顯示，移除上下灰色框
 
 ### 變更內容
