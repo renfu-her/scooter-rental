@@ -1,5 +1,26 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-12 14:09:00 (+8) - 修正移動端 Banner 16:9 比例顯示問題
+
+### 變更內容
+
+#### 前端
+- **BannerCarousel.tsx** (`system/frontend/components/BannerCarousel.tsx`)
+  - 修正移動端 Banner 16:9 比例顯示問題：
+    - 添加 `isMobile` 狀態來檢測移動設備
+    - 使用 `useEffect` 監聽窗口大小變化
+    - 改用內聯 `style` 屬性設置 `aspectRatio: '16/9'`，確保在移動端強制應用 16:9 比例
+    - 桌面端（md 以上，768px+）保持固定高度 `h-[600px]`
+    - 同時更新 loading 狀態的容器比例
+    - 使用 `minHeight: '0'` 確保 aspect ratio 正確計算
+
+### 功能說明
+- 現在移動端 Banner 使用內聯樣式強制應用 16:9 比例，確保在所有移動設備上都能正確顯示
+- 桌面端保持原有的 600px 固定高度
+- 使用 JavaScript 動態檢測設備類型，提供更可靠的響應式體驗
+
+---
+
 ## 2026-01-12 14:08:00 (+8) - 更新 Instagram 連結
 
 ### 變更內容

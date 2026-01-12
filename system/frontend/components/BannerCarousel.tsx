@@ -18,6 +18,17 @@ const BannerCarousel: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // 檢測是否為移動設備
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // 從 API 獲取 Banner 數據
   useEffect(() => {
@@ -69,7 +80,10 @@ const BannerCarousel: React.FC = () => {
 
   if (loading) {
     return (
-      <section className="relative w-full aspect-[16/9] sm:aspect-[16/9] md:h-[600px] overflow-hidden bg-gray-100 flex items-center justify-center">
+      <section 
+        className="relative w-full overflow-hidden bg-gray-100 flex items-center justify-center md:h-[600px]" 
+        style={{ aspectRatio: isMobile ? '16/9' : undefined, minHeight: '0' }}
+      >
         <div className="text-gray-400">載入中...</div>
       </section>
     );
@@ -80,7 +94,10 @@ const BannerCarousel: React.FC = () => {
   }
 
   return (
-    <section className="relative w-full aspect-[16/9] sm:aspect-[16/9] md:h-[600px] overflow-hidden bg-gray-100">
+    <section 
+      className="relative w-full overflow-hidden bg-gray-100 md:h-[600px]" 
+      style={{ aspectRatio: isMobile ? '16/9' : undefined, minHeight: '0' }}
+    >
       {/* Banner 容器 */}
       <div className="relative w-full h-full">
         {banners.map((banner, index) => (
