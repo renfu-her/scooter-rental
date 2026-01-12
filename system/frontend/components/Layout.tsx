@@ -113,7 +113,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
 
           {/* Footer Content */}
-          <footer className="bg-[#f0f4ff] py-12 px-6 md:px-12 border-t border-gray-100">
+          <footer className="bg-white md:bg-[#f0f4ff] py-12 px-6 md:px-12 border-t border-gray-100 rounded-t-[80px] md:rounded-t-none">
             <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
                 <div className="flex flex-col items-center md:items-start">
                   <Logo />

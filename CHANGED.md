@@ -1,5 +1,24 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-12 17:38:00 (+8) - 為 mobile 底部的「蘭光電動機車」區塊添加圓角
+
+### 變更內容
+
+#### 前端
+- **Layout.tsx** (`system/frontend/components/Layout.tsx`)
+  - 為 mobile 底部的 footer 區塊添加圓角：
+    - 在 mobile 上使用白色背景（`bg-white md:bg-[#f0f4ff]`）
+    - 添加頂部圓角：`rounded-t-[80px] md:rounded-t-none`
+    - 在 mobile 上顯示圓潤的頂部圓角，與 Hero Section 的圓角風格一致
+    - Desktop 上保持原來的樣式（無頂部圓角）
+
+### 功能說明
+- Mobile 底部的「蘭光電動機車」聯繫信息區塊現在有圓潤的頂部圓角（80px）
+- 與 Hero Section 的圓角風格保持一致
+- Desktop 上保持原來的樣式，不影響桌面端的顯示
+
+---
+
 ## 2026-01-12 17:31:00 (+8) - 增加圓角半徑以匹配圖片中紅線標示的圓潤形狀
 
 ### 變更內容
