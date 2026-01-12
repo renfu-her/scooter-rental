@@ -1,5 +1,25 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-12 14:28:00 (+8) - 修正 build.sh 路徑展開問題
+
+### 變更內容
+
+#### 部署腳本
+- **build.sh** (`build.sh`)
+  - 修正路徑展開問題：
+    - 將 `~/htdocs/...` 改為 `$HOME/htdocs/...`
+    - 在 bash 腳本中，`~` 在變數中不會自動展開，需要使用 `$HOME` 環境變數
+    - 所有 `cd` 命令的路徑都加上雙引號，確保路徑中包含空格或特殊字符時也能正確處理
+    - Production 模式路徑：`$HOME/htdocs/languangsmart.com`
+    - Develop 模式路徑：`$HOME/htdocs/scooter-rental.ai-tracks.com`
+
+### 功能說明
+- 現在路徑可以正確展開，解決 "No such file or directory" 錯誤
+- 使用 `$HOME` 環境變數確保跨平台兼容性
+- 添加雙引號保護路徑，防止特殊字符問題
+
+---
+
 ## 2026-01-12 14:18:00 (+8) - 修改 build.sh 支援 production 和 develop 模式
 
 ### 變更內容

@@ -3,13 +3,13 @@
 # 檢查參數
 if [ "$1" = "production" ]; then
     MODE="production"
-    PROJECT_DIR="~/htdocs/languangsmart.com"
+    PROJECT_DIR="$HOME/htdocs/languangsmart.com"
     echo "=========================================="
     echo "開始 Production 部署流程..."
     echo "=========================================="
 elif [ "$1" = "develop" ]; then
     MODE="develop"
-    PROJECT_DIR="~/htdocs/scooter-rental.ai-tracks.com"
+    PROJECT_DIR="$HOME/htdocs/scooter-rental.ai-tracks.com"
     echo "=========================================="
     echo "開始 Develop 部署流程..."
     echo "=========================================="
@@ -27,7 +27,7 @@ echo "專案目錄: $PROJECT_DIR"
 echo ""
 
 echo "[1/7] 切換到專案目錄..."
-cd $PROJECT_DIR
+cd "$PROJECT_DIR"
 if [ $? -ne 0 ]; then
     echo "✗ 錯誤：無法切換到目錄 $PROJECT_DIR"
     exit 1
@@ -70,7 +70,7 @@ echo "✓ 配置快取完成"
 echo ""
 
 echo "[6/7] 構建後端 (React)..."
-cd $PROJECT_DIR/system/backend
+cd "$PROJECT_DIR/system/backend"
 if [ $? -ne 0 ]; then
     echo "✗ 錯誤：無法進入後端目錄"
     exit 1
@@ -83,7 +83,7 @@ echo "✓ 後端構建完成"
 echo ""
 
 echo "[7/7] 構建前端 (React)..."
-cd $PROJECT_DIR/system/frontend
+cd "$PROJECT_DIR/system/frontend"
 if [ $? -ne 0 ]; then
     echo "✗ 錯誤：無法進入前端目錄"
     exit 1
