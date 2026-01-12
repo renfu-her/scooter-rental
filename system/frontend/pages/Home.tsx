@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Smartphone, Monitor } from 'lucide-react';
 import BannerCarousel from '../components/BannerCarousel';
 import SEO from '../components/SEO';
 import { publicApi } from '../lib/api';
@@ -23,6 +23,7 @@ const DEFAULT_IMAGES: Record<string, string> = {
 
 const Home: React.FC = () => {
   const [homeImages, setHomeImages] = useState<Record<string, HomeImage>>({});
+  const [viewMode, setViewMode] = useState<'auto' | 'mobile' | 'desktop'>('auto');
 
   useEffect(() => {
     const fetchHomeImages = async () => {
@@ -71,8 +72,18 @@ const Home: React.FC = () => {
     serviceType: '電動機車租賃服務'
   };
 
+  // 根據 viewMode 設置容器類別
+  const getContainerClass = () => {
+    if (viewMode === 'mobile') {
+      return 'max-w-[375px] mx-auto';
+    } else if (viewMode === 'desktop') {
+      return 'min-w-[1024px]';
+    }
+    return '';
+  };
+
   return (
-    <div className="animate-in fade-in duration-700">
+    <div className="animate-in fade-in duration-700 relative">
       <SEO
         title="蘭光電動機車 - 小琉球電動車租賃首選"
         description="蘭光電動機車致力於為每一位旅客提供最優質的電動車租賃服務，讓您能夠以最環保、最舒適的方式探索小琉球的美麗風光。"
@@ -80,8 +91,48 @@ const Home: React.FC = () => {
         url="/"
         structuredData={structuredData}
       />
-      {/* Banner Carousel */}
-      <BannerCarousel />
+      
+      {/* 視圖切換按鈕 */}
+      <div className="fixed top-20 right-4 z-[100] flex flex-col gap-2 bg-white rounded-lg shadow-lg p-2 border border-gray-200">
+        <button
+          onClick={() => setViewMode('auto')}
+          className={`p-2 rounded transition-all ${
+            viewMode === 'auto' 
+              ? 'bg-teal-600 text-white' 
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+          }`}
+          title="自動（響應式）"
+        >
+          <span className="text-xs font-bold">AUTO</span>
+        </button>
+        <button
+          onClick={() => setViewMode('mobile')}
+          className={`p-2 rounded transition-all ${
+            viewMode === 'mobile' 
+              ? 'bg-teal-600 text-white' 
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+          }`}
+          title="移動端視圖"
+        >
+          <Smartphone size={20} />
+        </button>
+        <button
+          onClick={() => setViewMode('desktop')}
+          className={`p-2 rounded transition-all ${
+            viewMode === 'desktop' 
+              ? 'bg-teal-600 text-white' 
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+          }`}
+          title="桌面端視圖"
+        >
+          <Monitor size={20} />
+        </button>
+      </div>
+
+      {/* 視圖容器 */}
+      <div className={getContainerClass()}>
+        {/* Banner Carousel */}
+        <BannerCarousel />
 
       {/* Hero Section */}
       <section className="relative min-h-[60vh] sm:min-h-[50vh] md:h-[60vh] flex items-center justify-center overflow-hidden py-12 sm:py-16 md:py-0">
@@ -142,6 +193,7 @@ const Home: React.FC = () => {
         </div>
       </section>
 
+      </div>
     </div>
   );
 };
