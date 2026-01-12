@@ -1,5 +1,44 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-12 14:50:00 (+8) - 完全移除 Banner 內容寬度限制，確保 Desktop 完整顯示
+
+### 變更內容
+
+#### 前端
+- **BannerCarousel.tsx** (`system/frontend/components/BannerCarousel.tsx`)
+  - 完全移除內容區域的 max-width 限制：
+    - 從 `max-w-2xl md:max-w-3xl lg:max-w-4xl` 改為 `w-full md:w-auto md:max-w-none`
+    - 在 mobile 上使用 `w-full` 確保填滿寬度
+    - 在 desktop 上使用 `w-auto` 和 `max-w-none` 讓內容可以根據實際需要顯示
+  - 增加更大的 padding：`xl:px-32` 在超大螢幕上提供更多空間
+  - 增加更大的標題文字：`2xl:text-6xl` 在超大螢幕上顯示更大的標題
+  - 添加 `break-words` 類別確保長文字可以正確換行
+
+### 功能說明
+- Banner 內容現在在 Desktop 上可以完整顯示，不會被截斷
+- 內容寬度會根據實際需要自動調整，不再受到固定 max-width 限制
+- 在超大螢幕上提供更大的 padding 和文字大小，確保視覺效果更好
+
+---
+
+## 2026-01-12 14:46:00 (+8) - 修復 Banner 內容寬度限制，恢復 Desktop 正常顯示
+
+### 變更內容
+
+#### 前端
+- **BannerCarousel.tsx** (`system/frontend/components/BannerCarousel.tsx`)
+  - 調整 Banner 內容區域的最大寬度：
+    - 從 `max-w-xs sm:max-w-sm md:max-w-md` 改為 `max-w-2xl md:max-w-3xl lg:max-w-4xl`
+    - 增加標題文字大小響應式類別：`xl:text-5xl`
+  - 確保 Banner 內容在 Desktop 上可以正常顯示，不會被截斷
+
+### 功能說明
+- Banner 內容區域現在有更大的最大寬度，適合 Desktop 顯示
+- 文字大小會根據螢幕尺寸自動調整，在大型螢幕上顯示更大的標題
+- 解決了 Banner 內容被截斷的問題
+
+---
+
 ## 2026-01-12 14:40:00 (+8) - 移除視圖切換按鈕並修復 Banner 顯示問題
 
 ### 變更內容

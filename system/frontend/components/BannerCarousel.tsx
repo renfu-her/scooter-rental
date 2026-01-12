@@ -120,14 +120,14 @@ const BannerCarousel: React.FC = () => {
               
               {/* Banner 內容 */}
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full px-4 sm:px-8 md:px-16 lg:px-24">
-                  <div className="max-w-xs sm:max-w-sm md:max-w-md">
+                <div className="w-full px-4 sm:px-8 md:px-16 lg:px-24 xl:px-32">
+                  <div className="w-full md:w-auto md:max-w-none">
                     {banner.subtitle && (
                       <h2 className="text-white/80 text-[10px] sm:text-xs md:text-sm font-medium tracking-wider uppercase mb-2">
                         {banner.subtitle}
                       </h2>
                     )}
-                    <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-4 serif">
+                    <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl 2xl:text-6xl font-bold text-white mb-4 serif break-words">
                       {banner.title}
                     </h1>
                     {banner.link && banner.button_text && (
