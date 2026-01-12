@@ -1,5 +1,23 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-12 17:19:00 (+8) - 使用 inline style 確保圓角在所有設備上正確顯示
+
+### 變更內容
+
+#### 前端
+- **Home.tsx** (`system/frontend/pages/Home.tsx`)
+  - 使用 inline style 確保圓角在所有設備上正確顯示：
+    - 在容器 div 和 img 元素上都添加 `style={{ borderRadius: '60px' }}`
+    - 確保 mobile 和 desktop 上都能顯示圓角效果
+    - 移除 Tailwind 響應式圓角類別，改用固定的 inline style 以確保一致性
+
+### 功能說明
+- Hero Section 圖片現在在所有設備上都有統一的圓角（60px）
+- 使用 inline style 確保圓角在所有瀏覽器和設備上都能正確渲染
+- 確保 mobile 和 desktop 上都能看到完整的圓角效果
+
+---
+
 ## 2026-01-12 17:15:00 (+8) - 增加 Hero Section 圖片圓角半徑，讓圓弧更圓
 
 ### 變更內容

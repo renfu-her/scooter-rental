@@ -111,11 +111,12 @@ const Home: React.FC = () => {
           </div>
 
           <div className="md:w-1/2 relative w-full">
-            <div className="w-full aspect-square md:aspect-video overflow-hidden bg-gray-100 rounded-[60px] sm:rounded-[80px] md:rounded-[100px] lg:rounded-[120px] xl:rounded-[150px]">
+            <div className="w-full aspect-square md:aspect-video overflow-hidden bg-gray-100" style={{ borderRadius: '60px' }}>
               <img 
                 src={getImageSrc('hero_image')} 
                 alt={getImageAlt('hero_image', 'Scooter riding at sunset')} 
                 className="w-full h-full object-contain"
+                style={{ borderRadius: '60px' }}
               />
             </div>
           </div>
