@@ -72,13 +72,17 @@ class BookingController extends Controller
             $bookingDateCarbon = Carbon::parse($data['appointmentDate'])->startOfDay();
             $endDateCarbon = Carbon::parse($data['endDate'])->startOfDay();
 
-            if ($bookingDateCarbon->equalTo($endDateCarbon)) {
-                // 同日租：固定 1 天
+            // 計算天數差（夜數）
+            $days = $bookingDateCarbon->diffInDays($endDateCarbon);
+            
+            // 判斷租期類型：只要大於 1 個天數，就按照跨日計算
+            if ($days == 0) {
+                // 同日租：固定 1 天（開始日期 = 結束日期）
                 $days = 1;
                 $isSameDayRental = true;
             } else {
-                // 跨日租：用夜數（diffInDays）
-                $days = $bookingDateCarbon->diffInDays($endDateCarbon);
+                // 跨日租：天數 > 0（即任何跨天的情況），使用跨日調車費用
+                // 如果 diffInDays = 0，則設為 1（至少 1 天）
                 if ($days < 1) {
                     $days = 1;
                 }

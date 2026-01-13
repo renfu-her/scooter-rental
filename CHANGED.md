@@ -13,8 +13,9 @@
 
 - **BookingController.php** (`app/Http/Controllers/Api/BookingController.php`)
   - 在 `send()` 方法中，依據線上預約的開始日期 (`appointmentDate`) 與結束日期 (`endDate`) 判斷租期類型與天數：
-    - 若開始日期與結束日期相同：視為當日租，天數固定為 1，使用 `same_day_transfer_fee_*` 欄位。
-    - 若開始日期與結束日期不同：視為跨日租，使用夜數計算天數：`days = diffInDays(start, end)`（例如：1/1–1/2 → 1；1/1–1/3 → 2），使用 `overnight_transfer_fee_*` 欄位。
+    - 若開始日期與結束日期相同（`diffInDays = 0`）：視為當日租，天數固定為 1，使用 `same_day_transfer_fee_*` 欄位。
+    - 若天數大於 1（即任何跨天的情況，`diffInDays > 0`）：視為跨日租，使用夜數計算天數：`days = diffInDays(start, end)`（例如：1/1–1/2 → 1；1/1–1/3 → 2），使用 `overnight_transfer_fee_*` 欄位。
+    - **規則**：只要大於 1 個天數（即不是同一天），就按照跨日計算。
   - 對每個車型需求 (`$data['scooters']`) 計算調車費用：
     - 依車型（白牌 / 綠牌 / 電輔車 / 三輪車）對應到合作商的調車費用欄位（`*_white|green|electric|tricycle`）。
     - 計算公式：單一車型費用 = 對應調車費用 × 該車型台數 × 天數（夜數）。
