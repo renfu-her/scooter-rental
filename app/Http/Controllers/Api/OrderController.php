@@ -475,8 +475,8 @@ class OrderController extends Controller
         }
 
         $month = $request->get('month');
-        $startDate = Carbon::parse($month . '-01')->timezone('Asia/Taipei')->startOfMonth();
-        $endDate = Carbon::parse($month . '-01')->timezone('Asia/Taipei')->endOfMonth();
+        $monthStartDate = Carbon::parse($month . '-01')->timezone('Asia/Taipei')->startOfMonth();
+        $monthEndDate = Carbon::parse($month . '-01')->timezone('Asia/Taipei')->endOfMonth();
 
         // Get orders for the month with scooters and partner
         // 以 start_time 的月份為主來篩選訂單
@@ -496,7 +496,7 @@ class OrderController extends Controller
             $keyDate = Carbon::parse($order->start_time)->timezone('Asia/Taipei')->format('Y-m-d');
             $keyDateWeekday = Carbon::parse($order->start_time)->timezone('Asia/Taipei')->format('l');
             
-            // Calculate nights (days between start_time and end_time)
+            // Calculate nights: 開始日期 ~ 結束日期 - 1 的訂單天數
             $startTime = Carbon::parse($order->start_time)->timezone('Asia/Taipei');
             $endTime = Carbon::parse($order->end_time)->timezone('Asia/Taipei');
             $startDate = $startTime->format('Y-m-d');
@@ -504,6 +504,7 @@ class OrderController extends Controller
             
             // 判斷是當日租還是跨日租
             $isSameDay = ($startDate === $endDate);
+            // 天數計算：結束日期 - 開始日期（夜數）
             $nights = $startTime->diffInDays($endTime);
 
             // Group scooters by model
@@ -532,8 +533,8 @@ class OrderController extends Controller
                     $reportData[$keyDate]['models'][$model] = [
                         'same_day_count' => 0,    // 當日租 台數
                         'overnight_count' => 0,    // 跨日租 台數
-                        'nights' => 0,             // 天數
-                        'amount' => 0,             // 金額
+                        'nights' => 0,             // 天數（所有訂單天數相加）
+                        'amount' => 0,             // 金額（所有訂單金額相加）
                     ];
                 }
                 
@@ -542,21 +543,43 @@ class OrderController extends Controller
                     $reportData[$keyDate]['models'][$model]['same_day_count'] += $scooterCount;
                 } else {
                     $reportData[$keyDate]['models'][$model]['overnight_count'] += $scooterCount;
+                    // 只有跨日租才累加天數
+                    $reportData[$keyDate]['models'][$model]['nights'] += $nights;
                 }
-                $reportData[$keyDate]['models'][$model]['nights'] += $nights;
+                // 金額就是相加（當日租和跨日租都累加）
                 $reportData[$keyDate]['models'][$model]['amount'] += $orderAmount;
             }
         }
 
-        // 排序日期
-        ksort($reportData);
+        // 生成整個月份的日期列表（即使沒有訂單也要顯示）
+        $currentDate = $monthStartDate->copy();
+        $allDates = [];
+        
+        while ($currentDate->lte($monthEndDate)) {
+            $dateStr = $currentDate->format('Y-m-d');
+            $weekday = $currentDate->format('l');
+            
+            if (isset($reportData[$dateStr])) {
+                // 有訂單的日期，使用實際數據
+                $allDates[] = $reportData[$dateStr];
+            } else {
+                // 沒有訂單的日期，創建空數據
+                $allDates[] = [
+                    'date' => $dateStr,
+                    'weekday' => $weekday,
+                    'models' => [],
+                ];
+            }
+            
+            $currentDate->addDay();
+        }
         
         // 排序車型
         sort($models);
         
         // 轉換為數組格式
         $result = [
-            'dates' => array_values($reportData),
+            'dates' => $allDates,
             'models' => $models,
         ];
 

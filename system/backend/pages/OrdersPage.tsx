@@ -563,18 +563,29 @@ const OrdersPage: React.FC = () => {
       
       // 第四行：空行
       
-      // 第五行開始：表頭
-      // 左側：日期、星期
-      // 右側：每個車型有4個欄位（當日租 台數、跨日租 台數、天數、金額）
-      const headerRow: any[] = ['日期', '星期'];
-      
+      // 第五行開始：表頭（按照第二張圖片的結構）
+      // 第一層表頭：日期、星期，然後每個車型
+      const headerRow1: any[] = ['日期', '星期'];
       models.forEach((model: string) => {
-        headerRow.push('當日租 台數', '跨日租 台數', '天數', '金額');
+        headerRow1.push(model, '', '', ''); // 每個車型佔4列
       });
+      XLSX.utils.sheet_add_aoa(ws, [headerRow1], { origin: 'A5' });
       
-      XLSX.utils.sheet_add_aoa(ws, [headerRow], { origin: 'A5' });
+      // 第二層表頭：當日租、跨日租
+      const headerRow2: any[] = ['', ''];
+      models.forEach(() => {
+        headerRow2.push('當日租', '跨日租', '', '');
+      });
+      XLSX.utils.sheet_add_aoa(ws, [headerRow2], { origin: 'A6' });
       
-      // 數據行（從第6行開始）
+      // 第三層表頭：台數、台數、天數、金額
+      const headerRow3: any[] = ['', ''];
+      models.forEach(() => {
+        headerRow3.push('台數', '台數', '天數', '金額');
+      });
+      XLSX.utils.sheet_add_aoa(ws, [headerRow3], { origin: 'A7' });
+      
+      // 數據行（從第8行開始，因為有3行表頭）
       dates.forEach((dateItem: any, index: number) => {
         const dateStr = dateItem.date;
         const dateObj = new Date(dateStr + 'T00:00:00'); // 添加時間以避免時區問題
@@ -590,19 +601,20 @@ const OrdersPage: React.FC = () => {
             nights: 0,
             amount: 0,
           };
+          // 按照第二張圖片：當日租-台數、跨日租-台數、跨日租-天數、跨日租-金額
           dataRow.push(
-            modelData.same_day_count || 0,
-            modelData.overnight_count || 0,
-            modelData.nights || 0,
-            modelData.amount || 0
+            modelData.same_day_count || 0,  // 當日租 台數
+            modelData.overnight_count || 0,  // 跨日租 台數
+            modelData.nights || 0,            // 跨日租 天數
+            modelData.amount || 0             // 跨日租 金額
           );
         });
         
-        XLSX.utils.sheet_add_aoa(ws, [dataRow], { origin: `A${6 + index}` });
+        XLSX.utils.sheet_add_aoa(ws, [dataRow], { origin: `A${8 + index}` });
       });
       
       // 月結總計（在數據行之後）
-      const summaryStartRow = 6 + dates.length;
+      const summaryStartRow = 8 + dates.length;
       
       // 總台數/天數行
       const totalRow: any[] = ['月結總計', '總台數/天數'];
