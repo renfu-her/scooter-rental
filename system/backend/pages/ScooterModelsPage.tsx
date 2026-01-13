@@ -1,0 +1,528 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { Plus, Search, Bike, Edit3, Trash2, X, Loader2, MoreHorizontal, ChevronDown, Image as ImageIcon } from 'lucide-react';
+import { scooterModelsApi } from '../lib/api';
+import { inputClasses, selectClasses, labelClasses, searchInputClasses, chevronDownClasses, uploadAreaBaseClasses, modalCancelButtonClasses, modalSubmitButtonClasses } from '../styles';
+
+interface ScooterModel {
+  id: number;
+  name: string;
+  type: string;
+  image_path: string | null;
+  color: string | null;
+  label?: string;
+}
+
+const ScooterModelsPage: React.FC = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingModel, setEditingModel] = useState<ScooterModel | null>(null);
+  const [scooterModels, setScooterModels] = useState<ScooterModel[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [typeFilter, setTypeFilter] = useState<string>('');
+  const [formData, setFormData] = useState({
+    name: '',
+    type: '白牌',
+    color: '',
+  });
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [openDropdownId, setOpenDropdownId] = useState<number | null>(null);
+  const [dropdownPosition, setDropdownPosition] = useState<{ top: number; right: number } | null>(null);
+  const buttonRefs = useRef<Record<number, HTMLButtonElement | null>>({});
+  const [imageViewerOpen, setImageViewerOpen] = useState(false);
+  const [imageViewerUrl, setImageViewerUrl] = useState<string | null>(null);
+
+  // 車款類型對應的預設顏色
+  const typeColorMap: Record<string, string> = {
+    '白牌': '#7DD3FC',
+    '綠牌': '#86EFAC',
+    '電輔車': '#FED7AA',
+    '三輪車': '#FDE047',
+  };
+
+  useEffect(() => {
+    fetchScooterModels();
+  }, [searchTerm, typeFilter]);
+
+  const fetchScooterModels = async () => {
+    setLoading(true);
+    try {
+      const params: any = {};
+      if (searchTerm) params.search = searchTerm;
+      if (typeFilter) params.type = typeFilter;
+      const response = await scooterModelsApi.list(params);
+      setScooterModels(response.data || []);
+    } catch (error) {
+      console.error('Failed to fetch scooter models:', error);
+      setScooterModels([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleOpenModal = (model?: ScooterModel) => {
+    if (model) {
+      setEditingModel(model);
+      setFormData({
+        name: model.name,
+        type: model.type,
+        color: model.color || '',
+      });
+      setImagePreview(model.image_path || null);
+    } else {
+      setEditingModel(null);
+      setFormData({
+        name: '',
+        type: '白牌',
+        color: '',
+      });
+      setImagePreview(null);
+    }
+    setImageFile(null);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setEditingModel(null);
+    setFormData({
+      name: '',
+      type: '白牌',
+      color: '',
+    });
+    setImageFile(null);
+    setImagePreview(null);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append('name', formData.name);
+      formDataToSend.append('type', formData.type);
+      if (formData.color) {
+        formDataToSend.append('color', formData.color);
+      }
+      if (imageFile) {
+        formDataToSend.append('image', imageFile);
+      }
+
+      if (editingModel) {
+        await scooterModelsApi.update(editingModel.id, formDataToSend);
+      } else {
+        await scooterModelsApi.create(formDataToSend);
+      }
+      
+      handleCloseModal();
+      fetchScooterModels();
+    } catch (error: any) {
+      console.error('Failed to save scooter model:', error);
+      if (error?.response?.data?.errors) {
+        const errors = error.response.data.errors;
+        const errorMessages = Object.entries(errors).map(([field, messages]: [string, any]) => {
+          return messages.join(', ');
+        }).join('\n');
+        alert(`儲存失敗：\n${errorMessages}`);
+      } else if (error?.response?.data?.message) {
+        alert(`儲存失敗：${error.response.data.message}`);
+      } else {
+        alert('儲存失敗，請檢查輸入資料');
+      }
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!confirm('確定要刪除此機車型號嗎？此操作無法復原。')) {
+      return;
+    }
+    try {
+      await scooterModelsApi.delete(id);
+      fetchScooterModels();
+    } catch (error: any) {
+      console.error('Failed to delete scooter model:', error);
+      if (error?.response?.data?.message) {
+        alert(error.response.data.message);
+      } else {
+        alert('刪除失敗，請稍後再試。');
+      }
+    }
+    setOpenDropdownId(null);
+    setDropdownPosition(null);
+  };
+
+  const toggleDropdown = (modelId: number) => {
+    if (openDropdownId === modelId) {
+      setOpenDropdownId(null);
+      setDropdownPosition(null);
+    } else {
+      const button = buttonRefs.current[modelId];
+      if (button) {
+        const rect = button.getBoundingClientRect();
+        setDropdownPosition({
+          top: rect.bottom + window.scrollY + 8,
+          right: window.innerWidth - rect.right,
+        });
+      }
+      setOpenDropdownId(modelId);
+    }
+  };
+
+  const handleEdit = (model: ScooterModel) => {
+    handleOpenModal(model);
+    setOpenDropdownId(null);
+    setDropdownPosition(null);
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleDeleteImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+  };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (openDropdownId !== null) {
+        setOpenDropdownId(null);
+        setDropdownPosition(null);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, true);
+    return () => {
+      window.removeEventListener('scroll', handleScroll, true);
+    };
+  }, [openDropdownId]);
+
+  // 當選擇類型時，自動設定預設顏色
+  const handleTypeChange = (type: string) => {
+    const autoColor = typeColorMap[type] || '';
+    setFormData({ ...formData, type, color: formData.color || autoColor });
+  };
+
+  const filteredModels = scooterModels.filter(model => {
+    if (searchTerm && !model.name.toLowerCase().includes(searchTerm.toLowerCase())) {
+      return false;
+    }
+    if (typeFilter && model.type !== typeFilter) {
+      return false;
+    }
+    return true;
+  });
+
+  return (
+    <div className="px-6 pb-6 pt-0 dark:text-gray-100">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">機車型號管理</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">管理機車型號、類型與顏色設定</p>
+        </div>
+        <button 
+          onClick={() => handleOpenModal()}
+          className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2.5 rounded-xl flex items-center space-x-2 transition-all shadow-sm active:scale-95 font-bold"
+        >
+          <Plus size={18} />
+          <span>新增機車型號</span>
+        </button>
+      </div>
+
+      {/* 搜尋和過濾 */}
+      <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 mb-6 border border-gray-200 dark:border-gray-700 shadow-sm">
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex-1 relative">
+            <Search size={18} className={searchInputClasses} />
+            <input
+              type="text"
+              placeholder="搜尋機車型號..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition-all"
+            />
+          </div>
+          <div className="relative">
+            <select
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value)}
+              className={`${selectClasses} min-w-[150px]`}
+            >
+              <option value="">全部類型</option>
+              <option value="白牌">白牌</option>
+              <option value="綠牌">綠牌</option>
+              <option value="電輔車">電輔車</option>
+              <option value="三輪車">三輪車</option>
+            </select>
+            <ChevronDown size={18} className={chevronDownClasses} />
+          </div>
+        </div>
+      </div>
+
+      {/* 列表 */}
+      {loading ? (
+        <div className="flex justify-center items-center py-12">
+          <Loader2 className="animate-spin text-orange-600" size={32} />
+        </div>
+      ) : filteredModels.length === 0 ? (
+        <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+          <Bike size={48} className="mx-auto mb-4 opacity-50" />
+          <p>尚無機車型號資料</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredModels.map((model) => (
+            <div
+              key={model.id}
+              className="bg-white dark:bg-gray-800 rounded-2xl p-5 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all"
+            >
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-1">
+                    {model.name}
+                  </h3>
+                  <div className="flex items-center gap-2">
+                    <span className="px-2 py-1 text-xs font-bold rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
+                      {model.type}
+                    </span>
+                    {model.color && (
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="w-6 h-6 rounded border-2 border-gray-200 dark:border-gray-700"
+                          style={{ backgroundColor: model.color }}
+                          title={model.color}
+                        />
+                        <span className="text-xs font-mono text-gray-500 dark:text-gray-400">
+                          {model.color}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className="relative">
+                  <button
+                    ref={(el) => {
+                      if (el) buttonRefs.current[model.id] = el;
+                    }}
+                    onClick={() => toggleDropdown(model.id)}
+                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  >
+                    <MoreHorizontal size={18} className="text-gray-500 dark:text-gray-400" />
+                  </button>
+                  {openDropdownId === model.id && dropdownPosition && (
+                    <div
+                      className="absolute z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl py-1 min-w-[120px]"
+                      style={{
+                        top: `${dropdownPosition.top}px`,
+                        right: `${dropdownPosition.right}px`,
+                      }}
+                    >
+                      <button
+                        onClick={() => handleEdit(model)}
+                        className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+                      >
+                        <Edit3 size={16} />
+                        編輯
+                      </button>
+                      <button
+                        onClick={() => handleDelete(model.id)}
+                        className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2"
+                      >
+                        <Trash2 size={16} />
+                        刪除
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+              {model.image_path && (
+                <div
+                  className="w-full h-32 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden mb-4 cursor-pointer"
+                  onClick={() => {
+                    setImageViewerUrl(model.image_path);
+                    setImageViewerOpen(true);
+                  }}
+                >
+                  <img
+                    src={model.image_path}
+                    alt={model.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* 新增/編輯 Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black/50 dark:bg-black/70 z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between z-10">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                {editingModel ? '編輯機車型號' : '新增機車型號'}
+              </h2>
+              <button
+                onClick={handleCloseModal}
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <form onSubmit={handleSubmit} className="p-6 space-y-6">
+              <div>
+                <label className={labelClasses}>
+                  機車型號名稱 <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  className={inputClasses}
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  placeholder="例如: ES-1000"
+                  required
+                />
+              </div>
+              <div>
+                <label className={labelClasses}>
+                  車型類型 <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <select
+                    className={selectClasses}
+                    value={formData.type}
+                    onChange={(e) => handleTypeChange(e.target.value)}
+                    required
+                  >
+                    <option value="白牌">白牌</option>
+                    <option value="綠牌">綠牌</option>
+                    <option value="電輔車">電輔車</option>
+                    <option value="三輪車">三輪車</option>
+                  </select>
+                  <ChevronDown size={18} className={chevronDownClasses} />
+                </div>
+              </div>
+              <div>
+                <label className={labelClasses}>
+                  顏色
+                </label>
+                <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-3">
+                    <input
+                      type="color"
+                      value={formData.color || typeColorMap[formData.type] || '#6B7280'}
+                      onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                      className="w-16 h-16 rounded-lg border-2 border-gray-200 dark:border-gray-700 cursor-pointer"
+                      title="選擇顏色"
+                    />
+                    <div className="flex-1">
+                      <input
+                        type="text"
+                        value={formData.color || ''}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (value === '' || /^#[0-9A-Fa-f]{6}$/.test(value)) {
+                            setFormData({ ...formData, color: value });
+                          }
+                        }}
+                        placeholder="#7DD3FC"
+                        className={`${inputClasses} font-mono text-sm`}
+                        maxLength={7}
+                      />
+                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        輸入 hex 顏色值（例如：#FF5733）
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                {formData.color && (
+                  <div className="mt-2 flex items-center space-x-2">
+                    <div
+                      className="w-8 h-8 rounded-lg border-2 border-gray-200 dark:border-gray-700"
+                      style={{ backgroundColor: formData.color }}
+                    />
+                    <span className="text-xs font-mono text-gray-500 dark:text-gray-400">
+                      {formData.color}
+                    </span>
+                  </div>
+                )}
+              </div>
+              <div>
+                <label className={labelClasses}>圖片</label>
+                <div className={uploadAreaBaseClasses}>
+                  {imagePreview ? (
+                    <div className="relative">
+                      <img src={imagePreview} alt="Preview" className="max-h-48 mx-auto rounded" />
+                      <button
+                        type="button"
+                        onClick={handleDeleteImage}
+                        className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 z-10 hover:bg-red-600 transition-colors"
+                        title="刪除圖片"
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="text-center">
+                      <ImageIcon className="mx-auto text-gray-400 mb-2" size={32} />
+                      <p className="text-sm text-gray-500">點擊或拖放圖片到此處</p>
+                    </div>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                </div>
+              </div>
+              <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <button
+                  type="button"
+                  onClick={handleCloseModal}
+                  className={modalCancelButtonClasses}
+                >
+                  取消
+                </button>
+                <button
+                  type="submit"
+                  className={modalSubmitButtonClasses}
+                >
+                  {editingModel ? '更新' : '新增'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* 圖片查看器 */}
+      {imageViewerOpen && imageViewerUrl && (
+        <div
+          className="fixed inset-0 bg-black/90 z-[60] flex items-center justify-center p-4"
+          onClick={() => {
+            setImageViewerOpen(false);
+            setImageViewerUrl(null);
+          }}
+        >
+          <img
+            src={imageViewerUrl}
+            alt="Preview"
+            className="max-w-full max-h-full object-contain"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default ScooterModelsPage;

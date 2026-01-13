@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Plus, Search, Bike, Edit3, Trash2, X, Loader2, MoreHorizontal, ChevronDown } from 'lucide-react';
-import { scootersApi, storesApi, scooterModelColorsApi } from '../lib/api';
+import { scootersApi, storesApi, scooterModelColorsApi, scooterModelsApi } from '../lib/api';
 import { inputClasses, selectClasses, labelClasses, searchInputClasses, chevronDownClasses, uploadAreaBaseClasses, modalCancelButtonClasses, modalSubmitButtonClasses } from '../styles';
 
 interface Scooter {
@@ -20,12 +20,21 @@ interface Store {
   name: string;
 }
 
+interface ScooterModel {
+  id: number;
+  name: string;
+  type: string;
+  color: string | null;
+  label?: string;
+}
+
 const ScootersPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingScooter, setEditingScooter] = useState<Scooter | null>(null);
   const [scooters, setScooters] = useState<Scooter[]>([]);
   const [allScooters, setAllScooters] = useState<Scooter[]>([]); // 儲存所有機車用於計算計數
   const [stores, setStores] = useState<Store[]>([]);
+  const [scooterModels, setScooterModels] = useState<ScooterModel[]>([]);
   const [modelColorMap, setModelColorMap] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
 
@@ -41,6 +50,7 @@ const ScootersPage: React.FC = () => {
   const [formData, setFormData] = useState({
     store_id: '',
     plate_number: '',
+    scooter_model_id: '',
     model: '',
     type: '白牌',
     color: '',
@@ -57,6 +67,7 @@ const ScootersPage: React.FC = () => {
   useEffect(() => {
     fetchScooters();
     fetchStores();
+    fetchScooterModels();
   }, [statusFilter, searchTerm]);
 
   // 獲取機車型號顏色映射（從 ScooterModelColor 表獲取）
@@ -121,12 +132,24 @@ const ScootersPage: React.FC = () => {
     }
   };
 
+  const fetchScooterModels = async () => {
+    try {
+      const response = await scooterModelsApi.list();
+      setScooterModels(response.data || []);
+    } catch (error) {
+      console.error('Failed to fetch scooter models:', error);
+    }
+  };
+
   const handleOpenModal = (scooter?: Scooter) => {
     if (scooter) {
       setEditingScooter(scooter);
+      // 從 scooter 的 scooter_model_id 或 model 來查找對應的 scooter_model_id
+      const scooterModel = scooterModels.find(m => m.name === scooter.model && m.type === scooter.type);
       setFormData({
         store_id: String(scooter.store_id),
         plate_number: scooter.plate_number,
+        scooter_model_id: scooterModel ? String(scooterModel.id) : '',
         model: scooter.model,
         type: scooter.type,
         color: scooter.color || '',
@@ -138,6 +161,7 @@ const ScootersPage: React.FC = () => {
       setFormData({
         store_id: '',
         plate_number: '',
+        scooter_model_id: '',
         model: '',
         type: '白牌',
         color: '',
@@ -155,6 +179,7 @@ const ScootersPage: React.FC = () => {
     setFormData({
       store_id: '',
       plate_number: '',
+      scooter_model_id: '',
       model: '',
       type: '白牌',
       color: '',
@@ -164,17 +189,33 @@ const ScootersPage: React.FC = () => {
     setPhotoPreview(null);
   };
 
+  // 當選擇機車型號時，自動帶出類型和顏色
+  const handleScooterModelChange = (scooterModelId: string) => {
+    const selectedModel = scooterModels.find(m => String(m.id) === scooterModelId);
+    if (selectedModel) {
+      setFormData({
+        ...formData,
+        scooter_model_id: scooterModelId,
+        type: selectedModel.type,
+        color: selectedModel.color || typeColorMap[selectedModel.type] || '',
+      });
+    }
+  };
+
   const handleSubmit = async () => {
-    if (!formData.store_id || !formData.plate_number || !formData.model) {
+    if (!formData.store_id || !formData.plate_number || !formData.scooter_model_id) {
       alert('請填寫必填欄位');
       return;
     }
 
     try {
       const data = {
-        ...formData,
         store_id: parseInt(formData.store_id),
+        plate_number: formData.plate_number,
+        scooter_model_id: parseInt(formData.scooter_model_id),
+        type: formData.type,
         color: formData.color || null,
+        status: formData.status,
       };
 
       if (editingScooter) {
@@ -557,13 +598,22 @@ const ScootersPage: React.FC = () => {
                   <label className={labelClasses}>
                     機車型號 <span className="text-red-500">*</span>
                   </label>
-                  <input 
-                    type="text" 
-                    className={inputClasses} 
-                    placeholder="例如: ES-2000"
-                    value={formData.model}
-                    onChange={(e) => setFormData({ ...formData, model: e.target.value })}
-                  />
+                  <div className="relative">
+                    <select
+                      className={selectClasses}
+                      value={formData.scooter_model_id}
+                      onChange={(e) => handleScooterModelChange(e.target.value)}
+                      required
+                    >
+                      <option value="">請選擇機車型號</option>
+                      {scooterModels.map((model) => (
+                        <option key={model.id} value={model.id}>
+                          {model.name} {model.type}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown size={18} className={chevronDownClasses} />
+                  </div>
                 </div>
                 <div>
                   <label className={labelClasses}>
@@ -591,12 +641,12 @@ const ScootersPage: React.FC = () => {
                     )}
                   </div>
                   <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                    根據車款類型自動設定：{formData.type && typeColorMap[formData.type] ? `${formData.type} = ${typeColorMap[formData.type]}` : '請選擇車款類型'}
+                    選擇機車型號後會自動帶出，也可手動修改
                   </p>
                 </div>
                 <div>
                   <label className={labelClasses}>
-                    車款類型 <span className="text-red-500">*</span>
+                    車款類型 <span className="text-gray-400 dark:text-gray-500 font-normal">(自動帶出)</span>
                   </label>
                   <div className="relative">
                     <select 
@@ -606,7 +656,7 @@ const ScootersPage: React.FC = () => {
                         const selectedType = e.target.value;
                         // 根據車款類型自動設定顏色
                         const autoColor = typeColorMap[selectedType] || '';
-                        setFormData({ ...formData, type: selectedType, color: autoColor });
+                        setFormData({ ...formData, type: selectedType, color: formData.color || autoColor });
                       }}
                     >
                       <option value="白牌" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">白牌 (Heavy)</option>
@@ -616,6 +666,9 @@ const ScootersPage: React.FC = () => {
                     </select>
                     <ChevronDown size={18} className={chevronDownClasses} />
                   </div>
+                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    選擇機車型號後會自動帶出，也可手動修改
+                  </p>
                 </div>
                 <div>
                   <label className={labelClasses}>

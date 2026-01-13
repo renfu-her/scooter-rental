@@ -250,6 +250,16 @@ export const scootersApi = {
     api.uploadFile(`/scooters/${id}/upload-photo`, file),
 };
 
+export const scooterModelsApi = {
+  list: (params?: { search?: string; type?: string }) => api.get('/scooter-models', params),
+  get: (id: string | number) => api.get(`/scooter-models/${id}`),
+  create: (data: any) => api.post('/scooter-models', data),
+  update: (id: string | number, data: any) => api.put(`/scooter-models/${id}`, data),
+  delete: (id: string | number) => api.delete(`/scooter-models/${id}`),
+  uploadImage: (id: string | number, file: File) =>
+    api.uploadFile(`/scooter-models/${id}/upload-image`, file),
+};
+
 export const scooterModelColorsApi = {
   list: () => api.get('/scooter-model-colors'),
   getColor: (model: string) => api.get(`/scooter-model-colors/${model}`),

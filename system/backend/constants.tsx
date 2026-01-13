@@ -16,6 +16,7 @@ export const NAV_ITEMS = [
     icon: <Bike size={20} />, 
     children: [
       { name: '機車清單', path: '/scooters' },
+      { name: '機車型號管理', path: '/scooter-models' },
       { name: '機車配件', path: '/accessories' }
     ]
   },
