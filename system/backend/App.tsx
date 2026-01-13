@@ -11,6 +11,7 @@ const PartnersPage = React.lazy(() => import('./pages/PartnersPage'));
 const StoresPage = React.lazy(() => import('./pages/StoresPage'));
 const ScootersPage = React.lazy(() => import('./pages/ScootersPage'));
 const ScooterModelsPage = React.lazy(() => import('./pages/ScooterModelsPage'));
+const ScooterTypesPage = React.lazy(() => import('./pages/ScooterTypesPage'));
 const FinesPage = React.lazy(() => import('./pages/FinesPage'));
 const AccessoriesPage = React.lazy(() => import('./pages/AccessoriesPage'));
 const AdminsPage = React.lazy(() => import('./pages/AdminsPage'));
@@ -90,6 +91,11 @@ const App: React.FC = () => {
             <Route path="scooter-models" element={
               <Suspense fallback={<LoadingFallback />}>
                 <ScooterModelsPage />
+              </Suspense>
+            } />
+            <Route path="scooter-types" element={
+              <Suspense fallback={<LoadingFallback />}>
+                <ScooterTypesPage />
               </Suspense>
             } />
             <Route path="fines" element={

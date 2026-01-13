@@ -1,28 +1,40 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Plus, Search, Bike, Edit3, Trash2, X, Loader2, MoreHorizontal, ChevronDown, Image as ImageIcon } from 'lucide-react';
-import { scooterModelsApi } from '../lib/api';
+import { scooterModelsApi, scooterTypesApi } from '../lib/api';
 import { inputClasses, selectClasses, labelClasses, searchInputClasses, chevronDownClasses, uploadAreaBaseClasses, modalCancelButtonClasses, modalSubmitButtonClasses } from '../styles';
 
 interface ScooterModel {
   id: number;
   name: string;
+  scooter_type_id?: number;
+  scooter_type?: {
+    id: number;
+    name: string;
+    color: string | null;
+  };
   type: string;
   image_path: string | null;
   color: string | null;
   label?: string;
 }
 
+interface ScooterType {
+  id: number;
+  name: string;
+  color: string | null;
+}
+
 const ScooterModelsPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingModel, setEditingModel] = useState<ScooterModel | null>(null);
   const [scooterModels, setScooterModels] = useState<ScooterModel[]>([]);
+  const [scooterTypes, setScooterTypes] = useState<ScooterType[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState<string>('');
   const [formData, setFormData] = useState({
     name: '',
-    type: '白牌',
-    color: '',
+    scooter_type_id: '',
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -32,17 +44,19 @@ const ScooterModelsPage: React.FC = () => {
   const [imageViewerOpen, setImageViewerOpen] = useState(false);
   const [imageViewerUrl, setImageViewerUrl] = useState<string | null>(null);
 
-  // 車款類型對應的預設顏色
-  const typeColorMap: Record<string, string> = {
-    '白牌': '#7DD3FC',
-    '綠牌': '#86EFAC',
-    '電輔車': '#FED7AA',
-    '三輪車': '#FDE047',
-  };
-
   useEffect(() => {
     fetchScooterModels();
+    fetchScooterTypes();
   }, [searchTerm, typeFilter]);
+
+  const fetchScooterTypes = async () => {
+    try {
+      const response = await scooterTypesApi.list();
+      setScooterTypes(response.data || []);
+    } catch (error) {
+      console.error('Failed to fetch scooter types:', error);
+    }
+  };
 
   const fetchScooterModels = async () => {
     setLoading(true);
@@ -65,16 +79,14 @@ const ScooterModelsPage: React.FC = () => {
       setEditingModel(model);
       setFormData({
         name: model.name,
-        type: model.type,
-        color: model.color || '',
+        scooter_type_id: model.scooter_type_id ? String(model.scooter_type_id) : (model.scooter_type ? String(model.scooter_type.id) : ''),
       });
       setImagePreview(model.image_path || null);
     } else {
       setEditingModel(null);
       setFormData({
         name: '',
-        type: '白牌',
-        color: '',
+        scooter_type_id: '',
       });
       setImagePreview(null);
     }
@@ -87,8 +99,7 @@ const ScooterModelsPage: React.FC = () => {
     setEditingModel(null);
     setFormData({
       name: '',
-      type: '白牌',
-      color: '',
+      scooter_type_id: '',
     });
     setImageFile(null);
     setImagePreview(null);
@@ -99,8 +110,7 @@ const ScooterModelsPage: React.FC = () => {
     try {
       const data = {
         name: formData.name,
-        type: formData.type,
-        color: formData.color || null,
+        scooter_type_id: parseInt(formData.scooter_type_id),
       };
 
       if (editingModel) {
@@ -209,11 +219,6 @@ const ScooterModelsPage: React.FC = () => {
     };
   }, [openDropdownId]);
 
-  // 當選擇類型時，自動設定預設顏色
-  const handleTypeChange = (type: string) => {
-    const autoColor = typeColorMap[type] || '';
-    setFormData({ ...formData, type, color: formData.color || autoColor });
-  };
 
   const filteredModels = scooterModels.filter(model => {
     if (searchTerm && !model.name.toLowerCase().includes(searchTerm.toLowerCase())) {
@@ -343,7 +348,7 @@ const ScooterModelsPage: React.FC = () => {
                             title={model.color}
                           />
                           <span className="text-xs font-mono text-gray-500 dark:text-gray-400">
-                            {model.color}
+                            {model.color}（來自機車類型）
                           </span>
                         </div>
                       ) : (
@@ -451,62 +456,34 @@ const ScooterModelsPage: React.FC = () => {
                 <div className="relative">
                   <select
                     className={selectClasses}
-                    value={formData.type}
-                    onChange={(e) => handleTypeChange(e.target.value)}
+                    value={formData.scooter_type_id}
+                    onChange={(e) => setFormData({ ...formData, scooter_type_id: e.target.value })}
                     required
                   >
-                    <option value="白牌">白牌</option>
-                    <option value="綠牌">綠牌</option>
-                    <option value="電輔車">電輔車</option>
-                    <option value="三輪車">三輪車</option>
+                    <option value="">請選擇機車類型</option>
+                    {scooterTypes.map((type) => (
+                      <option key={type.id} value={type.id}>
+                        {type.name}
+                      </option>
+                    ))}
                   </select>
                   <ChevronDown size={18} className={chevronDownClasses} />
                 </div>
-              </div>
-              <div>
-                <label className={labelClasses}>
-                  顏色
-                </label>
-                <div className="flex items-center space-x-4">
-                  <div className="flex items-center space-x-3">
-                    <input
-                      type="color"
-                      value={formData.color || typeColorMap[formData.type] || '#6B7280'}
-                      onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                      className="w-16 h-16 rounded-lg border-2 border-gray-200 dark:border-gray-700 cursor-pointer"
-                      title="選擇顏色"
-                    />
-                    <div className="flex-1">
-                      <input
-                        type="text"
-                        value={formData.color || ''}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          if (value === '' || /^#[0-9A-Fa-f]{6}$/.test(value)) {
-                            setFormData({ ...formData, color: value });
-                          }
-                        }}
-                        placeholder="#7DD3FC"
-                        className={`${inputClasses} font-mono text-sm`}
-                        maxLength={7}
+                {formData.scooter_type_id && (() => {
+                  const selectedType = scooterTypes.find(t => String(t.id) === formData.scooter_type_id);
+                  return selectedType && selectedType.color ? (
+                    <div className="mt-2 flex items-center space-x-2">
+                      <div
+                        className="w-8 h-8 rounded-lg border-2 border-gray-200 dark:border-gray-700"
+                        style={{ backgroundColor: selectedType.color }}
+                        title={selectedType.color}
                       />
-                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                        輸入 hex 顏色值（例如：#FF5733）
-                      </p>
+                      <span className="text-xs font-mono text-gray-500 dark:text-gray-400">
+                        {selectedType.color}（自動套用）
+                      </span>
                     </div>
-                  </div>
-                </div>
-                {formData.color && (
-                  <div className="mt-2 flex items-center space-x-2">
-                    <div
-                      className="w-8 h-8 rounded-lg border-2 border-gray-200 dark:border-gray-700"
-                      style={{ backgroundColor: formData.color }}
-                    />
-                    <span className="text-xs font-mono text-gray-500 dark:text-gray-400">
-                      {formData.color}
-                    </span>
-                  </div>
-                )}
+                  ) : null;
+                })()}
               </div>
               <div>
                 <label className={labelClasses}>圖片</label>

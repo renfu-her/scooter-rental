@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Plus, Search, Bike, Edit3, Trash2, X, Loader2, MoreHorizontal, ChevronDown } from 'lucide-react';
-import { scootersApi, storesApi, scooterModelColorsApi, scooterModelsApi } from '../lib/api';
+import { scootersApi, storesApi, scooterModelColorsApi, scooterModelsApi, scooterTypesApi } from '../lib/api';
 import { inputClasses, selectClasses, labelClasses, searchInputClasses, chevronDownClasses, uploadAreaBaseClasses, modalCancelButtonClasses, modalSubmitButtonClasses } from '../styles';
 
 interface Scooter {
@@ -35,16 +35,9 @@ const ScootersPage: React.FC = () => {
   const [allScooters, setAllScooters] = useState<Scooter[]>([]); // 儲存所有機車用於計算計數
   const [stores, setStores] = useState<Store[]>([]);
   const [scooterModels, setScooterModels] = useState<ScooterModel[]>([]);
+  const [scooterTypes, setScooterTypes] = useState<Array<{id: number; name: string; color: string | null}>>([]);
   const [modelColorMap, setModelColorMap] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
-
-  // 車款類型對應的顏色
-  const typeColorMap: Record<string, string> = {
-    '白牌': '#7DD3FC', // 天藍色 (sky-300)
-    '綠牌': '#86EFAC', // 綠色 (green-300)
-    '電輔車': '#FED7AA', // 橘色 (orange-200)
-    '三輪車': '#FDE047', // 黃色 (yellow-300)
-  };
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
   const [formData, setFormData] = useState({
@@ -68,6 +61,7 @@ const ScootersPage: React.FC = () => {
     fetchScooters();
     fetchStores();
     fetchScooterModels();
+    fetchScooterTypes();
   }, [statusFilter, searchTerm]);
 
   // 獲取機車型號顏色映射（從 ScooterModelColor 表獲取）
@@ -141,6 +135,21 @@ const ScootersPage: React.FC = () => {
     }
   };
 
+  const fetchScooterTypes = async () => {
+    try {
+      const response = await scooterTypesApi.list();
+      setScooterTypes(response.data || []);
+    } catch (error) {
+      console.error('Failed to fetch scooter types:', error);
+    }
+  };
+
+  // 根據類型名稱取得顏色
+  const getTypeColor = (typeName: string): string | null => {
+    const type = scooterTypes.find(t => t.name === typeName);
+    return type?.color || null;
+  };
+
   const handleOpenModal = (scooter?: Scooter) => {
     if (scooter) {
       setEditingScooter(scooter);
@@ -193,11 +202,12 @@ const ScootersPage: React.FC = () => {
   const handleScooterModelChange = (scooterModelId: string) => {
     const selectedModel = scooterModels.find(m => String(m.id) === scooterModelId);
     if (selectedModel) {
+      const typeColor = selectedModel.color || getTypeColor(selectedModel.type) || '';
       setFormData({
         ...formData,
         scooter_model_id: scooterModelId,
         type: selectedModel.type,
-        color: selectedModel.color || typeColorMap[selectedModel.type] || '',
+        color: typeColor,
       });
     }
   };
@@ -627,7 +637,7 @@ const ScootersPage: React.FC = () => {
                       value={formData.color}
                       onChange={(e) => setFormData({ ...formData, color: e.target.value })}
                     />
-                    {formData.color && typeColorMap[formData.type] && (
+                    {formData.color && (
                       <div className="flex items-center space-x-2">
                         <div 
                           className="w-8 h-8 rounded-lg border-2 border-gray-200 dark:border-gray-700 shadow-sm"
@@ -635,7 +645,7 @@ const ScootersPage: React.FC = () => {
                           title={formData.color}
                         />
                         <span className="text-xs font-mono text-gray-500 dark:text-gray-400">
-                          {formData.color}
+                          {formData.color}（來自機車類型）
                         </span>
                       </div>
                     )}
@@ -654,8 +664,8 @@ const ScootersPage: React.FC = () => {
                       value={formData.type}
                       onChange={(e) => {
                         const selectedType = e.target.value;
-                        // 根據車款類型自動設定顏色
-                        const autoColor = typeColorMap[selectedType] || '';
+                        // 根據車款類型自動設定顏色（從機車類型取得）
+                        const autoColor = getTypeColor(selectedType) || '';
                         setFormData({ ...formData, type: selectedType, color: formData.color || autoColor });
                       }}
                     >

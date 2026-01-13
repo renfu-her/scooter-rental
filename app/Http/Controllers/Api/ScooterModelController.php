@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ScooterModelResource;
 use App\Models\ScooterModel;
+use App\Models\ScooterType;
 use App\Services\ImageService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -39,7 +40,7 @@ class ScooterModelController extends Controller
             $query->where('type', $request->get('type'));
         }
 
-        $scooterModels = $query->orderBy('name')->orderBy('type')->get();
+        $scooterModels = $query->with('scooterType')->orderBy('name')->orderBy('scooter_type_id')->get();
 
         return response()->json([
             'data' => ScooterModelResource::collection($scooterModels),
@@ -53,14 +54,13 @@ class ScooterModelController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255|unique:scooter_models,name',
-            'type' => 'required|in:白牌,綠牌,電輔車,三輪車',
+            'scooter_type_id' => 'required|exists:scooter_types,id',
             'image' => 'nullable|image|mimes:jpeg,jpg,png,gif,webp|max:5120',
-            'color' => 'nullable|string|max:50',
         ], [
             'name.required' => '請輸入機車型號名稱',
             'name.unique' => '此機車型號名稱已被使用',
-            'type.required' => '請選擇車型類型',
-            'type.in' => '車型類型必須為：白牌、綠牌、電輔車或三輪車',
+            'scooter_type_id.required' => '請選擇車型類型',
+            'scooter_type_id.exists' => '所選擇的車型類型不存在',
             'image.image' => '上傳的檔案必須是圖片',
             'image.max' => '圖片大小不能超過 5MB',
         ]);
@@ -86,9 +86,8 @@ class ScooterModelController extends Controller
 
             $scooterModel = ScooterModel::create([
                 'name' => $data['name'],
-                'type' => $data['type'],
+                'scooter_type_id' => $data['scooter_type_id'],
                 'image_path' => $imagePath,
-                'color' => $data['color'] ?? null,
             ]);
 
             return response()->json([
@@ -110,6 +109,7 @@ class ScooterModelController extends Controller
      */
     public function show(ScooterModel $scooterModel): JsonResponse
     {
+        $scooterModel->load('scooterType');
         return response()->json([
             'data' => new ScooterModelResource($scooterModel),
         ]);
@@ -122,14 +122,13 @@ class ScooterModelController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'sometimes|required|string|max:255|unique:scooter_models,name,' . $scooterModel->id,
-            'type' => 'sometimes|required|in:白牌,綠牌,電輔車,三輪車',
+            'scooter_type_id' => 'sometimes|required|exists:scooter_types,id',
             'image' => 'nullable|image|mimes:jpeg,jpg,png,gif,webp|max:5120',
-            'color' => 'nullable|string|max:50',
         ], [
             'name.required' => '請輸入機車型號名稱',
             'name.unique' => '此機車型號名稱已被使用',
-            'type.required' => '請選擇車型類型',
-            'type.in' => '車型類型必須為：白牌、綠牌、電輔車或三輪車',
+            'scooter_type_id.required' => '請選擇車型類型',
+            'scooter_type_id.exists' => '所選擇的車型類型不存在',
             'image.image' => '上傳的檔案必須是圖片',
             'image.max' => '圖片大小不能超過 5MB',
         ]);

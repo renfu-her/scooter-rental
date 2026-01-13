@@ -310,6 +310,14 @@ export const scootersApi = {
     api.uploadFile(`/scooters/${id}/upload-photo`, file),
 };
 
+export const scooterTypesApi = {
+  list: (params?: { search?: string }) => api.get('/scooter-types', params),
+  get: (id: string | number) => api.get(`/scooter-types/${id}`),
+  create: (data: any) => api.post('/scooter-types', data),
+  update: (id: string | number, data: any) => api.put(`/scooter-types/${id}`, data),
+  delete: (id: string | number) => api.delete(`/scooter-types/${id}`),
+};
+
 export const scooterModelsApi = {
   list: (params?: { search?: string; type?: string }) => api.get('/scooter-models', params),
   get: (id: string | number) => api.get(`/scooter-models/${id}`),

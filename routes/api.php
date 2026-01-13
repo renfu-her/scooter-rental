@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\PartnerController;
 use App\Http\Controllers\Api\ScooterController;
 use App\Http\Controllers\Api\ScooterModelController;
+use App\Http\Controllers\Api\ScooterTypeController;
 use App\Http\Controllers\Api\ScooterModelColorController;
 use App\Http\Controllers\Api\FineController;
 use App\Http\Controllers\Api\AccessoryController;
@@ -108,6 +109,15 @@ Route::prefix('scooters')->group(function () {
     Route::put('/{scooter}', [ScooterController::class, 'update']);
     Route::delete('/{scooter}', [ScooterController::class, 'destroy']);
     Route::post('/{scooter}/upload-photo', [ScooterController::class, 'uploadPhoto']);
+});
+
+// Scooter Types API
+Route::prefix('scooter-types')->group(function () {
+    Route::get('/', [ScooterTypeController::class, 'index']);
+    Route::post('/', [ScooterTypeController::class, 'store']);
+    Route::get('/{scooterType}', [ScooterTypeController::class, 'show']);
+    Route::put('/{scooterType}', [ScooterTypeController::class, 'update']);
+    Route::delete('/{scooterType}', [ScooterTypeController::class, 'destroy']);
 });
 
 // Scooter Models API

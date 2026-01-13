@@ -17,6 +17,7 @@ export const NAV_ITEMS = [
     children: [
       { name: '機車清單', path: '/scooters' },
       { name: '機車型號管理', path: '/scooter-models' },
+      { name: '機車類型管理', path: '/scooter-types' },
       { name: '機車配件', path: '/accessories' }
     ]
   },
