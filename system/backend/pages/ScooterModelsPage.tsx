@@ -356,30 +356,6 @@ const ScooterModelsPage: React.FC = () => {
                         >
                           <MoreHorizontal size={18} />
                         </button>
-                        {openDropdownId === model.id && dropdownPosition && (
-                          <div
-                            className="absolute z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl py-1 min-w-[120px]"
-                            style={{
-                              top: `${dropdownPosition.top}px`,
-                              right: `${dropdownPosition.right}px`,
-                            }}
-                          >
-                            <button
-                              onClick={() => handleEdit(model)}
-                              className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
-                            >
-                              <Edit3 size={16} />
-                              編輯
-                            </button>
-                            <button
-                              onClick={() => handleDelete(model.id)}
-                              className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2"
-                            >
-                              <Trash2 size={16} />
-                              刪除
-                            </button>
-                          </div>
-                        )}
                       </div>
                     </td>
                   </tr>
@@ -388,6 +364,50 @@ const ScooterModelsPage: React.FC = () => {
             </tbody>
           </table>
         </div>
+      )}
+
+      {/* 下拉選單遮罩層（點擊外部關閉） */}
+      {openDropdownId !== null && dropdownPosition && (
+        <>
+          <div
+            className="fixed inset-0 z-40"
+            onClick={() => {
+              setOpenDropdownId(null);
+              setDropdownPosition(null);
+            }}
+          />
+          <div
+            className="fixed z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl py-1 min-w-[120px]"
+            style={{
+              top: `${dropdownPosition.top}px`,
+              right: `${dropdownPosition.right}px`,
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {(() => {
+              const model = filteredModels.find(m => m.id === openDropdownId);
+              if (!model) return null;
+              return (
+                <>
+                  <button
+                    onClick={() => handleEdit(model)}
+                    className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+                  >
+                    <Edit3 size={16} />
+                    編輯
+                  </button>
+                  <button
+                    onClick={() => handleDelete(model.id)}
+                    className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2"
+                  >
+                    <Trash2 size={16} />
+                    刪除
+                  </button>
+                </>
+              );
+            })()}
+          </div>
+        </>
       )}
 
       {/* 新增/編輯 Modal */}
