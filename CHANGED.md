@@ -1,5 +1,30 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-13 17:38:17 (+8) - 線上預約新增調車費用總金額計算 (total_amount for bookings)
+
+### 變更內容
+
+#### 後端
+- **Migration** (`database/migrations/2026_01_12_224000_add_total_amount_to_bookings_table.php`)
+  - 在 `bookings` 資料表新增 `total_amount` 欄位 (`unsignedInteger`, `nullable`)，用於儲存預約調車費用的總金額（只包含調車費用，不含租金）。
+
+- **Booking.php** (`app/Models/Booking.php`)
+  - 在 `$fillable` 中新增 `total_amount`，並在 `$casts` 中將其轉換為 `integer`，方便後端與前端使用。
+
+- **BookingController.php** (`app/Http/Controllers/Api/BookingController.php`)
+  - 在 `send()` 方法中，依據線上預約的開始日期 (`appointmentDate`) 與結束日期 (`endDate`) 判斷租期類型與天數：
+    - 若開始日期與結束日期相同：視為當日租，天數固定為 1，使用 `same_day_transfer_fee_*` 欄位。
+    - 若開始日期與結束日期不同：視為跨日租，使用夜數計算天數：`days = diffInDays(start, end)`（例如：1/1–1/2 → 1；1/1–1/3 → 2），使用 `overnight_transfer_fee_*` 欄位。
+  - 對每個車型需求 (`$data['scooters']`) 計算調車費用：
+    - 依車型（白牌 / 綠牌 / 電輔車 / 三輪車）對應到合作商的調車費用欄位（`*_white|green|electric|tricycle`）。
+    - 計算公式：單一車型費用 = 對應調車費用 × 該車型台數 × 天數（夜數）。
+    - 將所有車型的費用加總為 `$totalTransferFee`，並在建立 `Booking` 時寫入 `total_amount` 欄位。
+  - 若找不到預設合作商或該車型費用未設定，則視為 0 元，不影響其他車型的計算。
+
+### 功能說明
+- 線上預約在送出時，會根據「預設合作商」的調車費用設定、租期天數（以夜數計算）與每個車型的台數，自動計算並儲存「調車費用總金額」到 `bookings.total_amount`。
+- 此總金額僅包含調車費用，不會包含租車費用，方便後續對帳與報表使用。
+
 ## 2026-01-12 22:40:00 (+8) - 合作商新增調車費用欄位（按車型分類）
 
 ### 變更內容

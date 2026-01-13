@@ -67,6 +67,74 @@ class BookingController extends Controller
             
             // 獲取預設線上預約合作商
             $defaultPartner = Partner::where('is_default_for_booking', true)->first();
+
+            // 計算租期天數與調車費用總金額（只算調車費用）
+            $bookingDateCarbon = Carbon::parse($data['appointmentDate'])->startOfDay();
+            $endDateCarbon = Carbon::parse($data['endDate'])->startOfDay();
+
+            if ($bookingDateCarbon->equalTo($endDateCarbon)) {
+                // 同日租：固定 1 天
+                $days = 1;
+                $isSameDayRental = true;
+            } else {
+                // 跨日租：用夜數（diffInDays）
+                $days = $bookingDateCarbon->diffInDays($endDateCarbon);
+                if ($days < 1) {
+                    $days = 1;
+                }
+                $isSameDayRental = false;
+            }
+
+            $totalTransferFee = 0;
+
+            // 針對每個車型計算：調車費用 × 台數 × 天數
+            foreach ($data['scooters'] as $scooterItem) {
+                $type = $scooterItem['type'] ?? null; // 白牌 / 綠牌 / 電輔車 / 三輪車
+                $count = $scooterItem['count'] ?? 0;
+
+                if ($count <= 0) {
+                    continue;
+                }
+
+                $transferFee = 0;
+
+                if ($defaultPartner) {
+                    if ($isSameDayRental) {
+                        switch ($type) {
+                            case '白牌':
+                                $transferFee = $defaultPartner->same_day_transfer_fee_white ?? 0;
+                                break;
+                            case '綠牌':
+                                $transferFee = $defaultPartner->same_day_transfer_fee_green ?? 0;
+                                break;
+                            case '電輔車':
+                                $transferFee = $defaultPartner->same_day_transfer_fee_electric ?? 0;
+                                break;
+                            case '三輪車':
+                                $transferFee = $defaultPartner->same_day_transfer_fee_tricycle ?? 0;
+                                break;
+                        }
+                    } else {
+                        switch ($type) {
+                            case '白牌':
+                                $transferFee = $defaultPartner->overnight_transfer_fee_white ?? 0;
+                                break;
+                            case '綠牌':
+                                $transferFee = $defaultPartner->overnight_transfer_fee_green ?? 0;
+                                break;
+                            case '電輔車':
+                                $transferFee = $defaultPartner->overnight_transfer_fee_electric ?? 0;
+                                break;
+                            case '三輪車':
+                                $transferFee = $defaultPartner->overnight_transfer_fee_tricycle ?? 0;
+                                break;
+                        }
+                    }
+                }
+
+                // 單一車型：調車費用 × 台數 × 天數
+                $totalTransferFee += (int) $transferFee * (int) $count * (int) $days;
+            }
             
             // 如果沒有提供船運公司，使用預設合作商的預設船運公司
             $shippingCompany = $data['shippingCompany'] ?? null;
@@ -90,6 +158,7 @@ class BookingController extends Controller
                 'note' => $data['note'] ?? null,
                 'status' => '預約中', // 預設狀態為「預約中」
                 'partner_id' => $defaultPartner ? $defaultPartner->id : null,
+                'total_amount' => $totalTransferFee,
             ]);
             
             // 發送郵件給管理員（因為沒有 email，無法發送給用戶）

@@ -26,6 +26,7 @@ class Booking extends Model
         'note',
         'status',
         'partner_id',
+        'total_amount',
     ];
 
     protected $casts = [
@@ -35,5 +36,6 @@ class Booking extends Model
         'scooters' => 'array',
         'adults' => 'integer',
         'children' => 'integer',
+        'total_amount' => 'integer',
     ];
 }
