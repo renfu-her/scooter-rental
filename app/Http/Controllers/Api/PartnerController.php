@@ -140,6 +140,7 @@ class PartnerController extends Controller
             'transfer_fees.*.scooter_model_id' => 'required_with:transfer_fees|exists:scooter_models,id',
             'transfer_fees.*.same_day_transfer_fee' => 'nullable|integer|min:0',
             'transfer_fees.*.overnight_transfer_fee' => 'nullable|integer|min:0',
+            'photo_path' => 'nullable',
         ]);
 
         if ($validator->fails()) {
@@ -160,6 +161,11 @@ class PartnerController extends Controller
 
         DB::beginTransaction();
         try {
+            // Handle photo deletion (if photo_path is explicitly set to null)
+            if (isset($data['photo_path']) && $data['photo_path'] === null && $partner->photo_path) {
+                $this->imageService->deleteImage($partner->photo_path);
+            }
+            
             $partner->update($data);
             
             // 如果有提供 transfer_fees，更新調車費用

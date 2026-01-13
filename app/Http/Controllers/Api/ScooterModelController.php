@@ -124,6 +124,7 @@ class ScooterModelController extends Controller
             'name' => 'sometimes|required|string|max:255|unique:scooter_models,name,' . $scooterModel->id,
             'scooter_type_id' => 'sometimes|required|exists:scooter_types,id',
             'image' => 'nullable|image|mimes:jpeg,jpg,png,gif,webp|max:5120',
+            'image_path' => 'nullable',
         ], [
             'name.required' => '請輸入機車型號名稱',
             'name.unique' => '此機車型號名稱已被使用',
@@ -143,6 +144,12 @@ class ScooterModelController extends Controller
         try {
             $data = $validator->validated();
             $oldImagePath = $scooterModel->image_path;
+
+            // Handle image deletion (if image_path is explicitly set to null)
+            if (isset($data['image_path']) && $data['image_path'] === null && $oldImagePath) {
+                $this->imageService->deleteImage($oldImagePath);
+                $data['image_path'] = null;
+            }
 
             // Handle image upload
             if ($request->hasFile('image')) {

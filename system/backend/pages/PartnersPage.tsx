@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Plus, Search, Edit3, Trash2, MapPin, Phone, Building, Image as ImageIcon, X, Loader2, MoreHorizontal } from 'lucide-react';
-import { partnersApi } from '../lib/api';
+import { partnersApi, scooterModelsApi } from '../lib/api';
 import { inputClasses, labelClasses, searchInputClasses, uploadAreaBaseClasses, modalCancelButtonClasses, modalSubmitButtonClasses } from '../styles';
 
 interface Partner {
@@ -14,20 +14,30 @@ interface Partner {
   color: string | null;
   is_default_for_booking?: boolean;
   default_shipping_company?: string | null;
-  same_day_transfer_fee_white?: number | null;
-  same_day_transfer_fee_green?: number | null;
-  same_day_transfer_fee_electric?: number | null;
-  same_day_transfer_fee_tricycle?: number | null;
-  overnight_transfer_fee_white?: number | null;
-  overnight_transfer_fee_green?: number | null;
-  overnight_transfer_fee_electric?: number | null;
-  overnight_transfer_fee_tricycle?: number | null;
+  transfer_fees?: Array<{
+    scooter_model_id: number;
+    scooter_model?: {
+      id: number;
+      name: string;
+      type: string;
+    };
+    same_day_transfer_fee: number | null;
+    overnight_transfer_fee: number | null;
+  }>;
+}
+
+interface ScooterModel {
+  id: number;
+  name: string;
+  type: string;
+  label?: string;
 }
 
 const PartnersPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPartner, setEditingPartner] = useState<Partner | null>(null);
   const [partners, setPartners] = useState<Partner[]>([]);
+  const [scooterModels, setScooterModels] = useState<ScooterModel[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [formData, setFormData] = useState({
@@ -38,17 +48,15 @@ const PartnersPage: React.FC = () => {
     manager: '',
     color: '',
     is_default_for_booking: false,
-    same_day_transfer_fee_white: '',
-    same_day_transfer_fee_green: '',
-    same_day_transfer_fee_electric: '',
-    same_day_transfer_fee_tricycle: '',
-    overnight_transfer_fee_white: '',
-    overnight_transfer_fee_green: '',
-    overnight_transfer_fee_electric: '',
-    overnight_transfer_fee_tricycle: '',
+    transfer_fees: [] as Array<{
+      scooter_model_id: number;
+      same_day_transfer_fee: string;
+      overnight_transfer_fee: string;
+    }>,
   });
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [shouldDeletePhoto, setShouldDeletePhoto] = useState(false);
   const [openDropdownId, setOpenDropdownId] = useState<number | null>(null);
   const [dropdownPosition, setDropdownPosition] = useState<{ top: number; right: number } | null>(null);
   const dropdownRefs = useRef<Record<number, HTMLDivElement | null>>({});
@@ -58,7 +66,17 @@ const PartnersPage: React.FC = () => {
 
   useEffect(() => {
     fetchPartners();
+    fetchScooterModels();
   }, [searchTerm]);
+
+  const fetchScooterModels = async () => {
+    try {
+      const response = await scooterModelsApi.list();
+      setScooterModels(response.data || []);
+    } catch (error) {
+      console.error('Failed to fetch scooter models:', error);
+    }
+  };
 
   const fetchPartners = async () => {
     setLoading(true);
@@ -78,6 +96,27 @@ const PartnersPage: React.FC = () => {
   const handleOpenModal = (partner?: Partner) => {
     if (partner) {
       setEditingPartner(partner);
+      // 將 transfer_fees 轉換為表單格式
+      // 先建立一個 map 來儲存現有的費用
+      const existingFeesMap = new Map(
+        (partner.transfer_fees || []).map(fee => [
+          fee.scooter_model_id,
+          {
+            same_day_transfer_fee: fee.same_day_transfer_fee?.toString() || '',
+            overnight_transfer_fee: fee.overnight_transfer_fee?.toString() || '',
+          }
+        ])
+      );
+      
+      // 為所有機車型號建立費用記錄（如果沒有則為空）
+      const transferFees = scooterModels.length > 0
+        ? scooterModels.map(model => ({
+            scooter_model_id: model.id,
+            same_day_transfer_fee: existingFeesMap.get(model.id)?.same_day_transfer_fee || '',
+            overnight_transfer_fee: existingFeesMap.get(model.id)?.overnight_transfer_fee || '',
+          }))
+        : [];
+      
       setFormData({
         name: partner.name,
         address: partner.address || '',
@@ -86,18 +125,21 @@ const PartnersPage: React.FC = () => {
         manager: partner.manager || '',
         color: partner.color || '',
         is_default_for_booking: partner.is_default_for_booking || false,
-        same_day_transfer_fee_white: partner.same_day_transfer_fee_white?.toString() || '',
-        same_day_transfer_fee_green: partner.same_day_transfer_fee_green?.toString() || '',
-        same_day_transfer_fee_electric: partner.same_day_transfer_fee_electric?.toString() || '',
-        same_day_transfer_fee_tricycle: partner.same_day_transfer_fee_tricycle?.toString() || '',
-        overnight_transfer_fee_white: partner.overnight_transfer_fee_white?.toString() || '',
-        overnight_transfer_fee_green: partner.overnight_transfer_fee_green?.toString() || '',
-        overnight_transfer_fee_electric: partner.overnight_transfer_fee_electric?.toString() || '',
-        overnight_transfer_fee_tricycle: partner.overnight_transfer_fee_tricycle?.toString() || '',
+        transfer_fees: transferFees,
       });
       setPhotoPreview(partner.photo_path || null);
+      setShouldDeletePhoto(false);
     } else {
       setEditingPartner(null);
+      // 初始化所有機車型號的費用為空
+      const initialTransferFees = scooterModels.length > 0 
+        ? scooterModels.map(model => ({
+            scooter_model_id: model.id,
+            same_day_transfer_fee: '',
+            overnight_transfer_fee: '',
+          }))
+        : [];
+      
       setFormData({
         name: '',
         address: '',
@@ -106,16 +148,10 @@ const PartnersPage: React.FC = () => {
         manager: '',
         color: '',
         is_default_for_booking: false,
-        same_day_transfer_fee_white: '',
-        same_day_transfer_fee_green: '',
-        same_day_transfer_fee_electric: '',
-        same_day_transfer_fee_tricycle: '',
-        overnight_transfer_fee_white: '',
-        overnight_transfer_fee_green: '',
-        overnight_transfer_fee_electric: '',
-        overnight_transfer_fee_tricycle: '',
+        transfer_fees: initialTransferFees,
       });
       setPhotoPreview(null);
+      setShouldDeletePhoto(false);
     }
     setPhotoFile(null);
     setIsModalOpen(true);
@@ -124,6 +160,13 @@ const PartnersPage: React.FC = () => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setEditingPartner(null);
+    const initialTransferFees = scooterModels.length > 0
+      ? scooterModels.map(model => ({
+          scooter_model_id: model.id,
+          same_day_transfer_fee: '',
+          overnight_transfer_fee: '',
+        }))
+      : [];
     setFormData({
       name: '',
       address: '',
@@ -132,38 +175,42 @@ const PartnersPage: React.FC = () => {
       manager: '',
       color: '',
       is_default_for_booking: false,
-      same_day_transfer_fee_white: '',
-      same_day_transfer_fee_green: '',
-      same_day_transfer_fee_electric: '',
-      same_day_transfer_fee_tricycle: '',
-      overnight_transfer_fee_white: '',
-      overnight_transfer_fee_green: '',
-      overnight_transfer_fee_electric: '',
-      overnight_transfer_fee_tricycle: '',
+      transfer_fees: initialTransferFees,
     });
     setPhotoFile(null);
     setPhotoPreview(null);
+    setShouldDeletePhoto(false);
   };
 
   const handleSubmit = async () => {
     try {
       // 準備提交數據，將費用欄位轉換為正整數或 null
-      const submitData = {
-        ...formData,
-        same_day_transfer_fee_white: formData.same_day_transfer_fee_white ? parseInt(formData.same_day_transfer_fee_white, 10) : null,
-        same_day_transfer_fee_green: formData.same_day_transfer_fee_green ? parseInt(formData.same_day_transfer_fee_green, 10) : null,
-        same_day_transfer_fee_electric: formData.same_day_transfer_fee_electric ? parseInt(formData.same_day_transfer_fee_electric, 10) : null,
-        same_day_transfer_fee_tricycle: formData.same_day_transfer_fee_tricycle ? parseInt(formData.same_day_transfer_fee_tricycle, 10) : null,
-        overnight_transfer_fee_white: formData.overnight_transfer_fee_white ? parseInt(formData.overnight_transfer_fee_white, 10) : null,
-        overnight_transfer_fee_green: formData.overnight_transfer_fee_green ? parseInt(formData.overnight_transfer_fee_green, 10) : null,
-        overnight_transfer_fee_electric: formData.overnight_transfer_fee_electric ? parseInt(formData.overnight_transfer_fee_electric, 10) : null,
-        overnight_transfer_fee_tricycle: formData.overnight_transfer_fee_tricycle ? parseInt(formData.overnight_transfer_fee_tricycle, 10) : null,
+      const transferFees = formData.transfer_fees.map(fee => ({
+        scooter_model_id: fee.scooter_model_id,
+        same_day_transfer_fee: fee.same_day_transfer_fee ? parseInt(fee.same_day_transfer_fee, 10) : null,
+        overnight_transfer_fee: fee.overnight_transfer_fee ? parseInt(fee.overnight_transfer_fee, 10) : null,
+      }));
+      
+      const submitData: any = {
+        name: formData.name,
+        address: formData.address || null,
+        phone: formData.phone || null,
+        tax_id: formData.tax_id || null,
+        manager: formData.manager || null,
+        color: formData.color || null,
+        is_default_for_booking: formData.is_default_for_booking,
+        transfer_fees: transferFees,
       };
       
       if (editingPartner) {
-        await partnersApi.update(editingPartner.id, submitData);
-        if (photoFile) {
-          await partnersApi.uploadPhoto(editingPartner.id, photoFile);
+        // 如果要刪除圖片，發送 photo_path: null
+        if (shouldDeletePhoto && !photoFile) {
+          await partnersApi.update(editingPartner.id, { ...submitData, photo_path: null });
+        } else {
+          await partnersApi.update(editingPartner.id, submitData);
+          if (photoFile) {
+            await partnersApi.uploadPhoto(editingPartner.id, photoFile);
+          }
         }
       } else {
         const response = await partnersApi.create(submitData);
@@ -246,6 +293,7 @@ const PartnersPage: React.FC = () => {
     const file = e.target.files?.[0];
     if (file) {
       setPhotoFile(file);
+      setShouldDeletePhoto(false); // 選擇新圖片時清除刪除標記
       const reader = new FileReader();
       reader.onloadend = () => {
         setPhotoPreview(reader.result as string);
@@ -456,160 +504,80 @@ const PartnersPage: React.FC = () => {
                 </div>
                 <div className="col-span-2">
                   <label className={`${labelClasses} text-base font-bold mb-3`}>
-                    當日調車費用
+                    調車費用設定（按機車型號）
                   </label>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className={`${labelClasses} text-sm`}>白牌</label>
-                      <input 
-                        type="number" 
-                        className={inputClasses}
-                        placeholder="0"
-                        min="0"
-                        step="1"
-                        value={formData.same_day_transfer_fee_white}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          // 只允許正整數或空值
-                          if (value === '' || /^\d+$/.test(value)) {
-                            setFormData({ ...formData, same_day_transfer_fee_white: value });
-                          }
-                        }}
-                      />
-                    </div>
-                    <div>
-                      <label className={`${labelClasses} text-sm`}>綠牌</label>
-                      <input 
-                        type="number" 
-                        className={inputClasses}
-                        placeholder="0"
-                        min="0"
-                        step="1"
-                        value={formData.same_day_transfer_fee_green}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          // 只允許正整數或空值
-                          if (value === '' || /^\d+$/.test(value)) {
-                            setFormData({ ...formData, same_day_transfer_fee_green: value });
-                          }
-                        }}
-                      />
-                    </div>
-                    <div>
-                      <label className={`${labelClasses} text-sm`}>電輔車</label>
-                      <input 
-                        type="number" 
-                        className={inputClasses}
-                        placeholder="0"
-                        min="0"
-                        step="1"
-                        value={formData.same_day_transfer_fee_electric}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          // 只允許正整數或空值
-                          if (value === '' || /^\d+$/.test(value)) {
-                            setFormData({ ...formData, same_day_transfer_fee_electric: value });
-                          }
-                        }}
-                      />
-                    </div>
-                    <div>
-                      <label className={`${labelClasses} text-sm`}>三輪車</label>
-                      <input 
-                        type="number" 
-                        className={inputClasses}
-                        placeholder="0"
-                        min="0"
-                        step="1"
-                        value={formData.same_day_transfer_fee_tricycle}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          // 只允許正整數或空值
-                          if (value === '' || /^\d+$/.test(value)) {
-                            setFormData({ ...formData, same_day_transfer_fee_tricycle: value });
-                          }
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div className="col-span-2">
-                  <label className={`${labelClasses} text-base font-bold mb-3`}>
-                    跨日調車費用
-                  </label>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className={`${labelClasses} text-sm`}>白牌</label>
-                      <input 
-                        type="number" 
-                        className={inputClasses}
-                        placeholder="0"
-                        min="0"
-                        step="1"
-                        value={formData.overnight_transfer_fee_white}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          // 只允許正整數或空值
-                          if (value === '' || /^\d+$/.test(value)) {
-                            setFormData({ ...formData, overnight_transfer_fee_white: value });
-                          }
-                        }}
-                      />
-                    </div>
-                    <div>
-                      <label className={`${labelClasses} text-sm`}>綠牌</label>
-                      <input 
-                        type="number" 
-                        className={inputClasses}
-                        placeholder="0"
-                        min="0"
-                        step="1"
-                        value={formData.overnight_transfer_fee_green}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          // 只允許正整數或空值
-                          if (value === '' || /^\d+$/.test(value)) {
-                            setFormData({ ...formData, overnight_transfer_fee_green: value });
-                          }
-                        }}
-                      />
-                    </div>
-                    <div>
-                      <label className={`${labelClasses} text-sm`}>電輔車</label>
-                      <input 
-                        type="number" 
-                        className={inputClasses}
-                        placeholder="0"
-                        min="0"
-                        step="1"
-                        value={formData.overnight_transfer_fee_electric}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          // 只允許正整數或空值
-                          if (value === '' || /^\d+$/.test(value)) {
-                            setFormData({ ...formData, overnight_transfer_fee_electric: value });
-                          }
-                        }}
-                      />
-                    </div>
-                    <div>
-                      <label className={`${labelClasses} text-sm`}>三輪車</label>
-                      <input 
-                        type="number" 
-                        className={inputClasses}
-                        placeholder="0"
-                        min="0"
-                        step="1"
-                        value={formData.overnight_transfer_fee_tricycle}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          // 只允許正整數或空值
-                          if (value === '' || /^\d+$/.test(value)) {
-                            setFormData({ ...formData, overnight_transfer_fee_tricycle: value });
-                          }
-                        }}
-                      />
-                    </div>
+                  <div className="space-y-4">
+                    {scooterModels.map((model) => {
+                      const feeIndex = formData.transfer_fees.findIndex(
+                        f => f.scooter_model_id === model.id
+                      );
+                      const fee = feeIndex >= 0 ? formData.transfer_fees[feeIndex] : {
+                        scooter_model_id: model.id,
+                        same_day_transfer_fee: '',
+                        overnight_transfer_fee: '',
+                      };
+                      
+                      const updateFee = (field: 'same_day_transfer_fee' | 'overnight_transfer_fee', value: string) => {
+                        const newTransferFees = [...formData.transfer_fees];
+                        if (feeIndex >= 0) {
+                          newTransferFees[feeIndex] = { ...newTransferFees[feeIndex], [field]: value };
+                        } else {
+                          newTransferFees.push({
+                            scooter_model_id: model.id,
+                            same_day_transfer_fee: field === 'same_day_transfer_fee' ? value : '',
+                            overnight_transfer_fee: field === 'overnight_transfer_fee' ? value : '',
+                          });
+                        }
+                        setFormData({ ...formData, transfer_fees: newTransferFees });
+                      };
+                      
+                      return (
+                        <div key={model.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50/50 dark:bg-gray-800/50">
+                          <div className="mb-3">
+                            <span className="font-bold text-gray-900 dark:text-gray-100">{model.name}</span>
+                            <span className="ml-2 px-2 py-1 rounded-lg text-[10px] font-black border bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-700 dark:text-gray-400 dark:border-gray-600">
+                              {model.type}
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <label className={`${labelClasses} text-sm`}>當日調車費用</label>
+                              <input 
+                                type="number" 
+                                className={inputClasses}
+                                placeholder="0"
+                                min="0"
+                                step="1"
+                                value={fee.same_day_transfer_fee}
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  if (value === '' || /^\d+$/.test(value)) {
+                                    updateFee('same_day_transfer_fee', value);
+                                  }
+                                }}
+                              />
+                            </div>
+                            <div>
+                              <label className={`${labelClasses} text-sm`}>跨日調車費用</label>
+                              <input 
+                                type="number" 
+                                className={inputClasses}
+                                placeholder="0"
+                                min="0"
+                                step="1"
+                                value={fee.overnight_transfer_fee}
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  if (value === '' || /^\d+$/.test(value)) {
+                                    updateFee('overnight_transfer_fee', value);
+                                  }
+                                }}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
                 <div className="col-span-2">
@@ -678,11 +646,15 @@ const PartnersPage: React.FC = () => {
                       <img src={photoPreview} alt="Preview" className="max-h-48 mx-auto rounded" />
                       <button
                         type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setPhotoPreview(null);
-                          setPhotoFile(null);
-                        }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setPhotoPreview(null);
+                            setPhotoFile(null);
+                            // 如果是編輯模式且有現有圖片，標記為要刪除
+                            if (editingPartner && editingPartner.photo_path) {
+                              setShouldDeletePhoto(true);
+                            }
+                          }}
                         className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 z-10 hover:bg-red-600 transition-colors"
                         title="刪除圖片"
                       >

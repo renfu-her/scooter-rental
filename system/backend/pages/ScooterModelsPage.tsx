@@ -38,6 +38,7 @@ const ScooterModelsPage: React.FC = () => {
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [shouldDeleteImage, setShouldDeleteImage] = useState(false);
   const [openDropdownId, setOpenDropdownId] = useState<number | null>(null);
   const [dropdownPosition, setDropdownPosition] = useState<{ top: number; right: number } | null>(null);
   const buttonRefs = useRef<Record<number, HTMLButtonElement | null>>({});
@@ -103,6 +104,7 @@ const ScooterModelsPage: React.FC = () => {
     });
     setImageFile(null);
     setImagePreview(null);
+    setShouldDeleteImage(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -114,9 +116,14 @@ const ScooterModelsPage: React.FC = () => {
       };
 
       if (editingModel) {
-        await scooterModelsApi.update(editingModel.id, data);
-        if (imageFile) {
-          await scooterModelsApi.uploadImage(editingModel.id, imageFile);
+        // 如果要刪除圖片，發送 image_path: null
+        if (shouldDeleteImage && !imageFile) {
+          await scooterModelsApi.update(editingModel.id, { ...data, image_path: null });
+        } else {
+          await scooterModelsApi.update(editingModel.id, data);
+          if (imageFile) {
+            await scooterModelsApi.uploadImage(editingModel.id, imageFile);
+          }
         }
       } else {
         const response = await scooterModelsApi.create(data);
@@ -192,6 +199,7 @@ const ScooterModelsPage: React.FC = () => {
     const file = e.target.files?.[0];
     if (file) {
       setImageFile(file);
+      setShouldDeleteImage(false); // 選擇新圖片時清除刪除標記
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
@@ -203,6 +211,10 @@ const ScooterModelsPage: React.FC = () => {
   const handleDeleteImage = () => {
     setImageFile(null);
     setImagePreview(null);
+    // 如果是編輯模式且有現有圖片，標記為要刪除
+    if (editingModel && editingModel.image_path) {
+      setShouldDeleteImage(true);
+    }
   };
 
   useEffect(() => {

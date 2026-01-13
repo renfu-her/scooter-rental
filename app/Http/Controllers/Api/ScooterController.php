@@ -158,6 +158,7 @@ class ScooterController extends Controller
             'type' => 'nullable|in:白牌,綠牌,電輔車,三輪車',
             'color' => 'nullable|string|max:50',
             'status' => 'sometimes|required|in:待出租,出租中,保養中',
+            'photo_path' => 'nullable',
         ], [
             'store_id.required' => '請選擇所屬商店',
             'store_id.exists' => '所選擇的商店不存在',
@@ -190,6 +191,11 @@ class ScooterController extends Controller
             }
         }
 
+        // Handle photo deletion (if photo_path is explicitly set to null)
+        if (isset($data['photo_path']) && $data['photo_path'] === null && $scooter->photo_path) {
+            $this->imageService->deleteImage($scooter->photo_path);
+        }
+        
         $scooter->update($data);
 
         return response()->json([

@@ -51,6 +51,7 @@ const ScootersPage: React.FC = () => {
   });
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [shouldDeletePhoto, setShouldDeletePhoto] = useState(false);
   const [openDropdownId, setOpenDropdownId] = useState<number | null>(null);
   const [dropdownPosition, setDropdownPosition] = useState<{ top: number; right: number } | null>(null);
   const buttonRefs = useRef<Record<number, HTMLButtonElement | null>>({});
@@ -165,6 +166,7 @@ const ScootersPage: React.FC = () => {
         status: scooter.status,
       });
       setPhotoPreview(scooter.photo_path || null);
+      setShouldDeletePhoto(false);
     } else {
       setEditingScooter(null);
       setFormData({
@@ -177,6 +179,7 @@ const ScootersPage: React.FC = () => {
         status: '待出租',
       });
       setPhotoPreview(null);
+      setShouldDeletePhoto(false);
     }
     setPhotoFile(null);
     setIsModalOpen(true);
@@ -196,6 +199,7 @@ const ScootersPage: React.FC = () => {
     });
     setPhotoFile(null);
     setPhotoPreview(null);
+    setShouldDeletePhoto(false);
   };
 
   // 當選擇機車型號時，自動帶出類型和顏色
@@ -229,9 +233,14 @@ const ScootersPage: React.FC = () => {
       };
 
       if (editingScooter) {
-        await scootersApi.update(editingScooter.id, data);
-        if (photoFile) {
-          await scootersApi.uploadPhoto(editingScooter.id, photoFile);
+        // 如果要刪除圖片，發送 photo_path: null
+        if (shouldDeletePhoto && !photoFile) {
+          await scootersApi.update(editingScooter.id, { ...data, photo_path: null });
+        } else {
+          await scootersApi.update(editingScooter.id, data);
+          if (photoFile) {
+            await scootersApi.uploadPhoto(editingScooter.id, photoFile);
+          }
         }
       } else {
         const response = await scootersApi.create(data);
@@ -337,6 +346,7 @@ const ScootersPage: React.FC = () => {
     const file = e.target.files?.[0];
     if (file) {
       setPhotoFile(file);
+      setShouldDeletePhoto(false); // 選擇新圖片時清除刪除標記
       const reader = new FileReader();
       reader.onloadend = () => {
         setPhotoPreview(reader.result as string);
@@ -348,6 +358,10 @@ const ScootersPage: React.FC = () => {
   const handleDeleteImage = () => {
     setPhotoFile(null);
     setPhotoPreview(null);
+    // 如果是編輯模式且有現有圖片，標記為要刪除
+    if (editingScooter && editingScooter.photo_path) {
+      setShouldDeletePhoto(true);
+    }
   };
 
   // 根據所有機車計算計數（不受過濾器影響）
