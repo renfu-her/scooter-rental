@@ -6,20 +6,28 @@
 
 #### 後端
 - **Migration** (`database/migrations/2026_01_12_223000_add_transfer_fees_to_partners_table.php`)
-  - 修改 migration 為 modify 類型，處理舊欄位並添加新欄位：
-    - 在 `up()` 方法中：先檢查並刪除舊的 `same_day_transfer_fee` 和 `overnight_transfer_fee` 欄位（如果存在）
-    - 然後添加8個新欄位到 partners 表（4種車型 × 2種租期）：
-    - 當日調車費用：
-      - `same_day_transfer_fee_white` (decimal, nullable): 當日調車費用-白牌
-      - `same_day_transfer_fee_green` (decimal, nullable): 當日調車費用-綠牌
-      - `same_day_transfer_fee_electric` (decimal, nullable): 當日調車費用-電輔車
-      - `same_day_transfer_fee_tricycle` (decimal, nullable): 當日調車費用-三輪車
-    - 跨日調車費用：
-      - `overnight_transfer_fee_white` (decimal, nullable): 跨日調車費用-白牌
-      - `overnight_transfer_fee_green` (decimal, nullable): 跨日調車費用-綠牌
-      - `overnight_transfer_fee_electric` (decimal, nullable): 跨日調車費用-電輔車
-      - `overnight_transfer_fee_tricycle` (decimal, nullable): 跨日調車費用-三輪車
-  - 在 `down()` 方法中：刪除新的8個欄位，並回復舊的兩個欄位（如果需要的話）
+  - 新增 migration 添加兩個欄位到 partners 表：
+    - `same_day_transfer_fee` (decimal, nullable): 當日調車費用
+    - `overnight_transfer_fee` (decimal, nullable): 跨日調車費用
+
+- **Migration** (`database/migrations/2026_01_12_223100_modify_transfer_fees_to_partners_table.php`)
+  - 新增 modify migration，將兩個欄位改為8個欄位（按車型分類）：
+    - 在 `up()` 方法中：
+      - 先檢查並刪除舊的 `same_day_transfer_fee` 和 `overnight_transfer_fee` 欄位（如果存在）
+      - 然後添加8個新欄位到 partners 表（4種車型 × 2種租期）：
+        - 當日調車費用：
+          - `same_day_transfer_fee_white` (decimal, nullable): 當日調車費用-白牌
+          - `same_day_transfer_fee_green` (decimal, nullable): 當日調車費用-綠牌
+          - `same_day_transfer_fee_electric` (decimal, nullable): 當日調車費用-電輔車
+          - `same_day_transfer_fee_tricycle` (decimal, nullable): 當日調車費用-三輪車
+        - 跨日調車費用：
+          - `overnight_transfer_fee_white` (decimal, nullable): 跨日調車費用-白牌
+          - `overnight_transfer_fee_green` (decimal, nullable): 跨日調車費用-綠牌
+          - `overnight_transfer_fee_electric` (decimal, nullable): 跨日調車費用-電輔車
+          - `overnight_transfer_fee_tricycle` (decimal, nullable): 跨日調車費用-三輪車
+    - 在 `down()` 方法中：
+      - 刪除新的8個欄位
+      - 回復舊的兩個欄位（`same_day_transfer_fee` 和 `overnight_transfer_fee`），如果需要的話
 
 - **Partner.php** (`app/Models/Partner.php`)
   - 在 `$fillable` 陣列中新增8個調車費用欄位
