@@ -237,128 +237,156 @@ const ScooterModelsPage: React.FC = () => {
       </div>
 
       {/* 搜尋和過濾 */}
-      <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 mb-6 border border-gray-200 dark:border-gray-700 shadow-sm">
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="flex-1 relative">
-            <Search size={18} className={searchInputClasses} />
-            <input
-              type="text"
-              placeholder="搜尋機車型號..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition-all"
-            />
-          </div>
-          <div className="relative">
-            <select
-              value={typeFilter}
-              onChange={(e) => setTypeFilter(e.target.value)}
-              className={`${selectClasses} min-w-[150px]`}
-            >
-              <option value="">全部類型</option>
-              <option value="白牌">白牌</option>
-              <option value="綠牌">綠牌</option>
-              <option value="電輔車">電輔車</option>
-              <option value="三輪車">三輪車</option>
-            </select>
-            <ChevronDown size={18} className={chevronDownClasses} />
+      <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 mb-6 border border-gray-200 dark:border-gray-700 shadow-sm">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex flex-col md:flex-row gap-4 flex-1">
+            <div className="relative w-full max-w-xs">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+              <input
+                type="text"
+                placeholder="搜尋機車型號..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className={searchInputClasses}
+              />
+            </div>
+            <div className="relative">
+              <select
+                value={typeFilter}
+                onChange={(e) => setTypeFilter(e.target.value)}
+                className={selectClasses}
+              >
+                <option value="">全部類型</option>
+                <option value="白牌">白牌</option>
+                <option value="綠牌">綠牌</option>
+                <option value="電輔車">電輔車</option>
+                <option value="三輪車">三輪車</option>
+              </select>
+              <ChevronDown size={18} className={chevronDownClasses} />
+            </div>
           </div>
         </div>
       </div>
 
       {/* 列表 */}
       {loading ? (
-        <div className="flex justify-center items-center py-12">
-          <Loader2 className="animate-spin text-orange-600" size={32} />
-        </div>
-      ) : filteredModels.length === 0 ? (
-        <div className="text-center py-12 text-gray-500 dark:text-gray-400">
-          <Bike size={48} className="mx-auto mb-4 opacity-50" />
-          <p>尚無機車型號資料</p>
+        <div className="p-12 text-center">
+          <Loader2 size={32} className="animate-spin mx-auto text-orange-600" />
+          <p className="mt-4 text-gray-500">載入中...</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredModels.map((model) => (
-            <div
-              key={model.id}
-              className="bg-white dark:bg-gray-800 rounded-2xl p-5 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all"
-            >
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex-1">
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-1">
-                    {model.name}
-                  </h3>
-                  <div className="flex items-center gap-2">
-                    <span className="px-2 py-1 text-xs font-bold rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
-                      {model.type}
-                    </span>
-                    {model.color && (
-                      <div className="flex items-center gap-2">
-                        <div
-                          className="w-6 h-6 rounded border-2 border-gray-200 dark:border-gray-700"
-                          style={{ backgroundColor: model.color }}
-                          title={model.color}
-                        />
-                        <span className="text-xs font-mono text-gray-500 dark:text-gray-400">
-                          {model.color}
-                        </span>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm whitespace-nowrap">
+            <thead className="bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 font-bold uppercase tracking-wider text-[11px]">
+              <tr>
+                <th className="px-6 py-5">圖片</th>
+                <th className="px-6 py-5">機車型號</th>
+                <th className="px-6 py-5">車型類型</th>
+                <th className="px-6 py-5">顏色</th>
+                <th className="px-6 py-5 text-center">操作</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {filteredModels.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
+                    目前沒有機車型號資料
+                  </td>
+                </tr>
+              ) : (
+                filteredModels.map((model) => (
+                  <tr key={model.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-700/50 group transition-colors">
+                    <td className="px-6 py-5">
+                      <div className="w-20 h-12 bg-gray-100 dark:bg-gray-700 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-600 shadow-inner">
+                        {model.image_path ? (
+                          <img 
+                            src={model.image_path} 
+                            alt={model.name} 
+                            className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                            onClick={() => {
+                              setImageViewerUrl(model.image_path);
+                              setImageViewerOpen(true);
+                            }}
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500">
+                            <Bike size={20} />
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
-                </div>
-                <div className="relative">
-                  <button
-                    ref={(el) => {
-                      if (el) buttonRefs.current[model.id] = el;
-                    }}
-                    onClick={() => toggleDropdown(model.id)}
-                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                  >
-                    <MoreHorizontal size={18} className="text-gray-500 dark:text-gray-400" />
-                  </button>
-                  {openDropdownId === model.id && dropdownPosition && (
-                    <div
-                      className="absolute z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl py-1 min-w-[120px]"
-                      style={{
-                        top: `${dropdownPosition.top}px`,
-                        right: `${dropdownPosition.right}px`,
-                      }}
-                    >
-                      <button
-                        onClick={() => handleEdit(model)}
-                        className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
-                      >
-                        <Edit3 size={16} />
-                        編輯
-                      </button>
-                      <button
-                        onClick={() => handleDelete(model.id)}
-                        className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2"
-                      >
-                        <Trash2 size={16} />
-                        刪除
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-              {model.image_path && (
-                <div
-                  className="w-full h-32 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden mb-4 cursor-pointer"
-                  onClick={() => {
-                    setImageViewerUrl(model.image_path);
-                    setImageViewerOpen(true);
-                  }}
-                >
-                  <img
-                    src={model.image_path}
-                    alt={model.name}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
+                    </td>
+                    <td className="px-6 py-5 font-bold text-gray-900 dark:text-gray-100">
+                      {model.name}
+                    </td>
+                    <td className="px-6 py-5">
+                      <span className={`px-2 py-1 rounded-lg text-[10px] font-black border ${
+                        model.type === '白牌' ? 'bg-sky-50 text-sky-600 border-sky-100 dark:bg-sky-900/30 dark:text-sky-400 dark:border-sky-800' : 
+                        model.type === '綠牌' ? 'bg-green-50 text-green-600 border-green-100 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800' :
+                        model.type === '電輔車' ? 'bg-orange-50 text-orange-600 border-orange-100 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800' :
+                        model.type === '三輪車' ? 'bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800' :
+                        'bg-gray-50 text-gray-600 border-gray-100 dark:bg-gray-900/30 dark:text-gray-400 dark:border-gray-800'
+                      }`}>
+                        {model.type}
+                      </span>
+                    </td>
+                    <td className="px-6 py-5">
+                      {model.color ? (
+                        <div className="flex items-center gap-2">
+                          <div
+                            className="w-8 h-8 rounded-lg border-2 border-gray-200 dark:border-gray-700 shadow-sm"
+                            style={{ backgroundColor: model.color }}
+                            title={model.color}
+                          />
+                          <span className="text-xs font-mono text-gray-500 dark:text-gray-400">
+                            {model.color}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-gray-400 dark:text-gray-500">-</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-5 text-center">
+                      <div className="relative">
+                        <button 
+                          ref={(el) => { 
+                            if (el) buttonRefs.current[model.id] = el; 
+                          }}
+                          onClick={() => toggleDropdown(model.id)}
+                          className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl text-gray-400 dark:text-gray-500 transition-colors"
+                        >
+                          <MoreHorizontal size={18} />
+                        </button>
+                        {openDropdownId === model.id && dropdownPosition && (
+                          <div
+                            className="absolute z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl py-1 min-w-[120px]"
+                            style={{
+                              top: `${dropdownPosition.top}px`,
+                              right: `${dropdownPosition.right}px`,
+                            }}
+                          >
+                            <button
+                              onClick={() => handleEdit(model)}
+                              className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+                            >
+                              <Edit3 size={16} />
+                              編輯
+                            </button>
+                            <button
+                              onClick={() => handleDelete(model.id)}
+                              className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2"
+                            >
+                              <Trash2 size={16} />
+                              刪除
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))
               )}
-            </div>
-          ))}
+            </tbody>
+          </table>
         </div>
       )}
 
