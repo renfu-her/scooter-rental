@@ -487,16 +487,23 @@ class OrderController extends Controller
             ->get();
 
         // Group by date (start_time date) and scooter model
-        // 每個訂單的每個車型都單獨顯示一行
+        // 格式：按日期分組，每個日期下按車型分組，區分當日租和跨日租
         $reportData = [];
+        $models = []; // 收集所有出現的車型
 
         foreach ($orders as $order) {
             // Use start_time date as the key date
             $keyDate = Carbon::parse($order->start_time)->timezone('Asia/Taipei')->format('Y-m-d');
+            $keyDateWeekday = Carbon::parse($order->start_time)->timezone('Asia/Taipei')->format('l');
             
             // Calculate nights (days between start_time and end_time)
             $startTime = Carbon::parse($order->start_time)->timezone('Asia/Taipei');
             $endTime = Carbon::parse($order->end_time)->timezone('Asia/Taipei');
+            $startDate = $startTime->format('Y-m-d');
+            $endDate = $endTime->format('Y-m-d');
+            
+            // 判斷是當日租還是跨日租
+            $isSameDay = ($startDate === $endDate);
             $nights = $startTime->diffInDays($endTime);
 
             // Group scooters by model
@@ -506,23 +513,52 @@ class OrderController extends Controller
             foreach ($scootersByModel as $model => $scooters) {
                 $scooterCount = $scooters->count();
                 
-                // 每個訂單的每個車型都單獨顯示一行
-                $reportData[] = [
-                    'date' => $keyDate,
-                    'model' => $model,
-                    'count' => $scooterCount,
-                    'nights' => $nights,
-                    'amount' => $orderAmount, // 當天金額就以該訂單key的金額為主
-                ];
+                // 收集所有出現的車型
+                if (!in_array($model, $models)) {
+                    $models[] = $model;
+                }
+                
+                // 初始化日期數據
+                if (!isset($reportData[$keyDate])) {
+                    $reportData[$keyDate] = [
+                        'date' => $keyDate,
+                        'weekday' => $keyDateWeekday,
+                        'models' => [],
+                    ];
+                }
+                
+                // 初始化該日期的該車型數據
+                if (!isset($reportData[$keyDate]['models'][$model])) {
+                    $reportData[$keyDate]['models'][$model] = [
+                        'same_day_count' => 0,    // 當日租 台數
+                        'overnight_count' => 0,    // 跨日租 台數
+                        'nights' => 0,             // 天數
+                        'amount' => 0,             // 金額
+                    ];
+                }
+                
+                // 累加數據
+                if ($isSameDay) {
+                    $reportData[$keyDate]['models'][$model]['same_day_count'] += $scooterCount;
+                } else {
+                    $reportData[$keyDate]['models'][$model]['overnight_count'] += $scooterCount;
+                }
+                $reportData[$keyDate]['models'][$model]['nights'] += $nights;
+                $reportData[$keyDate]['models'][$model]['amount'] += $orderAmount;
             }
         }
 
-        // Sort by date
-        usort($reportData, function ($a, $b) {
-            return strcmp($a['date'], $b['date']);
-        });
+        // 排序日期
+        ksort($reportData);
         
-        $result = $reportData;
+        // 排序車型
+        sort($models);
+        
+        // 轉換為數組格式
+        $result = [
+            'dates' => array_values($reportData),
+            'models' => $models,
+        ];
 
         return response()->json([
             'data' => $result,

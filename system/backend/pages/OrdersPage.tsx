@@ -518,9 +518,17 @@ const OrdersPage: React.FC = () => {
       
       // 獲取月報表數據
       const response = await ordersApi.monthlyReport(selectedMonthString);
-      const reportData = response.data || [];
+      const data = response.data || { dates: [], models: [] };
 
-      if (reportData.length === 0) {
+      if (!data.dates || data.dates.length === 0) {
+        alert('該月份沒有訂單資料可匯出');
+        return;
+      }
+
+      const dates = data.dates || [];
+      const models = data.models || [];
+
+      if (models.length === 0) {
         alert('該月份沒有訂單資料可匯出');
         return;
       }
@@ -529,39 +537,140 @@ const OrdersPage: React.FC = () => {
       const wb = XLSX.utils.book_new();
       const ws = XLSX.utils.aoa_to_sheet([]);
 
+      // 星期對應表
+      const weekdayMap: Record<string, string> = {
+        'Monday': '星期一',
+        'Tuesday': '星期二',
+        'Wednesday': '星期三',
+        'Thursday': '星期四',
+        'Friday': '星期五',
+        'Saturday': '星期六',
+        'Sunday': '星期日',
+      };
+
       // 第一行：標題
-      XLSX.utils.sheet_add_aoa(ws, [['行動潛水月報表']], { origin: 'A1' });
+      const titleRow: any[] = ['蘭光智能機車出租月報表'];
+      // 合併標題列（跨越多列）
+      XLSX.utils.sheet_add_aoa(ws, [titleRow], { origin: 'A1' });
       
-      // 第二行：月份
-      XLSX.utils.sheet_add_aoa(ws, [[`${selectedYear}年${String(selectedMonth).padStart(2, '0')}月`]], { origin: 'A2' });
+      // 第二行：副標題
+      const subtitleRow: any[] = ['行動潛水'];
+      XLSX.utils.sheet_add_aoa(ws, [subtitleRow], { origin: 'A2' });
       
-      // 空一行（第3行）
+      // 第三行：價格資訊
+      const priceRow: any[] = ['當日租 200/台', '跨日租 300/台'];
+      XLSX.utils.sheet_add_aoa(ws, [priceRow], { origin: 'A3' });
       
-      // 第4行：表頭
-      XLSX.utils.sheet_add_aoa(ws, [['日期', '車型', '台數', '天數（夜）', '金額']], { origin: 'A4' });
+      // 第四行：空行
       
-      // 準備數據行
-      const dataRows = reportData.map((item: { date: string; model: string; count: number; nights: number; amount: number }) => [
-        item.date,           // 日期
-        item.model,          // 車型
-        item.count,          // 台數
-        item.nights,         // 天數（夜）
-        item.amount          // 金額
-      ]);
+      // 第五行開始：表頭
+      // 左側：日期、星期
+      // 右側：每個車型有4個欄位（當日租 台數、跨日租 台數、天數、金額）
+      const headerRow: any[] = ['日期', '星期'];
       
-      // 添加數據行（從第5行開始）
-      if (dataRows.length > 0) {
-        XLSX.utils.sheet_add_aoa(ws, dataRows, { origin: 'A5' });
+      models.forEach((model: string) => {
+        headerRow.push('當日租 台數', '跨日租 台數', '天數', '金額');
+      });
+      
+      XLSX.utils.sheet_add_aoa(ws, [headerRow], { origin: 'A5' });
+      
+      // 數據行（從第6行開始）
+      dates.forEach((dateItem: any, index: number) => {
+        const dateStr = dateItem.date;
+        const dateObj = new Date(dateStr + 'T00:00:00'); // 添加時間以避免時區問題
+        const formattedDate = `${dateObj.getFullYear()}年${String(dateObj.getMonth() + 1).padStart(2, '0')}月${String(dateObj.getDate()).padStart(2, '0')}日`;
+        const weekday = weekdayMap[dateItem.weekday] || dateItem.weekday;
+        
+        const dataRow: any[] = [formattedDate, weekday];
+        
+        models.forEach((model: string) => {
+          const modelData = dateItem.models[model] || {
+            same_day_count: 0,
+            overnight_count: 0,
+            nights: 0,
+            amount: 0,
+          };
+          dataRow.push(
+            modelData.same_day_count || 0,
+            modelData.overnight_count || 0,
+            modelData.nights || 0,
+            modelData.amount || 0
+          );
+        });
+        
+        XLSX.utils.sheet_add_aoa(ws, [dataRow], { origin: `A${6 + index}` });
+      });
+      
+      // 月結總計（在數據行之後）
+      const summaryStartRow = 6 + dates.length;
+      
+      // 總台數/天數行
+      const totalRow: any[] = ['月結總計', '總台數/天數'];
+      let totalAmount = 0;
+      
+      models.forEach((model: string) => {
+        let modelTotalCount = 0;
+        let modelTotalNights = 0;
+        let modelTotalAmount = 0;
+        
+        dates.forEach((dateItem: any) => {
+          const modelData = dateItem.models[model] || {
+            same_day_count: 0,
+            overnight_count: 0,
+            nights: 0,
+            amount: 0,
+          };
+          modelTotalCount += (modelData.same_day_count || 0) + (modelData.overnight_count || 0);
+          modelTotalNights += modelData.nights || 0;
+          modelTotalAmount += modelData.amount || 0;
+        });
+        
+        totalAmount += modelTotalAmount;
+        totalRow.push(modelTotalCount, modelTotalNights, modelTotalAmount, '');
+      });
+      
+      XLSX.utils.sheet_add_aoa(ws, [totalRow], { origin: `A${summaryStartRow}` });
+      
+      // 小計行
+      const subtotalRow: any[] = ['', '小計'];
+      models.forEach((model: string) => {
+        let modelTotalAmount = 0;
+        dates.forEach((dateItem: any) => {
+          const modelData = dateItem.models[model] || { amount: 0 };
+          modelTotalAmount += modelData.amount || 0;
+        });
+        subtotalRow.push('', '', modelTotalAmount, '');
+      });
+      
+      XLSX.utils.sheet_add_aoa(ws, [subtotalRow], { origin: `A${summaryStartRow + 1}` });
+      
+      // 總金額行
+      const grandTotalRow: any[] = ['', '總金額'];
+      // 總金額應該跨越多列，但 XLSX 不支持合併，所以我們只在第一個金額欄位顯示
+      grandTotalRow.push('', '', totalAmount, '');
+      // 其他車型的欄位留空
+      for (let i = 1; i < models.length; i++) {
+        grandTotalRow.push('', '', '', '');
       }
       
+      XLSX.utils.sheet_add_aoa(ws, [grandTotalRow], { origin: `A${summaryStartRow + 2}` });
+      
       // 設置列寬
-      ws['!cols'] = [
-        { wch: 12 }, // 日期
-        { wch: 20 }, // 車型
-        { wch: 10 }, // 台數
-        { wch: 12 }, // 天數（夜）
-        { wch: 15 }  // 金額
+      const colWidths: any[] = [
+        { wch: 18 }, // 日期
+        { wch: 10 }, // 星期
       ];
+      
+      models.forEach(() => {
+        colWidths.push(
+          { wch: 12 }, // 當日租 台數
+          { wch: 12 }, // 跨日租 台數
+          { wch: 10 }, // 天數
+          { wch: 12 }  // 金額
+        );
+      });
+      
+      ws['!cols'] = colWidths;
       
       // 添加工作表
       XLSX.utils.book_append_sheet(wb, ws, '月報表');
