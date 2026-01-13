@@ -97,20 +97,25 @@ const ScooterModelsPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const formDataToSend = new FormData();
-      formDataToSend.append('name', formData.name);
-      formDataToSend.append('type', formData.type);
-      if (formData.color) {
-        formDataToSend.append('color', formData.color);
-      }
-      if (imageFile) {
-        formDataToSend.append('image', imageFile);
-      }
+      const data = {
+        name: formData.name,
+        type: formData.type,
+        color: formData.color || null,
+      };
 
       if (editingModel) {
-        await scooterModelsApi.update(editingModel.id, formDataToSend);
+        await scooterModelsApi.update(editingModel.id, data);
+        if (imageFile) {
+          await scooterModelsApi.uploadImage(editingModel.id, imageFile);
+        }
       } else {
-        await scooterModelsApi.create(formDataToSend);
+        const response = await scooterModelsApi.create(data);
+        if (imageFile) {
+          const modelId = editingModel ? editingModel.id : (response.data?.data?.id || response.data?.id);
+          if (modelId) {
+            await scooterModelsApi.uploadImage(modelId, imageFile);
+          }
+        }
       }
       
       handleCloseModal();

@@ -108,6 +108,36 @@ class ApiClient {
   }
 
   async post<T>(endpoint: string, data?: any): Promise<ApiResponse<T>> {
+    // 如果是 FormData，直接傳遞，不要 stringify
+    if (data instanceof FormData) {
+      const url = `${this.baseUrl}${endpoint}`;
+      const token = localStorage.getItem('auth_token');
+      const response = await fetch(url, {
+        method: 'POST',
+        body: data,
+        headers: {
+          ...(token && { 'Authorization': `Bearer ${token}` }),
+          // 不要設置 Content-Type，讓瀏覽器自動設置（包含 boundary）
+        },
+      });
+      const responseData = await response.json();
+      if (!response.ok) {
+        if (response.status === 401) {
+          localStorage.removeItem('auth_token');
+          if (window.location.hash !== '#/login') {
+            window.location.hash = '/login';
+          }
+        }
+        const error: any = new Error(responseData.message || 'API request failed');
+        error.response = {
+          status: response.status,
+          statusText: response.statusText,
+          data: responseData,
+        };
+        throw error;
+      }
+      return responseData;
+    }
     return this.request<T>(endpoint, {
       method: 'POST',
       body: JSON.stringify(data),
@@ -115,6 +145,36 @@ class ApiClient {
   }
 
   async put<T>(endpoint: string, data?: any): Promise<ApiResponse<T>> {
+    // 如果是 FormData，直接傳遞，不要 stringify
+    if (data instanceof FormData) {
+      const url = `${this.baseUrl}${endpoint}`;
+      const token = localStorage.getItem('auth_token');
+      const response = await fetch(url, {
+        method: 'PUT',
+        body: data,
+        headers: {
+          ...(token && { 'Authorization': `Bearer ${token}` }),
+          // 不要設置 Content-Type，讓瀏覽器自動設置（包含 boundary）
+        },
+      });
+      const responseData = await response.json();
+      if (!response.ok) {
+        if (response.status === 401) {
+          localStorage.removeItem('auth_token');
+          if (window.location.hash !== '#/login') {
+            window.location.hash = '/login';
+          }
+        }
+        const error: any = new Error(responseData.message || 'API request failed');
+        error.response = {
+          status: response.status,
+          statusText: response.statusText,
+          data: responseData,
+        };
+        throw error;
+      }
+      return responseData;
+    }
     return this.request<T>(endpoint, {
       method: 'PUT',
       body: JSON.stringify(data),
