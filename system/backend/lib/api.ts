@@ -325,7 +325,7 @@ export const scooterModelsApi = {
   update: (id: string | number, data: any) => api.put(`/scooter-models/${id}`, data),
   delete: (id: string | number) => api.delete(`/scooter-models/${id}`),
   uploadImage: (id: string | number, file: File) =>
-    api.uploadFile(`/scooter-models/${id}/upload-image`, file),
+    api.uploadFile(`/scooter-models/${id}/upload-image`, file, 'image'),
 };
 
 export const scooterModelColorsApi = {
