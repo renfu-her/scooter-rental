@@ -91,6 +91,7 @@ class StoreController extends Controller
             'address' => 'nullable|string|max:255',
             'phone' => 'nullable|string|max:20',
             'manager' => 'required|string|max:255',
+            'photo_path' => 'nullable',
         ]);
 
         if ($validator->fails()) {
