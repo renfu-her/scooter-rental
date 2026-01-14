@@ -609,17 +609,7 @@ class OrderController extends Controller
             'request_headers' => $request->headers->all(),
         ]);
 
-        // Debug: 使用 dd 查看請求數據（開發環境）
-        if (config('app.debug')) {
-            dd([
-                'request_all' => $request->all(),
-                'request_method' => $request->method(),
-                'request_url' => $request->fullUrl(),
-                'month' => $request->get('month'),
-                'partner_id' => $request->get('partner_id'),
-            ]);
-        }
-
+        
         $validator = Validator::make($request->all(), [
             'month' => 'required|date_format:Y-m',
             'partner_id' => 'nullable|exists:partners,id',
