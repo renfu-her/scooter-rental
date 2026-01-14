@@ -840,10 +840,11 @@ class OrderController extends Controller
             $export = new PartnerMonthlyReportExport($partnerName, $year, $monthNum, $partnerData['dates'], $allModels);
             $tempFile = tempnam(sys_get_temp_dir(), 'excel_');
 
-            // dd('Step 11: Excel Export 對象創建完成', [
-            //     'tempFile' => $tempFile,
-            //     'export_class' => get_class($export),
-            // ]);
+            dd('Step 11: Excel Export 對象創建完成', [
+                'tempFile' => $tempFile,
+                'export_class' => get_class($export),
+                'export' => $export
+            ]);
 
             if ($tempFile === false) {
                 return response()->json(['message' => 'Failed to create temporary file'], 500);

@@ -1,5 +1,31 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-14 15:25:05 (+8) - 修正 PhpSpreadsheet Xlsx Writer 使用方式
+
+### 變更內容
+
+#### Excel 匯出功能
+- **OrderController.php** (`app/Http/Controllers/Api/OrderController.php`)
+  - 將 `Xlsx` Writer 的使用方式從鏈式調用改為分步驟執行，提高可讀性和錯誤處理能力
+  - 添加 try-catch 錯誤處理，捕獲 Excel 生成過程中的異常
+  - 確保臨時文件有正確的 `.xlsx` 擴展名
+  - 添加詳細的錯誤日誌記錄
+
+### 問題說明
+- `use PhpOffice\PhpSpreadsheet\Writer\Xlsx;` 的使用方式可能有問題
+- 原來的寫法 `(new Xlsx($export->generate()))->save($tempFile);` 雖然語法正確，但缺少錯誤處理
+- 改為更明確的分步驟寫法，便於調試和錯誤處理
+
+### 技術細節
+- 使用方式：
+  ```php
+  $spreadsheet = $export->generate();
+  $writer = new Xlsx($spreadsheet);
+  $writer->save($tempFile);
+  ```
+- 添加錯誤處理，捕獲可能的異常（如文件權限問題、內存不足等）
+- 確保臨時文件有正確的擴展名，避免下載時的文件類型問題
+
 ## 2026-01-14 14:15:11 - 修正部署腳本：添加 Composer 依賴安裝步驟
 
 ### 變更內容
