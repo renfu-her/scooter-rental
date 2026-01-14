@@ -828,13 +828,13 @@ class OrderController extends Controller
             $partnerName = $partnerData['partner_name'] ?? '無合作商';
             [$year, $monthNum] = explode('-', $month);
 
-            dd('Step 10: 準備生成 Excel', [
-                'partnerName' => $partnerName,
-                'year' => $year,
-                'monthNum' => $monthNum,
-                'dates_count' => count($partnerData['dates']),
-                'allModels_count' => count($allModels),
-            ]);
+            // dd('Step 10: 準備生成 Excel', [
+            //     'partnerName' => $partnerName,
+            //     'year' => $year,
+            //     'monthNum' => $monthNum,
+            //     'dates_count' => count($partnerData['dates']),
+            //     'allModels_count' => count($allModels),
+            // ]);
 
             // 生成 Excel
             $export = new PartnerMonthlyReportExport($partnerName, $year, $monthNum, $partnerData['dates'], $allModels);
