@@ -1,5 +1,25 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-14 12:01:07 (+8) - 修正部署腳本：解決 Composer 安裝時的腳本執行問題
+
+### 變更內容
+
+#### 部署腳本
+- **build.sh** (`build.sh`)
+  - 在 Composer 安裝前先清理 `vendor` 目錄，避免依賴衝突
+  - 使用 `--no-scripts` 選項跳過可能依賴開發套件的腳本執行
+  - 安裝完成後單獨執行 `composer dump-autoload` 重新生成 autoload
+
+### 問題說明
+- 執行 `composer install --no-dev` 時，`prePackageUninstall` 腳本試圖載入 `sebastian/version`（開發依賴），導致錯誤
+- 原因是舊的 vendor 目錄中可能還有開發依賴的殘留，或腳本在卸載舊套件時需要這些依賴
+- 解決方案：先清理 vendor 目錄，然後使用 `--no-scripts` 跳過腳本執行，最後單獨生成 autoload
+
+### 技術細節
+- `--no-scripts`：跳過所有 Composer 腳本（pre-install-cmd, post-install-cmd 等）
+- 清理 vendor 目錄：確保乾淨的安裝環境
+- 單獨執行 `dump-autoload`：確保 autoload 檔案正確生成
+
 ## 2026-01-14 11:54:57 (+8) - 將 Excel 套件從 maatwebsite/excel 改為 phpoffice/phpspreadsheet
 
 ### 變更內容
