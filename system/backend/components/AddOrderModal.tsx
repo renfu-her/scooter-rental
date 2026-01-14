@@ -108,6 +108,12 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
             return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
           };
           
+          const formatDateOnly = (dateTime: string | null) => {
+            if (!dateTime) return '';
+            // 如果包含時間，只提取日期部分（處理可能帶時間的舊數據）
+            return dateTime.split('T')[0].split(' ')[0];
+          };
+          
           const formatDate = (date: string) => {
             return date;
           };
@@ -116,8 +122,8 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
             partner_id: editingOrder.partner?.id.toString() || '',
             tenant: editingOrder.tenant,
             appointment_date: formatDate(editingOrder.appointment_date),
-            start_time: formatDateTime(editingOrder.start_time),
-            end_time: formatDateTime(editingOrder.end_time),
+            start_time: formatDateOnly(editingOrder.start_time),
+            end_time: formatDateOnly(editingOrder.end_time),
             expected_return_time: formatDateTime(editingOrder.expected_return_time),
             phone: editingOrder.phone || '',
             shipping_company: editingOrder.shipping_company || '',
@@ -436,12 +442,13 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
                     onChange={(dates) => {
                       if (dates && dates.length > 0) {
                         const date = dates[0];
-                        const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}T${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+                        // 只保存日期格式，不帶時間
+                        const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
                         setFormData(prev => ({ ...prev, start_time: dateStr }));
                       }
                     }}
-                    options={getDatetimeOptions()}
-                    placeholder="選擇日期時間"
+                    options={dateOptions}
+                    placeholder="選擇日期"
                   />
                 </div>
                 <div>
@@ -455,12 +462,13 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
                     onChange={(dates) => {
                       if (dates && dates.length > 0) {
                         const date = dates[0];
-                        const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}T${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+                        // 只保存日期格式，不帶時間
+                        const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
                         setFormData(prev => ({ ...prev, end_time: dateStr }));
                       }
                     }}
-                    options={getDatetimeOptions()}
-                    placeholder="選擇日期時間"
+                    options={dateOptions}
+                    placeholder="選擇日期"
                   />
                 </div>
               </div>

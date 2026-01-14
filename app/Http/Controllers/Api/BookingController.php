@@ -463,7 +463,7 @@ class BookingController extends Controller
         // 決定最終的 payment_amount：如果提供了則使用，否則使用計算出的調車費用
         $paymentAmount = $requestedPaymentAmount !== null ? $requestedPaymentAmount : $totalTransferFee;
 
-        // 計算開始和結束時間
+        // 計算開始和結束時間（只使用日期，不需要時間）
         $bookingDate = $booking->booking_date instanceof Carbon 
             ? $booking->booking_date->format('Y-m-d') 
             : $booking->booking_date;
@@ -474,13 +474,9 @@ class BookingController extends Controller
                 : $booking->end_date)
             : null;
 
-        $startTime = $booking->ship_arrival_time 
-            ? $booking->ship_arrival_time 
-            : ($bookingDate . ' 08:00:00');
-        
-        $endTime = $endDate 
-            ? ($endDate . ' 18:00:00') 
-            : ($bookingDate . ' 18:00:00');
+        // 開始時間和結束時間只使用日期格式（預約日期 = 租借開始）
+        $startTime = $bookingDate;
+        $endTime = $endDate ? $endDate : $bookingDate;
 
         // 如果沒有提供機車 ID，自動選擇可用機車
         if (!$scooterIds || count($scooterIds) === 0) {

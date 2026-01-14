@@ -1,5 +1,37 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-14 10:11:23 (+8) - 修改訂單開始時間和結束時間為只使用日期格式
+
+### 變更內容
+
+#### 後端
+- **BookingController.php** (`app/Http/Controllers/Api/BookingController.php`)
+  - 修改 `convertToOrder()` 方法中的時間處理邏輯
+  - `start_time` 和 `end_time` 改為只保存日期格式（`Y-m-d`），移除時間部分
+  - `expected_return_time` 保持日期時間格式（其他欄位保持不變）
+  - 預約日期 = 租借開始，只需要日期，不需要時間
+
+#### 前端
+- **AddOrderModal.tsx** (`system/backend/components/AddOrderModal.tsx`)
+  - 修改 `start_time` 和 `end_time` 的輸入框，從日期時間選擇器改為只選擇日期
+  - 將 Flatpickr 的 `options` 從 `getDatetimeOptions()` 改為 `dateOptions`
+  - 修改 `onChange` 處理，只保存日期格式（`Y-m-d`），不帶時間
+  - 更新 placeholder 文字從「選擇日期時間」改為「選擇日期」
+  - 新增 `formatDateOnly()` 函數，用於編輯模式下處理可能帶時間的舊數據
+  - 編輯模式下，`start_time` 和 `end_time` 使用 `formatDateOnly()` 格式化
+  - `expected_return_time`, `ship_arrival_time`, `ship_return_time` 保持使用 `formatDateTime()`（日期時間格式）
+
+### 功能說明
+- 訂單的開始時間和結束時間現在只需要選擇日期，不需要選擇時間
+- 預約轉訂單時，`start_time` 和 `end_time` 會自動使用預約日期和結束日期（只保存日期）
+- 其他日期時間欄位（`expected_return_time`, `ship_arrival_time`, `ship_return_time`）保持日期時間格式不變
+- 編輯模式下可以正確處理舊數據（可能帶時間的數據會自動提取日期部分）
+
+### 技術細節
+- 後端驗證規則 `nullable|date` 已支持日期格式（不帶時間）
+- MySQL/MariaDB 的 `datetime` 欄位可以接受只有日期的值（會自動補 00:00:00）
+- 日期比較邏輯使用 `strtotime()`，可以正確處理只有日期的格式
+
 ## 2026-01-14 09:43:04 (+8) - 修正天數計算規則
 
 ### 變更內容
