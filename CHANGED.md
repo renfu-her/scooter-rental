@@ -1,5 +1,40 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-14 21:16:16 (+8) - 修正跨日天數計算：改為計算夜數（start_date ~ end_date - 1）
+
+### 變更內容
+
+#### 後端 API 修正
+- **OrderController.php** (`app/Http/Controllers/Api/OrderController.php`)
+  - 修正跨日天數計算邏輯
+  - 跨日計算改為夜數：`start_date ~ end_date - 1`
+  - 計算規則：
+    - 當日租：同一天 = 1 天
+    - 跨日租：計算夜數
+      - 1/1-1/2 = 1 夜（2天1夜）
+      - 1/1-1/3 = 2 夜（3天2夜）
+      - 1/1-1/4 = 3 夜（4天3夜）
+  - 使用 `diffInDays()` 直接作為夜數（不需要 +1 或 -1）
+
+### 問題說明
+- 跨日租應該計算夜數，而不是總天數
+- 例如：1/1-1/3 應該是 2 夜（3天2夜），不是 3 天
+
+### 技術細節
+- 天數計算：
+  ```php
+  if ($isSameDay) {
+      $days = 1; // 當日租
+  } else {
+      $days = $startTime->diffInDays($endTime); // 跨日租：直接使用 diffInDays 作為夜數
+  }
+  ```
+- 範例：
+  - 1/1-1/1：`diffInDays = 0`，但 `isSameDay = true`，所以 `days = 1`（當日租）
+  - 1/1-1/2：`diffInDays = 1`，`isSameDay = false`，所以 `days = 1`（1夜）
+  - 1/1-1/3：`diffInDays = 2`，`isSameDay = false`，所以 `days = 2`（2夜）
+  - 1/1-1/4：`diffInDays = 3`，`isSameDay = false`，所以 `days = 3`（3夜）
+
 ## 2026-01-14 20:44:05 (+8) - 修正合作商分類統計：區分當日租和跨日租，分別計算費用
 
 ### 變更內容
@@ -32,9 +67,6 @@
 - 總金額是所有費用的總和
 
 ### 技術細節
-- 天數計算：
-  - 當日租：`start_time` 和 `end_time` 同一天 = 1 天
-  - 跨日租：`start_time` 和 `end_time` 不同天 = `diffInDays + 1` 天
 - 費用計算：
   - 當日租：`same_day_transfer_fee × 天數 × 台數`
   - 跨日租：`overnight_transfer_fee × 天數 × 台數`
@@ -46,10 +78,10 @@
     "same_day_days": 1,
     "same_day_amount": 200,
     "overnight_count": 2,
-    "overnight_days": 3,
+    "overnight_days": 2,
     "overnight_amount": 1800,
     "total_count": 3,
-    "total_days": 4,
+    "total_days": 3,
     "total_amount": 2000
   }
   ```

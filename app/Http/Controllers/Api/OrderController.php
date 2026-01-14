@@ -914,11 +914,14 @@ class OrderController extends Controller
                 
                 // 計算天數：
                 // - 同一天：1 天（當日租）
-                // - 跨日：計算實際天數（例如：1/1-1/3 = 3天）
+                // - 跨日：計算夜數（start_date ~ end_date - 1）
+                //   例如：1/1-1/2 = 1 夜（2天1夜）
+                //   例如：1/1-1/3 = 2 夜（3天2夜）
+                //   例如：1/1-1/4 = 3 夜（4天3夜）
                 if ($isSameDay) {
                     $days = 1;
                 } else {
-                    $days = $startTime->diffInDays($endTime) + 1; // +1 因為包含開始和結束日期
+                    $days = $startTime->diffInDays($endTime); // 直接使用 diffInDays 作為夜數
                 }
 
                 // 查詢該訂單的所有 order_scooter 記錄

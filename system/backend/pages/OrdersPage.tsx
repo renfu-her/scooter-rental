@@ -583,6 +583,118 @@ const PartnerCategoryModal: React.FC<{
                             );
                           })}
                         </tbody>
+                        {/* 總計行 */}
+                        <tfoot className="bg-gray-100 dark:bg-gray-700/50">
+                          <tr className="font-bold">
+                            <td colSpan={2} className="px-4 py-3 text-gray-800 dark:text-gray-200 border-r border-gray-200 dark:border-gray-600">
+                              總計
+                            </td>
+                            {data.headers.map((header) => {
+                              // 計算該型號的總計
+                              const modelTotalCount = partner.dates.reduce((sum, date) => {
+                                const modelData = date.models.find(m => m.model === header);
+                                return sum + (modelData?.total_count || 0);
+                              }, 0);
+                              const modelTotalDays = partner.dates.reduce((sum, date) => {
+                                const modelData = date.models.find(m => m.model === header);
+                                return sum + (modelData?.total_days || 0);
+                              }, 0);
+                              const modelTotalAmount = partner.dates.reduce((sum, date) => {
+                                const modelData = date.models.find(m => m.model === header);
+                                return sum + (modelData?.total_amount || 0);
+                              }, 0);
+                              
+                              const modelSameDayTotal = partner.dates.reduce((sum, date) => {
+                                const modelData = date.models.find(m => m.model === header);
+                                return sum + (modelData?.same_day_amount || 0);
+                              }, 0);
+                              
+                              const modelOvernightTotal = partner.dates.reduce((sum, date) => {
+                                const modelData = date.models.find(m => m.model === header);
+                                return sum + (modelData?.overnight_amount || 0);
+                              }, 0);
+
+                              return (
+                                <React.Fragment key={header}>
+                                  {/* 當日租總計 */}
+                                  <td className="px-2 py-3 text-center border-r border-gray-200 dark:border-gray-600 bg-blue-50/50 dark:bg-blue-900/20">
+                                    {modelSameDayTotal > 0 ? (
+                                      <div className="space-y-1">
+                                        <div className="text-gray-800 dark:text-gray-200 font-medium text-xs">
+                                          台數: {partner.dates.reduce((sum, date) => {
+                                            const modelData = date.models.find(m => m.model === header);
+                                            return sum + (modelData?.same_day_count || 0);
+                                          }, 0)}
+                                        </div>
+                                        <div className="text-gray-600 dark:text-gray-400 text-xs">
+                                          天數: {partner.dates.reduce((sum, date) => {
+                                            const modelData = date.models.find(m => m.model === header);
+                                            return sum + (modelData?.same_day_days || 0);
+                                          }, 0)}
+                                        </div>
+                                        <div className="text-blue-600 dark:text-blue-400 font-bold text-xs">
+                                          ${modelSameDayTotal.toLocaleString()}
+                                        </div>
+                                      </div>
+                                    ) : (
+                                      <span className="text-gray-400 dark:text-gray-500 text-xs">-</span>
+                                    )}
+                                  </td>
+                                  {/* 跨日租總計 */}
+                                  <td className="px-2 py-3 text-center border-r border-gray-200 dark:border-gray-600 bg-orange-50/50 dark:bg-orange-900/20">
+                                    {modelOvernightTotal > 0 ? (
+                                      <div className="space-y-1">
+                                        <div className="text-gray-800 dark:text-gray-200 font-medium text-xs">
+                                          台數: {partner.dates.reduce((sum, date) => {
+                                            const modelData = date.models.find(m => m.model === header);
+                                            return sum + (modelData?.overnight_count || 0);
+                                          }, 0)}
+                                        </div>
+                                        <div className="text-gray-600 dark:text-gray-400 text-xs">
+                                          天數: {partner.dates.reduce((sum, date) => {
+                                            const modelData = date.models.find(m => m.model === header);
+                                            return sum + (modelData?.overnight_days || 0);
+                                          }, 0)}
+                                        </div>
+                                        <div className="text-orange-600 dark:text-orange-400 font-bold text-xs">
+                                          ${modelOvernightTotal.toLocaleString()}
+                                        </div>
+                                      </div>
+                                    ) : (
+                                      <span className="text-gray-400 dark:text-gray-500 text-xs">-</span>
+                                    )}
+                                  </td>
+                                </React.Fragment>
+                              );
+                            })}
+                          </tr>
+                          {/* 總金額行 */}
+                          <tr className="bg-green-50 dark:bg-green-900/20 font-bold">
+                            <td colSpan={2} className="px-4 py-3 text-gray-800 dark:text-gray-200 border-r border-gray-200 dark:border-gray-600">
+                              總金額
+                            </td>
+                            {data.headers.map((header) => {
+                              const modelTotalAmount = partner.dates.reduce((sum, date) => {
+                                const modelData = date.models.find(m => m.model === header);
+                                return sum + (modelData?.total_amount || 0);
+                              }, 0);
+                              
+                              return (
+                                <React.Fragment key={header}>
+                                  <td colSpan={2} className="px-2 py-3 text-center border-r border-gray-200 dark:border-gray-600">
+                                    {modelTotalAmount > 0 ? (
+                                      <div className="text-green-600 dark:text-green-400 font-bold">
+                                        ${modelTotalAmount.toLocaleString()}
+                                      </div>
+                                    ) : (
+                                      <span className="text-gray-400 dark:text-gray-500 text-xs">-</span>
+                                    )}
+                                  </td>
+                                </React.Fragment>
+                              );
+                            })}
+                          </tr>
+                        </tfoot>
                       </table>
                     </div>
                   </div>
