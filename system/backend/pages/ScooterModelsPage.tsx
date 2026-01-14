@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Plus, Search, Bike, Edit3, Trash2, X, Loader2, MoreHorizontal, ChevronDown, Image as ImageIcon } from 'lucide-react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { Plus, Search, Bike, Edit3, Trash2, X, Loader2, MoreHorizontal, ChevronDown, Image as ImageIcon, ArrowUp, ArrowDown } from 'lucide-react';
 import { scooterModelsApi, scooterTypesApi } from '../lib/api';
 import { inputClasses, selectClasses, labelClasses, searchInputClasses, chevronDownClasses, uploadAreaBaseClasses, modalCancelButtonClasses, modalSubmitButtonClasses } from '../styles';
 
@@ -46,6 +46,8 @@ const ScooterModelsPage: React.FC = () => {
   const buttonRefs = useRef<Record<number, HTMLButtonElement | null>>({});
   const [imageViewerOpen, setImageViewerOpen] = useState(false);
   const [imageViewerUrl, setImageViewerUrl] = useState<string | null>(null);
+  const [activeSortColumn, setActiveSortColumn] = useState<'name' | 'sort_order' | null>(null);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
   useEffect(() => {
     fetchScooterModels();
@@ -250,6 +252,39 @@ const ScooterModelsPage: React.FC = () => {
     return true;
   });
 
+  // 排序處理
+  const sortedModels = useMemo(() => {
+    if (!activeSortColumn) {
+      return filteredModels;
+    }
+
+    const sorted = [...filteredModels].sort((a, b) => {
+      if (activeSortColumn === 'name') {
+        const comparison = a.name.localeCompare(b.name, 'zh-TW');
+        return sortDirection === 'asc' ? comparison : -comparison;
+      } else if (activeSortColumn === 'sort_order') {
+        const aOrder = a.sort_order ?? 0;
+        const bOrder = b.sort_order ?? 0;
+        return sortDirection === 'asc' ? aOrder - bOrder : bOrder - aOrder;
+      }
+      return 0;
+    });
+
+    return sorted;
+  }, [filteredModels, activeSortColumn, sortDirection]);
+
+  // 點擊表頭排序處理函數
+  const handleHeaderClick = (column: 'name' | 'sort_order') => {
+    if (activeSortColumn === column) {
+      // 如果點擊的是當前排序列，切換排序方向
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      // 設置為新的排序列，默認升序
+      setActiveSortColumn(column);
+      setSortDirection('asc');
+    }
+  };
+
   return (
     <div className="px-6 pb-6 pt-0 dark:text-gray-100">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
@@ -310,22 +345,50 @@ const ScooterModelsPage: React.FC = () => {
             <thead className="bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 font-bold uppercase tracking-wider text-[11px]">
               <tr>
                 <th className="px-6 py-5">圖片</th>
-                <th className="px-6 py-5">機車型號</th>
+                <th 
+                  className="px-6 py-5 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors select-none"
+                  onClick={() => handleHeaderClick('name')}
+                >
+                  <div className="flex items-center gap-2">
+                    <span>機車型號</span>
+                    {activeSortColumn === 'name' && (
+                      sortDirection === 'asc' ? (
+                        <ArrowUp size={14} className="text-orange-600 dark:text-orange-400" />
+                      ) : (
+                        <ArrowDown size={14} className="text-orange-600 dark:text-orange-400" />
+                      )
+                    )}
+                  </div>
+                </th>
                 <th className="px-6 py-5">車型類型</th>
                 <th className="px-6 py-5">顏色</th>
-                <th className="px-6 py-5">順序</th>
+                <th 
+                  className="px-6 py-5 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors select-none"
+                  onClick={() => handleHeaderClick('sort_order')}
+                >
+                  <div className="flex items-center gap-2">
+                    <span>順序</span>
+                    {activeSortColumn === 'sort_order' && (
+                      sortDirection === 'asc' ? (
+                        <ArrowUp size={14} className="text-orange-600 dark:text-orange-400" />
+                      ) : (
+                        <ArrowDown size={14} className="text-orange-600 dark:text-orange-400" />
+                      )
+                    )}
+                  </div>
+                </th>
                 <th className="px-6 py-5 text-center">操作</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {filteredModels.length === 0 ? (
+              {sortedModels.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
                     目前沒有機車型號資料
                   </td>
                 </tr>
               ) : (
-                filteredModels.map((model) => (
+                sortedModels.map((model) => (
                   <tr key={model.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-700/50 group transition-colors">
                     <td className="px-6 py-5">
                       <div className="w-20 h-12 bg-gray-100 dark:bg-gray-700 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-600 shadow-inner">
@@ -421,7 +484,7 @@ const ScooterModelsPage: React.FC = () => {
             onClick={(e) => e.stopPropagation()}
           >
             {(() => {
-              const model = filteredModels.find(m => m.id === openDropdownId);
+              const model = sortedModels.find(m => m.id === openDropdownId);
               if (!model) return null;
               return (
                 <>

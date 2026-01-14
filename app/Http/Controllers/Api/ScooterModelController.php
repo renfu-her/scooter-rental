@@ -40,7 +40,7 @@ class ScooterModelController extends Controller
             $query->where('type', $request->get('type'));
         }
 
-        $scooterModels = $query->with('scooterType')->orderBy('name')->orderBy('scooter_type_id')->get();
+        $scooterModels = $query->with('scooterType')->orderBy('sort_order', 'desc')->get();
 
         return response()->json([
             'data' => ScooterModelResource::collection($scooterModels),
