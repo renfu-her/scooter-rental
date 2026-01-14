@@ -1,5 +1,23 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-14 22:08:00 (+8) - 修復 Export 功能錯誤：修正未定義變數 dateWithWeekday
+
+### 變更內容
+
+#### 前端修正
+- **OrdersPage.tsx** (`system/backend/pages/OrdersPage.tsx`)
+  - 修正 `handleExportPartnerReport()` 函數中的未定義變數錯誤
+  - 問題：使用了未定義的變數 `dateWithWeekday`，導致 Export 時出現錯誤
+  - 修正：將 `dateWithWeekday` 改為 `formattedDate`，這是已經定義的變數
+
+### 問題說明
+- 用戶點擊 Export 按鈕時出現錯誤："匯出合作商月報表時發生錯誤，請稍後再試"
+- 原因是使用了未定義的變數 `dateWithWeekday`
+
+### 技術細節
+- 修正位置：第 145 行和第 155 行
+- 將 `dateWithWeekday` 改為 `formattedDate`，這是從 `dateStr` 格式化後的日期字串
+
 ## 2026-01-14 22:04:15 (+8) - 修正 partnerDailyReport 數量計算錯誤，參考 partnerMonthlyStatistics 的累加邏輯
 
 ### 變更內容

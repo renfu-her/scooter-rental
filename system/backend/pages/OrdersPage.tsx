@@ -142,7 +142,7 @@ const StatsModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statis
         
         if (orders.length === 0) {
           // 沒有訂單的日期，顯示空行
-          const emptyRow: any[] = [dateWithWeekday, weekday]; // 日期、星期
+          const emptyRow: any[] = [formattedDate, weekday]; // 日期、星期
           allModels.forEach(() => {
             emptyRow.push('', '', '', ''); // 每個型號 4 欄都為空
           });
@@ -152,7 +152,7 @@ const StatsModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statis
           // 每個訂單顯示一行
           orders.forEach((order: any, orderIndex: number) => {
             const dataRow: any[] = orderIndex === 0 
-              ? [dateWithWeekday, weekday] // 第一個訂單顯示日期和星期
+              ? [formattedDate, weekday] // 第一個訂單顯示日期和星期
               : ['', '']; // 其他訂單不顯示日期和星期
 
             allModels.forEach((model: string) => {
