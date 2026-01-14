@@ -697,11 +697,11 @@ class OrderController extends Controller
             return $order->partner?->name ?? '無合作商';
         });
 
-        dd('Step 6: 訂單按合作商分組完成', [
-            'ordersByPartner_count' => $ordersByPartner->count(),
-            'ordersByPartner_keys' => $ordersByPartner->keys(),
-            'first_partner_orders_count' => $ordersByPartner->first()?->count(),
-        ]);
+        // dd('Step 6: 訂單按合作商分組完成', [
+        //     'ordersByPartner_count' => $ordersByPartner->count(),
+        //     'ordersByPartner_keys' => $ordersByPartner->keys(),
+        //     'first_partner_orders_count' => $ordersByPartner->first()?->count(),
+        // ]);
 
         // Step 7: 處理每個合作商的訂單數據
         $reportData = $ordersByPartner->map(function ($partnerOrders, $partnerName) use ($transferFeesMap, $allDates) {
