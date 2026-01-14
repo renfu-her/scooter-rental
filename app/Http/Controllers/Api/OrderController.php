@@ -620,12 +620,12 @@ class OrderController extends Controller
         $monthStartDate = Carbon::parse($month . '-01')->timezone('Asia/Taipei')->startOfMonth();
         $monthEndDate = Carbon::parse($month . '-01')->timezone('Asia/Taipei')->endOfMonth();
 
-        dd('Step 1: 參數驗證完成', [
-            'month' => $month,
-            'partner_id' => $partnerId,
-            'monthStartDate' => $monthStartDate,
-            'monthEndDate' => $monthEndDate,
-        ]);
+        // dd('Step 1: 參數驗證完成', [
+        //     'month' => $month,
+        //     'partner_id' => $partnerId,
+        //     'monthStartDate' => $monthStartDate,
+        //     'monthEndDate' => $monthEndDate,
+        // ]);
 
         // Step 2: 獲取所有機車型號
         $allScooterModels = ScooterModel::orderBy('sort_order', 'desc')->get();
