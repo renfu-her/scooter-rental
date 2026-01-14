@@ -750,13 +750,13 @@ class OrderController extends Controller
                 })->filter();
             });
 
-            dd("Step 7: 處理合作商 [{$partnerName}] 的訂單數據", [
-                'partnerName' => $partnerName,
-                'partnerId' => $partnerId,
-                'partnerOrders_count' => $partnerOrders->count(),
-                'datesData_count' => $datesData->count(),
-                'first_date_item' => $datesData->first(),
-            ]);
+            // dd("Step 7: 處理合作商 [{$partnerName}] 的訂單數據", [
+            //     'partnerName' => $partnerName,
+            //     'partnerId' => $partnerId,
+            //     'partnerOrders_count' => $partnerOrders->count(),
+            //     'datesData_count' => $datesData->count(),
+            //     'first_date_item' => $datesData->first(),
+            // ]);
 
             // 按日期分組並聚合
             $datesDataGrouped = $datesData->groupBy('date')->map(function ($dateItems, $date) {
