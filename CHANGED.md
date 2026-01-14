@@ -1,5 +1,26 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-14 11:23:52 (+8) - 修正合作商報表：改為月報表並使用 start_time 日期查詢
+
+### 變更內容
+
+#### 前端
+- **OrdersPage.tsx** (`system/backend/pages/OrdersPage.tsx`)
+  - 修改標題為「合作商名稱機車出租月報表」（例如："行動潛水機車出租月報表"）
+  - 將所有「日報表」相關文字改為「月報表」
+  - 工作表名稱改為「月報表」
+  - 錯誤訊息中的「日報表」改為「月報表」
+
+#### 後端
+- **OrderController.php** (`app/Http/Controllers/Api/OrderController.php`)
+  - `partnerDailyReport()` 方法已經正確使用 `DATE_FORMAT(start_time, "%Y-%m")` 來查詢訂單
+  - 只使用 `start_time` 的日期部分進行查詢和分組，符合要求
+
+### 功能說明
+- 報表標題現在顯示為「合作商名稱機車出租月報表」，與第二張圖片格式一致
+- 查詢訂單時只使用 `start_time` 的日期部分（使用 `DATE_FORMAT`）
+- 報表類型從「日報表」改為「月報表」，更準確反映報表內容
+
 ## 2026-01-14 11:11:35 (+8) - 修正合作商日報表總計行格式，使其與 Excel 設定一致
 
 ### 變更內容

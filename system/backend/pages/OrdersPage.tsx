@@ -61,7 +61,7 @@ const StatsModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statis
         return;
       }
       
-      // 獲取合作商詳細日報表數據
+      // 獲取合作商詳細月報表數據
       const response = await ordersApi.partnerDailyReport(selectedMonthString, partnerId);
       const data = response.data || { partners: [], models: [] };
 
@@ -95,8 +95,8 @@ const StatsModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statis
       const wb = XLSX.utils.book_new();
       const ws = XLSX.utils.aoa_to_sheet([]);
 
-      // 第一行：標題（行動潛水）
-      const titleRow: any[] = ['行動潛水'];
+      // 第一行：標題（合作商名稱 + 機車出租月報表）
+      const titleRow: any[] = [`${partnerName}機車出租月報表`];
       // 計算總列數：日期(1) + 星期(1) + 當日租200/台(1) + 跨日租300/台(1) + 每個型號(4列)
       const totalCols = 2 + 2 + models.length * 4;
       // 標題跨越多列（從A1開始，跨越多列）
@@ -278,7 +278,7 @@ const StatsModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statis
       ws['!cols'] = colWidths;
       
       // 添加工作表
-      XLSX.utils.book_append_sheet(wb, ws, '日報表');
+      XLSX.utils.book_append_sheet(wb, ws, '月報表');
 
       // 生成文件名：合作商名稱-YYYYMM.xlsx
       const fileName = `${partnerName}-${year}${String(parseInt(month)).padStart(2, '0')}.xlsx`;
@@ -286,8 +286,8 @@ const StatsModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statis
       // 下載文件
       XLSX.writeFile(wb, fileName);
     } catch (error) {
-      console.error('匯出合作商日報表時發生錯誤:', error);
-      alert('匯出合作商日報表時發生錯誤，請稍後再試');
+      console.error('匯出合作商月報表時發生錯誤:', error);
+      alert('匯出合作商月報表時發生錯誤，請稍後再試');
     } finally {
       setIsExporting(false);
     }
