@@ -635,11 +635,11 @@ class OrderController extends Controller
 
         $allModels = $allScooterModels->map(fn($model) => "{$model->name} {$model->type}")->toArray();
 
-        dd('Step 2: 機車型號載入完成', [
-            'allScooterModels_count' => $allScooterModels->count(),
-            'allModels' => $allModels,
-            'first_model' => $allScooterModels->first(),
-        ]);
+        // dd('Step 2: 機車型號載入完成', [
+        //     'allScooterModels_count' => $allScooterModels->count(),
+        //     'allModels' => $allModels,
+        //     'first_model' => $allScooterModels->first(),
+        // ]);
 
         // Step 3: 預載入所有調車費用
         $transferFeesMap = PartnerScooterModelTransferFee::with('scooterModel')
