@@ -1,5 +1,59 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-14 11:42:01 (+8) - 使用 Laravel Excel 套件在後端生成 Excel 檔案
+
+### 變更內容
+
+#### 後端
+- **安裝套件**
+  - 安裝 `maatwebsite/excel` v1.1.5 套件
+  - 使用 PHPExcel 庫生成 Excel 檔案
+
+- **OrderController.php** (`app/Http/Controllers/Api/OrderController.php`)
+  - 修改 `partnerDailyReport()` 方法
+  - 如果提供了 `partner_id`，生成並返回 Excel 檔案（使用 `Excel::download()`）
+  - 如果沒有提供 `partner_id`，返回 JSON 數據（保持向後兼容）
+  - 獲取所有機車型號（從 `ScooterModel` 表，按照 `sort_order` 降序排序）
+  - 查詢訂單時只使用 `start_time` 的日期部分（使用 `DATE_FORMAT(start_time, "%Y-%m")`）
+  - 判斷當日租/跨日租：`start_time` 和 `end_time` 同一天 = 當日租，否則 = 跨日租
+
+- **PartnerMonthlyReportExport.php** (`app/Exports/PartnerMonthlyReportExport.php`)
+  - 新增 Export 類，實現 `FromArray` 和 `WithTitle` 接口
+  - 生成符合圖片格式的 Excel 報表
+  - Header 結構（4層）：
+    1. 第一行：標題「合作商名稱機車出租月報表」（跨越多列）
+    2. 第二行：「當日租 200/台」、「跨日租 300/台」，然後是各個機車型號（每個型號跨4列）
+    3. 第三行：「日期」、「星期」，然後每個型號下分為「當日租」（1列）和「跨日租」（3列）
+    4. 第四行：四個空白列，然後每個型號下：當日租只有「台數」（1列），跨日租有「台數」、「天數」、「金額」（3列）
+  - 數據行：包含整個月的所有日期（1號到當月最後一天），沒有費用的日期顯示為空白
+  - 總計行：月結總計、總台數/天數、小計、總金額
+
+#### 前端
+- **api.ts** (`system/backend/lib/api.ts`)
+  - 新增 `downloadFile()` 方法，用於下載文件
+  - 新增 `downloadPartnerMonthlyReport()` API 方法
+
+- **OrdersPage.tsx** (`system/backend/pages/OrdersPage.tsx`)
+  - 簡化 `handleExportPartnerReport()` 函數
+  - 移除前端生成 Excel 的代碼（之前使用 XLSX 庫）
+  - 現在直接調用 API 下載後端生成的 Excel 檔案
+  - 保留 XLSX 導入（因為 `handleExportExcel` 函數仍在使用）
+
+### 功能說明
+- 整個流程現在完全在後端完成：
+  1. 前端調用 API（提供 `month` 和 `partner_id`）
+  2. 後端查詢訂單數據（使用 `start_time` 的日期部分）
+  3. 後端判斷當日租/跨日租（`start_time` 和 `end_time` 同一天 = 當日租）
+  4. 後端計算調車費用
+  5. 後端生成 Excel 檔案
+  6. 後端返回 Excel 檔案供前端下載
+- 報表格式完全符合圖片要求：
+  - 標題為「合作商名稱機車出租月報表」
+  - Header 包含所有機車型號（從機車型號管理獲取）
+  - 包含整個月的所有日期（1號到當月最後一天）
+  - 沒有費用的日期和欄位顯示為空白
+  - 總計行格式正確
+
 ## 2026-01-14 11:23:52 (+8) - 修正合作商報表：改為月報表並使用 start_time 日期查詢
 
 ### 變更內容
