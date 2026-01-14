@@ -1019,12 +1019,11 @@ const OrdersPage: React.FC = () => {
 
     try {
       const partnerId = bookingPartners[booking.id] || null;
-      const totalAmount = calculateTotalAmount(booking);
       
+      // 不傳入 payment_amount，讓後端根據合作商的機車型號費用自動計算調車費用
       await bookingsApi.convertToOrder(booking.id, {
         partner_id: partnerId,
         payment_method: '現金',
-        payment_amount: totalAmount,
       });
       
       await handleConvertSuccess(booking.id);
