@@ -829,23 +829,52 @@ class OrderController extends Controller
             
             [$year, $monthNum] = explode('-', $month);
             
-            // 使用 Export 類生成 Excel
-            $export = new PartnerMonthlyReportExport($partnerName, $year, $monthNum, $allDates, $allModels);
-            $spreadsheet = $export->generate();
-            
-            $fileName = $partnerName . '-' . $year . str_pad($monthNum, 2, '0', STR_PAD_LEFT) . '.xlsx';
-            
-            // 使用 PhpSpreadsheet Writer 生成檔案
-            $writer = new Xlsx($spreadsheet);
-            
-            // 創建臨時檔案
-            $tempFile = tempnam(sys_get_temp_dir(), 'excel_');
-            $writer->save($tempFile);
-            
-            // 返回檔案下載響應
-            return response()->download($tempFile, $fileName, [
-                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            ])->deleteFileAfterSend(true);
+            try {
+                // 使用 Export 類生成 Excel
+                $export = new PartnerMonthlyReportExport($partnerName, $year, $monthNum, $allDates, $allModels);
+                $spreadsheet = $export->generate();
+                
+                $fileName = $partnerName . '-' . $year . str_pad($monthNum, 2, '0', STR_PAD_LEFT) . '.xlsx';
+                
+                // 使用 PhpSpreadsheet Writer 生成檔案
+                $writer = new Xlsx($spreadsheet);
+                
+                // 創建臨時檔案
+                $tempFile = tempnam(sys_get_temp_dir(), 'excel_');
+                if ($tempFile === false) {
+                    \Log::error('Failed to create temporary file for Excel export');
+                    return response()->json([
+                        'message' => 'Failed to create temporary file',
+                    ], 500);
+                }
+                
+                $writer->save($tempFile);
+                
+                // 檢查檔案是否成功創建
+                if (!file_exists($tempFile)) {
+                    \Log::error('Excel file was not created', ['tempFile' => $tempFile]);
+                    return response()->json([
+                        'message' => 'Failed to generate Excel file',
+                    ], 500);
+                }
+                
+                // 返回檔案下載響應
+                return response()->download($tempFile, $fileName, [
+                    'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                ])->deleteFileAfterSend(true);
+            } catch (\Exception $e) {
+                \Log::error('Excel export error', [
+                    'message' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString(),
+                    'partner_id' => $partnerId,
+                    'month' => $month,
+                ]);
+                
+                return response()->json([
+                    'message' => 'Failed to generate Excel file: ' . $e->getMessage(),
+                    'error' => config('app.debug') ? $e->getTraceAsString() : null,
+                ], 500);
+            }
         }
 
         // 如果沒有提供 partner_id，返回 JSON 數據（保持向後兼容）
