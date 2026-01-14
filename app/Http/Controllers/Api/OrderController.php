@@ -679,33 +679,33 @@ class OrderController extends Controller
             // 注意：$allModels 已經在上面定義為所有機車型號（從資料庫獲取），不需要重新初始化
 
             foreach ($orders as $order) {
-            $partnerName = $order->partner ? $order->partner->name : '無合作商';
-            $partnerId = $order->partner_id;
+                $partnerName = $order->partner ? $order->partner->name : '無合作商';
+                $partnerId = $order->partner_id;
 
-            // Use start_time date as the key date
-            $keyDate = Carbon::parse($order->start_time)->timezone('Asia/Taipei')->format('Y-m-d');
-            $keyDateWeekday = Carbon::parse($order->start_time)->timezone('Asia/Taipei')->format('l');
-            
-            // Calculate days
-            $startTime = Carbon::parse($order->start_time)->timezone('Asia/Taipei');
-            $endTime = Carbon::parse($order->end_time)->timezone('Asia/Taipei');
-            $startDate = $startTime->format('Y-m-d');
-            $endDate = $endTime->format('Y-m-d');
-            
-            // 判斷是當日租還是跨日租
-            $isSameDay = ($startDate === $endDate);
-            // 天數計算：結束日期 - 開始日期（夜數）
-            $diffDays = $startTime->diffInDays($endTime);
-            $days = $isSameDay ? 1 : $diffDays;
+                // Use start_time date as the key date
+                $keyDate = Carbon::parse($order->start_time)->timezone('Asia/Taipei')->format('Y-m-d');
+                $keyDateWeekday = Carbon::parse($order->start_time)->timezone('Asia/Taipei')->format('l');
+                
+                // Calculate days
+                $startTime = Carbon::parse($order->start_time)->timezone('Asia/Taipei');
+                $endTime = Carbon::parse($order->end_time)->timezone('Asia/Taipei');
+                $startDate = $startTime->format('Y-m-d');
+                $endDate = $endTime->format('Y-m-d');
+                
+                // 判斷是當日租還是跨日租
+                $isSameDay = ($startDate === $endDate);
+                // 天數計算：結束日期 - 開始日期（夜數）
+                $diffDays = $startTime->diffInDays($endTime);
+                $days = $isSameDay ? 1 : $diffDays;
 
-            // Group scooters by model
-            $scootersByModel = $order->scooters->groupBy(function ($scooter) {
-                $modelName = $scooter->scooterModel ? $scooter->scooterModel->name : $scooter->model;
-                $modelType = $scooter->scooterModel ? $scooter->scooterModel->type : $scooter->type;
-                return ($modelName ?? '') . ' ' . ($modelType ?? '');
-            });
+                // Group scooters by model
+                $scootersByModel = $order->scooters->groupBy(function ($scooter) {
+                    $modelName = $scooter->scooterModel ? $scooter->scooterModel->name : $scooter->model;
+                    $modelType = $scooter->scooterModel ? $scooter->scooterModel->type : $scooter->type;
+                    return ($modelName ?? '') . ' ' . ($modelType ?? '');
+                });
 
-            foreach ($scootersByModel as $modelString => $scooters) {
+                foreach ($scootersByModel as $modelString => $scooters) {
                 $scooterCount = $scooters->count();
                 
                 // 解析 model 和 type
@@ -798,6 +798,7 @@ class OrderController extends Controller
                         $reportData[$partnerName]['dates'][$keyDate]['models'][$modelString]['overnight_amount'] += $transferFee;
                     }
                 }
+            }
             }
 
             // 生成整個月份的日期列表（只包含有費用的日期）
