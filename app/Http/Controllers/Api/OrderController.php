@@ -802,12 +802,12 @@ class OrderController extends Controller
                 'partner_name' => $partnerName,
                 'dates' => $dates,
             ];
-        })->values();
+            })->values();
 
-        dd('Step 8: 所有合作商數據處理完成', [
-            'reportData_count' => $reportData->count(),
-            'reportData' => $reportData,
-        ]);
+        // dd('Step 8: 所有合作商數據處理完成', [
+        //     'reportData_count' => $reportData->count(),
+        //     'reportData' => $reportData,
+        // ]);
 
         // Step 9: 如果提供了 partner_id，生成 Excel
         if ($partnerId) {
