@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\OrderResource;
 use App\Models\Order;
 use App\Models\Scooter;
+use App\Models\PartnerScooterModelTransferFee;
+use App\Models\ScooterModel;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
@@ -380,11 +382,13 @@ class OrderController extends Controller
 
         foreach ($orders as $order) {
             $partnerName = $order->partner ? $order->partner->name : '無合作商';
+            $partnerId = $order->partner_id;
             $scooterCount = $order->scooters->count();
             $amount = (float) $order->payment_amount;
 
             if (!isset($partnerStats[$partnerName])) {
                 $partnerStats[$partnerName] = [
+                    'partner_id' => $partnerId,
                     'count' => 0,
                     'amount' => 0,
                 ];
@@ -586,6 +590,208 @@ class OrderController extends Controller
         return response()->json([
             'data' => $result,
             'month' => $month,
+        ]);
+    }
+
+    /**
+     * Get partner detailed daily report for a specific month
+     * Returns data grouped by partner, date, and scooter model with transfer fees
+     */
+    public function partnerDailyReport(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'month' => 'required|date_format:Y-m',
+            'partner_id' => 'nullable|exists:partners,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation error',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $month = $request->get('month');
+        $partnerId = $request->get('partner_id');
+        $monthStartDate = Carbon::parse($month . '-01')->timezone('Asia/Taipei')->startOfMonth();
+        $monthEndDate = Carbon::parse($month . '-01')->timezone('Asia/Taipei')->endOfMonth();
+
+        // Get orders for the month with scooters and partner
+        $query = Order::with(['partner', 'scooters.scooterModel'])
+            ->whereNotNull('start_time')
+            ->whereNotNull('end_time')
+            ->whereRaw('DATE_FORMAT(start_time, "%Y-%m") = ?', [$month]);
+
+        if ($partnerId) {
+            $query->where('partner_id', $partnerId);
+        }
+
+        $orders = $query->get();
+
+        // Group by partner, date, and scooter model
+        $reportData = [];
+        $allModels = []; // 收集所有出現的機車型號
+
+        foreach ($orders as $order) {
+            $partnerName = $order->partner ? $order->partner->name : '無合作商';
+            $partnerId = $order->partner_id;
+
+            // Use start_time date as the key date
+            $keyDate = Carbon::parse($order->start_time)->timezone('Asia/Taipei')->format('Y-m-d');
+            $keyDateWeekday = Carbon::parse($order->start_time)->timezone('Asia/Taipei')->format('l');
+            
+            // Calculate days
+            $startTime = Carbon::parse($order->start_time)->timezone('Asia/Taipei');
+            $endTime = Carbon::parse($order->end_time)->timezone('Asia/Taipei');
+            $startDate = $startTime->format('Y-m-d');
+            $endDate = $endTime->format('Y-m-d');
+            
+            // 判斷是當日租還是跨日租
+            $isSameDay = ($startDate === $endDate);
+            // 天數計算：結束日期 - 開始日期（夜數）
+            $diffDays = $startTime->diffInDays($endTime);
+            $days = $isSameDay ? 1 : $diffDays;
+
+            // Group scooters by model
+            $scootersByModel = $order->scooters->groupBy(function ($scooter) {
+                $modelName = $scooter->scooterModel ? $scooter->scooterModel->name : $scooter->model;
+                $modelType = $scooter->scooterModel ? $scooter->scooterModel->type : $scooter->type;
+                return ($modelName ?? '') . ' ' . ($modelType ?? '');
+            });
+
+            foreach ($scootersByModel as $modelString => $scooters) {
+                $scooterCount = $scooters->count();
+                
+                // 解析 model 和 type
+                $parts = explode(' ', $modelString, 2);
+                $model = $parts[0] ?? '';
+                $type = $parts[1] ?? '';
+
+                // 獲取該合作商的調車費用
+                $transferFee = 0;
+                $transferFeePerUnit = 0;
+
+                if ($partnerId && $model && $type) {
+                    $scooterModel = ScooterModel::where('name', $model)
+                        ->where('type', $type)
+                        ->first();
+
+                    if ($scooterModel) {
+                        $transferFeeRecord = PartnerScooterModelTransferFee::where('partner_id', $partnerId)
+                            ->where('scooter_model_id', $scooterModel->id)
+                            ->first();
+
+                        if ($transferFeeRecord) {
+                            if ($isSameDay) {
+                                $transferFeePerUnit = $transferFeeRecord->same_day_transfer_fee ?? 0;
+                            } else {
+                                $transferFeePerUnit = $transferFeeRecord->overnight_transfer_fee ?? 0;
+                            }
+                        }
+                    }
+                }
+
+                // 計算該型號的總費用：調車費用 × 台數 × 天數
+                $transferFee = (int) $transferFeePerUnit * (int) $scooterCount * (int) $days;
+
+                // 只記錄有費用的部分
+                if ($transferFee > 0) {
+                    // 收集所有出現的機車型號
+                    if (!in_array($modelString, $allModels)) {
+                        $allModels[] = $modelString;
+                    }
+
+                    // 初始化合作商數據
+                    if (!isset($reportData[$partnerName])) {
+                        $reportData[$partnerName] = [
+                            'partner_id' => $partnerId,
+                            'partner_name' => $partnerName,
+                            'dates' => [],
+                        ];
+                    }
+
+                    // 初始化日期數據
+                    if (!isset($reportData[$partnerName]['dates'][$keyDate])) {
+                        $reportData[$partnerName]['dates'][$keyDate] = [
+                            'date' => $keyDate,
+                            'weekday' => $keyDateWeekday,
+                            'models' => [],
+                        ];
+                    }
+
+                    // 初始化該日期的該車型數據
+                    if (!isset($reportData[$partnerName]['dates'][$keyDate]['models'][$modelString])) {
+                        $reportData[$partnerName]['dates'][$keyDate]['models'][$modelString] = [
+                            'model' => $model,
+                            'type' => $type,
+                            'same_day_count' => 0,
+                            'same_day_days' => 0,
+                            'same_day_amount' => 0,
+                            'overnight_count' => 0,
+                            'overnight_days' => 0,
+                            'overnight_amount' => 0,
+                        ];
+                    }
+
+                    // 累加數據
+                    if ($isSameDay) {
+                        $reportData[$partnerName]['dates'][$keyDate]['models'][$modelString]['same_day_count'] += $scooterCount;
+                        $reportData[$partnerName]['dates'][$keyDate]['models'][$modelString]['same_day_days'] += $days;
+                        $reportData[$partnerName]['dates'][$keyDate]['models'][$modelString]['same_day_amount'] += $transferFee;
+                    } else {
+                        $reportData[$partnerName]['dates'][$keyDate]['models'][$modelString]['overnight_count'] += $scooterCount;
+                        $reportData[$partnerName]['dates'][$keyDate]['models'][$modelString]['overnight_days'] += $days;
+                        $reportData[$partnerName]['dates'][$keyDate]['models'][$modelString]['overnight_amount'] += $transferFee;
+                    }
+                }
+            }
+        }
+
+        // 生成整個月份的日期列表（只包含有費用的日期）
+        $currentDate = $monthStartDate->copy();
+        $allDates = [];
+        
+        while ($currentDate->lte($monthEndDate)) {
+            $dateStr = $currentDate->format('Y-m-d');
+            $weekday = $currentDate->format('l');
+            $allDates[] = [
+                'date' => $dateStr,
+                'weekday' => $weekday,
+            ];
+            $currentDate->addDay();
+        }
+
+        // 為每個合作商生成完整的日期列表
+        foreach ($reportData as $partnerName => &$partnerData) {
+            $partnerDates = [];
+            foreach ($allDates as $dateInfo) {
+                $dateStr = $dateInfo['date'];
+                if (isset($partnerData['dates'][$dateStr])) {
+                    $partnerDates[] = $partnerData['dates'][$dateStr];
+                } else {
+                    // 沒有費用的日期，但為了完整性可以包含（前端可以過濾）
+                    $partnerDates[] = [
+                        'date' => $dateStr,
+                        'weekday' => $dateInfo['weekday'],
+                        'models' => [],
+                    ];
+                }
+            }
+            $partnerData['dates'] = $partnerDates;
+        }
+
+        // 排序機車型號
+        sort($allModels);
+
+        // 轉換為數組格式
+        $result = [
+            'partners' => array_values($reportData),
+            'models' => $allModels,
+            'month' => $month,
+        ];
+
+        return response()->json([
+            'data' => $result,
         ]);
     }
 }
