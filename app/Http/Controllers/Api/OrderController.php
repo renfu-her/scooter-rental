@@ -651,7 +651,7 @@ class OrderController extends Controller
                         ? "{$fee->scooterModel->name} {$fee->scooterModel->type}"
                         : null;
                 })->filter();
-                });
+            });
 
         // dd('Step 3: 調車費用載入完成', [
         //     'transferFeesMap_count' => $transferFeesMap->count(),
@@ -802,7 +802,7 @@ class OrderController extends Controller
                 'partner_name' => $partnerName,
                 'dates' => $dates,
             ];
-            })->values();
+        })->values();
 
         // dd('Step 8: 所有合作商數據處理完成', [
         //     'reportData_count' => $reportData->count(),
@@ -838,24 +838,22 @@ class OrderController extends Controller
 
             // 生成 Excel
             $export = new PartnerMonthlyReportExport($partnerName, $year, $monthNum, $partnerData['dates'], $allModels);
+
+            // 建立臨時檔案，確保有 .xlsx 擴展名
             $tempFile = tempnam(sys_get_temp_dir(), 'excel_');
-
-            dd('Step 11: Excel Export 對象創建完成', [
-                'tempFile' => $tempFile,
-                'export_class' => get_class($export),
-                'export' => $export
-            ]);
-
             if ($tempFile === false) {
                 return response()->json(['message' => 'Failed to create temporary file'], 500);
             }
-
-            // 確保臨時文件有正確的擴展名
             $tempFile = $tempFile . '.xlsx';
 
             try {
+                // 1. 建立 Spreadsheet 實例（透過 export 的 generate 方法）
                 $spreadsheet = $export->generate();
+
+                // 2. 建立 Xlsx 寫入器
                 $writer = new Xlsx($spreadsheet);
+
+                // 3. 輸出檔案到臨時檔案
                 $writer->save($tempFile);
             } catch (\Exception $e) {
                 \Log::error('Failed to generate Excel file', [
