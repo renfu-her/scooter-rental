@@ -44,9 +44,18 @@ echo "✓ Git 更新完成"
 echo ""
 
 echo "[3/9] 安裝 Composer 依賴..."
-composer install --no-dev --optimize-autoloader
+# 先清理 vendor 目錄以避免依賴衝突
+if [ -d "vendor" ]; then
+    rm -rf vendor
+    echo "  ✓ 已清理舊的 vendor 目錄"
+fi
+# 使用 --no-scripts 避免執行可能依賴 dev 套件的腳本
+composer install --no-dev --no-scripts --optimize-autoloader
 if [ $? -ne 0 ]; then
     echo "✗ 警告：Composer 安裝失敗，繼續執行..."
+else
+    # 安裝完成後重新生成 autoload
+    composer dump-autoload --optimize --no-dev
 fi
 echo "✓ Composer 依賴安裝完成"
 echo ""
