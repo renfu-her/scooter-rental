@@ -1184,32 +1184,34 @@ const OrdersPage: React.FC = () => {
                   {isExpanded && (
                     <div className="px-4 pb-6 pt-0 border-t border-gray-200 dark:border-gray-700">
                       <div className="pt-4 space-y-3">
-                        {/* 拒絕、確認按鈕 */}
-                        <div className="flex items-center justify-end gap-3">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleRejectBooking(booking.id);
-                            }}
-                            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center space-x-1 h-[42px]"
-                          >
-                            <XCircle size={16} />
-                            <span>拒絕</span>
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleConvertBookingClick(booking);
-                            }}
-                            className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-sm font-medium transition-colors h-[42px]"
-                          >
-                            確認轉為訂單
-                          </button>
+                        {/* Email 與按鈕同一行 */}
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="text-sm text-gray-700 dark:text-gray-300">Email: <span className="font-medium text-gray-800 dark:text-gray-100">{booking.email || '-'}</span></div>
+                          <div className="flex items-center gap-3">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRejectBooking(booking.id);
+                              }}
+                              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center space-x-1 h-[42px]"
+                            >
+                              <XCircle size={16} />
+                              <span>拒絕</span>
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleConvertBookingClick(booking);
+                              }}
+                              className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-sm font-medium transition-colors h-[42px]"
+                            >
+                              確認轉為訂單
+                            </button>
+                          </div>
                         </div>
 
                         {/* 其他欄位以三列形式顯示 */}
                         <div className="grid grid-cols-3 gap-x-6 gap-y-2 text-sm text-gray-700 dark:text-gray-300">
-                          <div>Email: <span className="font-medium text-gray-800 dark:text-gray-100">{booking.email || '-'}</span></div>
                           <div>承租人姓名: <span className="font-medium text-gray-800 dark:text-gray-100">{booking.name}</span></div>
                           <div>LINE ID: <span className="font-medium text-gray-800 dark:text-gray-100">{booking.line_id || '-'}</span></div>
                           <div>行動電話: <span className="font-medium text-gray-800 dark:text-gray-100">{booking.phone || '-'}</span></div>
