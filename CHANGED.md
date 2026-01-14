@@ -1,38 +1,153 @@
 # 變更記錄 (Change Log)
 
-## 2026-01-14 17:18:09 (+8) - 修正調車費用計算邏輯，確保所有機車型號都顯示，0 值顯示為空白
+## 2026-01-14 17:42:22 (+8) - partnerDailyReport 改用 OrderScooter 模型
 
 ### 變更內容
 
 #### 後端 API 修正
 - **OrderController.php** (`app/Http/Controllers/Api/OrderController.php`)
-  - 移除過濾邏輯：刪除 `if ($transferFee <= 0) return null;`，確保所有機車型號都顯示
-  - 修改返回數據邏輯：當金額、台數、天數為 0 時，返回空字符串 `''` 而不是 `0`
-  - 改進機車型號分組邏輯：即使 `scooterModel` 為 null，也使用機車本身的 `model` 和 `type` 屬性作為後備
-  - 調整聚合邏輯：在按日期和型號聚合時，當累加的值為 0 時也返回空字符串
+  - 在 `partnerDailyReport` 方法中改用 `OrderScooter` 模型，取代直接使用 `DB::table('order_scooter')`
+  - 使用 Eloquent 關聯查詢：`OrderScooter::where('order_id', $order->id)->with(['scooter.scooterModel'])->get()`
+  - 使用 `OrderScooter` 模型的 `model_string` accessor 來取得機車型號字串
+  - 簡化代碼，利用模型的 accessor 自動處理型號資訊的優先順序
+
+#### 模型優化
+- **OrderScooter.php** (`app/Models/OrderScooter.php`)
+  - 優化 `getModelStringAttribute()` accessor，確保正確處理型號資訊的優先順序
+  - 優先順序：`scooterModel` > `scooter.model/type` > `plate_number`
 
 ### 問題說明
-- `order_scooter` 表有 3 筆記錄，但 JSON 響應中只顯示了部分機車型號
-- 原因是當調車費用為 0 時，記錄被過濾掉
-- 即使沒有設置調車費用，也應該顯示機車型號的數據（台數、天數），金額顯示為空白
+- 原本使用 `DB::table('order_scooter')` 直接查詢，代碼較複雜
+- 改用 `OrderScooter` 模型可以更好地利用 Eloquent 的關聯和 accessor
+- 代碼更簡潔，維護更容易
 
 ### 技術細節
-- 移除的過濾邏輯：
+- 查詢方式：
   ```php
-  if ($transferFee <= 0)
-      return null;
+  OrderScooter::where('order_id', $order->id)
+      ->with(['scooter.scooterModel'])
+      ->get()
   ```
-- 修改的返回數據邏輯：
+- 分組邏輯：
+  - 使用 `$orderScooter->model_string` accessor 取得型號字串
+  - 使用 `filter()` 過濾掉空字串的 model_string
+- 優點：
+  - 代碼更簡潔
+  - 利用 Eloquent 的關聯和 accessor
+  - 更容易維護和擴展
+
+## 2026-01-14 17:40:34 (+8) - 新增 OrderScooter 模型及相關方法
+
+### 變更內容
+
+#### 新增模型
+- **OrderScooter.php** (`app/Models/OrderScooter.php`)
+  - 創建 `OrderScooter` 模型，對應 `order_scooter` 表
+  - 添加 `order()` 方法：獲取所屬的訂單
+  - 添加 `scooter()` 方法：獲取所屬的機車
+  - 添加 `scooterModel()` 方法：透過 `hasOneThrough` 獲取機車型號
+  - 添加 `getModelNameAttribute()` accessor：獲取機車型號名稱
+  - 添加 `getModelTypeAttribute()` accessor：獲取機車型號類型
+  - 添加 `getModelStringAttribute()` accessor：獲取機車型號字串（name + type）
+
+#### 模型關聯更新
+- **Order.php** (`app/Models/Order.php`)
+  - 添加 `orderScooters()` 方法：獲取該訂單的所有 `OrderScooter` 記錄
+
+- **Scooter.php** (`app/Models/Scooter.php`)
+  - 添加 `orderScooters()` 方法：獲取該機車的所有 `OrderScooter` 記錄
+
+### 問題說明
+- 需要一個專門的模型來處理 `order_scooter` 表的操作
+- 方便直接查詢和操作 `order_scooter` 記錄，而不需要透過 pivot 表
+
+### 技術細節
+- `OrderScooter` 模型使用 `protected $table = 'order_scooter'` 指定表名
+- 關聯方法：
+  - `order()`: `belongsTo(Order::class)`
+  - `scooter()`: `belongsTo(Scooter::class)`
+  - `scooterModel()`: `hasOneThrough(ScooterModel::class, Scooter::class)`
+- Accessor 方法會自動處理型號資訊的取得，優先使用 `scooterModel` 關聯，如果沒有則使用 `scooter` 本身的 `model` 和 `type` 欄位
+
+## 2026-01-14 17:39:03 (+8) - 修正 order_scooter 查詢，確保從 scooters 表取得 model 欄位
+
+### 變更內容
+
+#### 後端 API 修正
+- **OrderController.php** (`app/Http/Controllers/Api/OrderController.php`)
+  - 修正查詢 `order_scooter` 時的欄位選擇
+  - 明確從 `scooters` 表取得 `model` 欄位（別名為 `scooter_model`）
+  - 確保分組邏輯正確使用 `scooters.model` 和 `scooters.type` 欄位
+
+### 問題說明
+- 查詢 `order_scooter` 時需要確保能取得機車的 model 資訊
+- `scooters` 表有 `model` 和 `type` 欄位，應該在查詢時明確選取
+
+### 技術細節
+- 查詢欄位：
   ```php
-  "{$field}_count" => $scooterCount > 0 ? $scooterCount : '',
-  "{$field}_days" => $days > 0 ? $days : '',
-  "{$field}_amount" => $transferFee > 0 ? $transferFee : '',
+  ->select(
+      'order_scooter.id as order_scooter_id',
+      'order_scooter.order_id',
+      'order_scooter.scooter_id',
+      'scooters.model as scooter_model',  // scooters 表的 model 欄位
+      'scooters.type as scooter_type',     // scooters 表的 type 欄位
+      'scooter_models.name as model_name',  // scooter_models 表的 name
+      'scooter_models.type as model_type'    // scooter_models 表的 type
+  )
   ```
-- 改進的機車型號分組：
-  - 優先使用 `scooterModel` 關聯
-  - 如果沒有，使用機車本身的 `model` 和 `type` 屬性
-- 聚合邏輯調整：
-  - 計算總和時，當值為 0 時返回空字符串
+- 分組邏輯：
+  1. 優先使用 `scooter_models.name` + `scooter_models.type`
+  2. 若無，使用 `scooters.model` + `scooters.type`（從 `scooter_model` 和 `scooter_type` 取得）
+  3. 最後使用 `scooters.plate_number`
+
+## 2026-01-14 17:37:24 (+8) - 改用 order_scooter 表查詢，確保所有機車記錄都被計算
+
+### 變更內容
+
+#### 後端 API 修正
+- **OrderController.php** (`app/Http/Controllers/Api/OrderController.php`)
+  - 改用直接查詢 `order_scooter` 表，而不是使用 `Order->scooters` 關聯
+  - 使用 `DB::table('order_scooter')` 進行 JOIN 查詢，載入 `scooters` 和 `scooter_models` 資料
+  - 確保每一筆 `order_scooter` 記錄都被正確計算和顯示
+
+### 問題說明
+- `orders` 與 `order_scooter` 顯示有 3 台機車，但報表中只看到 2 台
+- 原因是使用 `Order->scooters` 關聯時，可能因為某些原因導致記錄遺漏
+- 改用直接查詢 `order_scooter` 表可以確保每一筆記錄都被計算
+
+### 技術細節
+- 查詢方式：
+  ```php
+  \DB::table('order_scooter')
+      ->where('order_id', $order->id)
+      ->join('scooters', 'order_scooter.scooter_id', '=', 'scooters.id')
+      ->leftJoin('scooter_models', 'scooters.scooter_model_id', '=', 'scooter_models.id')
+  ```
+- 台數計算：使用 `$orderScooters->count()` 計算該型號的機車數量
+
+## 2026-01-14 17:29:34 (+8) - 修正合作商日報表機車分組，確保所有機車都會顯示
+
+### 變更內容
+
+#### 後端 API 修正
+- **OrderController.php** (`app/Http/Controllers/Api/OrderController.php`)
+  - 調整機車分組邏輯：
+    - 優先使用 `scooterModel` 的 `name` + `type` 作為分組鍵
+    - 若無 `scooterModel`，使用機車本身的 `model` 和 `type`（透過 accessor）
+    - 若仍無型號與類型，最後以 `plate_number` 車牌號作為分組鍵，避免記錄被過濾
+  - 目的：即使某些機車沒有綁定車型或型號資料不完整，依然會出現在合作商日報表中
+
+### 問題說明
+- `orders` 與 `order_scooter` 顯示有 3 台機車，但報表中只看到 2 台
+- 其中一台機車因為缺少車型 / 類型資訊，被分組邏輯產生空字串鍵，後續在 `filter()` 時被移除
+
+### 技術細節
+- 新的分組鍵優先順序：
+  1. `{$scooter->scooterModel->name} {$scooter->scooterModel->type}`
+  2. `{$scooter->model} {$scooter->type}`（Scooter 模型 accessor）
+  3. `plate_number`（車牌號）
+- 如此可保證每一筆 `order_scooter` 記錄都有非空的分組鍵，避免在 `->filter()` 時被排除
 
 ## 2026-01-14 17:03:52 (+8) - 統一調車費用計算邏輯：合作商的機車型號單價 × 天數 × 台數
 

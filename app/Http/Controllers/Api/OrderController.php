@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\Scooter;
 use App\Models\PartnerScooterModelTransferFee;
 use App\Models\ScooterModel;
+use App\Models\OrderScooter;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
@@ -657,8 +658,8 @@ class OrderController extends Controller
         //     'first_partner_fees' => $transferFeesMap->first(),
         // ]);
 
-        // Step 4: 查詢訂單
-        $orders = Order::with(['partner', 'scooters.scooterModel'])
+        // Step 4: 查詢訂單（只載入基本資訊）
+        $orders = Order::with(['partner'])
             ->whereNotNull('start_time')
             ->whereNotNull('end_time')
             ->whereBetween('start_time', [$monthStartDate, $monthEndDate])
@@ -706,7 +707,7 @@ class OrderController extends Controller
             $firstOrder = $partnerOrders->first();
             $partnerId = $firstOrder->partner_id;
 
-            // 處理每個訂單
+            // 處理每個訂單：直接查詢 order_scooter 表，確保每一筆記錄都被計算
             $datesData = $partnerOrders->flatMap(function ($order) use ($transferFeesMap, $partnerId) {
                 $startTime = Carbon::parse($order->start_time)->timezone('Asia/Taipei');
                 $endTime = Carbon::parse($order->end_time)->timezone('Asia/Taipei');
@@ -714,24 +715,23 @@ class OrderController extends Controller
                 $isSameDay = $startTime->isSameDay($endTime);
                 $days = $isSameDay ? 1 : $startTime->diffInDays($endTime);
 
-                // 按機車型號分組
-                return $order->scooters->groupBy(function ($scooter) {
-                    // 優先使用 scooterModel 關聯，如果沒有則使用機車本身的 model 和 type 屬性
-                    $model = $scooter->scooterModel;
-                    if ($model) {
-                        return "{$model->name} {$model->type}";
-                    }
-                    // 如果沒有 scooterModel，使用機車本身的 model 和 type（通過 getModelAttribute 和 getTypeAttribute）
-                    $modelName = $scooter->model ?? '';
-                    $modelType = $scooter->type ?? '';
-                    return !empty($modelName) && !empty($modelType) ? "{$modelName} {$modelType}" : '';
-                })->map(function ($scooters, $modelString) use ($keyDate, $startTime, $isSameDay, $days, $transferFeesMap, $partnerId) {
-                    // 如果 modelString 為空，跳過（無法確定型號）
-                    if (empty($modelString))
-                        return null;
+                // 使用 OrderScooter 模型查詢，載入 scooter 和 scooterModel 關聯
+                $orderScooters = OrderScooter::where('order_id', $order->id)
+                    ->with(['scooter.scooterModel'])
+                    ->get();
 
-                    // 計算台數
-                    $scooterCount = $scooters->count();
+                // 按機車型號分組（使用 order_scooter 記錄）
+                // 使用 OrderScooter 模型的 accessor 取得 model_string
+                // 這會自動處理優先順序：scooterModel > scooter.model/type > plate_number
+                return $orderScooters->groupBy(function ($orderScooter) {
+                    return $orderScooter->model_string;
+                })->filter(function ($orderScooters, $modelString) {
+                    // 過濾掉空字串的 model_string（無法確定型號）
+                    return !empty($modelString);
+                })->map(function ($orderScooters, $modelString) use ($keyDate, $startTime, $isSameDay, $days, $transferFeesMap, $partnerId) {
+
+                    // 計算台數：使用 order_scooter 記錄的數量
+                    $scooterCount = $orderScooters->count();
                     
                     // 獲取合作商的機車型號單價（當日租或跨日租）
                     $feeKey = $transferFeesMap->get($partnerId)?->get($modelString);

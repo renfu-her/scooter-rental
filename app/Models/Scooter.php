@@ -37,6 +37,14 @@ class Scooter extends Model
     }
 
     /**
+     * Get the order_scooter pivot records for the scooter.
+     */
+    public function orderScooters()
+    {
+        return $this->hasMany(OrderScooter::class);
+    }
+
+    /**
      * Get the fines for the scooter.
      */
     public function fines()
