@@ -26,7 +26,7 @@ echo "模式: $MODE"
 echo "專案目錄: $PROJECT_DIR"
 echo ""
 
-echo "[1/12] 切換到專案目錄..."
+echo "[1/9] 切換到專案目錄..."
 cd "$PROJECT_DIR"
 if [ $? -ne 0 ]; then
     echo "✗ 錯誤：無法切換到目錄 $PROJECT_DIR"
@@ -35,7 +35,7 @@ fi
 echo "✓ 目錄切換完成"
 echo ""
 
-echo "[2/12] 更新程式碼 (git pull)..."
+echo "[2/9] 更新程式碼 (git pull)..."
 git pull --no-edit
 if [ $? -ne 0 ]; then
     echo "✗ 警告：Git 更新失敗，繼續執行..."
@@ -43,35 +43,7 @@ fi
 echo "✓ Git 更新完成"
 echo ""
 
-
-echo "[3/12] 安裝前端依賴..."
-cd "$PROJECT_DIR/system/frontend"
-pnpm i
-if [ $? -ne 0 ]; then
-    echo "✗ 警告：前端依賴安裝失敗，繼續執行..."
-fi
-echo "✓ 前端依賴安裝完成"
-echo ""
-
-echo "[4/12] 安裝後端依賴..."
-cd "$PROJECT_DIR/system/backend"
-pnpm i
-if [ $? -ne 0 ]; then
-    echo "✗ 警告：後端依賴安裝失敗，繼續執行..."
-fi
-echo "✓ 後端依賴安裝完成"
-echo ""
-
-echo "[5/12] Laravel 安裝依賴..."
-cd "$PROJECT_DIR"
-composer install --optimize-autoloader --no-dev
-if [ $? -ne 0 ]; then
-    echo "✗ 警告：Laravel 依賴安裝失敗，繼續執行..."
-fi
-echo "✓ Laravel 依賴安裝完成"
-echo ""
-
-echo "[6/12] 資料庫遷移..."
+echo "[3/9] 資料庫遷移..."
 php artisan migrate
 if [ $? -ne 0 ]; then
     echo "✗ 警告：資料庫遷移失敗，繼續執行..."
@@ -79,7 +51,7 @@ fi
 echo "✓ 資料庫遷移完成"
 echo ""
 
-echo "[7/12] 清除並快取 Laravel 路由..."
+echo "[4/9] 清除並快取 Laravel 路由..."
 php artisan route:clear
 php artisan route:cache
 if [ $? -ne 0 ]; then
@@ -88,7 +60,7 @@ fi
 echo "✓ 路由快取完成"
 echo ""
 
-echo "[8/10] 清除並快取 Laravel 配置..."
+echo "[5/9] 清除並快取 Laravel 配置..."
 php artisan config:clear
 php artisan config:cache
 if [ $? -ne 0 ]; then
@@ -97,7 +69,7 @@ fi
 echo "✓ 配置快取完成"
 echo ""
 
-echo "[9/12] 清除後端 React 緩存..."
+echo "[6/9] 清除後端 React 緩存..."
 cd "$PROJECT_DIR/system/backend"
 if [ $? -ne 0 ]; then
     echo "✗ 錯誤：無法進入後端目錄"
@@ -116,7 +88,7 @@ fi
 echo "✓ 後端緩存清除完成"
 echo ""
 
-echo "[10/12] 構建後端 (React)..."
+echo "[7/9] 構建後端 (React)..."
 # 設置 production 環境變數
 if [ "$MODE" = "production" ]; then
     export VITE_API_BASE_URL=https://languangsmart.com/api
@@ -132,7 +104,7 @@ fi
 echo "✓ 後端構建完成"
 echo ""
 
-echo "[11/12] 清除前端 React 緩存..."
+echo "[8/9] 清除前端 React 緩存..."
 cd "$PROJECT_DIR/system/frontend"
 if [ $? -ne 0 ]; then
     echo "✗ 錯誤：無法進入前端目錄"
@@ -151,7 +123,7 @@ fi
 echo "✓ 前端緩存清除完成"
 echo ""
 
-echo "[12/12] 構建前端 (React)..."
+echo "[9/9] 構建前端 (React)..."
 # 設置 production 環境變數
 if [ "$MODE" = "production" ]; then
     export VITE_API_BASE_URL=https://languangsmart.com/api
