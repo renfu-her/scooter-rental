@@ -1,5 +1,31 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-14 21:37:19 (+8) - 修復合作商月報表匯出功能錯誤
+
+### 變更內容
+
+#### 前端修正
+- **OrdersPage.tsx** (`system/backend/pages/OrdersPage.tsx`)
+  - 修復 `handleExportPartnerReport()` 函數中的變數作用域問題
+  - 修復 `subtotalRow` 中使用未定義變數 `modelSameDayTotalAmount` 和 `modelOvernightTotalAmount` 的錯誤
+  - 改進空字符串處理邏輯：
+    - 當後端返回空字符串 `''` 時，正確轉換為數字 0 進行計算
+    - 使用 `Number()` 函數確保類型轉換正確
+    - 在數據行、總計行和小計行中統一處理空值
+
+### 問題說明
+- 點擊 Export 按鈕時出現錯誤："匯出合作商月報表時發生錯誤，請稍後再試"
+- 後端 API 正常返回數據，但前端處理數據時出現變數作用域錯誤
+- 空字符串值未正確轉換為數字，導致計算錯誤
+
+### 技術細節
+- 修復變數作用域：在 `subtotalRow` 的 `forEach` 循環中重新計算 `modelSameDayTotalAmount` 和 `modelOvernightTotalAmount`
+- 空值處理：
+  ```typescript
+  const sameDayCount = modelData.same_day_count === '' ? 0 : Number(modelData.same_day_count) || 0;
+  ```
+- 確保所有累加操作都正確處理空字符串和數字類型
+
 ## 2026-01-14 21:26:09 (+8) - 改寫 partnerDailyReport 使用 partnerMonthlyStatistics 的計算方式
 
 ### 變更內容

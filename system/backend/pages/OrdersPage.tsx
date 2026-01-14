@@ -143,23 +143,29 @@ const StatsModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statis
 
         allModels.forEach((model: string) => {
           const modelData = dateItem.models?.find((m: any) => `${m.model} ${m.type}` === model) || {
-            same_day_count: 0,
-            same_day_days: 0,
-            same_day_amount: 0,
-            overnight_count: 0,
-            overnight_days: 0,
-            overnight_amount: 0,
+            same_day_count: '',
+            same_day_days: '',
+            same_day_amount: '',
+            overnight_count: '',
+            overnight_days: '',
+            overnight_amount: '',
           };
 
-          const hasSameDay = (modelData.same_day_count || 0) > 0;
-          const hasOvernight = (modelData.overnight_count || 0) > 0;
+          // 將空字符串轉換為數字 0 進行比較
+          const sameDayCount = modelData.same_day_count === '' ? 0 : Number(modelData.same_day_count) || 0;
+          const sameDayAmount = modelData.same_day_amount === '' ? 0 : Number(modelData.same_day_amount) || 0;
+          const overnightCount = modelData.overnight_count === '' ? 0 : Number(modelData.overnight_count) || 0;
+          const overnightAmount = modelData.overnight_amount === '' ? 0 : Number(modelData.overnight_amount) || 0;
+
+          const hasSameDay = sameDayCount > 0;
+          const hasOvernight = overnightCount > 0;
 
           // 每個型號：當日租台數、當日租金額、跨日租台數、跨日租金額
           dataRow.push(
-            hasSameDay ? modelData.same_day_count : '',
-            hasSameDay ? modelData.same_day_amount : '',
-            hasOvernight ? modelData.overnight_count : '',
-            hasOvernight ? modelData.overnight_amount : ''
+            hasSameDay ? sameDayCount : '',
+            hasSameDay ? sameDayAmount : '',
+            hasOvernight ? overnightCount : '',
+            hasOvernight ? overnightAmount : ''
           );
         });
 
@@ -181,19 +187,20 @@ const StatsModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statis
 
         dates.forEach((dateItem: any) => {
           const modelData = dateItem.models?.find((m: any) => `${m.model} ${m.type}` === model) || {
-            same_day_count: 0,
-            same_day_days: 0,
-            same_day_amount: 0,
-            overnight_count: 0,
-            overnight_days: 0,
-            overnight_amount: 0,
+            same_day_count: '',
+            same_day_days: '',
+            same_day_amount: '',
+            overnight_count: '',
+            overnight_days: '',
+            overnight_amount: '',
           };
-          modelSameDayTotalCount += modelData.same_day_count || 0;
-          modelSameDayTotalDays += modelData.same_day_days || 0;
-          modelSameDayTotalAmount += modelData.same_day_amount || 0;
-          modelOvernightTotalCount += modelData.overnight_count || 0;
-          modelOvernightTotalDays += modelData.overnight_days || 0;
-          modelOvernightTotalAmount += modelData.overnight_amount || 0;
+          // 將空字符串轉換為數字 0
+          modelSameDayTotalCount += modelData.same_day_count === '' ? 0 : Number(modelData.same_day_count) || 0;
+          modelSameDayTotalDays += modelData.same_day_days === '' ? 0 : Number(modelData.same_day_days) || 0;
+          modelSameDayTotalAmount += modelData.same_day_amount === '' ? 0 : Number(modelData.same_day_amount) || 0;
+          modelOvernightTotalCount += modelData.overnight_count === '' ? 0 : Number(modelData.overnight_count) || 0;
+          modelOvernightTotalDays += modelData.overnight_days === '' ? 0 : Number(modelData.overnight_days) || 0;
+          modelOvernightTotalAmount += modelData.overnight_amount === '' ? 0 : Number(modelData.overnight_amount) || 0;
         });
 
         const modelTotalAmount = modelSameDayTotalAmount + modelOvernightTotalAmount;
@@ -214,13 +221,16 @@ const StatsModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statis
       // 小計行
       const subtotalRow: any[] = ['', '小計', '']; // 左邊多一個空白列
       allModels.forEach((model: string) => {
-        let modelTotalAmount = 0;
+        let modelSameDayTotalAmount = 0;
+        let modelOvernightTotalAmount = 0;
         dates.forEach((dateItem: any) => {
           const modelData = dateItem.models?.find((m: any) => `${m.model} ${m.type}` === model) || {
-            same_day_amount: 0,
-            overnight_amount: 0,
+            same_day_amount: '',
+            overnight_amount: '',
           };
-          modelTotalAmount += (modelData.same_day_amount || 0) + (modelData.overnight_amount || 0);
+          // 將空字符串轉換為數字 0
+          modelSameDayTotalAmount += modelData.same_day_amount === '' ? 0 : Number(modelData.same_day_amount) || 0;
+          modelOvernightTotalAmount += modelData.overnight_amount === '' ? 0 : Number(modelData.overnight_amount) || 0;
         });
         // 每個型號：空白、當日租金額、空白、跨日租金額
         subtotalRow.push('', modelSameDayTotalAmount > 0 ? modelSameDayTotalAmount : '', '', modelOvernightTotalAmount > 0 ? modelOvernightTotalAmount : '');
