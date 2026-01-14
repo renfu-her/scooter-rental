@@ -849,7 +849,23 @@ class OrderController extends Controller
                 return response()->json(['message' => 'Failed to create temporary file'], 500);
             }
 
-            (new Xlsx($export->generate()))->save($tempFile);
+            // 確保臨時文件有正確的擴展名
+            $tempFile = $tempFile . '.xlsx';
+
+            try {
+                $spreadsheet = $export->generate();
+                $writer = new Xlsx($spreadsheet);
+                $writer->save($tempFile);
+            } catch (\Exception $e) {
+                \Log::error('Failed to generate Excel file', [
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString(),
+                ]);
+                return response()->json([
+                    'message' => 'Failed to generate Excel file',
+                    'error' => $e->getMessage(),
+                ], 500);
+            }
 
             dd('Step 12: Excel 檔案生成完成', [
                 'tempFile' => $tempFile,
