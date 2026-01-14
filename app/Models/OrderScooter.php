@@ -39,64 +39,33 @@ class OrderScooter extends Model
     }
 
     /**
-     * 獲取機車的型號（透過 scooter 關聯）
-     */
-    public function scooterModel()
-    {
-        return $this->hasOneThrough(
-            ScooterModel::class,
-            Scooter::class,
-            'id',           // scooters 表的外鍵
-            'id',           // scooter_models 表的外鍵
-            'scooter_id',   // order_scooter 表的外鍵
-            'scooter_model_id' // scooters 表的外鍵
-        );
-    }
-
-    /**
-     * 獲取機車型號名稱（透過關聯取得）
+     * 獲取機車型號名稱（從 scooter 表的 model 欄位取得）
      */
     public function getModelNameAttribute()
     {
-        if ($this->scooter && $this->scooter->scooterModel) {
-            return $this->scooter->scooterModel->name;
+        if ($this->scooter) {
+            return $this->scooter->attributes['model'] ?? null;
         }
-        return $this->scooter->model ?? null;
+        return null;
     }
 
     /**
-     * 獲取機車型號類型（透過關聯取得）
+     * 獲取機車型號類型（從 scooter 表的 type 欄位取得）
      */
     public function getModelTypeAttribute()
     {
-        if ($this->scooter && $this->scooter->scooterModel) {
-            return $this->scooter->scooterModel->type;
+        if ($this->scooter) {
+            return $this->scooter->attributes['type'] ?? null;
         }
-        return $this->scooter->type ?? null;
+        return null;
     }
 
     /**
-     * 獲取機車型號字串（name + type）
-     * 優先順序：scooterModel > scooter.model/type > plate_number
+     * 獲取機車型號字串（model + type）
+     * 優先順序：scooter.model/type > plate_number
      */
     public function getModelStringAttribute()
     {
-        // 優先使用 scooterModel 關聯的 name 和 type
-        if ($this->scooter && $this->scooter->scooterModel) {
-            $name = $this->scooter->scooterModel->name ?? '';
-            $type = $this->scooter->scooterModel->type ?? '';
-            if ($name && $type) {
-                return "{$name} {$type}";
-            }
-            if ($name) {
-                return $name;
-            }
-            if ($type) {
-                return $type;
-            }
-        }
-        
-        // 如果沒有 scooterModel，使用 scooter 本身的 model 和 type 欄位
         if ($this->scooter) {
             $modelName = $this->scooter->attributes['model'] ?? '';
             $modelType = $this->scooter->attributes['type'] ?? '';

@@ -715,9 +715,9 @@ class OrderController extends Controller
                 $isSameDay = $startTime->isSameDay($endTime);
                 $days = $isSameDay ? 1 : $startTime->diffInDays($endTime);
 
-                // 使用 OrderScooter 模型查詢，載入 scooter 和 scooterModel 關聯
-                $orderScooters = OrderScooter::where('order_id', $order->id)
-                    ->with(['scooter.scooterModel'])
+                // 使用 OrderScooter 模型查詢，載入 scooter 關聯（不使用 scooterModel）
+                $orderScooters = OrderScooter::where('order_id', '=', $order->id)
+                    ->with(['scooter'])
                     ->get();
 
                 // 按機車型號分組（使用 order_scooter 記錄）

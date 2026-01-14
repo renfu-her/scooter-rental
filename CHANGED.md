@@ -1,5 +1,38 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-14 17:46:36 (+8) - OrderScooter 移除所有 ScooterModel 相關邏輯
+
+### 變更內容
+
+#### 模型修正
+- **OrderScooter.php** (`app/Models/OrderScooter.php`)
+  - 移除 `scooterModel()` 方法（hasOneThrough 關聯）
+  - 修改 `getModelNameAttribute()`：只使用 `scooter->attributes['model']`，不再使用 `scooterModel`
+  - 修改 `getModelTypeAttribute()`：只使用 `scooter->attributes['type']`，不再使用 `scooterModel`
+  - 修改 `getModelStringAttribute()`：移除所有 `scooterModel` 相關邏輯，只使用 `scooter` 表的 `model` 和 `type` 欄位
+  - 優先順序改為：`scooter.model/type` > `plate_number`
+
+#### 後端 API 修正
+- **OrderController.php** (`app/Http/Controllers/Api/OrderController.php`)
+  - 在 `partnerDailyReport` 方法中，移除 `scooterModel` 的載入
+  - 查詢改為：`OrderScooter::where('order_id', '=', $order->id)->with(['scooter'])->get()`
+  - 不再載入 `scooter.scooterModel` 關聯
+
+### 問題說明
+- `OrderScooter` 不應該使用 `ScooterModel`，應該直接使用 `Scooter` 表的 `model` 和 `type` 欄位
+- 簡化邏輯，移除不必要的關聯查詢
+
+### 技術細節
+- 查詢方式：
+  ```php
+  OrderScooter::where('order_id', '=', $order->id)
+      ->with(['scooter'])
+      ->get()
+  ```
+- 型號資訊取得：
+  - 直接從 `$this->scooter->attributes['model']` 和 `$this->scooter->attributes['type']` 取得
+  - 不再透過 `scooterModel` 關聯
+
 ## 2026-01-14 17:42:22 (+8) - partnerDailyReport 改用 OrderScooter 模型
 
 ### 變更內容
