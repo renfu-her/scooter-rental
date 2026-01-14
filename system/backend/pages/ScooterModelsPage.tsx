@@ -15,6 +15,7 @@ interface ScooterModel {
   type: string;
   image_path: string | null;
   color: string | null;
+  sort_order?: number;
   label?: string;
 }
 
@@ -35,6 +36,7 @@ const ScooterModelsPage: React.FC = () => {
   const [formData, setFormData] = useState({
     name: '',
     scooter_type_id: '',
+    sort_order: '',
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -81,15 +83,19 @@ const ScooterModelsPage: React.FC = () => {
       setFormData({
         name: model.name,
         scooter_type_id: model.scooter_type_id ? String(model.scooter_type_id) : (model.scooter_type ? String(model.scooter_type.id) : ''),
+        sort_order: model.sort_order?.toString() || '0',
       });
       setImagePreview(model.image_path || null);
+      setShouldDeleteImage(false);
     } else {
       setEditingModel(null);
       setFormData({
         name: '',
         scooter_type_id: '',
+        sort_order: '0',
       });
       setImagePreview(null);
+      setShouldDeleteImage(false);
     }
     setImageFile(null);
     setIsModalOpen(true);
@@ -101,6 +107,7 @@ const ScooterModelsPage: React.FC = () => {
     setFormData({
       name: '',
       scooter_type_id: '',
+      sort_order: '0',
     });
     setImageFile(null);
     setImagePreview(null);
@@ -113,6 +120,7 @@ const ScooterModelsPage: React.FC = () => {
       const data = {
         name: formData.name,
         scooter_type_id: parseInt(formData.scooter_type_id),
+        sort_order: formData.sort_order ? parseInt(formData.sort_order, 10) : 0,
       };
 
       if (editingModel) {
@@ -305,13 +313,14 @@ const ScooterModelsPage: React.FC = () => {
                 <th className="px-6 py-5">機車型號</th>
                 <th className="px-6 py-5">車型類型</th>
                 <th className="px-6 py-5">顏色</th>
+                <th className="px-6 py-5">順序</th>
                 <th className="px-6 py-5 text-center">操作</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {filteredModels.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
+                  <td colSpan={6} className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
                     目前沒有機車型號資料
                   </td>
                 </tr>
@@ -366,6 +375,11 @@ const ScooterModelsPage: React.FC = () => {
                       ) : (
                         <span className="text-gray-400 dark:text-gray-500">-</span>
                       )}
+                    </td>
+                    <td className="px-6 py-5">
+                      <span className="text-gray-700 dark:text-gray-300 font-bold">
+                        {model.sort_order ?? 0}
+                      </span>
                     </td>
                     <td className="px-6 py-5 text-center">
                       <div className="relative">
@@ -496,6 +510,28 @@ const ScooterModelsPage: React.FC = () => {
                     </div>
                   ) : null;
                 })()}
+              </div>
+              <div>
+                <label className={labelClasses}>
+                  排序順序
+                </label>
+                <input
+                  type="number"
+                  className={inputClasses}
+                  value={formData.sort_order}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value === '' || /^\d+$/.test(value)) {
+                      setFormData({ ...formData, sort_order: value });
+                    }
+                  }}
+                  placeholder="0"
+                  min="0"
+                  step="1"
+                />
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  數字越大越靠前，預設為 0
+                </p>
               </div>
               <div>
                 <label className={labelClasses}>圖片</label>

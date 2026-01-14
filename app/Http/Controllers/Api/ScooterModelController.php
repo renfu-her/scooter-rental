@@ -56,6 +56,7 @@ class ScooterModelController extends Controller
             'name' => 'required|string|max:255|unique:scooter_models,name',
             'scooter_type_id' => 'required|exists:scooter_types,id',
             'image' => 'nullable|image|mimes:jpeg,jpg,png,gif,webp|max:5120',
+            'sort_order' => 'nullable|integer|min:0',
         ], [
             'name.required' => '請輸入機車型號名稱',
             'name.unique' => '此機車型號名稱已被使用',
@@ -125,6 +126,7 @@ class ScooterModelController extends Controller
             'scooter_type_id' => 'sometimes|required|exists:scooter_types,id',
             'image' => 'nullable|image|mimes:jpeg,jpg,png,gif,webp|max:5120',
             'image_path' => 'nullable',
+            'sort_order' => 'nullable|integer|min:0',
         ], [
             'name.required' => '請輸入機車型號名稱',
             'name.unique' => '此機車型號名稱已被使用',

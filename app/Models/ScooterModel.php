@@ -14,6 +14,7 @@ class ScooterModel extends Model
         'scooter_type_id',
         'type',
         'image_path',
+        'sort_order',
     ];
 
     /**

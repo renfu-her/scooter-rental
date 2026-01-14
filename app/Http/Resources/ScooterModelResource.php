@@ -28,6 +28,7 @@ class ScooterModelResource extends JsonResource
             'type' => $this->type,
             'image_path' => $this->image_path ? asset('storage/' . $this->image_path) : null,
             'color' => $this->color, // 從 scooterType 取得
+            'sort_order' => $this->sort_order ?? 0,
             'label' => $this->name . ' ' . $this->type, // 組合顯示：例如 "ES-2000 白牌"
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
