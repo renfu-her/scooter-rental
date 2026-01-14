@@ -651,13 +651,13 @@ class OrderController extends Controller
                         ? "{$fee->scooterModel->name} {$fee->scooterModel->type}"
                         : null;
                 })->filter();
-            });
+                });
 
-        dd('Step 3: 調車費用載入完成', [
-            'transferFeesMap_count' => $transferFeesMap->count(),
-            'transferFeesMap_keys' => $transferFeesMap->keys(),
-            'first_partner_fees' => $transferFeesMap->first(),
-        ]);
+        // dd('Step 3: 調車費用載入完成', [
+        //     'transferFeesMap_count' => $transferFeesMap->count(),
+        //     'transferFeesMap_keys' => $transferFeesMap->keys(),
+        //     'first_partner_fees' => $transferFeesMap->first(),
+        // ]);
 
         // Step 4: 查詢訂單
         $orders = Order::with(['partner', 'scooters.scooterModel'])
