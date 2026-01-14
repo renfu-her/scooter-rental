@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Search, Plus, Filter, FileText, ChevronLeft, ChevronRight, MoreHorizontal, Bike, X, TrendingUp, Loader2, Edit3, Trash2, ChevronDown, ChevronUp, Download, Bell, XCircle } from 'lucide-react';
 import AddOrderModal from '../components/AddOrderModal';
 import ConvertBookingModal from '../components/ConvertBookingModal';
-import { ordersApi, partnersApi, bookingsApi, rentalPlansApi } from '../lib/api';
+import { ordersApi, partnersApi, bookingsApi, rentalPlansApi, scooterModelsApi } from '../lib/api';
 import * as XLSX from 'xlsx';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
@@ -46,6 +46,21 @@ const StatsModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statis
       const selectedMonthString = stats.month;
       const [year, month] = selectedMonthString.split('-');
       
+      // 獲取所有機車型號（從機車型號管理）
+      const scooterModelsResponse = await scooterModelsApi.list();
+      const allScooterModels = scooterModelsResponse.data || [];
+      
+      // 按照 sort_order 降序排序，然後轉換為 "name type" 格式
+      const allModels = allScooterModels
+        .sort((a: any, b: any) => (b.sort_order || 0) - (a.sort_order || 0))
+        .map((model: any) => `${model.name} ${model.type}`);
+      
+      if (allModels.length === 0) {
+        alert('沒有機車型號資料可匯出');
+        setIsExporting(false);
+        return;
+      }
+      
       // 獲取合作商詳細日報表數據
       const response = await ordersApi.partnerDailyReport(selectedMonthString, partnerId);
       const data = response.data || { partners: [], models: [] };
@@ -53,37 +68,17 @@ const StatsModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statis
       // 找到對應的合作商數據
       const partnerData = data.partners?.find((p: any) => p.partner_name === partnerName);
       
-      if (!partnerData || !partnerData.dates || partnerData.dates.length === 0) {
-        alert(`合作商「${partnerName}」在該月份沒有有費用的訂單資料可匯出`);
-        setIsExporting(false);
-        return;
-      }
-
-      // 過濾掉沒有費用的日期（只導出有費用的部分）
-      const dates = (partnerData.dates || []).filter((dateItem: any) => {
-        // 檢查該日期是否有任何型號有費用
-        if (!dateItem.models || Object.keys(dateItem.models).length === 0) {
-          return false;
-        }
-        // 檢查是否有任何型號有費用（當日租或跨日租）
-        return Object.values(dateItem.models).some((modelData: any) => 
-          (modelData.same_day_amount > 0) || (modelData.overnight_amount > 0)
-        );
-      });
-
+      // 使用所有日期（1號到當月最後一天），即使沒有費用也要顯示
+      const dates = partnerData?.dates || [];
+      
       if (dates.length === 0) {
-        alert(`合作商「${partnerName}」在該月份沒有有費用的訂單資料可匯出`);
+        alert(`合作商「${partnerName}」在該月份沒有日期資料可匯出`);
         setIsExporting(false);
         return;
       }
 
-      const models = data.models || [];
-
-      if (models.length === 0) {
-        alert(`合作商「${partnerName}」在該月份沒有機車型號資料可匯出`);
-        setIsExporting(false);
-        return;
-      }
+      // 使用所有機車型號，而不是只使用有訂單的型號
+      const models = allModels;
 
       // 星期對應表
       const weekdayMap: Record<string, string> = {
@@ -100,45 +95,58 @@ const StatsModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statis
       const wb = XLSX.utils.book_new();
       const ws = XLSX.utils.aoa_to_sheet([]);
 
-      // 第一行：標題
-      const titleRow: any[] = [`${partnerName}機車出租日報表`];
+      // 第一行：標題（行動潛水）
+      const titleRow: any[] = ['行動潛水'];
+      // 計算總列數：日期(1) + 星期(1) + 當日租200/台(1) + 跨日租300/台(1) + 每個型號(4列)
+      const totalCols = 2 + 2 + models.length * 4;
+      // 標題跨越多列（從A1開始，跨越多列）
       XLSX.utils.sheet_add_aoa(ws, [titleRow], { origin: 'A1' });
+      // 合併標題單元格（A1 到最後一列）
+      if (!ws['!merges']) ws['!merges'] = [];
+      ws['!merges'].push({ s: { r: 0, c: 0 }, e: { r: 0, c: totalCols - 1 } });
       
-      // 第二行：月份
-      const monthRow: any[] = [`${year}年${String(parseInt(month)).padStart(2, '0')}月`];
-      XLSX.utils.sheet_add_aoa(ws, [monthRow], { origin: 'A2' });
-      
-      // 第三行：空行
-      
-      // 第四行開始：表頭
-      const headerRow1: any[] = ['日期', '星期'];
+      // 第二行：當日租 200/台、跨日租 300/台，然後是機車型號
+      const headerRow1: any[] = ['當日租 200/台', '跨日租 300/台'];
       models.forEach((model: string) => {
-        headerRow1.push(model, '', '', '', '', '', ''); // 每個車型佔7列：當日租(台數、天數、金額) + 跨日租(台數、天數、金額) + 空
+        headerRow1.push(model, '', '', ''); // 每個車型佔4列
       });
-      XLSX.utils.sheet_add_aoa(ws, [headerRow1], { origin: 'A4' });
-      
-      // 第二層表頭：當日租、跨日租
-      const headerRow2: any[] = ['', ''];
+      XLSX.utils.sheet_add_aoa(ws, [headerRow1], { origin: 'A2' });
+      // 合併第二行的機車型號單元格（每個型號跨4列）
+      let modelCol = 4; // 從第5列開始（索引4，因為前面有日期、星期、當日租200/台、跨日租300/台）
       models.forEach(() => {
-        headerRow2.push('當日租', '', '', '跨日租', '', '', '');
+        ws['!merges'].push({ s: { r: 1, c: modelCol }, e: { r: 1, c: modelCol + 3 } });
+        modelCol += 4; // 每個型號佔4列
       });
-      XLSX.utils.sheet_add_aoa(ws, [headerRow2], { origin: 'A5' });
       
-      // 第三層表頭：台數、天數、金額
-      const headerRow3: any[] = ['', ''];
+      // 第三行：日期、星期，然後每個型號下分為當日租(1列)和跨日租(3列)
+      const headerRow2: any[] = ['日期', '星期', '', ''];
       models.forEach(() => {
-        headerRow3.push('台數', '天數', '金額', '台數', '天數', '金額', '');
+        headerRow2.push('當日租', '跨日租', '', ''); // 當日租1列，跨日租3列（合併顯示）
       });
-      XLSX.utils.sheet_add_aoa(ws, [headerRow3], { origin: 'A6' });
+      XLSX.utils.sheet_add_aoa(ws, [headerRow2], { origin: 'A3' });
+      // 合併第三行的「跨日租」單元格（每個型號的跨日租跨3列）
+      let currentCol = 4; // 從第5列開始（索引4，因為前面有日期、星期、當日租200/台、跨日租300/台）
+      models.forEach(() => {
+        // 當日租在 currentCol，跨日租從 currentCol+1 開始，跨3列
+        ws['!merges'].push({ s: { r: 2, c: currentCol + 1 }, e: { r: 2, c: currentCol + 3 } });
+        currentCol += 4; // 每個型號佔4列
+      });
       
-      // 數據行（從第7行開始）
+      // 第四行：空白、空白、空白、空白，然後每個型號下：當日租只有台數(1列)，跨日租有台數、天數、金額(3列)
+      const headerRow3: any[] = ['', '', '', ''];
+      models.forEach(() => {
+        headerRow3.push('台數', '台數', '天數', '金額'); // 當日租：台數(1列)，跨日租：台數、天數、金額(3列)
+      });
+      XLSX.utils.sheet_add_aoa(ws, [headerRow3], { origin: 'A4' });
+      
+      // 數據行（從第5行開始）
       dates.forEach((dateItem: any, index: number) => {
         const dateStr = dateItem.date;
         const dateObj = new Date(dateStr + 'T00:00:00');
         const formattedDate = `${dateObj.getFullYear()}年${String(dateObj.getMonth() + 1).padStart(2, '0')}月${String(dateObj.getDate()).padStart(2, '0')}日`;
         const weekday = weekdayMap[dateItem.weekday] || dateItem.weekday;
         
-        const dataRow: any[] = [formattedDate, weekday];
+        const dataRow: any[] = [formattedDate, weekday, '', '']; // 日期、星期、空白、空白
         
         models.forEach((model: string) => {
           const modelData = dateItem.models?.[model] || {
@@ -150,34 +158,28 @@ const StatsModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statis
             overnight_amount: 0,
           };
           
-          // 只導出有費用的部分
+          // 如果有費用則顯示數據，否則顯示空白
           const hasSameDayFee = modelData.same_day_amount > 0;
           const hasOvernightFee = modelData.overnight_amount > 0;
           
-          if (hasSameDayFee || hasOvernightFee) {
-            dataRow.push(
-              hasSameDayFee ? (modelData.same_day_count || 0) : '',
-              hasSameDayFee ? (modelData.same_day_days || 0) : '',
-              hasSameDayFee ? (modelData.same_day_amount || 0) : '',
-              hasOvernightFee ? (modelData.overnight_count || 0) : '',
-              hasOvernightFee ? (modelData.overnight_days || 0) : '',
-              hasOvernightFee ? (modelData.overnight_amount || 0) : '',
-              ''
-            );
-          } else {
-            // 沒有費用，留空
-            dataRow.push('', '', '', '', '', '', '');
-          }
+          // 當日租：只有台數(1列)
+          // 跨日租：台數、天數、金額(3列)
+          dataRow.push(
+            hasSameDayFee ? (modelData.same_day_count || 0) : '', // 當日租 台數
+            hasOvernightFee ? (modelData.overnight_count || 0) : '', // 跨日租 台數
+            hasOvernightFee ? (modelData.overnight_days || 0) : '', // 跨日租 天數
+            hasOvernightFee ? (modelData.overnight_amount || 0) : '' // 跨日租 金額
+          );
         });
         
-        XLSX.utils.sheet_add_aoa(ws, [dataRow], { origin: `A${7 + index}` });
+        XLSX.utils.sheet_add_aoa(ws, [dataRow], { origin: `A${5 + index}` });
       });
       
       // 月結總計（在數據行之後）
-      const summaryStartRow = 7 + dates.length;
+      const summaryStartRow = 5 + dates.length;
       
       // 總台數/天數行
-      const totalRow: any[] = ['月結總計', '總台數/天數'];
+      const totalRow: any[] = ['月結總計', '總台數/天數', '', '']; // 日期、星期、當日租200/台、跨日租300/台
       let grandTotalAmount = 0;
       
       models.forEach((model: string) => {
@@ -207,22 +209,19 @@ const StatsModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statis
         
         grandTotalAmount += modelSameDayTotalAmount + modelOvernightTotalAmount;
         
-        // 只顯示有費用的部分
+        // 每個型號：當日租台數、跨日租台數、跨日租天數、跨日租金額
         totalRow.push(
-          modelSameDayTotalCount > 0 ? modelSameDayTotalCount : '',
-          modelSameDayTotalDays > 0 ? modelSameDayTotalDays : '',
-          modelSameDayTotalAmount > 0 ? modelSameDayTotalAmount : '',
-          modelOvernightTotalCount > 0 ? modelOvernightTotalCount : '',
-          modelOvernightTotalDays > 0 ? modelOvernightTotalDays : '',
-          modelOvernightTotalAmount > 0 ? modelOvernightTotalAmount : '',
-          ''
+          modelSameDayTotalCount > 0 ? modelSameDayTotalCount : '', // 當日租 台數
+          modelOvernightTotalCount > 0 ? modelOvernightTotalCount : '', // 跨日租 台數
+          modelOvernightTotalDays > 0 ? modelOvernightTotalDays : '', // 跨日租 天數
+          modelOvernightTotalAmount > 0 ? modelOvernightTotalAmount : '' // 跨日租 金額
         );
       });
       
       XLSX.utils.sheet_add_aoa(ws, [totalRow], { origin: `A${summaryStartRow}` });
       
       // 小計行
-      const subtotalRow: any[] = ['', '小計'];
+      const subtotalRow: any[] = ['', '小計', '', '']; // 日期、星期、當日租200/台、跨日租300/台
       models.forEach((model: string) => {
         let modelTotalAmount = 0;
         dates.forEach((dateItem: any) => {
@@ -232,18 +231,19 @@ const StatsModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statis
           };
           modelTotalAmount += (modelData.same_day_amount || 0) + (modelData.overnight_amount || 0);
         });
-        subtotalRow.push('', '', modelTotalAmount > 0 ? modelTotalAmount : '', '', '', modelTotalAmount > 0 ? modelTotalAmount : '', '');
+        // 每個型號：空白、空白、小計金額、空白（小計金額顯示在跨日租金額欄位）
+        subtotalRow.push('', '', '', modelTotalAmount > 0 ? modelTotalAmount : '');
       });
       
       XLSX.utils.sheet_add_aoa(ws, [subtotalRow], { origin: `A${summaryStartRow + 1}` });
       
       // 總金額行
-      const grandTotalRow: any[] = ['', '總金額'];
-      // 總金額顯示在第一個型號的金額欄位
-      grandTotalRow.push('', '', grandTotalAmount, '', '', '', '');
+      const grandTotalRow: any[] = ['', '總金額', '', '']; // 日期、星期、當日租200/台、跨日租300/台
+      // 總金額顯示在第一個型號的跨日租金額欄位
+      grandTotalRow.push('', '', '', grandTotalAmount);
       // 其他型號的欄位留空
       for (let i = 1; i < models.length; i++) {
-        grandTotalRow.push('', '', '', '', '', '', '');
+        grandTotalRow.push('', '', '', '');
       }
       
       XLSX.utils.sheet_add_aoa(ws, [grandTotalRow], { origin: `A${summaryStartRow + 2}` });
@@ -252,17 +252,16 @@ const StatsModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statis
       const colWidths: any[] = [
         { wch: 18 }, // 日期
         { wch: 10 }, // 星期
+        { wch: 15 }, // 當日租 200/台
+        { wch: 15 }, // 跨日租 300/台
       ];
       
       models.forEach(() => {
         colWidths.push(
           { wch: 10 }, // 當日租 台數
-          { wch: 10 }, // 當日租 天數
-          { wch: 12 }, // 當日租 金額
           { wch: 10 }, // 跨日租 台數
           { wch: 10 }, // 跨日租 天數
-          { wch: 12 }, // 跨日租 金額
-          { wch: 5 }   // 空列
+          { wch: 12 }  // 跨日租 金額
         );
       });
       
