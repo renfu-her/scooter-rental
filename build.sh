@@ -43,37 +43,15 @@ fi
 echo "✓ Git 更新完成"
 echo ""
 
-echo "[3/9] 清除 Laravel 快取（避免舊配置衝突）..."
+# 現在可以安全地執行 artisan 命令
 php artisan config:clear 2>/dev/null || true
 php artisan cache:clear 2>/dev/null || true
 php artisan route:clear 2>/dev/null || true
 php artisan view:clear 2>/dev/null || true
-# 清除快取的配置檔案
-if [ -f "bootstrap/cache/config.php" ]; then
-    rm -f bootstrap/cache/config.php
-    echo "  ✓ 已清除快取的配置檔案"
-fi
 echo "✓ Laravel 快取清除完成"
 echo ""
 
-echo "[4/9] 安裝 Composer 依賴..."
-# 先清理 vendor 目錄以避免依賴衝突
-if [ -d "vendor" ]; then
-    rm -rf vendor
-    echo "  ✓ 已清理舊的 vendor 目錄"
-fi
-# 使用 --no-scripts 避免執行可能依賴 dev 套件的腳本
-composer install --no-dev --no-scripts --optimize-autoloader
-if [ $? -ne 0 ]; then
-    echo "✗ 警告：Composer 安裝失敗，繼續執行..."
-else
-    # 安裝完成後重新生成 autoload
-    composer dump-autoload --optimize --no-dev
-fi
-echo "✓ Composer 依賴安裝完成"
-echo ""
-
-echo "[5/9] 資料庫遷移..."
+echo "[3/9] 資料庫遷移..."
 php artisan migrate
 if [ $? -ne 0 ]; then
     echo "✗ 警告：資料庫遷移失敗，繼續執行..."
@@ -81,7 +59,7 @@ fi
 echo "✓ 資料庫遷移完成"
 echo ""
 
-echo "[6/9] 清除並快取 Laravel 路由..."
+echo "[4/9] 清除並快取 Laravel 路由..."
 php artisan route:clear
 php artisan route:cache
 if [ $? -ne 0 ]; then
@@ -90,7 +68,7 @@ fi
 echo "✓ 路由快取完成"
 echo ""
 
-echo "[7/9] 清除並快取 Laravel 配置..."
+echo "[5/9] 清除並快取 Laravel 配置..."
 php artisan config:clear
 php artisan config:cache
 if [ $? -ne 0 ]; then
@@ -99,7 +77,7 @@ fi
 echo "✓ 配置快取完成"
 echo ""
 
-echo "[8/9] 清除後端 React 緩存..."
+echo "[6/9] 清除後端 React 緩存..."
 cd "$PROJECT_DIR/system/backend"
 if [ $? -ne 0 ]; then
     echo "✗ 錯誤：無法進入後端目錄"
@@ -118,7 +96,7 @@ fi
 echo "✓ 後端緩存清除完成"
 echo ""
 
-echo "[8/9] 構建後端 (React)..."
+echo "[7/9] 構建後端 (React)..."
 # 設置 production 環境變數
 if [ "$MODE" = "production" ]; then
     export VITE_API_BASE_URL=https://languangsmart.com/api
@@ -134,7 +112,7 @@ fi
 echo "✓ 後端構建完成"
 echo ""
 
-echo "[10/10] 清除前端 React 緩存..."
+echo "[8/9] 清除前端 React 緩存..."
 cd "$PROJECT_DIR/system/frontend"
 if [ $? -ne 0 ]; then
     echo "✗ 錯誤：無法進入前端目錄"
@@ -153,7 +131,7 @@ fi
 echo "✓ 前端緩存清除完成"
 echo ""
 
-echo "[11/11] 構建前端 (React)..."
+echo "[9/9] 構建前端 (React)..."
 # 設置 production 環境變數
 if [ "$MODE" = "production" ]; then
     export VITE_API_BASE_URL=https://languangsmart.com/api
