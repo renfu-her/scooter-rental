@@ -1,5 +1,32 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-14 14:15:11 - 修正部署腳本：添加 Composer 依賴安裝步驟
+
+### 變更內容
+
+#### 部署腳本
+- **build.sh** (`build.sh`)
+  - 在 Git 更新後、資料庫遷移前添加 `composer install --no-dev --optimize-autoloader` 步驟
+  - 更新所有步驟編號從 [1/9] 到 [1/10] 到 [10/10]
+  - 確保在執行任何 artisan 命令前，所有 Composer 依賴都已正確安裝
+
+### 問題說明
+- 部署時出現 PHP Fatal Error: `Class "SebastianBergmann\Version" not found`
+- 錯誤發生在執行 `php artisan migrate`、`php artisan route:cache`、`php artisan config:cache` 等命令時
+- 原因是 `vendor` 目錄中的依賴不完整，缺少 `sebastian/version` 套件（PHPUnit 的依賴）
+- 當添加了新的套件（如 `maatwebsite/excel`）後，需要在部署時執行 `composer install` 來安裝所有依賴
+
+### 技術細節
+- 使用 `composer install --no-dev --optimize-autoloader` 來：
+  - `--no-dev`: 不安裝開發依賴（減少部署時間和空間）
+  - `--optimize-autoloader`: 優化自動載入器（提升性能）
+- 執行順序：
+  1. Git pull
+  2. **Composer install**（新增）
+  3. 清除 Laravel 快取
+  4. 資料庫遷移
+  5. 其他部署步驟
+
 ## 2026-01-14 12:25:01 (+8) - 添加 Excel 匯出錯誤處理和日誌記錄
 
 ### 變更內容
