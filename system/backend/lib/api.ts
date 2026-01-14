@@ -354,6 +354,8 @@ export const ordersApi = {
   monthlyReport: (month: string) => api.get('/orders/monthly-report', { month }),
   partnerDailyReport: (month: string, partnerId?: number, format?: 'excel' | 'json') => 
     api.get('/orders/partner-daily-report', { month, partner_id: partnerId, format }),
+  partnerMonthlyStatistics: (month: string) =>
+    api.get('/orders/partner-monthly-statistics', { month }),
   downloadPartnerMonthlyReport: (month: string, partnerId: number, filename?: string) =>
     api.downloadFile('/orders/partner-daily-report', { month, partner_id: partnerId }, filename),
   getYears: () => api.get<number[]>('/orders/years'),

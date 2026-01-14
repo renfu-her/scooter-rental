@@ -1,5 +1,70 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-14 20:44:05 (+8) - 新增前端合作商單月統計 API（按日期分組）
+
+### 變更內容
+
+#### 新增 API 端點
+- **OrderController.php** (`app/Http/Controllers/Api/OrderController.php`)
+  - 新增 `partnerMonthlyStatistics()` 方法
+  - 提供前端合作商單月統計功能，返回 JSON 格式
+  - 分合作商統計，按日期和機車型號計算費用
+
+- **api.php** (`routes/api.php`)
+  - 新增路由：`GET /api/orders/partner-monthly-statistics`
+
+### 功能說明
+- **分合作商統計**：按 `orders.partner_id` 分組統計
+- **按日期分組**：返回該月份每一天的數據（包含所有日期，即使沒有訂單）
+- **計算天數邏輯**：
+  - 同一天算 1 天（當日租）
+  - 超過 1 天，直接減 1（跨日租）
+  - 例如：1/1-1/1=1天, 1/1-1/2=1天(2-1), 1/1-1/3=2天(3-1)
+- **費用計算**：使用跨日租費用（`overnight_transfer_fee`）
+- **計算公式**：機車型號數量 × 合作商機車型號的金額 × 天數
+- **使用的表**：`orders`, `order_scooter`, `scooters`
+- **Header**：使用 `scooter_models` 表產生所有機車型號列表
+
+### 技術細節
+- 查詢該月份的所有訂單（`start_time` 在該月份範圍內）
+- 透過 `order_scooter.scooter_id` 關聯到 `scooters` 表取得 `model`
+- 按合作商、日期和機車型號分組統計
+- 使用 `start_time` 的日期作為分組鍵
+- 返回格式：
+  ```json
+  {
+    "data": {
+      "partners": [
+        {
+          "partner_id": 1,
+          "partner_name": "合作商名稱",
+          "dates": [
+            {
+              "date": "2026-01-01",
+              "weekday": "Wednesday",
+              "models": [
+                {
+                  "model": "ES-1000 綠牌",
+                  "count": 3,
+                  "days": 1,
+                  "amount": 300
+                }
+              ]
+            },
+            {
+              "date": "2026-01-02",
+              "weekday": "Thursday",
+              "models": []
+            }
+          ]
+        }
+      ],
+      "headers": ["ES-1000 綠牌", "ES-2000 白牌", ...]
+    },
+    "month": "2026-01"
+  }
+  ```
+
 ## 2026-01-14 17:46:36 (+8) - OrderScooter 移除所有 ScooterModel 相關邏輯
 
 ### 變更內容

@@ -72,6 +72,7 @@ Route::prefix('orders')->group(function () {
     Route::get('/statistics', [OrderController::class, 'statistics']);
     Route::get('/monthly-report', [OrderController::class, 'monthlyReport']);
     Route::get('/partner-daily-report', [OrderController::class, 'partnerDailyReport']);
+    Route::get('/partner-monthly-statistics', [OrderController::class, 'partnerMonthlyStatistics']);
     Route::get('/years', [OrderController::class, 'getYears']);
     Route::get('/months', [OrderController::class, 'getMonthsByYear']);
     Route::get('/{order}', [OrderController::class, 'show'])->where('order', '[0-9]+');

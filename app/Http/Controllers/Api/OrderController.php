@@ -843,5 +843,160 @@ class OrderController extends Controller
             ],
         ]);
     }
+
+    /**
+     * 前端合作商單月統計 API
+     * 分合作商統計，返回 JSON 格式
+     * 計算公式：機車型號數量 * 合作商機車型號的金額 * 天數
+     */
+    public function partnerMonthlyStatistics(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'month' => 'required|date_format:Y-m',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation error',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $month = $request->get('month');
+        $monthStartDate = Carbon::parse($month . '-01')->timezone('Asia/Taipei')->startOfMonth();
+        $monthEndDate = Carbon::parse($month . '-01')->timezone('Asia/Taipei')->endOfMonth();
+
+        // 步驟 1: 獲取所有機車型號（用於 header）
+        $allScooterModels = ScooterModel::orderBy('sort_order', 'desc')->get();
+        $headers = $allScooterModels->map(fn($model) => "{$model->name} {$model->type}")->toArray();
+
+        // 步驟 2: 預載入所有合作商的調車費用（跨日租）
+        $transferFeesMap = PartnerScooterModelTransferFee::with('scooterModel')
+            ->get()
+            ->groupBy('partner_id')
+            ->map(function ($fees) {
+                return $fees->keyBy(function ($fee) {
+                    return $fee->scooterModel
+                        ? "{$fee->scooterModel->name} {$fee->scooterModel->type}"
+                        : null;
+                })->filter();
+            });
+
+        // 步驟 3: 查詢該月份的所有訂單
+        $orders = Order::whereNotNull('start_time')
+            ->whereNotNull('end_time')
+            ->whereNotNull('partner_id')
+            ->whereBetween('start_time', [$monthStartDate, $monthEndDate])
+            ->get();
+
+        // 步驟 4: 生成完整月份日期列表
+        $allDates = collect();
+        $currentDate = $monthStartDate->copy();
+        while ($currentDate->lte($monthEndDate)) {
+            $allDates->push($currentDate->format('Y-m-d'));
+            $currentDate->addDay();
+        }
+
+        // 步驟 5: 按合作商分組處理，並按日期分組
+        $partnersData = $orders->groupBy('partner_id')->map(function ($partnerOrders, $partnerId) use ($transferFeesMap, $allDates, $monthStartDate, $monthEndDate) {
+            $firstOrder = $partnerOrders->first();
+            $partnerName = $firstOrder->partner->name ?? '無合作商';
+
+            // 按日期分組處理每個訂單
+            $datesData = collect();
+            
+            foreach ($partnerOrders as $order) {
+                $startTime = Carbon::parse($order->start_time)->timezone('Asia/Taipei');
+                $endTime = Carbon::parse($order->end_time)->timezone('Asia/Taipei');
+                
+                // 計算天數：
+                // - 同一天算 1 天（當日租）
+                // - 超過 1 天，直接減 1（跨日租）
+                // 例如：1/1-1/1=1天, 1/1-1/2=1天(2-1), 1/1-1/3=2天(3-1)
+                $isSameDay = $startTime->isSameDay($endTime);
+                if ($isSameDay) {
+                    $days = 1;
+                } else {
+                    $diffDays = $startTime->diffInDays($endTime);
+                    $days = max(1, $diffDays - 1);
+                }
+
+                // 查詢該訂單的所有 order_scooter 記錄
+                $orderScooters = OrderScooter::where('order_id', '=', $order->id)
+                    ->with(['scooter'])
+                    ->get();
+
+                // 按機車型號分組
+                $orderScooters->groupBy(function ($orderScooter) {
+                    return $orderScooter->model_string;
+                })->filter(function ($orderScooters, $modelString) {
+                    return !empty($modelString);
+                })->each(function ($orderScooters, $modelString) use ($datesData, $startTime, $days, $transferFeesMap, $partnerId) {
+                    // 計算該 model 的台數
+                    $scooterCount = $orderScooters->count();
+
+                    // 獲取合作商的機車型號跨日租單價
+                    $feeKey = $transferFeesMap->get($partnerId)?->get($modelString);
+                    $transferFeePerUnit = $feeKey ? ($feeKey->overnight_transfer_fee ?? 0) : 0;
+
+                    // 計算費用：機車型號數量 * 合作商機車型號的金額 * 天數
+                    $amount = (int) $scooterCount * $transferFeePerUnit * $days;
+
+                    // 使用 start_time 的日期作為 key
+                    $dateKey = $startTime->format('Y-m-d');
+
+                    // 初始化該日期的數據
+                    if (!$datesData->has($dateKey)) {
+                        $datesData->put($dateKey, collect());
+                    }
+
+                    $dateModels = $datesData->get($dateKey);
+
+                    // 累加到該日期該 model 的數據
+                    if ($dateModels->has($modelString)) {
+                        $existing = $dateModels->get($modelString);
+                        $dateModels->put($modelString, [
+                            'model' => $modelString,
+                            'count' => $existing['count'] + $scooterCount,
+                            'days' => $existing['days'] + $days,
+                            'amount' => $existing['amount'] + $amount,
+                        ]);
+                    } else {
+                        $dateModels->put($modelString, [
+                            'model' => $modelString,
+                            'count' => $scooterCount,
+                            'days' => $days,
+                            'amount' => $amount,
+                        ]);
+                    }
+                });
+            }
+
+            // 生成完整日期列表，包含每一天的數據
+            $dates = $allDates->map(function ($dateStr) use ($datesData) {
+                $dateModels = $datesData->get($dateStr, collect());
+                
+                return [
+                    'date' => $dateStr,
+                    'weekday' => Carbon::parse($dateStr)->format('l'),
+                    'models' => $dateModels->values()->toArray(),
+                ];
+            })->toArray();
+
+            return [
+                'partner_id' => $partnerId,
+                'partner_name' => $partnerName,
+                'dates' => $dates,
+            ];
+        })->values();
+
+        return response()->json([
+            'data' => [
+                'partners' => $partnersData->toArray(),
+                'headers' => $headers,
+            ],
+            'month' => $month,
+        ]);
+    }
 }
 

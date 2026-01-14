@@ -373,6 +373,198 @@ const StatsModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statis
   );
 };
 
+// 合作商分類 Modal
+interface PartnerMonthlyStatisticsData {
+  partners: Array<{
+    partner_id: number;
+    partner_name: string;
+    dates: Array<{
+      date: string;
+      weekday: string;
+      models: Array<{
+        model: string;
+        count: number;
+        days: number;
+        amount: number;
+      }>;
+    }>;
+  }>;
+  headers: string[];
+}
+
+const PartnerCategoryModal: React.FC<{ 
+  isOpen: boolean; 
+  onClose: () => void; 
+  month: string;
+}> = ({ isOpen, onClose, month }) => {
+  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState<PartnerMonthlyStatisticsData | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isOpen && month) {
+      fetchData();
+    }
+  }, [isOpen, month]);
+
+  const fetchData = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await ordersApi.partnerMonthlyStatistics(month);
+      setData(response.data);
+    } catch (err: any) {
+      console.error('獲取合作商分類數據失敗:', err);
+      setError(err.response?.data?.message || '獲取數據失敗，請稍後再試');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!isOpen) return null;
+
+  const weekdayMap: Record<string, string> = {
+    'Monday': '星期一',
+    'Tuesday': '星期二',
+    'Wednesday': '星期三',
+    'Thursday': '星期四',
+    'Friday': '星期五',
+    'Saturday': '星期六',
+    'Sunday': '星期日',
+  };
+
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-6xl relative animate-in fade-in zoom-in duration-200 overflow-hidden flex flex-col max-h-[90vh]">
+        <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+          <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 flex items-center">
+            <TrendingUp size={20} className="mr-2 text-blue-600 dark:text-blue-400" />
+            合作商單月分類統計
+          </h2>
+          <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full text-gray-400 dark:text-gray-500">
+            <X size={20} />
+          </button>
+        </div>
+        <div className="p-6 overflow-y-auto flex-1">
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 size={32} className="animate-spin text-blue-600" />
+            </div>
+          ) : error ? (
+            <div className="flex flex-col items-center justify-center py-12">
+              <XCircle size={48} className="text-red-500 mb-4" />
+              <p className="text-red-600 dark:text-red-400">{error}</p>
+            </div>
+          ) : data && data.partners.length > 0 ? (
+            <div className="space-y-6">
+              {data.partners.map((partner) => {
+                // 只顯示有 partner_id 的合作商
+                if (!partner.partner_id) return null;
+
+                const totalCount = partner.dates.reduce((sum, date) => 
+                  sum + date.models.reduce((s, m) => s + m.count, 0), 0
+                );
+                const totalAmount = partner.dates.reduce((sum, date) => 
+                  sum + date.models.reduce((s, m) => s + m.amount, 0), 0
+                );
+
+                return (
+                  <div key={partner.partner_id} className="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
+                    <div className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-4 border-b border-gray-200 dark:border-gray-700">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100">
+                          {partner.partner_name}
+                        </h3>
+                        <div className="flex items-center space-x-4 text-sm">
+                          <span className="text-gray-600 dark:text-gray-400">
+                            總台數: <span className="font-bold text-gray-800 dark:text-gray-100">{totalCount}</span>
+                          </span>
+                          <span className="text-gray-600 dark:text-gray-400">
+                            總金額: <span className="font-bold text-green-600 dark:text-green-400">${totalAmount.toLocaleString()}</span>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead className="bg-gray-50 dark:bg-gray-700/50">
+                          <tr>
+                            <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 border-r border-gray-200 dark:border-gray-600">
+                              日期
+                            </th>
+                            <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 border-r border-gray-200 dark:border-gray-600">
+                              星期
+                            </th>
+                            {data.headers.map((header) => (
+                              <th key={header} className="px-4 py-3 text-center text-xs font-bold text-gray-700 dark:text-gray-300 border-r border-gray-200 dark:border-gray-600">
+                                {header}
+                              </th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                          {partner.dates.map((dateItem) => {
+                            const dateObj = new Date(dateItem.date + 'T00:00:00');
+                            const formattedDate = `${dateObj.getFullYear()}/${String(dateObj.getMonth() + 1).padStart(2, '0')}/${String(dateObj.getDate()).padStart(2, '0')}`;
+                            const weekday = weekdayMap[dateItem.weekday] || dateItem.weekday;
+
+                            return (
+                              <tr key={dateItem.date} className="hover:bg-gray-50 dark:hover:bg-gray-700/30">
+                                <td className="px-4 py-3 text-gray-800 dark:text-gray-200 border-r border-gray-200 dark:border-gray-600 font-medium">
+                                  {formattedDate}
+                                </td>
+                                <td className="px-4 py-3 text-gray-600 dark:text-gray-400 border-r border-gray-200 dark:border-gray-600">
+                                  {weekday}
+                                </td>
+                                {data.headers.map((header) => {
+                                  const modelData = dateItem.models.find(m => m.model === header);
+                                  return (
+                                    <td key={header} className="px-4 py-3 text-center border-r border-gray-200 dark:border-gray-600">
+                                      {modelData ? (
+                                        <div className="space-y-1">
+                                          <div className="text-gray-800 dark:text-gray-200 font-medium">
+                                            台數: {modelData.count}
+                                          </div>
+                                          <div className="text-gray-600 dark:text-gray-400 text-xs">
+                                            天數: {modelData.days}
+                                          </div>
+                                          <div className="text-green-600 dark:text-green-400 font-bold">
+                                            ${modelData.amount.toLocaleString()}
+                                          </div>
+                                        </div>
+                                      ) : (
+                                        <span className="text-gray-400 dark:text-gray-500">-</span>
+                                      )}
+                                    </td>
+                                  );
+                                })}
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-12">
+              <p className="text-gray-500 dark:text-gray-400">該月份沒有合作商數據</p>
+            </div>
+          )}
+        </div>
+        <div className="p-4 bg-gray-50 dark:bg-gray-800/50 text-center border-t border-gray-100 dark:border-gray-700">
+          <p className="text-xs text-gray-400 dark:text-gray-500 italic">
+            統計月份：{month}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const ChartModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statistics | null }> = ({ isOpen, onClose, stats }) => {
   if (!isOpen || !stats) return null;
   
@@ -451,6 +643,7 @@ const OrdersPage: React.FC = () => {
   const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
   const [isChartModalOpen, setIsChartModalOpen] = useState(false);
   const [isConvertModalOpen, setIsConvertModalOpen] = useState(false);
+  const [isPartnerCategoryModalOpen, setIsPartnerCategoryModalOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<any>(null);
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
   const [selectedYear, setSelectedYear] = useState(() => {
@@ -1401,12 +1594,21 @@ const OrdersPage: React.FC = () => {
         <div className="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm flex items-center justify-between">
            <div>
               <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">合作商單月統計</p>
-              <button 
-                onClick={() => setIsStatsModalOpen(true)}
-                className="text-sm font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-500 transition-colors"
-              >
-                點擊彈出詳細視窗
-              </button>
+              <div className="flex items-center space-x-2">
+                <button 
+                  onClick={() => setIsStatsModalOpen(true)}
+                  className="text-sm font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-500 transition-colors"
+                >
+                  點擊彈出詳細視窗
+                </button>
+                <span className="text-gray-400">|</span>
+                <button 
+                  onClick={() => setIsPartnerCategoryModalOpen(true)}
+                  className="text-sm font-bold text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-500 transition-colors"
+                >
+                  合作商分類
+                </button>
+              </div>
            </div>
            <Filter size={24} className="text-blue-200 dark:text-blue-600" />
         </div>
@@ -1852,8 +2054,14 @@ const OrdersPage: React.FC = () => {
       })()}
 
       <StatsModal isOpen={isStatsModalOpen} onClose={() => setIsStatsModalOpen(false)} stats={stats} />
-
+      
       <ChartModal isOpen={isChartModalOpen} onClose={() => setIsChartModalOpen(false)} stats={stats} />
+
+      <PartnerCategoryModal 
+        isOpen={isPartnerCategoryModalOpen} 
+        onClose={() => setIsPartnerCategoryModalOpen(false)} 
+        month={selectedMonthString}
+      />
       
       {/* 狀態下拉選單使用 fixed 定位，避免被表格 overflow 裁剪 */}
       {openStatusDropdownId !== null && statusDropdownPosition && orders.find(o => o.id === openStatusDropdownId) && (
