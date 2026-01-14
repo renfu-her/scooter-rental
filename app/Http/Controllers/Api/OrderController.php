@@ -715,33 +715,41 @@ class OrderController extends Controller
                 $isSameDay = $startTime->isSameDay($endTime);
                 $days = $isSameDay ? 1 : $startTime->diffInDays($endTime);
 
-                // 使用 OrderScooter 模型查詢，透過 scooter_id 關聯到 scooters 表取得 model
-                // order_scooter 表有 scooter_id，對應到 scooters 表，可以查出 model 以及有幾臺
+                // 步驟 1: 用 order_id 查詢 order_scooter 表，取得該訂單的所有機車記錄
+                // order_scooter 表有 scooter_id，對應到 scooters 表的 id
                 $orderScooters = OrderScooter::where('order_id', '=', $order->id)
-                    ->with(['scooter'])
+                    ->with(['scooter'])  // 載入 scooter 關聯，透過 scooter_id 取得 scooters 資料
                     ->get();
 
-                // 按機車型號分組（使用 order_scooter 記錄）
-                // 透過 scooter_id 關聯到 scooters 表，取得 scooters.model 和 scooters.type
-                // 使用 OrderScooter 模型的 accessor 取得 model_string（從 scooters.model + scooters.type）
+                // 步驟 2: 按機車型號分組
+                // 透過 order_scooter.scooter_id -> scooters.id -> scooters.model + scooters.type
+                // 相同型號的 order_scooter 記錄會被分在同一組
                 return $orderScooters->groupBy(function ($orderScooter) {
-                    // 透過 order_scooter.scooter_id -> scooters.id -> scooters.model + scooters.type
+                    // 透過 scooter_id 對應到 scooters.id，取得 scooters.model + scooters.type
                     return $orderScooter->model_string;
                 })->filter(function ($orderScooters, $modelString) {
                     // 過濾掉空字串的 model_string（無法確定型號）
                     return !empty($modelString);
                 })->map(function ($orderScooters, $modelString) use ($keyDate, $startTime, $isSameDay, $days, $transferFeesMap, $partnerId) {
 
-                    // 計算台數：同一 model 的 order_scooter 記錄數量（即該 model 有幾臺機車）
+                    // 步驟 3: 計算台數
+                    // $orderScooters 是經過 groupBy 分組後的同一 model 的 order_scooter 記錄集合
+                    // 計算該集合的數量，即為該 model 的台數
+                    // 例如：
+                    // - order_scooter 表有 3 筆記錄，scooter_id 分別對應到 scooters 表的 id
+                    // - 透過 scooter_id -> scooters.id -> scooters.model，發現 3 筆都是 "ES-1000 綠牌"
+                    // - 則 $scooterCount = 3（該 model 有 3 臺機車）
                     $scooterCount = $orderScooters->count();
                     
-                    // 獲取合作商的機車型號單價（當日租或跨日租）
+                    // 步驟 4: 獲取合作商的機車型號單價（當日租或跨日租）
                     $feeKey = $transferFeesMap->get($partnerId)?->get($modelString);
                     $transferFeePerUnit = $feeKey
                         ? ($isSameDay ? ($feeKey->same_day_transfer_fee ?? 0) : ($feeKey->overnight_transfer_fee ?? 0))
                         : 0;
                     
-                    // 計算調車費用：合作商的機車型號單價 × 天數 × 台數
+                    // 步驟 5: 計算調車費用
+                    // 公式：合作商的機車型號單價 × 天數 × 台數
+                    // 例如：單價 100 × 3 天 × 3 臺 = 900
                     $transferFee = (int) $transferFeePerUnit * $days * $scooterCount;
 
                     // 移除過濾邏輯，確保所有機車型號都顯示
