@@ -1,5 +1,45 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-14 11:54:57 (+8) - 將 Excel 套件從 maatwebsite/excel 改為 phpoffice/phpspreadsheet
+
+### 變更內容
+
+#### 依賴套件
+- **composer.json** (`composer.json`)
+  - 移除 `maatwebsite/excel` (^1.1)
+  - 添加 `phpoffice/phpspreadsheet` (^2.0)
+
+#### Excel 匯出功能
+- **PartnerMonthlyReportExport.php** (`app/Exports/PartnerMonthlyReportExport.php`)
+  - 完全重寫，改用 PhpSpreadsheet API
+  - 移除 `FromArray` 和 `WithTitle` 介面（maatwebsite/excel 專用）
+  - 新增 `generate()` 方法，直接返回 `Spreadsheet` 物件
+  - 使用 PhpSpreadsheet 的 API 進行單元格設置、合併、樣式設定
+  - 保持原有的 Excel 結構和格式（標題、多層表頭、數據行、總計行）
+
+- **OrderController.php** (`app/Http/Controllers/Api/OrderController.php`)
+  - 移除 `Maatwebsite\Excel\Facades\Excel` 引用
+  - 添加 `PhpOffice\PhpSpreadsheet\Writer\Xlsx` 引用
+  - 更新 Excel 生成邏輯：
+    - 調用 `$export->generate()` 獲取 Spreadsheet 物件
+    - 使用 `Xlsx` Writer 將 Spreadsheet 寫入臨時檔案
+    - 使用 Laravel 的 `response()->download()` 返回檔案下載
+    - 設定 `deleteFileAfterSend(true)` 自動清理臨時檔案
+
+### 問題說明
+- 部署時 `composer install --no-dev` 執行失敗，因為 `maatwebsite/excel` 的依賴（特別是 `sebastian/version`）在生產環境安裝時出現問題
+- `phpoffice/phpspreadsheet` 是更底層、更穩定的 Excel 處理套件，不依賴 Laravel 特定的包裝器
+- 改用 PhpSpreadsheet 可以避免部署時的依賴問題，同時提供更直接的控制
+
+### 技術細節
+- PhpSpreadsheet 使用方式：
+  - 創建 `Spreadsheet` 物件
+  - 獲取 `ActiveSheet`
+  - 使用 `setCellValueByColumnAndRow()` 設置單元格值
+  - 使用 `mergeCells()` 合併單元格
+  - 使用 `getStyle()` 設置樣式和對齊
+  - 使用 `Xlsx` Writer 生成檔案
+
 ## 2026-01-14 11:51:31 (+8) - 修正部署腳本：添加 Composer 依賴安裝步驟
 
 ### 變更內容

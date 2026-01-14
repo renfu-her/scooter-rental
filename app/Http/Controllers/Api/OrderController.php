@@ -14,7 +14,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
-use Maatwebsite\Excel\Facades\Excel;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class OrderController extends Controller
 {
@@ -831,9 +831,21 @@ class OrderController extends Controller
             
             // 使用 Export 類生成 Excel
             $export = new PartnerMonthlyReportExport($partnerName, $year, $monthNum, $allDates, $allModels);
+            $spreadsheet = $export->generate();
+            
             $fileName = $partnerName . '-' . $year . str_pad($monthNum, 2, '0', STR_PAD_LEFT) . '.xlsx';
             
-            return Excel::download($export, $fileName);
+            // 使用 PhpSpreadsheet Writer 生成檔案
+            $writer = new Xlsx($spreadsheet);
+            
+            // 創建臨時檔案
+            $tempFile = tempnam(sys_get_temp_dir(), 'excel_');
+            $writer->save($tempFile);
+            
+            // 返回檔案下載響應
+            return response()->download($tempFile, $fileName, [
+                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            ])->deleteFileAfterSend(true);
         }
 
         // 如果沒有提供 partner_id，返回 JSON 數據（保持向後兼容）
