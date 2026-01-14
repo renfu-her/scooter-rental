@@ -813,11 +813,11 @@ class OrderController extends Controller
         if ($partnerId) {
             $partnerData = $reportData->firstWhere('partner_id', $partnerId);
 
-            dd('Step 9: 查找指定合作商數據', [
-                'partnerId' => $partnerId,
-                'partnerData' => $partnerData,
-                'reportData_partner_ids' => $reportData->pluck('partner_id'),
-            ]);
+            // dd('Step 9: 查找指定合作商數據', [
+            //     'partnerId' => $partnerId,
+            //     'partnerData' => $partnerData,
+            //     'reportData_partner_ids' => $reportData->pluck('partner_id'),
+            // ]);
 
             if (!$partnerData) {
                 return response()->json([
