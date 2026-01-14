@@ -118,14 +118,15 @@ const StatsModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statis
         modelCol += 4; // 每個型號佔4列
       });
       
-      // 第三行：日期、星期，然後每個型號下分為當日租(1列)和跨日租(3列)
+      // 第三行：日期、星期，然後兩個空白列，接著每個型號下分為當日租(1列)和跨日租(3列)
       const headerRow2: any[] = ['日期', '星期', '', ''];
       models.forEach(() => {
         headerRow2.push('當日租', '跨日租', '', ''); // 當日租1列，跨日租3列（合併顯示）
       });
       XLSX.utils.sheet_add_aoa(ws, [headerRow2], { origin: 'A3' });
       // 合併第三行的「跨日租」單元格（每個型號的跨日租跨3列）
-      let currentCol = 4; // 從第5列開始（索引4，因為前面有日期、星期、當日租200/台、跨日租300/台）
+      // 從第5列開始（索引4，因為前面有日期、星期、當日租200/台、跨日租300/台）
+      let currentCol = 4;
       models.forEach(() => {
         // 當日租在 currentCol，跨日租從 currentCol+1 開始，跨3列
         ws['!merges'].push({ s: { r: 2, c: currentCol + 1 }, e: { r: 2, c: currentCol + 3 } });
@@ -210,6 +211,7 @@ const StatsModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statis
         grandTotalAmount += modelSameDayTotalAmount + modelOvernightTotalAmount;
         
         // 每個型號：當日租台數、跨日租台數、跨日租天數、跨日租金額
+        // 如果值為0則顯示空白
         totalRow.push(
           modelSameDayTotalCount > 0 ? modelSameDayTotalCount : '', // 當日租 台數
           modelOvernightTotalCount > 0 ? modelOvernightTotalCount : '', // 跨日租 台數
@@ -240,13 +242,21 @@ const StatsModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statis
       // 總金額行
       const grandTotalRow: any[] = ['', '總金額', '', '']; // 日期、星期、當日租200/台、跨日租300/台
       // 總金額顯示在第一個型號的跨日租金額欄位
-      grandTotalRow.push('', '', '', grandTotalAmount);
+      // 第一個型號的跨日租金額欄位位置：日期(1) + 星期(1) + 當日租200/台(1) + 跨日租300/台(1) + 當日租台數(1) + 跨日租台數(1) + 跨日租天數(1) = 第7列（索引6）
+      // 但我們在數據行中是：日期、星期、空白、空白、當日租台數、跨日租台數、跨日租天數、跨日租金額
+      // 所以跨日租金額在第8列（索引7）
+      grandTotalRow.push('', '', '', grandTotalAmount > 0 ? grandTotalAmount : '');
       // 其他型號的欄位留空
       for (let i = 1; i < models.length; i++) {
         grandTotalRow.push('', '', '', '');
       }
       
       XLSX.utils.sheet_add_aoa(ws, [grandTotalRow], { origin: `A${summaryStartRow + 2}` });
+      // 合併總金額單元格（從第一個型號的跨日租金額欄位開始，跨越多列）
+      // 第一個型號的跨日租金額欄位：日期(0) + 星期(1) + 空白(2) + 空白(3) + 當日租台數(4) + 跨日租台數(5) + 跨日租天數(6) + 跨日租金額(7)
+      const grandTotalStartCol = 7; // 第一個型號的跨日租金額欄位（索引7）
+      const grandTotalEndCol = grandTotalStartCol + (models.length * 4) - 1; // 跨越多個型號
+      ws['!merges'].push({ s: { r: summaryStartRow + 2, c: grandTotalStartCol }, e: { r: summaryStartRow + 2, c: grandTotalEndCol } });
       
       // 設置列寬
       const colWidths: any[] = [
