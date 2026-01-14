@@ -508,6 +508,9 @@ const PartnerCategoryModal: React.FC<{
                                 {header}
                               </th>
                             ))}
+                            <th rowSpan={2} className="px-4 py-3 text-center text-xs font-bold text-green-700 dark:text-green-300 border-l-2 border-green-500 dark:border-green-400 bg-green-100 dark:bg-green-900/30">
+                              總金額
+                            </th>
                           </tr>
                           <tr>
                             {data.headers.map((header) => (
@@ -579,6 +582,19 @@ const PartnerCategoryModal: React.FC<{
                                     </React.Fragment>
                                   );
                                 })}
+                                {/* 該日期的總金額 */}
+                                <td className="px-4 py-3 text-center border-l-2 border-green-500 dark:border-green-400 bg-green-50/30 dark:bg-green-900/10">
+                                  {(() => {
+                                    const dateTotalAmount = dateItem.models.reduce((sum, m) => sum + (m.total_amount || 0), 0);
+                                    return dateTotalAmount > 0 ? (
+                                      <div className="text-green-700 dark:text-green-300 font-bold">
+                                        ${dateTotalAmount.toLocaleString()}
+                                      </div>
+                                    ) : (
+                                      <span className="text-gray-400 dark:text-gray-500 text-xs">-</span>
+                                    );
+                                  })()}
+                                </td>
                               </tr>
                             );
                           })}
@@ -667,6 +683,17 @@ const PartnerCategoryModal: React.FC<{
                                 </React.Fragment>
                               );
                             })}
+                            {/* 總計行的總金額欄（所有型號的當日租+跨日租總計） */}
+                            <td className="px-4 py-3 text-center border-l-2 border-green-500 dark:border-green-400 bg-green-100 dark:bg-green-900/30">
+                              <div className="space-y-1">
+                                <div className="text-gray-800 dark:text-gray-200 font-medium text-xs">
+                                  總台數: {totalCount}
+                                </div>
+                                <div className="text-green-700 dark:text-green-300 font-bold">
+                                  ${totalAmount.toLocaleString()}
+                                </div>
+                              </div>
+                            </td>
                           </tr>
                           {/* 總金額行 */}
                           <tr className="bg-green-50 dark:bg-green-900/20 font-bold">
@@ -693,6 +720,15 @@ const PartnerCategoryModal: React.FC<{
                                 </React.Fragment>
                               );
                             })}
+                            {/* 總金額欄：所有機車型號的總金額加總 */}
+                            <td colSpan={2} className="px-4 py-3 text-center border-l-2 border-green-500 dark:border-green-400 bg-green-100 dark:bg-green-900/30">
+                              <div className="text-green-700 dark:text-green-300 font-bold text-lg">
+                                ${totalAmount.toLocaleString()}
+                              </div>
+                              <div className="text-xs text-green-600 dark:text-green-400 mt-1">
+                                全部總計
+                              </div>
+                            </td>
                           </tr>
                         </tfoot>
                       </table>
