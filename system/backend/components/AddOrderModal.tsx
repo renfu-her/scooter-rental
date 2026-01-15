@@ -92,12 +92,30 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
     locale: MandarinTraditional,
     dateFormat: 'Y-m-d',
     allowInput: true,
-    static: true, // 每個實例使用靜態定位，避免共享日曆
     clickOpens: true, // 允許點擊打開日曆
+    appendTo: document.body, // 將日曆附加到 body，避免被父元素遮擋或關閉
+    onReady: (selectedDates: Date[], dateStr: string, instance: any) => {
+      // 日曆準備好時，為日曆容器添加點擊事件阻止冒泡
+      if (instance.calendarContainer) {
+        const stopPropagation = (e: MouseEvent) => {
+          e.stopPropagation();
+        };
+        instance.calendarContainer.addEventListener('click', stopPropagation, true);
+        instance.calendarContainer.addEventListener('mousedown', stopPropagation, true);
+      }
+    },
     onOpen: (selectedDates: Date[], dateStr: string, instance: any) => {
       // 確保打開時 focus 在自己的元件上
       if (instance.input) {
         instance.input.focus();
+      }
+      // 再次確保日曆容器的點擊事件不會冒泡
+      if (instance.calendarContainer) {
+        const stopPropagation = (e: MouseEvent) => {
+          e.stopPropagation();
+        };
+        instance.calendarContainer.addEventListener('click', stopPropagation, true);
+        instance.calendarContainer.addEventListener('mousedown', stopPropagation, true);
       }
     },
     onClose: (selectedDates: Date[], dateStr: string, instance: any) => {
@@ -111,12 +129,30 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
     enableTime: true,
     time_24hr: true,
     allowInput: true,
-    static: true, // 每個實例使用靜態定位，避免共享日曆
     clickOpens: true, // 允許點擊打開日曆
+    appendTo: document.body, // 將日曆附加到 body，避免被父元素遮擋或關閉
+    onReady: (selectedDates: Date[], dateStr: string, instance: any) => {
+      // 日曆準備好時，為日曆容器添加點擊事件阻止冒泡
+      if (instance.calendarContainer) {
+        const stopPropagation = (e: MouseEvent) => {
+          e.stopPropagation();
+        };
+        instance.calendarContainer.addEventListener('click', stopPropagation, true);
+        instance.calendarContainer.addEventListener('mousedown', stopPropagation, true);
+      }
+    },
     onOpen: (selectedDates: Date[], dateStr: string, instance: any) => {
       // 確保打開時 focus 在自己的元件上
       if (instance.input) {
         instance.input.focus();
+      }
+      // 再次確保日曆容器的點擊事件不會冒泡
+      if (instance.calendarContainer) {
+        const stopPropagation = (e: MouseEvent) => {
+          e.stopPropagation();
+        };
+        instance.calendarContainer.addEventListener('click', stopPropagation, true);
+        instance.calendarContainer.addEventListener('mousedown', stopPropagation, true);
       }
     },
     onClose: (selectedDates: Date[], dateStr: string, instance: any) => {
@@ -475,7 +511,10 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col relative animate-in fade-in zoom-in duration-200">
+      <div 
+        className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col relative animate-in fade-in zoom-in duration-200"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between bg-white dark:bg-gray-800 sticky top-0 z-10">
           <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 flex items-center">
             {editingOrder ? '編輯租借訂單' : '新增租借訂單'}
