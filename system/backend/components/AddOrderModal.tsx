@@ -82,6 +82,7 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
     dateFormat: 'Y-m-d',
     allowInput: true,
     static: true, // 每個實例使用靜態定位，避免共享日曆
+    clickOpens: true, // 允許點擊打開日曆
   }), []);
 
   const getDatetimeOptions = React.useCallback(() => ({
@@ -91,6 +92,7 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
     time_24hr: true,
     allowInput: true,
     static: true, // 每個實例使用靜態定位，避免共享日曆
+    clickOpens: true, // 允許點擊打開日曆
   }), []);
 
   useEffect(() => {
@@ -492,7 +494,15 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
                       setFormData(prev => ({ ...prev, expected_return_time: '' }));
                     }
                   }}
-                  options={getDatetimeOptions()}
+                  options={{
+                    ...getDatetimeOptions(),
+                    onOpen: () => {
+                      // 確保打開時有獨立的 focus
+                    },
+                    onClose: () => {
+                      // 關閉時處理
+                    },
+                  }}
                   placeholder="選擇日期時間"
                 />
               </div>

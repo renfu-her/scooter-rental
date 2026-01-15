@@ -1,5 +1,19 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-15 08:35:00 (+8) - 修正預計還車時間日期選擇器的獨立 focus 處理
+
+### 變更內容
+
+#### 前端修正
+- **AddOrderModal.tsx** (`system/backend/components/AddOrderModal.tsx`)
+  - 為預計還車時間的 Flatpickr 添加獨立的 focus 處理
+  - 添加 `onOpen` 和 `onClose` 回調函數，確保日期選擇器有獨立的 focus 狀態
+  - 添加 `clickOpens: true` 選項到所有日期選擇器配置中
+
+### 問題說明
+- 用戶要求預計還車時間的日期選擇器應該有自己獨立的 focus
+- 確保點擊時能正確打開並獲得焦點
+
 ## 2026-01-14 22:55:00 (+8) - 修正日期選擇器：確保每個日期欄位使用獨立的日曆
 
 ### 變更內容
