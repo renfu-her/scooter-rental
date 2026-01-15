@@ -93,15 +93,16 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
     dateFormat: 'Y-m-d',
     allowInput: true,
     clickOpens: true, // 允許點擊打開日曆
-    appendTo: document.body, // 將日曆附加到 body，避免被父元素遮擋或關閉
+    static: true, // 使用靜態定位，日曆會附加在輸入框附近
     onReady: (selectedDates: Date[], dateStr: string, instance: any) => {
-      // 日曆準備好時，為日曆容器添加點擊事件阻止冒泡
+      // 日曆準備好時，為日曆容器添加點擊事件阻止冒泡（不使用 capture phase）
       if (instance.calendarContainer) {
         const stopPropagation = (e: MouseEvent) => {
           e.stopPropagation();
         };
-        instance.calendarContainer.addEventListener('click', stopPropagation, true);
-        instance.calendarContainer.addEventListener('mousedown', stopPropagation, true);
+        // 只在 bubble phase 阻止冒泡，不影響日曆內部的正常交互
+        instance.calendarContainer.addEventListener('click', stopPropagation);
+        instance.calendarContainer.addEventListener('mousedown', stopPropagation);
       }
     },
     onOpen: (selectedDates: Date[], dateStr: string, instance: any) => {
@@ -109,13 +110,14 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
       if (instance.input) {
         instance.input.focus();
       }
-      // 再次確保日曆容器的點擊事件不會冒泡
+      // 確保日曆容器的點擊事件不會冒泡到模態框背景（不使用 capture phase）
       if (instance.calendarContainer) {
         const stopPropagation = (e: MouseEvent) => {
           e.stopPropagation();
         };
-        instance.calendarContainer.addEventListener('click', stopPropagation, true);
-        instance.calendarContainer.addEventListener('mousedown', stopPropagation, true);
+        // 只在 bubble phase 阻止冒泡，不影響日曆內部的正常交互
+        instance.calendarContainer.addEventListener('click', stopPropagation);
+        instance.calendarContainer.addEventListener('mousedown', stopPropagation);
       }
     },
     onClose: (selectedDates: Date[], dateStr: string, instance: any) => {
@@ -130,15 +132,16 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
     time_24hr: true,
     allowInput: true,
     clickOpens: true, // 允許點擊打開日曆
-    appendTo: document.body, // 將日曆附加到 body，避免被父元素遮擋或關閉
+    static: true, // 使用靜態定位，日曆會附加在輸入框附近
     onReady: (selectedDates: Date[], dateStr: string, instance: any) => {
-      // 日曆準備好時，為日曆容器添加點擊事件阻止冒泡
+      // 日曆準備好時，為日曆容器添加點擊事件阻止冒泡（不使用 capture phase）
       if (instance.calendarContainer) {
         const stopPropagation = (e: MouseEvent) => {
           e.stopPropagation();
         };
-        instance.calendarContainer.addEventListener('click', stopPropagation, true);
-        instance.calendarContainer.addEventListener('mousedown', stopPropagation, true);
+        // 只在 bubble phase 阻止冒泡，不影響日曆內部的正常交互
+        instance.calendarContainer.addEventListener('click', stopPropagation);
+        instance.calendarContainer.addEventListener('mousedown', stopPropagation);
       }
     },
     onOpen: (selectedDates: Date[], dateStr: string, instance: any) => {
@@ -146,13 +149,14 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
       if (instance.input) {
         instance.input.focus();
       }
-      // 再次確保日曆容器的點擊事件不會冒泡
+      // 確保日曆容器的點擊事件不會冒泡到模態框背景（不使用 capture phase）
       if (instance.calendarContainer) {
         const stopPropagation = (e: MouseEvent) => {
           e.stopPropagation();
         };
-        instance.calendarContainer.addEventListener('click', stopPropagation, true);
-        instance.calendarContainer.addEventListener('mousedown', stopPropagation, true);
+        // 只在 bubble phase 阻止冒泡，不影響日曆內部的正常交互
+        instance.calendarContainer.addEventListener('click', stopPropagation);
+        instance.calendarContainer.addEventListener('mousedown', stopPropagation);
       }
     },
     onClose: (selectedDates: Date[], dateStr: string, instance: any) => {
