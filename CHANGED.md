@@ -1,5 +1,51 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-15 10:25:26 (+8) - 實作訂單管理自動計算費用功能
+
+### 變更內容
+
+#### 後端修正
+- **OrderController.php** (`app/Http/Controllers/Api/OrderController.php`)
+  - 創建 `calculateOrderAmount()` 私有方法，實現費用計算邏輯
+  - 修改 `store()` 方法：如果沒有提供 `payment_amount` 或為 0，自動計算費用
+  - 修改 `update()` 方法：如果沒有提供 `payment_amount` 或為 0，自動計算費用
+  - 將 `payment_amount` 驗證規則從 `required` 改為 `nullable`
+  - 計算邏輯：
+    - 根據 `start_time` 和 `end_time` 計算天數（當日租 = 1 天，跨日租 = 夜數）
+    - 從 `scooter_ids` 獲取機車資料，按機車型號（model + type）分組
+    - 從 `partner_scooter_model_transfer_fees` 表查詢合作商的機車型號費用
+    - 計算公式：調車費用 × 天數 × 台數
+    - 累加所有機車型號的費用得到總金額
+
+#### 前端修正
+- **AddOrderModal.tsx** (`system/backend/components/AddOrderModal.tsx`)
+  - 添加 `isAmountManuallyEdited` 狀態，追蹤用戶是否手動修改過金額
+  - 修改 `modelStats` 計算：按 "model type" 分組（例如 "ES-1000 綠牌"）
+  - 添加 `calculateAmount()` 函數，實現前端費用計算邏輯
+  - 添加 `useEffect` 監聽：當合作商、機車選擇或時間變更時，自動計算費用
+  - 修改金額輸入框：當用戶手動修改時，設置 `isAmountManuallyEdited` 為 true
+  - 修改 `handleSubmit()`：如果沒有提供金額，自動計算費用
+  - 更新 Partner interface：添加 `transfer_fees` 欄位定義
+
+### 功能說明
+- 新增訂單時，如果沒有提供金額，會根據合作商、機車型號和時間自動計算費用
+- 更新訂單時，如果修改了合作商、機車或時間，且沒有提供金額，會自動重新計算費用
+- 用戶可以手動輸入金額來覆蓋自動計算的結果
+- 計算邏輯與 `BookingController::convertToOrder()` 和報表計算邏輯一致
+
+### 技術細節
+- 天數計算：
+  ```php
+  $isSameDay = $startTime->isSameDay($endTime);
+  if ($isSameDay) {
+      $days = 1; // 當日租
+  } else {
+      $days = $startTime->diffInDays($endTime); // 跨日租：夜數
+  }
+  ```
+- 費用查詢：從 `partner_scooter_model_transfer_fees` 表查詢，根據 `scooter_model_id` 匹配
+- 前端計算：使用 `useCallback` 和 `useEffect` 實現響應式計算
+
 ## 2026-01-15 08:35:00 (+8) - 修正預計還車時間日期選擇器的獨立 focus 處理
 
 ### 變更內容

@@ -46,6 +46,16 @@ interface Scooter {
 interface Partner {
   id: number;
   name: string;
+  transfer_fees?: Array<{
+    scooter_model_id: number;
+    scooter_model?: {
+      id: number;
+      name: string;
+      type: string;
+    };
+    same_day_transfer_fee: number | null;
+    overnight_transfer_fee: number | null;
+  }>;
 }
 
 const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingOrder, onYearChange }) => {
@@ -55,6 +65,7 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
   const [searchPlate, setSearchPlate] = useState('');
   const [showPlateDropdown, setShowPlateDropdown] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAmountManuallyEdited, setIsAmountManuallyEdited] = useState(false);
 
   const [formData, setFormData] = useState({
     partner_id: '',
@@ -156,6 +167,12 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
             status: editingOrder.status,
             remark: editingOrder.remark || '',
           });
+          // 編輯模式下，如果金額為 0，標記為未手動修改，以便自動計算
+          if (editingOrder.payment_amount === 0) {
+            setIsAmountManuallyEdited(false);
+          } else {
+            setIsAmountManuallyEdited(true); // 有金額時，標記為已手動修改（避免自動覆蓋）
+          }
           
           // 從訂單詳情 API 獲取完整的機車 ID 列表
           try {
@@ -210,11 +227,23 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
           setSelectedScooterIds([]);
         }
         setSearchPlate('');
+        setIsAmountManuallyEdited(false); // 重置手動修改標記
       };
       
       initializeModal();
     }
   }, [isOpen, editingOrder]);
+
+  // 當合作商、機車選擇或時間變更時，自動計算費用
+  useEffect(() => {
+    // 只在沒有手動修改過金額時才自動計算
+    if (!isAmountManuallyEdited && formData.partner_id && selectedScooterIds.length > 0 && formData.start_time && formData.end_time) {
+      const calculatedAmount = calculateAmount();
+      if (calculatedAmount > 0) {
+        setFormData(prev => ({ ...prev, payment_amount: calculatedAmount.toString() }));
+      }
+    }
+  }, [formData.partner_id, formData.start_time, formData.end_time, selectedScooterIds, calculateAmount, isAmountManuallyEdited]);
 
   const fetchAvailableScooters = async () => {
     try {
@@ -249,7 +278,12 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
   const fetchPartners = async () => {
     try {
       const response = await partnersApi.list();
-      setPartners(response.data || []);
+      // 確保載入 transfer_fees 關係
+      const partnersWithFees = (response.data || []).map((partner: any) => ({
+        ...partner,
+        transfer_fees: partner.transfer_fees || [],
+      }));
+      setPartners(partnersWithFees);
     } catch (error) {
       console.error('Failed to fetch partners:', error);
     }
@@ -263,14 +297,70 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
     }
   };
 
+  // 計算費用函數
+  const calculateAmount = React.useCallback(() => {
+    // 如果沒有合作商、機車或時間，返回 0
+    if (!formData.partner_id || selectedScooterIds.length === 0 || !formData.start_time || !formData.end_time) {
+      return 0;
+    }
+
+    // 獲取選中的合作商
+    const selectedPartner = partners.find(p => p.id.toString() === formData.partner_id);
+    if (!selectedPartner || !selectedPartner.transfer_fees || selectedPartner.transfer_fees.length === 0) {
+      return 0;
+    }
+
+    // 計算天數（參考後端邏輯）
+    const startDate = new Date(formData.start_time + 'T00:00:00');
+    const endDate = new Date(formData.end_time + 'T00:00:00');
+    const isSameDay = startDate.toDateString() === endDate.toDateString();
+    
+    let days = 1;
+    if (!isSameDay) {
+      // 跨日租：計算夜數（diffInDays）
+      const diffTime = endDate.getTime() - startDate.getTime();
+      days = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    }
+
+    let totalAmount = 0;
+
+    // 按機車型號分組計算費用
+    Object.entries(modelStats).forEach(([modelString, { count, model, type }]) => {
+      // 查找合作商的機車型號費用
+      const transferFee = selectedPartner.transfer_fees.find((fee: any) => 
+        fee.scooter_model?.name === model && fee.scooter_model?.type === type
+      );
+
+      if (transferFee) {
+        const feePerUnit = isSameDay 
+          ? (transferFee.same_day_transfer_fee || 0)
+          : (transferFee.overnight_transfer_fee || 0);
+        
+        // 計算費用：金額 × 天數 × 台數
+        const amount = (feePerUnit || 0) * days * count;
+        totalAmount += amount;
+      }
+    });
+
+    return totalAmount;
+  }, [formData.partner_id, formData.start_time, formData.end_time, selectedScooterIds, partners, modelStats]);
+
   const handleSubmit = async () => {
     if (!formData.appointment_date) {
       alert('請填寫必填欄位（預約日期）');
       return;
     }
 
-    if (!formData.payment_amount) {
-      alert('請填寫必填欄位（總金額）');
+    // 如果沒有提供金額，自動計算
+    if (!formData.payment_amount || formData.payment_amount === '0') {
+      const calculatedAmount = calculateAmount();
+      if (calculatedAmount > 0) {
+        setFormData(prev => ({ ...prev, payment_amount: calculatedAmount.toString() }));
+      }
+    }
+
+    if (!formData.payment_amount || formData.payment_amount === '0') {
+      alert('請填寫必填欄位（總金額）或選擇合作商、機車和時間以自動計算');
       return;
     }
 
@@ -352,15 +442,18 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
     s.plate_number.toLowerCase().includes(searchPlate.toLowerCase())
   );
 
-  // 計算選中機車按型號分組的統計
+  // 計算選中機車按型號分組的統計（model + type）
   const modelStats = React.useMemo(() => {
-    const stats: Record<string, { count: number; scooters: Scooter[] }> = {};
+    const stats: Record<string, { count: number; scooters: Scooter[]; model: string; type: string }> = {};
     selectedScooters.forEach(scooter => {
-      if (!stats[scooter.model]) {
-        stats[scooter.model] = { count: 0, scooters: [] };
+      const modelString = `${scooter.model || ''} ${scooter.type || ''}`.trim();
+      if (!modelString) return;
+      
+      if (!stats[modelString]) {
+        stats[modelString] = { count: 0, scooters: [], model: scooter.model || '', type: scooter.type || '' };
       }
-      stats[scooter.model].count++;
-      stats[scooter.model].scooters.push(scooter);
+      stats[modelString].count++;
+      stats[modelString].scooters.push(scooter);
     });
     return stats;
   }, [selectedScooters]);
@@ -619,7 +712,10 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
                   className={inputClasses}
                   placeholder="NT$"
                   value={formData.payment_amount}
-                  onChange={(e) => setFormData({ ...formData, payment_amount: e.target.value })}
+                  onChange={(e) => {
+                    setFormData({ ...formData, payment_amount: e.target.value });
+                    setIsAmountManuallyEdited(true); // 標記為手動修改
+                  }}
                 />
               </div>
 
@@ -722,9 +818,9 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
                       
                       {/* 顯示各型號統計 */}
                       <div className="pt-3 border-t border-gray-200 dark:border-gray-600 space-y-2">
-                        {Object.entries(modelStats).map(([model, { count }]) => (
-                          <div key={model} className="flex items-center justify-between text-sm">
-                            <span className="text-gray-700 dark:text-gray-300 font-medium">{model}</span>
+                        {Object.entries(modelStats).map(([modelString, { count, model, type }]) => (
+                          <div key={modelString} className="flex items-center justify-between text-sm">
+                            <span className="text-gray-700 dark:text-gray-300 font-medium">{modelString}</span>
                             <span className="text-orange-600 dark:text-orange-400 font-bold">{count}台</span>
                           </div>
                         ))}
