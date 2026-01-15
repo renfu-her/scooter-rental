@@ -1,5 +1,32 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-14 22:55:00 (+8) - 修正日期選擇器：確保每個日期欄位使用獨立的日曆
+
+### 變更內容
+
+#### 前端修正
+- **AddOrderModal.tsx** (`system/backend/components/AddOrderModal.tsx`)
+  - 修改 Flatpickr 配置，確保每個日期欄位使用獨立的日曆
+  - 將 `dateOptions` 改為 `getDateOptions()` 函數，每次調用都返回新的配置對象
+  - 為每個 Flatpickr 實例添加唯一的 key（包含 `editingOrder?.id` 或 'new'）
+  - 添加 `static: true` 選項，使每個日曆使用靜態定位，避免共享日曆視圖
+  - 修改所有日期欄位：
+    - 預約日期（`appointment_date`）
+    - 開始時間（`start_time`）
+    - 結束時間（`end_time`）
+    - 預計還車時間（`expected_return_time`）
+    - 船班時間（來）（`ship_arrival_time`）
+    - 船班時間（回）（`ship_return_time`）
+
+### 問題說明
+- 用戶要求每個日期欄位都是獨立的，不能共用同一個日曆
+- 之前的實現可能導致多個日期欄位共享日曆實例
+
+### 技術細節
+- 每個 Flatpickr 實例使用唯一的 key：`${fieldName}-${editingOrder?.id || 'new'}`
+- 配置對象使用函數返回，確保每次都是新對象
+- 添加 `static: true` 選項，避免日曆視圖共享
+
 ## 2026-01-14 22:50:00 (+8) - 隱藏合作商分類功能
 
 ### 變更內容

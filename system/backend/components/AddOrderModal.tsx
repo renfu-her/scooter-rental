@@ -76,11 +76,12 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
   const selectClasses = sharedSelectClasses;
 
   // Flatpickr 設定（繁體中文）
-  // 為每個實例創建獨立的配置對象，避免共享引用
-  const dateOptions = React.useMemo(() => ({
+  // 為每個日期欄位創建獨立的配置對象，確保每個日曆都是獨立的
+  const getDateOptions = React.useCallback(() => ({
     locale: MandarinTraditional,
     dateFormat: 'Y-m-d',
     allowInput: true,
+    static: true, // 每個實例使用靜態定位，避免共享日曆
   }), []);
 
   const getDatetimeOptions = React.useCallback(() => ({
@@ -89,6 +90,7 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
     enableTime: true,
     time_24hr: true,
     allowInput: true,
+    static: true, // 每個實例使用靜態定位，避免共享日曆
   }), []);
 
   useEffect(() => {
@@ -404,7 +406,7 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
                   <Calendar size={14} className="mr-1.5" /> 預約日期 <span className="text-red-500 ml-1">*</span>
                 </label>
                 <Flatpickr
-                  key="appointment_date"
+                  key={`appointment_date-${editingOrder?.id || 'new'}`}
                   className={inputClasses}
                   value={formData.appointment_date}
                   onChange={(dates) => {
@@ -425,7 +427,7 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
                       }
                     }
                   }}
-                  options={dateOptions}
+                  options={getDateOptions()}
                   placeholder="選擇日期"
                 />
               </div>
@@ -436,7 +438,7 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
                     <Clock size={14} className="mr-1.5" /> 開始時間
                   </label>
                   <Flatpickr
-                    key="start_time"
+                    key={`start_time-${editingOrder?.id || 'new'}`}
                     className={inputClasses}
                     value={formData.start_time}
                     onChange={(dates) => {
@@ -447,7 +449,7 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
                         setFormData(prev => ({ ...prev, start_time: dateStr }));
                       }
                     }}
-                    options={dateOptions}
+                    options={getDateOptions()}
                     placeholder="選擇日期"
                   />
                 </div>
@@ -456,7 +458,7 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
                     <Clock size={14} className="mr-1.5" /> 結束時間
                   </label>
                   <Flatpickr
-                    key="end_time"
+                    key={`end_time-${editingOrder?.id || 'new'}`}
                     className={inputClasses}
                     value={formData.end_time}
                     onChange={(dates) => {
@@ -467,7 +469,7 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
                         setFormData(prev => ({ ...prev, end_time: dateStr }));
                       }
                     }}
-                    options={dateOptions}
+                    options={getDateOptions()}
                     placeholder="選擇日期"
                   />
                 </div>
@@ -478,7 +480,7 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
                   <Clock size={14} className="mr-1.5" /> 預計還車時間
                 </label>
                 <Flatpickr
-                  key="expected_return_time"
+                  key={`expected_return_time-${editingOrder?.id || 'new'}`}
                   className={inputClasses}
                   value={formData.expected_return_time}
                   onChange={(dates) => {
@@ -531,7 +533,7 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
                 <div>
                   <label className={labelClasses}>船班時間（來）</label>
                   <Flatpickr
-                    key="ship_arrival_time"
+                    key={`ship_arrival_time-${editingOrder?.id || 'new'}`}
                     className={inputClasses}
                     value={formData.ship_arrival_time}
                     onChange={(dates) => {
@@ -550,7 +552,7 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
                 <div>
                   <label className={labelClasses}>船班時間（回）</label>
                   <Flatpickr
-                    key="ship_return_time"
+                    key={`ship_return_time-${editingOrder?.id || 'new'}`}
                     className={inputClasses}
                     value={formData.ship_return_time}
                     onChange={(dates) => {
