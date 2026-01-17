@@ -141,6 +141,7 @@ const StatsModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statis
           fgColor: { argb: 'FFFFFFFF' } // 白色背景
         },
         font: { color: { argb: 'FF000000' } },
+        alignment: { horizontal: 'center' as const, vertical: 'middle' as const },
         border: borderStyle
       };
 
@@ -151,6 +152,7 @@ const StatsModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statis
           fgColor: { argb: 'FFF2F2F2' } // 淺灰色背景（交替行）
         },
         font: { color: { argb: 'FF000000' } },
+        alignment: { horizontal: 'center' as const, vertical: 'middle' as const },
         border: borderStyle
       };
 
@@ -161,6 +163,7 @@ const StatsModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statis
           fgColor: { argb: 'FFFFD966' } // 黃色背景
         },
         font: { bold: true, color: { argb: 'FF000000' } },
+        alignment: { horizontal: 'center' as const, vertical: 'middle' as const },
         border: borderStyle
       };
 
@@ -328,6 +331,7 @@ const StatsModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statis
             const cell = emptyRow.getCell(c);
             cell.fill = rowStyle.fill;
             cell.font = rowStyle.font;
+            cell.alignment = rowStyle.alignment;
             cell.border = rowStyle.border;
           }
           rowNumber++;
@@ -374,6 +378,7 @@ const StatsModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statis
               const amountCell = dataRow.getCell(cellIndex++);
               amountCell.value = amount;
               amountCell.fill = rowStyle.fill;
+              amountCell.alignment = rowStyle.alignment;
               amountCell.border = rowStyle.border;
               if (amount && amount !== '') {
                 amountCell.font = { ...rowStyle.font, color: { argb: 'FFFF0000' } }; // 紅色字體
@@ -391,6 +396,7 @@ const StatsModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statis
                 // 非金額欄位，正常設置樣式
                 cell.fill = rowStyle.fill;
                 cell.font = rowStyle.font;
+                cell.alignment = rowStyle.alignment;
                 cell.border = rowStyle.border;
               } else {
                 // 金額欄位，只設置填充和邊框（字體已在上面設置）
@@ -398,6 +404,7 @@ const StatsModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statis
                   cell.font = rowStyle.font;
                 }
                 cell.fill = rowStyle.fill;
+                cell.alignment = rowStyle.alignment;
                 cell.border = rowStyle.border;
               }
             }
@@ -466,27 +473,20 @@ const StatsModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statis
         totalRow1.getCell(colIdx++).value = totals.sameDayCount > 0 ? totals.sameDayCount : '';
         totalRow1.getCell(colIdx++).value = totals.overnightCount > 0 ? totals.overnightCount : '';
         totalRow1.getCell(colIdx++).value = totals.overnightDays > 0 ? totals.overnightDays : '';
-        // 金額欄位：設置紅色字體
+        // 金額欄位：設置黑色字體（只有總金額行的總金額數值才是紅色）
         const amountCell = totalRow1.getCell(colIdx++);
         amountCell.value = totals.totalAmount > 0 ? totals.totalAmount : '';
-        if (totals.totalAmount > 0) {
-          amountCell.font = { ...totalRowStyle.font, color: { argb: 'FFFF0000' } }; // 紅色字體
-        }
+        // 所有數值都設置為黑色字體
       });
       
-      // 設置整行的總計行樣式（包括前兩列）
+      // 設置整行的總計行樣式（包括前兩列）- 所有數值都為黑色
       for (let c = 1; c <= totalCols; c++) {
         const cell = totalRow1.getCell(c);
         cell.fill = totalRowStyle.fill;
+        cell.alignment = totalRowStyle.alignment;
         cell.border = totalRowStyle.border;
-        // 檢查是否是金額欄位（每 4 列中的第 4 列，從第 3 列開始計算）
-        const isAmountColumn = (c - 2) > 0 && (c - 2) % 4 === 0;
-        if (isAmountColumn && cell.value && cell.value !== '') {
-          // 金額欄位：設置紅色字體
-          cell.font = { ...totalRowStyle.font, color: { argb: 'FFFF0000' } };
-        } else {
-          cell.font = totalRowStyle.font;
-        }
+        // 所有數值都設置為黑色字體
+        cell.font = totalRowStyle.font;
       }
       rowNumber++;
 
@@ -498,6 +498,7 @@ const StatsModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statis
       subtotalLabelCell.value = '小計';
       subtotalLabelCell.font = totalRowStyle.font; // 黑色字體
       subtotalLabelCell.fill = totalRowStyle.fill;
+      subtotalLabelCell.alignment = totalRowStyle.alignment;
       subtotalLabelCell.border = totalRowStyle.border;
       colIdx = 3;
       
@@ -511,28 +512,20 @@ const StatsModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statis
         subtotalRow.getCell(colIdx++).value = '';
         subtotalRow.getCell(colIdx++).value = '';
         subtotalRow.getCell(colIdx++).value = '';
-        // 金額欄位：設置紅色字體
+        // 金額欄位：設置黑色字體（只有總金額行的總金額數值才是紅色）
         const amountCell = subtotalRow.getCell(colIdx++);
         amountCell.value = modelSubtotalAmount > 0 ? modelSubtotalAmount : '';
-        if (modelSubtotalAmount > 0) {
-          amountCell.font = { ...totalRowStyle.font, color: { argb: 'FFFF0000' } }; // 紅色字體
-        }
+        // 所有數值都設置為黑色字體
       });
       
-      // 設置整行的總計行樣式（「小計」文字已在上面設置為黑色）
+      // 設置整行的總計行樣式（「小計」文字已在上面設置為黑色）- 所有數值都為黑色
       for (let c = 3; c <= totalCols; c++) {
         const cell = subtotalRow.getCell(c);
         cell.fill = totalRowStyle.fill;
+        cell.alignment = totalRowStyle.alignment;
         cell.border = totalRowStyle.border;
-        // 檢查是否是金額欄位（每 4 列中的第 4 列，從第 3 列開始計算）
-        const isAmountColumn = (c - 2) > 0 && (c - 2) % 4 === 0;
-        if (isAmountColumn && cell.value && cell.value !== '') {
-          // 金額欄位：設置紅色字體
-          cell.font = { ...totalRowStyle.font, color: { argb: 'FFFF0000' } };
-        } else if (!cell.font || !cell.font.color || cell.font.color.argb !== 'FFFF0000') {
-          // 非金額欄位：設置黑色字體
-          cell.font = totalRowStyle.font;
-        }
+        // 所有數值都設置為黑色字體
+        cell.font = totalRowStyle.font;
       }
       rowNumber++;
 
@@ -547,6 +540,7 @@ const StatsModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statis
       totalBlankCell1.value = '';
       totalBlankCell1.font = totalRowStyle.font; // 黑色字體
       totalBlankCell1.fill = totalRowStyle.fill;
+      totalBlankCell1.alignment = totalRowStyle.alignment;
       totalBlankCell1.border = totalRowStyle.border;
       
       // 第二欄：「總金額」標籤，設置紅色字體
@@ -554,6 +548,7 @@ const StatsModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statis
       totalLabelCell.value = '總金額';
       totalLabelCell.font = { ...totalRowStyle.font, color: { argb: 'FFFF0000' } }; // 紅色字體
       totalLabelCell.fill = totalRowStyle.fill;
+      totalLabelCell.alignment = totalRowStyle.alignment;
       totalLabelCell.border = totalRowStyle.border;
       
       // 在「總金額」之後，將所有型號的欄位（當日租台數、跨日租台數、跨日租天數、金額）合併成一個大單元格
@@ -588,6 +583,7 @@ const StatsModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statis
       for (let c = 3; c <= totalCols; c++) {
         const cell = totalAmountRow.getCell(c);
         cell.fill = totalRowStyle.fill;
+        cell.alignment = totalRowStyle.alignment;
         cell.border = totalRowStyle.border;
         // 如果是總金額數值單元格，設置紅色字體
         if (c === totalAmountStartCol && allSubtotalsSum > 0) {
