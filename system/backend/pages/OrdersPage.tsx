@@ -230,9 +230,11 @@ const StatsModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statis
         const overnightStartCol = colIndex;
         headerRow3.getCell(overnightStartCol).value = '跨日租';
         worksheet.mergeCells(rowNumber, overnightStartCol, rowNumber, overnightStartCol + 2);
-        headerRow3.getCell(overnightStartCol).font = headerStyle.font;
-        headerRow3.getCell(overnightStartCol).fill = headerStyle.fill;
-        headerRow3.getCell(overnightStartCol).alignment = headerStyle.alignment;
+        const overnightCell = headerRow3.getCell(overnightStartCol);
+        overnightCell.font = headerStyle.font;
+        overnightCell.fill = headerStyle.fill;
+        overnightCell.alignment = headerStyle.alignment;
+        overnightCell.border = headerStyle.border;
         
         // 為合併的單元格設置樣式
         for (let c = overnightStartCol; c <= overnightStartCol + 2; c++) {
@@ -504,14 +506,21 @@ const StatsModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statis
       const fileName = `${partnerName}-${year}${String(parseInt(month)).padStart(2, '0')}.xlsx`;
 
       // 下載文件（使用 ExcelJS）
-      const buffer = await workbook.xlsx.writeBuffer();
-      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = fileName;
-      link.click();
-      window.URL.revokeObjectURL(url);
+      try {
+        const buffer = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      } catch (writeError) {
+        console.error('ExcelJS writeBuffer 錯誤:', writeError);
+        throw writeError;
+      }
 
     } catch (error) {
       console.error('匯出合作商月報表時發生錯誤:', error);
