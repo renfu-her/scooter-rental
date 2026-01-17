@@ -349,13 +349,13 @@ const StatsModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statis
         totalRow1.getCell(colIdx++).value = totals.overnightCount > 0 ? totals.overnightCount : '';
         totalRow1.getCell(colIdx++).value = totals.overnightDays > 0 ? totals.overnightDays : '';
         totalRow1.getCell(colIdx++).value = totals.totalAmount > 0 ? totals.totalAmount : '';
-        
-        // 設置總計行樣式
-        for (let c = colIdx - 4; c < colIdx; c++) {
-          totalRow1.getCell(c).fill = totalRowStyle.fill;
-          totalRow1.getCell(c).font = totalRowStyle.font;
-        }
       });
+      
+      // 設置整行的總計行樣式（包括前兩列）
+      for (let c = 1; c <= totalCols; c++) {
+        totalRow1.getCell(c).fill = totalRowStyle.fill;
+        totalRow1.getCell(c).font = totalRowStyle.font;
+      }
       rowNumber++;
 
       // 小計行
@@ -371,17 +371,18 @@ const StatsModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statis
         subtotalRow.getCell(colIdx++).value = '';
         subtotalRow.getCell(colIdx++).value = '';
         subtotalRow.getCell(colIdx++).value = modelSubtotalAmount > 0 ? modelSubtotalAmount : '';
-        
-        // 設置總計行樣式
-        for (let c = colIdx - 4; c < colIdx; c++) {
-          subtotalRow.getCell(c).fill = totalRowStyle.fill;
-          subtotalRow.getCell(c).font = totalRowStyle.font;
-        }
       });
+      
+      // 設置整行的總計行樣式（包括前兩列）
+      for (let c = 1; c <= totalCols; c++) {
+        subtotalRow.getCell(c).fill = totalRowStyle.fill;
+        subtotalRow.getCell(c).font = totalRowStyle.font;
+      }
       rowNumber++;
 
       // 總金額行
-      const firstModelAmountCol = 2 + 3; // 第一個型號的金額欄位（第 5 列）
+      // 第一個型號的金額欄位：日期(1) + 星期(1) + 當日租台數(1) + 跨日租台數(1) + 跨日租天數(1) = 6
+      const firstModelAmountCol = 6; // 第一個型號的金額欄位（第 6 列）
       const lastModelAmountCol = firstModelAmountCol + (allModels.length - 1) * 4; // 最後一個型號的金額欄位
       
       const totalAmountRow = worksheet.getRow(rowNumber);
@@ -389,16 +390,15 @@ const StatsModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statis
       totalAmountRow.getCell(2).value = '總金額';
       colIdx = 3;
       
+      // 設置所有型號的欄位（前三個欄位為空，金額欄位填入總金額）
       allModels.forEach((model: string, index: number) => {
+        totalAmountRow.getCell(colIdx++).value = ''; // 當日租台數
+        totalAmountRow.getCell(colIdx++).value = ''; // 跨日租台數
+        totalAmountRow.getCell(colIdx++).value = ''; // 跨日租天數
+        // 金額欄位：如果是第一個型號，填入總金額；其他為空（之後會合併）
         if (index === 0) {
-          totalAmountRow.getCell(colIdx++).value = '';
-          totalAmountRow.getCell(colIdx++).value = '';
-          totalAmountRow.getCell(colIdx++).value = '';
           totalAmountRow.getCell(colIdx++).value = grandTotalAmount > 0 ? grandTotalAmount : '';
         } else {
-          totalAmountRow.getCell(colIdx++).value = '';
-          totalAmountRow.getCell(colIdx++).value = '';
-          totalAmountRow.getCell(colIdx++).value = '';
           totalAmountRow.getCell(colIdx++).value = '';
         }
       });
