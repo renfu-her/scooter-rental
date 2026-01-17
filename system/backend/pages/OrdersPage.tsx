@@ -543,11 +543,11 @@ const StatsModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statis
       
       const totalAmountRow = worksheet.getRow(rowNumber);
       // 第一欄：空白（與「月結總計」合併），設置黑色字體
-      const blankCell1 = totalAmountRow.getCell(1);
-      blankCell1.value = '';
-      blankCell1.font = totalRowStyle.font; // 黑色字體
-      blankCell1.fill = totalRowStyle.fill;
-      blankCell1.border = totalRowStyle.border;
+      const totalBlankCell1 = totalAmountRow.getCell(1);
+      totalBlankCell1.value = '';
+      totalBlankCell1.font = totalRowStyle.font; // 黑色字體
+      totalBlankCell1.fill = totalRowStyle.fill;
+      totalBlankCell1.border = totalRowStyle.border;
       
       // 第二欄：「總金額」標籤，設置紅色字體
       const totalLabelCell = totalAmountRow.getCell(2);

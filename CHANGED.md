@@ -1,5 +1,19 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-17 15:32:00 (+8) - 修正變量重複聲明錯誤：將總金額行的 blankCell1 重命名為 totalBlankCell1
+
+### 變更內容
+
+#### 前端修正
+- **OrdersPage.tsx** (`system/backend/pages/OrdersPage.tsx`)
+  - **修正變量重複聲明錯誤**：將總金額行中的 `blankCell1` 重命名為 `totalBlankCell1`，避免與表頭行中的 `blankCell1` 變量衝突
+  - 錯誤信息：`The symbol "blankCell1" has already been declared`
+  - 解決方案：使用更具描述性的變量名 `totalBlankCell1` 來區分不同位置的空白單元格
+
+### 功能說明
+- 修正構建錯誤，確保代碼可以正常編譯
+- 變量命名更清晰，避免命名衝突
+
 ## 2026-01-17 15:30:00 (+8) - 修正總金額行：將「總金額」標籤和總金額數值都設置為紅色字體
 
 ### 變更內容
