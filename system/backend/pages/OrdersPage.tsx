@@ -4,7 +4,7 @@ import { Search, Plus, Filter, FileText, ChevronLeft, ChevronRight, MoreHorizont
 import AddOrderModal from '../components/AddOrderModal';
 import ConvertBookingModal from '../components/ConvertBookingModal';
 import { ordersApi, partnersApi, bookingsApi, rentalPlansApi, scooterModelsApi } from '../lib/api';
-import * as XLSX from 'xlsx';
+import * as XLSX from 'xlsx-js-style';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface Order {
@@ -300,9 +300,78 @@ const StatsModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statis
         s: { r: row - 3, c: 0 }, // 總台數/天數行
         e: { r: row - 1, c: 0 }  // 總金額行
       });
+
+      // 設置單元格樣式和顏色（使用 xlsx-js-style）
+      // 樣式定義
+      const titleStyle = {
+        fill: { fgColor: { rgb: "B4C6E7" } }, // 淺藍色背景
+        font: { bold: true, sz: 14, color: { rgb: "000000" } },
+        alignment: { horizontal: "center", vertical: "center" }
+      };
+
+      const headerStyle = {
+        fill: { fgColor: { rgb: "D9E1F2" } }, // 淺灰色背景
+        font: { bold: true, color: { rgb: "000000" } },
+        alignment: { horizontal: "center", vertical: "center" }
+      };
+
+      const dataRowStyle = {
+        fill: { fgColor: { rgb: "FFFFFF" } }, // 白色背景
+        font: { color: { rgb: "000000" } }
+      };
+
+      const dataRowAlternateStyle = {
+        fill: { fgColor: { rgb: "F2F2F2" } }, // 淺灰色背景（交替行）
+        font: { color: { rgb: "000000" } }
+      };
+
+      const totalRowStyle = {
+        fill: { fgColor: { rgb: "FFD966" } }, // 黃色背景
+        font: { bold: true, color: { rgb: "000000" } }
+      };
+
+      // 設置標題行樣式（第 1 行，A1 到最後一列）
+      for (let c = 0; c < totalCols; c++) {
+        const cellAddress = XLSX.utils.encode_cell({ r: 0, c });
+        if (!ws[cellAddress]) ws[cellAddress] = { t: 's', v: '' };
+        ws[cellAddress].s = titleStyle;
+      }
+
+      // 設置表頭行樣式（第 2-4 行）
+      for (let r = 1; r < 4; r++) {
+        for (let c = 0; c < totalCols; c++) {
+          const cellAddress = XLSX.utils.encode_cell({ r, c });
+          if (ws[cellAddress]) {
+            ws[cellAddress].s = headerStyle;
+          }
+        }
+      }
+
+      // 設置數據行樣式（第 5 行開始到總計行之前）
+      let dataStartRow = 4; // 第 5 行開始（索引 4）
+      let dataEndRow = row - 4; // 總計行之前（row 是總計行的索引 + 1）
       
-      // 注意：XLSX.js 的樣式支持有限，如果需要黃色背景和紅色文字，可能需要使用 xlsx-style 或其他庫
-      // 這裡先設置基本的格式，樣式可以在 Excel 中手動調整或使用其他庫
+      for (let r = dataStartRow; r < dataEndRow; r++) {
+        const isAlternate = (r - dataStartRow) % 2 === 1;
+        const rowStyle = isAlternate ? dataRowAlternateStyle : dataRowStyle;
+        
+        for (let c = 0; c < totalCols; c++) {
+          const cellAddress = XLSX.utils.encode_cell({ r, c });
+          if (ws[cellAddress]) {
+            ws[cellAddress].s = rowStyle;
+          }
+        }
+      }
+
+      // 設置總計行樣式（最後 3 行：總台數/天數、小計、總金額）
+      for (let r = row - 3; r < row; r++) {
+        for (let c = 0; c < totalCols; c++) {
+          const cellAddress = XLSX.utils.encode_cell({ r, c });
+          if (ws[cellAddress]) {
+            ws[cellAddress].s = totalRowStyle;
+          }
+        }
+      }
 
       // 設置列寬
       ws['!cols'] = Array(totalCols).fill(null).map(() => ({ wch: 12 }));
