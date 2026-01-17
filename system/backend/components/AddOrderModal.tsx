@@ -605,34 +605,33 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className={labelClasses}>船班時間（來）</label>
-                  <input 
-                    type="datetime-local" 
-                    className={inputClasses}
-                    value={formData.ship_arrival_time}
-                    onChange={(e) => {
-                      setFormData(prev => ({ ...prev, ship_arrival_time: e.target.value }));
-                    }}
-                    onKeyDown={(e) => e.preventDefault()}
-                    onPaste={(e) => e.preventDefault()}
-                  />
-                </div>
-                <div>
-                  <label className={labelClasses}>船班時間（回）</label>
-                  <input 
-                    type="datetime-local" 
-                    className={inputClasses}
-                    value={formData.ship_return_time}
-                    onChange={(e) => {
-                      setFormData(prev => ({ ...prev, ship_return_time: e.target.value }));
-                    }}
-                    onKeyDown={(e) => e.preventDefault()}
-                    onPaste={(e) => e.preventDefault()}
-                    min={formData.ship_arrival_time || undefined}
-                  />
-                </div>
+              <div>
+                <label className={labelClasses}>船班時間（來）</label>
+                <input 
+                  type="datetime-local" 
+                  className={inputClasses}
+                  value={formData.ship_arrival_time}
+                  onChange={(e) => {
+                    setFormData(prev => ({ ...prev, ship_arrival_time: e.target.value }));
+                  }}
+                  onKeyDown={(e) => e.preventDefault()}
+                  onPaste={(e) => e.preventDefault()}
+                />
+              </div>
+
+              <div>
+                <label className={labelClasses}>船班時間（回）</label>
+                <input 
+                  type="datetime-local" 
+                  className={inputClasses}
+                  value={formData.ship_return_time}
+                  onChange={(e) => {
+                    setFormData(prev => ({ ...prev, ship_return_time: e.target.value }));
+                  }}
+                  onKeyDown={(e) => e.preventDefault()}
+                  onPaste={(e) => e.preventDefault()}
+                  min={formData.ship_arrival_time || undefined}
+                />
               </div>
 
               <div>
