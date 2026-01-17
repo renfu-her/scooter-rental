@@ -1,5 +1,23 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-17 10:39:00 (+8) - 修正 ReferenceError：調整樣式變量定義順序，解決 "Cannot access before initialization" 錯誤
+
+### 變更內容
+
+#### 前端修正
+- **OrdersPage.tsx** (`system/backend/pages/OrdersPage.tsx`)
+  - **修正變量聲明順序**：將 `borderStyle`、`titleStyle`、`headerStyle` 等樣式變量的定義移到使用之前
+  - **問題原因**：在第 110 行使用了 `borderStyle` 和 `titleStyle`，但這些變量在後面（第 117 行）才定義，導致 JavaScript 的暫時性死區（Temporal Dead Zone）錯誤
+  - **解決方案**：將所有樣式變量的定義移到創建標題行之前，確保在使用前已定義
+
+### 功能說明
+- 修正 `ReferenceError: Cannot access 'E' before initialization` 錯誤
+- 確保所有變量在使用前都已正確定義，符合 JavaScript 的變量聲明規則
+
+### 技術細節
+- JavaScript 中使用 `const` 或 `let` 聲明的變量存在暫時性死區（TDZ），在聲明之前不能訪問
+- 編譯後的代碼中，變量名可能被編譯成單字母（如 `E`），但錯誤本質是變量未初始化就被使用
+
 ## 2026-01-17 10:33:00 (+8) - 修正 ExcelJS 導出錯誤：添加數據驗證和合併單元格錯誤處理
 
 ### 變更內容

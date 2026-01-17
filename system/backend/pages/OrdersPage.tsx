@@ -98,22 +98,7 @@ const StatsModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statis
         worksheet.getColumn(i).width = 12;
       }
 
-      // 第一行：標題「合作商出租月報表」（合併所有列）
-      const titleCell = worksheet.getCell(rowNumber, 1);
-      titleCell.value = `${partnerName}出租月報表`;
-      worksheet.mergeCells(rowNumber, 1, rowNumber, totalCols);
-      titleCell.font = titleStyle.font;
-      titleCell.fill = titleStyle.fill;
-      titleCell.alignment = titleStyle.alignment;
-      titleCell.border = titleStyle.border;
-      // 為標題行的所有單元格設置邊框
-      for (let c = 1; c <= totalCols; c++) {
-        const cell = worksheet.getCell(rowNumber, c);
-        cell.border = borderStyle;
-      }
-      rowNumber++;
-
-      // 定義邊框樣式（通用）
+      // 定義邊框樣式（通用）- 必須在使用前定義
       const borderStyle = {
         top: { style: 'thin' as const, color: { argb: 'FF000000' } },
         bottom: { style: 'thin' as const, color: { argb: 'FF000000' } },
@@ -121,7 +106,18 @@ const StatsModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statis
         right: { style: 'thin' as const, color: { argb: 'FF000000' } }
       };
 
-      // 定義樣式
+      // 定義樣式 - 必須在使用前定義
+      const titleStyle = {
+        fill: {
+          type: 'pattern' as const,
+          pattern: 'solid' as const,
+          fgColor: { argb: 'FFB4C6E7' } // 淺藍色背景
+        },
+        font: { bold: true, size: 14, color: { argb: 'FF000000' } },
+        alignment: { horizontal: 'center' as const, vertical: 'middle' as const },
+        border: borderStyle
+      };
+
       const headerStyle = {
         fill: {
           type: 'pattern' as const,
@@ -163,16 +159,20 @@ const StatsModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statis
         border: borderStyle
       };
 
-      const titleStyle = {
-        fill: {
-          type: 'pattern' as const,
-          pattern: 'solid' as const,
-          fgColor: { argb: 'FFB4C6E7' } // 淺藍色背景
-        },
-        font: { bold: true, size: 14, color: { argb: 'FF000000' } },
-        alignment: { horizontal: 'center' as const, vertical: 'middle' as const },
-        border: borderStyle
-      };
+      // 第一行：標題「合作商出租月報表」（合併所有列）
+      const titleCell = worksheet.getCell(rowNumber, 1);
+      titleCell.value = `${partnerName}出租月報表`;
+      worksheet.mergeCells(rowNumber, 1, rowNumber, totalCols);
+      titleCell.font = titleStyle.font;
+      titleCell.fill = titleStyle.fill;
+      titleCell.alignment = titleStyle.alignment;
+      titleCell.border = titleStyle.border;
+      // 為標題行的所有單元格設置邊框
+      for (let c = 1; c <= totalCols; c++) {
+        const cell = worksheet.getCell(rowNumber, c);
+        cell.border = borderStyle;
+      }
+      rowNumber++;
 
       // 第二行：前面兩欄空白，然後機車型號標題（每個型號佔 4 欄）
       const headerRow2 = worksheet.getRow(rowNumber);
