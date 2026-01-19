@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Search, Calendar, Clock, Phone, FileText, Loader2, ChevronDown } from 'lucide-react';
-import { ordersApi, scootersApi, partnersApi } from '../lib/api';
+import { ordersApi, scootersApi, partnersApi, storesApi } from '../lib/api';
+import { useStore } from '../contexts/StoreContext';
 import { inputClasses as sharedInputClasses, selectClasses as sharedSelectClasses, labelClasses, chevronDownClasses } from '../styles';
 
 interface Order {
@@ -19,6 +20,8 @@ interface Order {
   ship_return_time: string | null;
   phone: string | null;
   partner: { id: number; name: string } | null;
+  store?: { id: number; name: string } | null;
+  store_id?: number | null;
   payment_method: string | null;
   payment_amount: number;
   remark: string | null;
@@ -54,9 +57,16 @@ interface Partner {
   }>;
 }
 
+interface Store {
+  id: number;
+  name: string;
+}
+
 const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingOrder, onYearChange }) => {
+  const { currentStore } = useStore();
   const [availableScooters, setAvailableScooters] = useState<Scooter[]>([]);
   const [partners, setPartners] = useState<Partner[]>([]);
+  const [stores, setStores] = useState<Store[]>([]);
   const [selectedScooterIds, setSelectedScooterIds] = useState<number[]>([]);
   const [searchPlate, setSearchPlate] = useState('');
   const [showPlateDropdown, setShowPlateDropdown] = useState(false);
@@ -65,6 +75,7 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
 
   const [formData, setFormData] = useState({
     partner_id: '',
+    store_id: '',
     tenant: '',
     appointment_date: '',
     start_time: '',
@@ -119,16 +130,18 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
   useEffect(() => {
     if (isOpen) {
       const initializeModal = async () => {
-        // 先獲取可用機車和合作商
+        // 先獲取可用機車、合作商和商店
         await Promise.all([
           fetchAvailableScooters(),
-          fetchPartners()
+          fetchPartners(),
+          fetchStores()
         ]);
         
         if (editingOrder) {
           // 編輯模式：預填表單數據並獲取訂單詳情以獲取機車 ID
           setFormData({
             partner_id: editingOrder.partner?.id.toString() || '',
+            store_id: editingOrder.store_id?.toString() || editingOrder.store?.id.toString() || '',
             tenant: editingOrder.tenant,
             appointment_date: formatDateForInput(editingOrder.appointment_date),
             start_time: formatDateForInput(editingOrder.start_time),
@@ -186,6 +199,7 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
           // 新增模式：重置表單
           setFormData({
             partner_id: '',
+            store_id: currentStore?.id.toString() || '',
             tenant: '',
             appointment_date: '',
             start_time: '',
@@ -209,6 +223,13 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
       initializeModal();
     }
   }, [isOpen, editingOrder]);
+
+  // 當 currentStore 改變時，如果表單中沒有選擇商店，自動設置為當前商店
+  useEffect(() => {
+    if (isOpen && currentStore && !formData.store_id) {
+      setFormData(prev => ({ ...prev, store_id: currentStore.id.toString() }));
+    }
+  }, [currentStore, isOpen, formData.store_id]);
 
   const fetchAvailableScooters = async () => {
     try {
@@ -251,6 +272,15 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
       setPartners(partnersWithFees);
     } catch (error) {
       console.error('Failed to fetch partners:', error);
+    }
+  };
+
+  const fetchStores = async () => {
+    try {
+      const response = await storesApi.list();
+      setStores(response.data || []);
+    } catch (error) {
+      console.error('Failed to fetch stores:', error);
     }
   };
 
@@ -368,6 +398,7 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
     try {
       const orderData = {
         partner_id: formData.partner_id || null,
+        store_id: formData.store_id || currentStore?.id || null,
         tenant: formData.tenant,
         appointment_date: formData.appointment_date,
         start_time: formData.start_time,
@@ -484,6 +515,23 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
                     <option value="" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">請選擇合作商（非必選）</option>
                     {partners.map(partner => (
                       <option key={partner.id} value={partner.id} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">{partner.name}</option>
+                    ))}
+                  </select>
+                  <ChevronDown size={18} className={chevronDownClasses} />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">商店選擇</label>
+                <div className="relative">
+                  <select 
+                    className={selectClasses}
+                    value={formData.store_id}
+                    onChange={(e) => setFormData({ ...formData, store_id: e.target.value })}
+                  >
+                    <option value="" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">請選擇商店（非必選）</option>
+                    {stores.map(store => (
+                      <option key={store.id} value={store.id} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">{store.name}</option>
                     ))}
                   </select>
                   <ChevronDown size={18} className={chevronDownClasses} />
