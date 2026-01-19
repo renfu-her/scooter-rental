@@ -97,6 +97,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
   useEffect(() => {
     fetchStores();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
