@@ -27,6 +27,7 @@ const RentalPlansPage: React.FC = () => {
   const [stores, setStores] = useState<Store[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedStoreId, setSelectedStoreId] = useState<number | ''>('');
   const [formData, setFormData] = useState({
     model: '',
     price: '',
@@ -40,18 +41,28 @@ const RentalPlansPage: React.FC = () => {
 
   useEffect(() => {
     fetchStores();
-    fetchPlans();
   }, []);
+
+  // 當 selectedStoreId 改變時，確保它被設置
+  useEffect(() => {
+    if (stores.length > 0 && selectedStoreId === '') {
+      setSelectedStoreId(stores[0].id);
+    }
+  }, [stores, selectedStoreId]);
 
   useEffect(() => {
     fetchPlans();
-  }, [searchTerm]);
+  }, [searchTerm, selectedStoreId]);
 
   const fetchStores = async () => {
     try {
       const response = await storesApi.list();
       const sortedStores = (response.data || []).sort((a: Store, b: Store) => a.id - b.id);
       setStores(sortedStores);
+      // 如果有很多店家，預設選擇第一個店家
+      if (sortedStores.length > 0 && selectedStoreId === '') {
+        setSelectedStoreId(sortedStores[0].id);
+      }
     } catch (error) {
       console.error('Failed to fetch stores:', error);
     }
@@ -62,6 +73,10 @@ const RentalPlansPage: React.FC = () => {
     try {
       const params: any = {};
       if (searchTerm) params.search = searchTerm;
+      // 根據選擇的店家過濾
+      if (selectedStoreId) {
+        params.store_id = selectedStoreId;
+      }
       const response = await rentalPlansApi.list(params);
       setPlans(response.data || []);
     } catch (error) {
@@ -80,7 +95,7 @@ const RentalPlansPage: React.FC = () => {
         price: plan.price.toString(),
         sort_order: plan.sort_order,
         is_active: plan.is_active,
-        store_id: plan.store_id?.toString() || '',
+        store_id: plan.store_id?.toString() || selectedStoreId?.toString() || '',
       });
       setImagePreview(plan.image_path ? `/storage/${plan.image_path}` : null);
     } else {
@@ -90,7 +105,7 @@ const RentalPlansPage: React.FC = () => {
         price: '',
         sort_order: 0,
         is_active: true,
-        store_id: '',
+        store_id: selectedStoreId?.toString() || '',
       });
       setImagePreview(null);
     }
@@ -106,7 +121,7 @@ const RentalPlansPage: React.FC = () => {
         price: '',
         sort_order: 0,
         is_active: true,
-        store_id: '',
+        store_id: selectedStoreId?.toString() || '',
       });
     setImageFile(null);
     setImagePreview(null);
@@ -121,7 +136,7 @@ const RentalPlansPage: React.FC = () => {
         ...formData,
         price: parseFloat(formData.price),
         sort_order: parseInt(formData.sort_order.toString()),
-        store_id: formData.store_id || null,
+        store_id: formData.store_id || selectedStoreId || null,
       };
 
       if (editingPlan) {
@@ -186,8 +201,8 @@ const RentalPlansPage: React.FC = () => {
         </button>
       </div>
 
-      <div className="mb-6">
-        <div className="relative">
+      <div className="mb-6 flex flex-col md:flex-row gap-4">
+        <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
           <input
             type="text"
@@ -196,6 +211,29 @@ const RentalPlansPage: React.FC = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
             className={searchInputClasses}
           />
+        </div>
+        <div className="relative min-w-[200px]">
+          <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">店家</label>
+          {stores.length === 0 ? (
+            <div className="px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-500 dark:text-gray-400">
+              沒有店家
+            </div>
+          ) : (
+            <select
+              value={selectedStoreId}
+              onChange={(e) => setSelectedStoreId(e.target.value ? Number(e.target.value) : '')}
+              className={selectClasses}
+            >
+              {stores.map(store => (
+                <option key={store.id} value={store.id} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">{store.name}</option>
+              ))}
+            </select>
+          )}
+          {stores.length > 0 && (
+            <svg className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M6 9l6 6 6-6" />
+            </svg>
+          )}
         </div>
       </div>
 
