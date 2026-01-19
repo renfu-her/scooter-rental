@@ -93,39 +93,40 @@ const StoreSelector: React.FC<{ theme: 'light' | 'dark'; sidebarOpen: boolean }>
     }
   };
 
-  if (loading) {
-    return (
-      <div className={`p-3 border-t border-gray-200 dark:border-gray-700 ${sidebarOpen ? '' : 'px-2'}`}>
-        <div className={`flex items-center ${sidebarOpen ? 'justify-start space-x-3 px-3' : 'justify-center'}`}>
-          <Loader2 size={16} className="animate-spin text-gray-400" />
-        </div>
-      </div>
-    );
-  }
-
   return (
     <>
       <div className={`p-3 border-t border-gray-200 dark:border-gray-700 ${sidebarOpen ? '' : 'px-2'}`} ref={dropdownRef}>
         <div className="relative">
           <button
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className={`w-full p-2.5 rounded-xl transition-all flex items-center ${sidebarOpen ? 'justify-between px-3' : 'justify-center'} ${theme === 'dark' ? 'hover:bg-gray-700 text-gray-300' : 'hover:bg-gray-50 text-gray-600'}`}
+            disabled={loading}
+            className={`w-full p-2.5 rounded-xl transition-all flex items-center ${sidebarOpen ? 'justify-between px-3' : 'justify-center'} ${theme === 'dark' ? 'hover:bg-gray-700 text-gray-300' : 'hover:bg-gray-50 text-gray-600'} ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
             title={!sidebarOpen && currentStore ? currentStore.name : ''}
           >
             <div className={`flex items-center ${sidebarOpen ? 'space-x-2' : ''} min-w-0 flex-1`}>
-              <Store size={16} className="flex-shrink-0" />
+              {loading ? (
+                <Loader2 size={16} className="animate-spin text-gray-400 flex-shrink-0" />
+              ) : (
+                <Store size={16} className="flex-shrink-0" />
+              )}
               {sidebarOpen && (
                 <span className="text-xs font-medium truncate animate-in fade-in duration-300">
-                  {currentStore ? currentStore.name : '選擇商店'}
+                  {loading ? '載入中...' : (currentStore ? currentStore.name : stores.length === 0 ? '無商店，點擊新增' : '選擇商店')}
                 </span>
               )}
             </div>
-            {sidebarOpen && <ChevronDown size={14} className={`flex-shrink-0 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />}
+            {sidebarOpen && !loading && <ChevronDown size={14} className={`flex-shrink-0 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />}
           </button>
 
-          {isDropdownOpen && sidebarOpen && (
+          {isDropdownOpen && sidebarOpen && !loading && (
             <div className={`absolute bottom-full left-0 right-0 mb-2 ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border rounded-xl shadow-lg z-50 max-h-64 overflow-y-auto`}>
-              {stores.map((store) => (
+              {stores.length === 0 ? (
+                <div className={`px-3 py-4 text-center ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                  <p className="text-xs mb-2">目前沒有商店</p>
+                  <p className="text-xs">請點擊下方按鈕新增</p>
+                </div>
+              ) : (
+                stores.map((store) => (
                 <div key={store.id} className="group">
                   <div
                     className={`px-3 py-2 flex items-center justify-between cursor-pointer hover:${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-50'} ${
@@ -166,7 +167,8 @@ const StoreSelector: React.FC<{ theme: 'light' | 'dark'; sidebarOpen: boolean }>
                     </div>
                   </div>
                 </div>
-              ))}
+                ))
+              )}
               <div className={`border-t ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>
                 <button
                   onClick={() => handleOpenModal()}
