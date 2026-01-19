@@ -28,6 +28,7 @@ const RentalPlansPage: React.FC = () => {
   const [stores, setStores] = useState<Store[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedStoreFilter, setSelectedStoreFilter] = useState<number | ''>('');
   const [formData, setFormData] = useState({
     model: '',
     price: '',
@@ -45,7 +46,7 @@ const RentalPlansPage: React.FC = () => {
 
   useEffect(() => {
     fetchPlans();
-  }, [searchTerm, currentStore]);
+  }, [searchTerm, selectedStoreFilter]);
 
   const fetchStores = async () => {
     try {
@@ -61,7 +62,8 @@ const RentalPlansPage: React.FC = () => {
     try {
       const params: any = {};
       if (searchTerm) params.search = searchTerm;
-      if (currentStore) params.store_id = currentStore.id;
+      const storeId = selectedStoreFilter || currentStore?.id;
+      if (storeId) params.store_id = storeId;
       const response = await rentalPlansApi.list(params);
       setPlans(response.data || []);
     } catch (error) {
@@ -186,8 +188,8 @@ const RentalPlansPage: React.FC = () => {
         </button>
       </div>
 
-      <div className="mb-6">
-        <div className="relative">
+      <div className="mb-6 flex flex-col md:flex-row gap-4">
+        <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
           <input
             type="text"
@@ -196,6 +198,21 @@ const RentalPlansPage: React.FC = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
             className={searchInputClasses}
           />
+        </div>
+        <div className="relative min-w-[200px]">
+          <select
+            value={selectedStoreFilter}
+            onChange={(e) => setSelectedStoreFilter(e.target.value ? Number(e.target.value) : '')}
+            className={selectClasses}
+          >
+            <option value="" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">所有商店</option>
+            {stores.map(store => (
+              <option key={store.id} value={store.id} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">{store.name}</option>
+            ))}
+          </select>
+          <svg className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
         </div>
       </div>
 

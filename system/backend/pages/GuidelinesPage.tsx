@@ -29,6 +29,7 @@ const GuidelinesPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('');
+  const [selectedStoreFilter, setSelectedStoreFilter] = useState<number | ''>('');
   const [formData, setFormData] = useState({
     category: '',
     question: '',
@@ -45,7 +46,7 @@ const GuidelinesPage: React.FC = () => {
 
   useEffect(() => {
     fetchGuidelines();
-  }, [searchTerm, categoryFilter, currentStore]);
+  }, [searchTerm, categoryFilter, selectedStoreFilter]);
 
   const fetchStores = async () => {
     try {
@@ -62,7 +63,8 @@ const GuidelinesPage: React.FC = () => {
       const params: any = {};
       if (searchTerm) params.search = searchTerm;
       if (categoryFilter) params.category = categoryFilter;
-      if (currentStore) params.store_id = currentStore.id;
+      const storeId = selectedStoreFilter || currentStore?.id;
+      if (storeId) params.store_id = storeId;
       const response = await guidelinesApi.list(params);
       setGuidelines(response.data || []);
     } catch (error) {
@@ -182,13 +184,28 @@ const GuidelinesPage: React.FC = () => {
         <select
           value={categoryFilter}
           onChange={(e) => setCategoryFilter(e.target.value)}
-          className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100"
+          className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 min-w-[150px]"
         >
           <option value="">所有分類</option>
           {categories.map((cat) => (
             <option key={cat} value={cat}>{cat}</option>
           ))}
         </select>
+        <div className="relative min-w-[200px]">
+          <select
+            value={selectedStoreFilter}
+            onChange={(e) => setSelectedStoreFilter(e.target.value ? Number(e.target.value) : '')}
+            className={selectClasses}
+          >
+            <option value="" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">所有商店</option>
+            {stores.map(store => (
+              <option key={store.id} value={store.id} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">{store.name}</option>
+            ))}
+          </select>
+          <svg className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </div>
       </div>
 
       {loading ? (
