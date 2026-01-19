@@ -231,8 +231,8 @@ const RentalPlansPage: React.FC = () => {
             <table className="w-full text-left">
               <thead className="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700">
                 <tr>
-                  <th className="px-6 py-4 text-sm font-bold text-gray-700 dark:text-gray-300">圖片</th>
                   <th className="px-6 py-4 text-sm font-bold text-gray-700 dark:text-gray-300">商店</th>
+                  <th className="px-6 py-4 text-sm font-bold text-gray-700 dark:text-gray-300">圖片</th>
                   <th className="px-6 py-4 text-sm font-bold text-gray-700 dark:text-gray-300">型號</th>
                   <th className="px-6 py-4 text-sm font-bold text-gray-700 dark:text-gray-300">價格</th>
                   <th className="px-6 py-4 text-sm font-bold text-gray-700 dark:text-gray-300">排序</th>
@@ -243,6 +243,9 @@ const RentalPlansPage: React.FC = () => {
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {plans.map((plan) => (
                   <tr key={plan.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                    <td className="px-6 py-4">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">{plan.store?.name || '-'}</span>
+                    </td>
                     <td className="px-6 py-4">
                       {plan.image_path ? (
                         <div className="w-20 h-12 rounded overflow-hidden">
@@ -257,9 +260,6 @@ const RentalPlansPage: React.FC = () => {
                           <ImageIcon className="text-gray-400" size={20} />
                         </div>
                       )}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="text-sm text-gray-600 dark:text-gray-400">{plan.store?.name || '-'}</span>
                     </td>
                     <td className="px-6 py-4">
                       <span className="text-sm font-medium text-gray-800 dark:text-gray-100">{plan.model}</span>
