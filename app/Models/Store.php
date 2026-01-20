@@ -25,5 +25,13 @@ class Store extends Model
     {
         return $this->hasMany(Scooter::class);
     }
+
+    /**
+     * Get the environment images for the store.
+     */
+    public function environmentImages()
+    {
+        return $this->hasMany(StoreEnvironmentImage::class)->orderBy('sort_order', 'asc');
+    }
 }
 

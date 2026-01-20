@@ -1,5 +1,93 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-20 09:15:00 (Asia/Taipei) - 商店管理添加多張環境圖片功能
+
+### 變更內容
+
+#### 資料庫變更
+
+- **新增遷移文件**：
+  - `2026_01_20_100000_create_store_environment_images_table.php`：創建 `store_environment_images` 表，用於儲存商店的環境圖片
+    - `id`：主鍵
+    - `store_id`：外鍵，關聯到 `stores` 表
+    - `image_path`：圖片路徑
+    - `sort_order`：排序順序
+    - `timestamps`：創建和更新時間
+
+#### 後端變更
+
+- **新增模型**：
+  - `StoreEnvironmentImage.php`：商店環境圖片模型
+    - 定義與 `Store` 的 `belongsTo` 關係
+
+- **模型更新**：
+  - `Store.php`：添加 `environmentImages()` 關係方法，返回該商店的所有環境圖片（按 `sort_order` 排序）
+
+- **控制器更新**：
+  - `StoreController.php`：
+    - `index()` 方法：載入 `environmentImages` 關係
+    - `show()` 方法：載入 `environmentImages` 關係
+    - `uploadPhoto()` 方法：返回時載入 `environmentImages` 關係
+    - `destroy()` 方法：刪除商店時同時刪除所有相關的環境圖片檔案
+    - 新增 `uploadEnvironmentImage()` 方法：上傳環境圖片
+    - 新增 `deleteEnvironmentImage()` 方法：刪除環境圖片
+    - 新增 `updateEnvironmentImageOrder()` 方法：更新環境圖片排序
+
+- **資源更新**：
+  - `StoreResource.php`：在 `toArray()` 方法中添加 `environment_images` 欄位，當載入關係時返回環境圖片列表
+
+- **路由更新**：
+  - `routes/api.php`：添加環境圖片相關路由
+    - `POST /stores/{store}/upload-environment-image`：上傳環境圖片
+    - `DELETE /stores/{store}/environment-images/{environmentImage}`：刪除環境圖片
+    - `PUT /stores/{store}/environment-images/{environmentImage}/order`：更新環境圖片排序
+
+#### 前端後台變更
+
+- **API 定義更新** (`system/backend/lib/api.ts`)：
+  - `storesApi.uploadEnvironmentImage()`：上傳環境圖片
+  - `storesApi.deleteEnvironmentImage()`：刪除環境圖片
+  - `storesApi.updateEnvironmentImageOrder()`：更新環境圖片排序
+
+- **StoresPage 更新** (`system/backend/pages/StoresPage.tsx`)：
+  - 添加 `EnvironmentImage` 接口定義
+  - 更新 `Store` 接口，添加 `environment_images` 欄位
+  - 添加環境圖片相關狀態：
+    - `environmentImages`：當前商店的環境圖片列表
+    - `uploadingEnvironmentImage`：上傳狀態
+    - `environmentImageInputRef`：文件輸入引用
+  - 在模態框中添加「環境圖片」區塊：
+    - 顯示已上傳的環境圖片網格（2-3 列）
+    - 每個圖片顯示縮圖，hover 時顯示操作按鈕（上移、刪除、下移）
+    - 上傳區域（僅在編輯模式下可用）
+    - 新建立商店時提示「請先建立商店後再上傳環境圖片」
+  - 添加環境圖片處理函數：
+    - `handleEnvironmentImageChange()`：處理環境圖片上傳
+    - `handleDeleteEnvironmentImage()`：刪除環境圖片
+    - `handleMoveEnvironmentImage()`：移動環境圖片（調整排序）
+  - 更新 `handleOpenModal()`：載入商店時同時載入環境圖片
+  - 更新 `handleCloseModal()`：關閉模態框時清除環境圖片狀態
+
+### 功能說明
+
+1. **環境圖片上傳**：
+   - 僅在編輯現有商店時可以上傳環境圖片
+   - 支援單張上傳，可多次上傳多張圖片
+   - 上傳時自動設定排序順序（基於現有圖片的最大排序值 + 1）
+
+2. **環境圖片管理**：
+   - 以網格形式顯示所有環境圖片（響應式：手機 2 列，桌面 3 列）
+   - 每個圖片 hover 時顯示操作按鈕
+   - 支援上移/下移調整排序
+   - 支援刪除單張圖片
+
+3. **資料關聯**：
+   - 環境圖片與商店一對多關係
+   - 刪除商店時自動刪除所有相關的環境圖片檔案
+   - 環境圖片按 `sort_order` 排序顯示
+
+---
+
 ## 2026-01-20 09:04:18 (Asia/Taipei) - 前臺租車方案與租車須知添加店家選擇功能及注意事項換行支援
 
 ### 變更內容

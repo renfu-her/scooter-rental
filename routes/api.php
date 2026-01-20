@@ -99,6 +99,9 @@ Route::prefix('stores')->group(function () {
     Route::put('/{store}', [StoreController::class, 'update']);
     Route::delete('/{store}', [StoreController::class, 'destroy']);
     Route::post('/{store}/upload-photo', [StoreController::class, 'uploadPhoto']);
+    Route::post('/{store}/upload-environment-image', [StoreController::class, 'uploadEnvironmentImage']);
+    Route::delete('/{store}/environment-images/{environmentImage}', [StoreController::class, 'deleteEnvironmentImage']);
+    Route::put('/{store}/environment-images/{environmentImage}/order', [StoreController::class, 'updateEnvironmentImageOrder']);
 });
 
 // Scooters API

@@ -380,6 +380,20 @@ export const storesApi = {
   delete: (id: string | number) => api.delete(`/stores/${id}`),
   uploadPhoto: (id: string | number, file: File) =>
     api.uploadFile(`/stores/${id}/upload-photo`, file),
+  uploadEnvironmentImage: async (storeId: number, imageFile: File, sortOrder?: number) => {
+    const formData = new FormData();
+    formData.append('image', imageFile);
+    if (sortOrder !== undefined) {
+      formData.append('sort_order', sortOrder.toString());
+    }
+    return api.post(`/stores/${storeId}/upload-environment-image`, formData);
+  },
+  deleteEnvironmentImage: async (storeId: number, environmentImageId: number) => {
+    return api.delete(`/stores/${storeId}/environment-images/${environmentImageId}`);
+  },
+  updateEnvironmentImageOrder: async (storeId: number, environmentImageId: number, sortOrder: number) => {
+    return api.put(`/stores/${storeId}/environment-images/${environmentImageId}/order`, { sort_order: sortOrder });
+  },
 };
 
 export const scootersApi = {
