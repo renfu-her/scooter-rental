@@ -71,7 +71,7 @@ class PartnerMonthlyReportExport
             // 格式：蘭光智能出租月報表\n{store_name}
             $titleCell->setValue('蘭光智能出租月報表' . "\n" . $this->storeName);
         } else {
-            $titleCell->setValue('蘭光智能出租月報表');
+            $titleCell->setValue('蘭光智能出租月報表 test');
         }
         
         $sheet->mergeCells('A' . $row . ':' . $lastCol . $row);
