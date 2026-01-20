@@ -9,6 +9,11 @@ import * as XLSX from 'xlsx';
 import ExcelJS from 'exceljs';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
+interface Store {
+  id: number;
+  name: string;
+}
+
 interface Order {
   id: number;
   order_number: string;
@@ -37,7 +42,7 @@ interface Statistics {
   month: string;
 }
 
-const StatsModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statistics | null }> = ({ isOpen, onClose, stats }) => {
+const StatsModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statistics | null; currentStore: Store | null }> = ({ isOpen, onClose, stats, currentStore }) => {
   const [isExporting, setIsExporting] = useState(false);
 
   const handleExportPartnerReport = async (partnerName: string, partnerId?: number) => {
@@ -2621,7 +2626,7 @@ const OrdersPage: React.FC = () => {
         ) : null;
       })()}
 
-      <StatsModal isOpen={isStatsModalOpen} onClose={() => setIsStatsModalOpen(false)} stats={stats} />
+      <StatsModal isOpen={isStatsModalOpen} onClose={() => setIsStatsModalOpen(false)} stats={stats} currentStore={currentStore} />
       
       <ChartModal isOpen={isChartModalOpen} onClose={() => setIsChartModalOpen(false)} stats={stats} />
 
