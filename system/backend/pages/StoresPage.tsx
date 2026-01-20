@@ -230,29 +230,35 @@ const StoresPage: React.FC = () => {
 
     setUploadingEnvironmentImage(true);
     try {
-      const file = files[0];
       const maxSortOrder = environmentImages.length > 0 
         ? Math.max(...environmentImages.map(img => img.sort_order))
         : -1;
-      const response = await storesApi.uploadEnvironmentImage(
-        editingStore.id,
-        file,
-        maxSortOrder + 1
+      
+      // 批量上傳所有選中的圖片
+      const uploadPromises = Array.from(files).map((file, index) => 
+        storesApi.uploadEnvironmentImage(
+          editingStore.id,
+          file,
+          maxSortOrder + 1 + index
+        )
       );
       
-      const newImage: EnvironmentImage = {
+      const responses = await Promise.all(uploadPromises);
+      
+      const newImages: EnvironmentImage[] = responses.map(response => ({
         id: response.data.id,
         image_path: response.data.image_path,
         sort_order: response.data.sort_order,
-      };
-      setEnvironmentImages([...environmentImages, newImage].sort((a, b) => a.sort_order - b.sort_order));
+      }));
+      
+      setEnvironmentImages([...environmentImages, ...newImages].sort((a, b) => a.sort_order - b.sort_order));
       
       // 重置 input
       if (environmentImageInputRef.current) {
         environmentImageInputRef.current.value = '';
       }
     } catch (error: any) {
-      console.error('Failed to upload environment image:', error);
+      console.error('Failed to upload environment images:', error);
       alert(error?.response?.data?.message || '上傳環境圖片失敗');
     } finally {
       setUploadingEnvironmentImage(false);
@@ -577,12 +583,14 @@ const StoresPage: React.FC = () => {
                         <div className="text-center">
                           <ImageIcon className="mx-auto text-gray-400 mb-2" size={32} />
                           <p className="text-sm text-gray-500">點擊或拖放圖片到此處上傳環境圖片</p>
+                          <p className="text-xs text-gray-400 mt-1">可一次選擇多張圖片</p>
                         </div>
                       )}
                       <input
                         ref={environmentImageInputRef}
                         type="file"
                         accept="image/*"
+                        multiple
                         onChange={handleEnvironmentImageChange}
                         disabled={uploadingEnvironmentImage}
                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
