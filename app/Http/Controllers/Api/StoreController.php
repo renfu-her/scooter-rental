@@ -5,12 +5,14 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\StoreResource;
 use App\Models\Store;
+use App\Models\Partner;
 use App\Models\StoreEnvironmentImage;
 use App\Services\ImageService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class StoreController extends Controller
 {
@@ -65,12 +67,37 @@ class StoreController extends Controller
             ], 422);
         }
 
-        $store = Store::create($validator->validated());
-
-        return response()->json([
-            'message' => 'Store created successfully',
-            'data' => new StoreResource($store),
-        ], 201);
+        DB::beginTransaction();
+        try {
+            $store = Store::create($validator->validated());
+            
+            // 檢查是否已有預設線上預約合作商
+            $hasDefaultPartner = Partner::where('is_default_for_booking', true)->exists();
+            
+            // 自動創建一個名為「蘭光智能」的合作商，關聯到新創建的商店
+            // 如果系統中沒有其他預設合作商，則將此合作商設為預設（用於線上預約）
+            $partner = Partner::create([
+                'name' => '蘭光智能',
+                'address' => $store->address,
+                'phone' => $store->phone,
+                'manager' => $store->manager,
+                'store_id' => $store->id,
+                'is_default_for_booking' => !$hasDefaultPartner, // 如果沒有其他預設合作商，則設為預設
+            ]);
+            
+            DB::commit();
+            
+            return response()->json([
+                'message' => 'Store created successfully',
+                'data' => new StoreResource($store),
+            ], 201);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Failed to create store',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**

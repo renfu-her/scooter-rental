@@ -1,5 +1,118 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-20 17:19:06 (Asia/Taipei) - 改進新增商店時自動創建合作商的邏輯
+
+### 變更內容
+
+#### 後端變更
+
+- **StoreController.php** (`app/Http/Controllers/Api/StoreController.php`)
+  - 改進自動創建合作商的邏輯
+  - 在創建商店時，檢查系統中是否已有預設線上預約合作商
+  - 如果沒有其他預設合作商，則將新創建的「蘭光智能」合作商自動設為預設（`is_default_for_booking = true`）
+  - 確保新創建的商店和合作商可以立即用於線上預約流程
+
+### 功能說明
+
+- **自動預設合作商**：
+  - 當新增第一個商店時，系統會自動創建「蘭光智能」合作商並設為預設
+  - 後續新增的商店，如果系統中已有預設合作商，則新創建的合作商不會設為預設
+  - 這樣可以確保線上預約流程始終有一個可用的預設合作商
+
+- **線上預約流程**：
+  - 線上預約會自動使用預設合作商（`is_default_for_booking = true`）
+  - 預設合作商會用於計算調車費用
+  - 如果預設合作商有關聯的商店（`store_id`），會自動設置預訂的 `store_id`
+
+---
+
+## 2026-01-20 17:17:45 (Asia/Taipei) - 合作商添加 store_id 功能及前臺線上預約根據店家過濾機車型號
+
+### 變更內容
+
+#### 資料庫變更
+
+- **新增 Migration** (`database/migrations/2026_01_20_170200_add_store_id_to_partners_table.php`)
+  - 為 `partners` 表添加 `store_id` 欄位
+  - 設置為可為空的外鍵，關聯到 `stores` 表
+  - 使用 `onDelete('set null')` 當商店被刪除時設為 null
+
+#### 後端變更
+
+- **Partner.php** (`app/Models/Partner.php`)
+  - 在 `$fillable` 中添加 `store_id`
+  - 添加 `store()` 關聯方法，關聯到 `Store` 模型
+
+- **PartnerController.php** (`app/Http/Controllers/Api/PartnerController.php`)
+  - 在 `index` 方法中添加 `store_id` 過濾功能
+  - 在查詢中使用 `with('store')` 預載入 store 關聯
+  - 在 `store` 和 `update` 方法中添加 `store_id` 驗證規則
+
+- **PartnerResource.php** (`app/Http/Resources/PartnerResource.php`)
+  - 在返回數據中添加 `store_id` 和 `store` 信息
+
+- **BookingController.php** (`app/Http/Controllers/Api/BookingController.php`)
+  - 在創建預訂時，如果沒有提供 `store_id`，則從合作商的 `store_id` 獲取
+  - 在轉換預訂為訂單時，優先使用請求中的 `store_id`，其次使用預訂的 `store_id`，最後使用合作商的 `store_id`
+
+- **OrderController.php** (`app/Http/Controllers/Api/OrderController.php`)
+  - 在創建訂單時，如果沒有提供 `store_id`，但提供了 `partner_id`，則從合作商的 `store_id` 獲取
+
+- **ScooterController.php** (`app/Http/Controllers/Api/ScooterController.php`)
+  - 更新 `models` 方法支持 `store_id` 參數
+  - 如果提供了 `store_id`，只返回該商店有可用機車（狀態為「待出租」）的型號
+
+- **StoreController.php** (`app/Http/Controllers/Api/StoreController.php`)
+  - 在創建商店時，自動創建一個名為「蘭光智能」的合作商
+  - 新創建的合作商會自動關聯到新創建的商店（`store_id`）
+  - 使用資料庫事務確保商店和合作商同時創建成功
+
+#### 前端變更
+
+- **PartnersPage.tsx** (`system/backend/pages/PartnersPage.tsx`)
+  - 添加 `useStore` hook 獲取 `currentStore`、`stores` 和 `setCurrentStore`
+  - 在過濾區域添加店家選擇器（位於搜尋框下方）
+  - 修改 `fetchPartners` 方法，根據選擇的店家過濾合作商列表
+  - 在表格中添加「所屬商店」欄位
+  - 在新增/編輯表單中添加「所屬商店」選擇器
+  - 更新 `formData` 添加 `store_id` 欄位
+  - 更新 `handleOpenModal` 和 `handleCloseModal` 處理 `store_id`
+
+- **api.ts** (`system/backend/lib/api.ts`)
+  - 更新 `partnersApi.list` 添加 `store_id` 參數
+
+- **Booking.tsx** (`system/frontend/pages/Booking.tsx`)
+  - 修改 `fetchScooterModels` 方法，根據選擇的 `storeId` 過濾機車型號
+  - 添加 `useEffect` 監聽 `formData.storeId` 變化，當選擇店家改變時重新獲取機車型號
+  - 當選擇店家改變時，清空已選擇的機車型號（因為不同店家可能有不同的機車型號）
+
+- **api.ts** (`system/frontend/lib/api.ts`)
+  - 更新 `publicApi.scooters.models` 添加 `store_id` 參數支持
+
+### 功能說明
+
+- 現在合作商管理頁面支持店家功能：
+  - 可以選擇特定店家來過濾合作商列表
+  - 新增/編輯合作商時可以選擇所屬商店
+  - 表格中顯示每個合作商的所屬商店
+
+- 前臺線上預約功能增強：
+  - 當用戶選擇店家時，只顯示該店家有可用機車的型號
+  - 不同店家可能有不同的機車型號和數量
+  - 切換店家時會自動清空已選擇的機車型號，避免選擇不存在的型號
+
+- 自動創建合作商：
+  - 當新增一個商店時，系統會自動創建一個名為「蘭光智能」的合作商
+  - 該合作商會自動關聯到新創建的商店
+  - 預設不設為線上預約的預設合作商（`is_default_for_booking` 為 false）
+
+- 預訂和訂單的 store_id 處理：
+  - 創建預訂時，如果沒有提供 `store_id`，會從合作商的 `store_id` 獲取
+  - 創建訂單時，如果沒有提供 `store_id`，會從合作商的 `store_id` 獲取
+  - 轉換預訂為訂單時，會優先使用請求中的 `store_id`，其次使用預訂的 `store_id`，最後使用合作商的 `store_id`
+
+---
+
 ## 2026-01-20 17:05:00 (Asia/Taipei) - 修復機車配件創建時 store_id 驗證問題
 
 ### 變更內容

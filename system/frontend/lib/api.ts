@@ -126,7 +126,7 @@ export const publicApi = {
     list: () => api.get('/stores'),
   },
   scooters: {
-    models: () => api.get<Array<{ model: string; type: string; label: string }>>('/scooters/models'),
+    models: (params?: { store_id?: number }) => api.get<Array<{ model: string; type: string; label: string }>>('/scooters/models', params),
   },
   partners: {
     list: () => api.get('/partners'),

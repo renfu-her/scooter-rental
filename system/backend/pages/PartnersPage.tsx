@@ -389,13 +389,14 @@ const PartnersPage: React.FC = () => {
                   <th className="px-6 py-5">聯絡電話</th>
                   <th className="px-6 py-5">合作商統編</th>
                   <th className="px-6 py-5">商店主管</th>
+                  <th className="px-6 py-5">所屬商店</th>
                   <th className="px-6 py-5 text-center">操作</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {partners.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="px-6 py-12 text-center text-gray-500">
+                    <td colSpan={9} className="px-6 py-12 text-center text-gray-500">
                       目前沒有合作商資料
                     </td>
                   </tr>
@@ -446,6 +447,7 @@ const PartnersPage: React.FC = () => {
                     <td className="px-6 py-5 text-gray-500 dark:text-gray-400 font-medium tracking-wide">{partner.phone || '-'}</td>
                     <td className="px-6 py-5 text-gray-500 dark:text-gray-400 font-bold">{partner.tax_id || '-'}</td>
                     <td className="px-6 py-5 text-gray-500 dark:text-gray-400 font-black">{partner.manager || '-'}</td>
+                    <td className="px-6 py-5 text-gray-500 dark:text-gray-400 font-medium">{partner.store?.name || '-'}</td>
                     <td className="px-6 py-5 text-center">
                       <div className="relative">
                         <button 
@@ -530,7 +532,27 @@ const PartnersPage: React.FC = () => {
                     onChange={(e) => setFormData({ ...formData, tax_id: e.target.value })}
                   />
                 </div>
-                <div className="col-span-2">
+                <div>
+                  <label className={`${labelClasses} flex items-center`}>
+                    <Building size={14} className="mr-1.5" /> 所屬商店
+                  </label>
+                  <div className="relative">
+                    <select
+                      className={selectClasses}
+                      value={formData.store_id}
+                      onChange={(e) => setFormData({ ...formData, store_id: e.target.value })}
+                    >
+                      <option value="">請選擇</option>
+                      {stores.map(store => (
+                        <option key={store.id} value={store.id}>
+                          {store.name}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown size={18} className={chevronDownClasses} />
+                  </div>
+                </div>
+                <div>
                   <label className={labelClasses}>
                     商店主管
                   </label>
