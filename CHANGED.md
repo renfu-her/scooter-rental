@@ -1,5 +1,28 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-20 22:05:40 (Asia/Taipei) - 修復訂單新增/編輯時機車選擇列表在 dark mode 下的可見性
+
+### 變更內容
+
+#### 前端變更
+
+- **AddOrderModal.tsx** (`system/backend/components/AddOrderModal.tsx`)
+  - 改進機車選擇列表在 dark mode 下的視覺效果
+  - 選中的機車在 dark mode 下使用深色背景（`dark:bg-orange-900/30`）和橙色邊框（`dark:border-orange-800`）
+  - 選中機車的文字顏色在 dark mode 下使用橙色（`dark:text-orange-300`），確保清晰可見
+  - 選中機車的類型標籤在 dark mode 下使用深色背景（`dark:bg-orange-800`）和淺色文字（`dark:text-orange-200`）
+  - 選中機車的型號文字在 dark mode 下使用橙色（`dark:text-orange-400`）
+  - 改進 hover 狀態在 dark mode 下的樣式（`dark:hover:bg-gray-700`）
+
+### 功能說明
+
+- **機車選擇列表**：
+  - 選中的機車在 light mode 下：淺橙色背景（`bg-orange-50`）+ 深色文字
+  - 選中的機車在 dark mode 下：深橙色背景（`dark:bg-orange-900/30`）+ 橙色邊框 + 橙色文字，對比度更高，更容易識別
+  - 未選中的機車在 dark mode 下：深灰色背景 hover 效果，文字清晰可見
+
+---
+
 ## 2026-01-20 22:00:58 (Asia/Taipei) - 修復機車管理頁面移除商店選擇器，且新增/編輯時所屬商店固定
 
 ### 變更內容

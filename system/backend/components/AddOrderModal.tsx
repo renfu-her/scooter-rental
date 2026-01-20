@@ -778,25 +778,48 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
                   />
                   {showPlateDropdown && filteredScooters.length > 0 && (
                     <div className="absolute top-full left-0 w-full mt-2 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-xl z-20 max-h-60 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
-                      {filteredScooters.map(s => (
-                        <div 
-                          key={s.id}
-                          className={`px-5 py-3 hover:bg-orange-50 flex items-center justify-between cursor-pointer transition-colors border-b border-gray-50 last:border-0 ${
-                            selectedScooterIds.includes(s.id) ? 'bg-orange-50' : ''
-                          }`}
-                          onClick={() => {
-                            toggleScooter(s.id);
-                            setShowPlateDropdown(false);
-                            setSearchPlate('');
-                          }}
-                        >
-                          <div>
-                            <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{s.plate_number}</span>
-                            <span className="ml-2 px-1.5 py-0.5 bg-gray-100 text-[10px] rounded font-bold text-gray-500">{s.type}</span>
+                      {filteredScooters.map(s => {
+                        const isSelected = selectedScooterIds.includes(s.id);
+                        return (
+                          <div 
+                            key={s.id}
+                            className={`px-5 py-3 flex items-center justify-between cursor-pointer transition-colors border-b border-gray-50 dark:border-gray-700 last:border-0 ${
+                              isSelected 
+                                ? 'bg-orange-50 dark:bg-orange-900/30 border-orange-200 dark:border-orange-800' 
+                                : 'hover:bg-orange-50 dark:hover:bg-gray-700'
+                            }`}
+                            onClick={() => {
+                              toggleScooter(s.id);
+                              setShowPlateDropdown(false);
+                              setSearchPlate('');
+                            }}
+                          >
+                            <div>
+                              <span className={`text-sm font-bold ${
+                                isSelected 
+                                  ? 'text-orange-700 dark:text-orange-300' 
+                                  : 'text-gray-900 dark:text-gray-100'
+                              }`}>
+                                {s.plate_number}
+                              </span>
+                              <span className={`ml-2 px-1.5 py-0.5 text-[10px] rounded font-bold ${
+                                isSelected
+                                  ? 'bg-orange-200 dark:bg-orange-800 text-orange-800 dark:text-orange-200'
+                                  : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
+                              }`}>
+                                {s.type}
+                              </span>
+                            </div>
+                            <span className={`text-xs ${
+                              isSelected
+                                ? 'text-orange-600 dark:text-orange-400 font-medium'
+                                : 'text-gray-400 dark:text-gray-500'
+                            }`}>
+                              {s.model}
+                            </span>
                           </div>
-                          <span className="text-xs text-gray-400">{s.model}</span>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </div>
