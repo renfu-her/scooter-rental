@@ -68,14 +68,10 @@ const Booking: React.FC = () => {
     fetchStores();
   }, []);
 
-  // 當選擇的店家改變時，重新獲取機車型號
+  // 初始化時獲取所有機車型號（不依賴店家選擇）
   useEffect(() => {
-    if (formData.storeId) {
-      fetchScooterModels();
-    } else {
-      setScooterModels([]);
-    }
-  }, [formData.storeId]);
+    fetchScooterModels();
+  }, []);
 
   const fetchStores = async () => {
     try {
@@ -106,17 +102,10 @@ const Booking: React.FC = () => {
   const fetchScooterModels = async () => {
     setIsLoadingModels(true);
     try {
-      const params = formData.storeId ? { store_id: parseInt(formData.storeId) } : undefined;
-      const response = await publicApi.scooters.models(params);
+      // 獲取所有機車型號（不根據店家過濾，顯示所有可選類型）
+      const response = await publicApi.scooters.models();
       if (response && response.data) {
         setScooterModels(response.data);
-        // 如果當前選擇的機車型號不在新的列表中，清空選擇
-        setScooterItems(prev => prev.map(item => {
-          const modelExists = response.data.some((m: ScooterModel) => 
-            m.model === item.model && m.type === item.type
-          );
-          return modelExists ? item : { ...item, model: '', type: '' };
-        }));
       }
     } catch (error) {
       console.error('Failed to fetch scooter models:', error);
@@ -334,11 +323,7 @@ const Booking: React.FC = () => {
                   required
                   className="w-full px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl border border-gray-200 focus:border-black focus:ring-0 transition-all text-sm sm:text-base"
                   value={formData.storeId}
-                  onChange={e => {
-                    setFormData({...formData, storeId: e.target.value});
-                    // 清空已選擇的機車型號，因為不同店家可能有不同的機車型號
-                    setScooterItems([{ id: '1', model: '', type: '', count: 1 }]);
-                  }}
+                  onChange={e => setFormData({...formData, storeId: e.target.value})}
                 >
                   <option value="">請選擇商店</option>
                   {stores.map((store) => (

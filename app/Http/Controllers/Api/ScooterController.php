@@ -71,23 +71,14 @@ class ScooterController extends Controller
     /**
      * Get unique model + type combinations for booking form (Public)
      * Now returns from ScooterModel table
-     * If store_id is provided, only return models that have available scooters in that store
+     * Returns all scooter models regardless of availability
      */
     public function models(Request $request): JsonResponse
     {
-        $storeId = $request->get('store_id');
-        
-        $query = ScooterModel::query();
-        
-        // 如果提供了 store_id，只返回該商店有可用機車的型號
-        if ($storeId) {
-            $query->whereHas('scooters', function ($q) use ($storeId) {
-                $q->where('store_id', $storeId)
-                  ->where('status', '待出租');
-            });
-        }
-        
-        $models = $query->orderBy('name')
+        // 返回所有機車型號，不根據可用性過濾
+        // 這樣用戶可以看到所有可選的機車類型，即使該店家目前沒有可用機車
+        $models = ScooterModel::query()
+            ->orderBy('name')
             ->orderBy('type')
             ->get()
             ->map(function ($scooterModel) {
