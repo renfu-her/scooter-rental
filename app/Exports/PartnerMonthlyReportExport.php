@@ -63,19 +63,34 @@ class PartnerMonthlyReportExport
         $lastCol = Coordinate::stringFromColumnIndex($totalCols);
         
         // 第一行：標題「蘭光智能出租月報表」，右側有店名信息
+        // 計算標題和店名的列數分配
+        // 標題佔大部分列，店名顯示在右側
+        $titleEndCol = $totalCols - 1; // 標題結束列（留一列給店名）
+        $titleEndColStr = Coordinate::stringFromColumnIndex($titleEndCol);
+        
+        // 設置標題
         $titleCell = $sheet->getCell('A' . $row);
         $titleCell->setValue('蘭光智能出租月報表');
-        if ($this->storeName) {
-            // 在同一個儲存格中換行顯示店名
-            $titleCell->setValue('蘭光智能出租月報表' . "\n" . '店名：' . $this->storeName);
-        }
-        $sheet->mergeCells('A' . $row . ':' . $lastCol . $row);
+        $sheet->mergeCells('A' . $row . ':' . $titleEndColStr . $row);
         $titleStyle = $sheet->getStyle('A' . $row);
         $titleStyle->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
         $titleStyle->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
-        $titleStyle->getAlignment()->setWrapText(true);
         $titleStyle->getFont()->setBold(true);
         $titleStyle->getFont()->setSize(14);
+        
+        // 在右側顯示店名（如果有的話）
+        if ($this->storeName) {
+            $storeNameCol = $totalCols; // 店名顯示在最後一列
+            $storeNameColStr = Coordinate::stringFromColumnIndex($storeNameCol);
+            $storeNameCell = $sheet->getCell($storeNameColStr . $row);
+            $storeNameCell->setValue('店家：' . $this->storeName);
+            $storeNameStyle = $sheet->getStyle($storeNameColStr . $row);
+            $storeNameStyle->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+            $storeNameStyle->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
+            $storeNameStyle->getFont()->setBold(true);
+            $storeNameStyle->getFont()->setSize(12);
+        }
+        
         $row++;
         
         // 第二行：各個機車型號（每個型號跨4列）
