@@ -68,10 +68,17 @@ const Booking: React.FC = () => {
     fetchStores();
   }, []);
 
-  // 初始化時獲取所有機車型號（不依賴店家選擇）
+  // 當選擇商店時，重新獲取該商店的機車型號
   useEffect(() => {
-    fetchScooterModels();
-  }, []);
+    if (formData.storeId) {
+      fetchScooterModels();
+      // 清空已選擇的機車項目（因為不同商店可能有不同的機車型號）
+      setScooterItems([{ id: '1', model: '', type: '', count: 1 }]);
+    } else {
+      // 如果沒有選擇商店，獲取所有機車型號
+      fetchScooterModels();
+    }
+  }, [formData.storeId]);
 
   const fetchStores = async () => {
     try {
@@ -102,8 +109,9 @@ const Booking: React.FC = () => {
   const fetchScooterModels = async () => {
     setIsLoadingModels(true);
     try {
-      // 獲取所有機車型號（不根據店家過濾，顯示所有可選類型）
-      const response = await publicApi.scooters.models();
+      // 根據選擇的商店獲取機車型號
+      const params = formData.storeId ? { store_id: parseInt(formData.storeId) } : undefined;
+      const response = await publicApi.scooters.models(params);
       if (response && response.data) {
         setScooterModels(response.data);
       }
