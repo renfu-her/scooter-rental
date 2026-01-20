@@ -15,12 +15,22 @@ class Accessory extends Model
         'stock',
         'rent_price',
         'status',
+        'store_id',
     ];
 
     protected $casts = [
         'stock' => 'integer',
         'rent_price' => 'decimal:2',
+        'store_id' => 'integer',
     ];
+
+    /**
+     * Get the store that owns the accessory.
+     */
+    public function store()
+    {
+        return $this->belongsTo(Store::class);
+    }
 
     /**
      * Update status based on stock

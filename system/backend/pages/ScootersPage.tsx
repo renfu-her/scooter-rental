@@ -30,7 +30,7 @@ interface ScooterModel {
 }
 
 const ScootersPage: React.FC = () => {
-  const { currentStore } = useStore();
+  const { currentStore, stores, setCurrentStore } = useStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingScooter, setEditingScooter] = useState<Scooter | null>(null);
   const [scooters, setScooters] = useState<Scooter[]>([]);
@@ -65,7 +65,7 @@ const ScootersPage: React.FC = () => {
     fetchStores();
     fetchScooterModels();
     fetchScooterTypes();
-  }, [statusFilter, searchTerm]);
+  }, [statusFilter, searchTerm, currentStore]);
 
   // 獲取機車型號顏色映射（從 ScooterModelColor 表獲取）
   useEffect(() => {
@@ -106,6 +106,7 @@ const ScootersPage: React.FC = () => {
       const params: any = {};
       if (statusFilter) params.status = statusFilter;
       if (searchTerm) params.search = searchTerm;
+      // 如果有選擇店家，則過濾該店家的機車；如果選擇「全部店家」，則不過濾
       if (currentStore) params.store_id = currentStore.id;
       const response = await scootersApi.list(Object.keys(params).length > 0 ? params : undefined);
       // API returns { data: [...] }, api.get() returns the whole JSON object
@@ -367,19 +368,27 @@ const ScootersPage: React.FC = () => {
     }
   };
 
-  // 根據所有機車計算計數（不受過濾器影響）
+  // 根據選擇的店家過濾機車（用於計算計數）
+  const filteredScootersForCount = React.useMemo(() => {
+    if (!currentStore) {
+      return allScooters; // 如果沒有選擇店家，使用所有機車
+    }
+    return allScooters.filter(s => s.store_id === currentStore.id);
+  }, [allScooters, currentStore]);
+
+  // 根據過濾後的機車計算計數（考慮店家過濾）
   const statusCounts = {
-    all: allScooters.length,
-    '待出租': allScooters.filter(s => s.status === '待出租').length,
-    '出租中': allScooters.filter(s => s.status === '出租中').length,
-    '保養中': allScooters.filter(s => s.status === '保養中').length,
+    all: filteredScootersForCount.length,
+    '待出租': filteredScootersForCount.filter(s => s.status === '待出租').length,
+    '出租中': filteredScootersForCount.filter(s => s.status === '出租中').length,
+    '保養中': filteredScootersForCount.filter(s => s.status === '保養中').length,
   };
 
-  // 計算各機車型號的統計（基於所有機車）
+  // 計算各機車型號的統計（基於過濾後的機車，考慮店家過濾）
   const modelStatistics = React.useMemo(() => {
     const stats: Record<string, { total: number; colors: Record<string, number> }> = {};
     
-    allScooters.forEach(scooter => {
+    filteredScootersForCount.forEach(scooter => {
       if (!stats[scooter.model]) {
         stats[scooter.model] = { total: 0, colors: {} };
       }
@@ -393,7 +402,7 @@ const ScootersPage: React.FC = () => {
     });
     
     return stats;
-  }, [allScooters]);
+  }, [filteredScootersForCount]);
 
   return (
     <div className="px-6 pb-6 pt-0 dark:text-gray-100">
@@ -436,50 +445,77 @@ const ScootersPage: React.FC = () => {
       )}
 
       <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
-        <div className="p-5 bg-gray-50/30 dark:bg-gray-800/50 flex flex-col md:flex-row justify-between items-center gap-4 border-b border-gray-100 dark:border-gray-700">
-           <div className="flex items-center space-x-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
-             <button 
-               onClick={() => setStatusFilter('')}
-               className={`px-5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors ${
-                 !statusFilter ? 'bg-orange-600 text-white shadow-sm shadow-orange-100' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
-               }`}
-             >
-               全部 {statusCounts.all}
-             </button>
-             <button 
-               onClick={() => setStatusFilter('待出租')}
-               className={`px-5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors ${
-                 statusFilter === '待出租' ? 'bg-orange-600 text-white shadow-sm shadow-orange-100' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
-               }`}
-             >
-               待出租 {statusCounts['待出租']}
-             </button>
-             <button 
-               onClick={() => setStatusFilter('出租中')}
-               className={`px-5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors ${
-                 statusFilter === '出租中' ? 'bg-orange-600 text-white shadow-sm shadow-orange-100' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
-               }`}
-             >
-               出租中 {statusCounts['出租中']}
-             </button>
-             <button 
-               onClick={() => setStatusFilter('保養中')}
-               className={`px-5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors ${
-                 statusFilter === '保養中' ? 'bg-orange-600 text-white shadow-sm shadow-orange-100' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
-               }`}
-             >
-               保養中 {statusCounts['保養中']}
-             </button>
-           </div>
-           <div className="relative w-full max-w-xs">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-            <input 
-              type="text" 
-              placeholder="搜尋車牌、型號..." 
-              className={searchInputClasses}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+        <div className="p-5 bg-gray-50/30 dark:bg-gray-800/50 flex flex-col gap-4 border-b border-gray-100 dark:border-gray-700">
+          {/* 第一行：狀態篩選和搜尋 */}
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="flex items-center space-x-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
+              <button 
+                onClick={() => setStatusFilter('')}
+                className={`px-5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors ${
+                  !statusFilter ? 'bg-orange-600 text-white shadow-sm shadow-orange-100' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                全部 {statusCounts.all}
+              </button>
+              <button 
+                onClick={() => setStatusFilter('待出租')}
+                className={`px-5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors ${
+                  statusFilter === '待出租' ? 'bg-orange-600 text-white shadow-sm shadow-orange-100' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                待出租 {statusCounts['待出租']}
+              </button>
+              <button 
+                onClick={() => setStatusFilter('出租中')}
+                className={`px-5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors ${
+                  statusFilter === '出租中' ? 'bg-orange-600 text-white shadow-sm shadow-orange-100' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                出租中 {statusCounts['出租中']}
+              </button>
+              <button 
+                onClick={() => setStatusFilter('保養中')}
+                className={`px-5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors ${
+                  statusFilter === '保養中' ? 'bg-orange-600 text-white shadow-sm shadow-orange-100' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                保養中 {statusCounts['保養中']}
+              </button>
+            </div>
+            <div className="relative w-full max-w-xs">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+              <input 
+                type="text" 
+                placeholder="搜尋車牌、型號..." 
+                className={searchInputClasses}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+          </div>
+          {/* 第二行：店家選擇器 */}
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
+              店家：
+            </label>
+            <div className="relative flex-1 max-w-xs">
+              <select
+                className={selectClasses}
+                value={currentStore?.id || ''}
+                onChange={(e) => {
+                  const selectedStore = stores.find(s => s.id === parseInt(e.target.value));
+                  setCurrentStore(selectedStore || null);
+                }}
+              >
+                <option value="">全部店家</option>
+                {stores.map(store => (
+                  <option key={store.id} value={store.id}>
+                    {store.name}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown size={18} className={chevronDownClasses} />
+            </div>
           </div>
         </div>
 

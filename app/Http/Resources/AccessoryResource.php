@@ -21,6 +21,13 @@ class AccessoryResource extends JsonResource
             'stock' => $this->stock,
             'rent_price' => (float) $this->rent_price,
             'status' => $this->status,
+            'store_id' => $this->store_id,
+            'store' => $this->whenLoaded('store', function () {
+                return $this->store ? [
+                    'id' => $this->store->id,
+                    'name' => $this->store->name,
+                ] : null;
+            }),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

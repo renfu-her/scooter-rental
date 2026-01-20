@@ -446,13 +446,13 @@ export const finesApi = {
 };
 
 export const accessoriesApi = {
-  list: (params?: { category?: string; status?: string; search?: string }) =>
+  list: (params?: { category?: string; status?: string; search?: string; store_id?: number }) =>
     api.get('/accessories', params),
   get: (id: string | number) => api.get(`/accessories/${id}`),
   create: (data: any) => api.post('/accessories', data),
   update: (id: string | number, data: any) => api.put(`/accessories/${id}`, data),
   delete: (id: string | number) => api.delete(`/accessories/${id}`),
-  statistics: () => api.get('/accessories/statistics'),
+  statistics: (params?: { store_id?: number }) => api.get('/accessories/statistics', params),
 };
 
 export const usersApi = {

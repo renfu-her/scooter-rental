@@ -16,7 +16,7 @@ class AccessoryController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $query = Accessory::query();
+        $query = Accessory::with('store');
 
         // Search
         if ($request->has('search')) {
@@ -32,6 +32,11 @@ class AccessoryController extends Controller
         // Filter by status
         if ($request->has('status')) {
             $query->where('status', $request->get('status'));
+        }
+
+        // Filter by store_id
+        if ($request->has('store_id')) {
+            $query->where('store_id', $request->get('store_id'));
         }
 
         $accessories = $query->orderBy('created_at', 'desc')->get();
@@ -99,6 +104,7 @@ class AccessoryController extends Controller
             'category' => 'required|in:防護,配件,雨具,其他',
             'stock' => 'required|integer|min:0',
             'rent_price' => 'required|numeric|min:0',
+            'store_id' => 'nullable|exists:stores,id',
         ]);
 
         if ($validator->fails()) {
@@ -142,16 +148,23 @@ class AccessoryController extends Controller
     /**
      * Get statistics
      */
-    public function statistics(): JsonResponse
+    public function statistics(Request $request): JsonResponse
     {
-        $total = Accessory::count();
-        $categories = Accessory::selectRaw('category, COUNT(*) as count')
+        $query = Accessory::query();
+
+        // Filter by store_id if provided
+        if ($request->has('store_id')) {
+            $query->where('store_id', $request->get('store_id'));
+        }
+
+        $total = $query->count();
+        $categories = (clone $query)->selectRaw('category, COUNT(*) as count')
             ->groupBy('category')
             ->pluck('count', 'category')
             ->toArray();
-        $totalStock = Accessory::sum('stock');
-        $outOfStock = Accessory::where('status', '缺貨')->count();
-        $lowStock = Accessory::where('status', '低庫存')->count();
+        $totalStock = (clone $query)->sum('stock');
+        $outOfStock = (clone $query)->where('status', '缺貨')->count();
+        $lowStock = (clone $query)->where('status', '低庫存')->count();
 
         return response()->json([
             'data' => [

@@ -1,5 +1,105 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-20 16:56:19 (Asia/Taipei) - 機車配件管理頁面添加店家（store_id）功能
+
+### 變更內容
+
+#### 資料庫變更
+
+- **新增 Migration** (`database/migrations/2026_01_20_165400_add_store_id_to_accessories_table.php`)
+  - 為 `accessories` 表添加 `store_id` 欄位
+  - 設置為可為空的外鍵，關聯到 `stores` 表
+  - 使用 `onDelete('set null')` 當商店被刪除時設為 null
+
+#### 後端變更
+
+- **Accessory.php** (`app/Models/Accessory.php`)
+  - 在 `$fillable` 中添加 `store_id`
+  - 在 `$casts` 中添加 `store_id` 為 integer
+  - 添加 `store()` 關聯方法，關聯到 `Store` 模型
+
+- **AccessoryController.php** (`app/Http/Controllers/Api/AccessoryController.php`)
+  - 在 `index` 方法中添加 `store_id` 過濾功能
+  - 在查詢中使用 `with('store')` 預載入 store 關聯
+  - 在 `store` 和 `update` 方法中添加 `store_id` 驗證規則
+  - 修改 `statistics` 方法，添加 `store_id` 參數支持，統計數據會根據選擇的店家過濾
+
+- **AccessoryResource.php** (`app/Http/Resources/AccessoryResource.php`)
+  - 在返回數據中添加 `store_id` 和 `store` 信息
+
+#### 前端變更
+
+- **AccessoriesPage.tsx** (`system/backend/pages/AccessoriesPage.tsx`)
+  - 添加 `useStore` hook 獲取 `currentStore`、`stores` 和 `setCurrentStore`
+  - 在過濾區域添加店家選擇器（位於搜尋框下方）
+  - 添加 `allAccessories` 狀態用於儲存所有配件（用於計算計數）
+  - 修改 `fetchAccessories` 方法，根據選擇的店家過濾配件列表
+  - 修改 `fetchStatistics` 方法，傳入 `store_id` 參數進行統計
+  - 在表格中添加「所屬商店」欄位
+  - 在新增/編輯表單中添加「所屬商店」選擇器（必填欄位）
+  - 更新 `formData` 添加 `store_id` 欄位
+  - 更新 `handleOpenModal` 和 `handleCloseModal` 處理 `store_id`
+
+- **api.ts** (`system/backend/lib/api.ts`)
+  - 更新 `accessoriesApi.list` 添加 `store_id` 參數
+  - 更新 `accessoriesApi.statistics` 添加 `store_id` 參數支持
+
+### 功能說明
+
+- 現在機車配件管理頁面支持店家功能：
+  - 可以選擇特定店家來過濾配件列表
+  - 統計數據（配件類別、總庫存量、缺貨品項、低庫存預警）會根據選擇的店家過濾
+  - 新增/編輯配件時必須選擇所屬商店
+  - 表格中顯示每個配件的所屬商店
+
+---
+
+## 2026-01-20 16:53:37 (Asia/Taipei) - 機車管理頁面總台數和狀態計數加入店家過濾
+
+### 變更內容
+
+#### 前端變更
+
+- **ScootersPage.tsx** (`system/backend/pages/ScootersPage.tsx`)
+  - 修改總台數計算邏輯，加入店家（store_id）過濾
+  - 修改狀態計數（全部、待出租、出租中、保養中）計算邏輯，加入店家（store_id）過濾
+  - 新增 `filteredScootersForCount` 變數，根據選擇的店家過濾機車
+  - 當選擇特定店家時，總台數和狀態計數只計算該店家的機車
+  - 當選擇「全部店家」時，計算所有店家的機車
+
+### 功能說明
+
+- 現在機車管理頁面的總台數統計會根據選擇的店家進行過濾
+- 狀態計數（全部、待出租、出租中、保養中）也會根據選擇的店家進行過濾
+- 選擇特定店家時，只顯示該店家的統計數據
+- 選擇「全部店家」時，顯示所有店家的統計數據
+
+---
+
+## 2026-01-20 16:50:58 (Asia/Taipei) - 在機車管理頁面添加店家選擇器
+
+### 變更內容
+
+#### 前端變更
+
+- **ScootersPage.tsx** (`system/backend/pages/ScootersPage.tsx`)
+  - 在機車管理頁面的過濾區域添加店家選擇器
+  - 使用 `useStore` hook 獲取 `stores` 和 `setCurrentStore`
+  - 在狀態篩選按鈕下方添加店家下拉選單
+  - 可以選擇「全部店家」或特定店家來過濾機車列表
+  - 當選擇店家時，只顯示該店家的機車
+  - 當選擇「全部店家」時，顯示所有機車
+  - 添加 `currentStore` 到 `useEffect` 依賴項，當店家選擇改變時自動重新載入機車列表
+
+### 功能說明
+
+- 現在用戶可以在機車管理頁面選擇要查看哪個店家的機車
+- 店家選擇器位於過濾區域的第二行，標籤為「店家：」
+- 選擇店家後，機車列表會自動過濾顯示該店家的機車
+- 選擇「全部店家」可以查看所有店家的機車
+
+---
+
 ## 2026-01-20 11:16:23 (Asia/Taipei) - 恢復前端生成 Excel 並在標題下方顯示店家名稱
 
 ### 變更內容

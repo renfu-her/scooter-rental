@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, Plus, Package, Edit3, Trash2, ShieldCheck, ShoppingBag, Smartphone, CloudRain, X, Loader2, MoreHorizontal, ChevronDown } from 'lucide-react';
-import { accessoriesApi } from '../lib/api';
+import { accessoriesApi, storesApi } from '../lib/api';
+import { useStore } from '../contexts/StoreContext';
 import { inputClasses, selectClasses, labelClasses, searchInputClasses, chevronDownClasses, modalCancelButtonClasses, modalSubmitButtonClasses } from '../styles';
 
 interface Accessory {
@@ -10,6 +11,13 @@ interface Accessory {
   stock: number;
   rent_price: number;
   status: '充足' | '低庫存' | '缺貨';
+  store_id?: number | null;
+  store?: { id: number; name: string };
+}
+
+interface Store {
+  id: number;
+  name: string;
 }
 
 interface Statistics {
@@ -22,9 +30,11 @@ interface Statistics {
 }
 
 const AccessoriesPage: React.FC = () => {
+  const { currentStore, stores, setCurrentStore } = useStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingAccessory, setEditingAccessory] = useState<Accessory | null>(null);
   const [accessories, setAccessories] = useState<Accessory[]>([]);
+  const [allAccessories, setAllAccessories] = useState<Accessory[]>([]); // 儲存所有配件用於計算計數
   const [statistics, setStatistics] = useState<Statistics | null>(null);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -37,12 +47,13 @@ const AccessoriesPage: React.FC = () => {
     category: '防護' as '防護' | '配件' | '雨具' | '其他',
     stock: '',
     rent_price: '',
+    store_id: '',
   });
 
   useEffect(() => {
     fetchAccessories();
     fetchStatistics();
-  }, [searchTerm]);
+  }, [searchTerm, currentStore]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -59,12 +70,22 @@ const AccessoriesPage: React.FC = () => {
   const fetchAccessories = async () => {
     setLoading(true);
     try {
-      const response = await accessoriesApi.list(searchTerm ? { search: searchTerm } : undefined);
+      // 獲取所有配件用於計算計數
+      const allResponse = await accessoriesApi.list();
+      const allAccessoriesData = allResponse.data?.data || allResponse.data || [];
+      setAllAccessories(Array.isArray(allAccessoriesData) ? allAccessoriesData : []);
+      
+      // 獲取過濾後的配件用於顯示
+      const params: any = {};
+      if (searchTerm) params.search = searchTerm;
+      if (currentStore) params.store_id = currentStore.id;
+      const response = await accessoriesApi.list(Object.keys(params).length > 0 ? params : undefined);
       const accessoriesData = response.data?.data || response.data || [];
       setAccessories(Array.isArray(accessoriesData) ? accessoriesData : []);
     } catch (error) {
       console.error('Failed to fetch accessories:', error);
       setAccessories([]);
+      setAllAccessories([]);
     } finally {
       setLoading(false);
     }
@@ -72,7 +93,9 @@ const AccessoriesPage: React.FC = () => {
 
   const fetchStatistics = async () => {
     try {
-      const response = await accessoriesApi.statistics();
+      const params: any = {};
+      if (currentStore) params.store_id = currentStore.id;
+      const response = await accessoriesApi.statistics(params);
       setStatistics(response.data);
     } catch (error) {
       console.error('Failed to fetch statistics:', error);
@@ -87,6 +110,7 @@ const AccessoriesPage: React.FC = () => {
         category: accessory.category,
         stock: String(accessory.stock),
         rent_price: String(accessory.rent_price),
+        store_id: accessory.store_id ? String(accessory.store_id) : '',
       });
     } else {
       setEditingAccessory(null);
@@ -95,6 +119,7 @@ const AccessoriesPage: React.FC = () => {
         category: '防護',
         stock: '',
         rent_price: '',
+        store_id: currentStore ? String(currentStore.id) : '',
       });
     }
     setIsModalOpen(true);
@@ -108,11 +133,12 @@ const AccessoriesPage: React.FC = () => {
       category: '防護',
       stock: '',
       rent_price: '',
+      store_id: '',
     });
   };
 
   const handleSubmit = async () => {
-    if (!formData.name || !formData.stock || formData.rent_price === '') {
+    if (!formData.name || !formData.stock || formData.rent_price === '' || !formData.store_id) {
       alert('請填寫必填欄位');
       return;
     }
@@ -123,6 +149,7 @@ const AccessoriesPage: React.FC = () => {
         category: formData.category,
         stock: parseInt(formData.stock),
         rent_price: parseFloat(formData.rent_price),
+        store_id: parseInt(formData.store_id),
       };
 
       if (editingAccessory) {
@@ -225,16 +252,43 @@ const AccessoriesPage: React.FC = () => {
       </div>
 
       <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
-        <div className="p-5 bg-gray-50/30 dark:bg-gray-800/50 flex justify-between items-center border-b border-gray-100 dark:border-gray-700">
-          <div className="relative w-full max-w-sm">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-            <input 
-              type="text" 
-              placeholder="搜尋配件名稱或規格..." 
-              className={searchInputClasses}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+        <div className="p-5 bg-gray-50/30 dark:bg-gray-800/50 flex flex-col gap-4 border-b border-gray-100 dark:border-gray-700">
+          {/* 第一行：搜尋 */}
+          <div className="flex justify-between items-center">
+            <div className="relative w-full max-w-sm">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+              <input 
+                type="text" 
+                placeholder="搜尋配件名稱或規格..." 
+                className={searchInputClasses}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+          </div>
+          {/* 第二行：店家選擇器 */}
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
+              店家：
+            </label>
+            <div className="relative flex-1 max-w-xs">
+              <select
+                className={selectClasses}
+                value={currentStore?.id || ''}
+                onChange={(e) => {
+                  const selectedStore = stores.find(s => s.id === parseInt(e.target.value));
+                  setCurrentStore(selectedStore || null);
+                }}
+              >
+                <option value="">全部店家</option>
+                {stores.map(store => (
+                  <option key={store.id} value={store.id}>
+                    {store.name}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown size={18} className={chevronDownClasses} />
+            </div>
           </div>
         </div>
 
@@ -252,6 +306,7 @@ const AccessoriesPage: React.FC = () => {
                   <th className="px-6 py-5">類別</th>
                   <th className="px-6 py-5">目前庫存</th>
                   <th className="px-6 py-5">租借單價</th>
+                  <th className="px-6 py-5">所屬商店</th>
                   <th className="px-6 py-5">狀態</th>
                   <th className="px-6 py-5 text-center">操作</th>
                 </tr>
@@ -259,7 +314,7 @@ const AccessoriesPage: React.FC = () => {
               <tbody className="divide-y divide-gray-100">
                 {accessories.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
+                    <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
                       目前沒有配件資料
                     </td>
                   </tr>
@@ -275,6 +330,7 @@ const AccessoriesPage: React.FC = () => {
                       </td>
                       <td className="px-6 py-5 text-gray-700 dark:text-gray-300 font-black tracking-tight">{item.stock} <span className="text-[10px] text-gray-400 dark:text-gray-500 font-medium">件</span></td>
                       <td className="px-6 py-5 font-bold text-gray-900 dark:text-gray-100">${item.rent_price}</td>
+                      <td className="px-6 py-5 text-gray-500 dark:text-gray-400 font-medium">{item.store?.name || '-'}</td>
                       <td className="px-6 py-5">
                         <span className={`px-3 py-1 rounded-full text-[10px] font-black shadow-sm ${getStatusStyle(item.status)}`}>
                           {item.status}
@@ -357,6 +413,22 @@ const AccessoriesPage: React.FC = () => {
               </button>
             </div>
             <div className="p-8 space-y-5 overflow-y-auto max-h-[calc(90vh-180px)]">
+              <div>
+                <label className={labelClasses}>所屬商店 <span className="text-red-500">*</span></label>
+                <div className="relative">
+                  <select 
+                    className={selectClasses}
+                    value={formData.store_id}
+                    onChange={(e) => setFormData({ ...formData, store_id: e.target.value })}
+                  >
+                    <option value="" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">請選擇</option>
+                    {stores.map(store => (
+                      <option key={store.id} value={store.id} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">{store.name}</option>
+                    ))}
+                  </select>
+                  <ChevronDown size={18} className={chevronDownClasses} />
+                </div>
+              </div>
               <div>
                 <label className={labelClasses}>配件完整名稱 <span className="text-red-500">*</span></label>
                 <input 
