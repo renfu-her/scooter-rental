@@ -65,13 +65,15 @@ const FinesPage: React.FC = () => {
   useEffect(() => {
     fetchFines();
     fetchScooters();
-  }, [paymentStatusFilter, searchTerm]);
+  }, [paymentStatusFilter, searchTerm, currentStore]);
 
   const fetchFines = async () => {
     setLoading(true);
     try {
-      // 獲取所有罰單用於計算計數
-      const allResponse = await finesApi.list();
+      // 獲取所有罰單用於計算計數（根據當前店家過濾）
+      const allParams: any = {};
+      if (currentStore) allParams.store_id = currentStore.id;
+      const allResponse = await finesApi.list(Object.keys(allParams).length > 0 ? allParams : undefined);
       setAllFines(allResponse.data || []);
       
       // 獲取過濾後的罰單用於顯示
@@ -90,7 +92,10 @@ const FinesPage: React.FC = () => {
 
   const fetchScooters = async () => {
     try {
-      const response = await scootersApi.list();
+      // 根據當前店家過濾機車列表
+      const params: any = {};
+      if (currentStore) params.store_id = currentStore.id;
+      const response = await scootersApi.list(Object.keys(params).length > 0 ? params : undefined);
       setScooters(response.data || []);
     } catch (error) {
       console.error('Failed to fetch scooters:', error);
