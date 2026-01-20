@@ -142,10 +142,12 @@ const ConvertBookingModal: React.FC<ConvertBookingModalProps> = ({ isOpen, onClo
 
     setIsSubmitting(true);
     try {
+      // 確保預約的 store_id 被正確傳遞到訂單
+      const storeId = booking.store_id || booking.store?.id || null;
       await bookingsApi.convertToOrder(booking.id, {
         partner_id: selectedPartnerId,
         payment_method: paymentMethod,
-        store_id: booking.store_id || booking.store?.id || null,
+        store_id: storeId, // 確保預約的 store_id 被帶入訂單
         // 不傳入 payment_amount，讓後端根據合作商的機車型號費用自動計算調車費用
         // 不傳送 scooter_ids，讓後端自動選擇
       });

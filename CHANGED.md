@@ -1,5 +1,32 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-20 23:06:23 (Asia/Taipei) - 確保線上預約的 store_id 在轉訂單時被正確帶入
+
+### 變更內容
+
+#### 後端變更
+
+- **BookingController.php** (`app/Http/Controllers/Api/BookingController.php`)
+  - 優化 `convertToOrder` 方法中的 `store_id` 處理邏輯
+  - 明確優先使用請求中的 `store_id`，如果沒有則使用 `booking->store_id`
+  - 確保預約的 `store_id` 被正確帶入訂單，避免遺失
+
+#### 前端變更
+
+- **ConvertBookingModal.tsx** (`system/backend/components/ConvertBookingModal.tsx`)
+  - 明確提取 `store_id` 變數，確保預約的 `store_id` 被正確傳遞到訂單轉換 API
+  - 添加註釋說明確保預約的 `store_id` 被帶入訂單
+
+### 功能說明
+
+- **線上預約轉訂單**：
+  - 當將線上預約轉換為訂單時，系統會確保預約的 `store_id` 被正確帶入訂單
+  - 優先使用請求中傳遞的 `store_id`（來自預約的 `store_id`）
+  - 如果請求中沒有 `store_id`，則使用 `booking->store_id`
+  - 確保訂單的 `store_id` 與預約的 `store_id` 保持一致
+
+---
+
 ## 2026-01-20 22:49:34 (Asia/Taipei) - 修復訂單管理的預約訂單轉換時自動使用店家的預設合作商
 
 ### 變更內容

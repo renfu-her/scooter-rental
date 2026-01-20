@@ -594,7 +594,13 @@ class BookingController extends Controller
             DB::beginTransaction();
 
             // 確定 store_id：優先使用請求中的 store_id，其次使用 booking 的 store_id，最後使用 partner 的 store_id
-            $storeId = $request->get('store_id') ?: $booking->store_id;
+            // 確保預約的 store_id 被正確帶入訂單
+            $storeId = $request->get('store_id');
+            if (!$storeId) {
+                // 如果請求中沒有 store_id，優先使用 booking 的 store_id
+                $storeId = $booking->store_id;
+            }
+            // 如果還是沒有 store_id，嘗試從 partner 獲取（但這不應該發生，因為預約應該有 store_id）
             if (!$storeId && $request->get('partner_id')) {
                 $partner = Partner::find($request->get('partner_id'));
                 if ($partner && $partner->store_id) {
