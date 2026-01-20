@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Plus, Search, Bike, Edit3, Trash2, X, Loader2, MoreHorizontal, ChevronDown, Image as ImageIcon } from 'lucide-react';
-import { scootersApi, storesApi, scooterModelColorsApi, scooterModelsApi, scooterTypesApi } from '../lib/api';
+import { scootersApi, scooterModelColorsApi, scooterModelsApi, scooterTypesApi } from '../lib/api';
 import { useStore } from '../contexts/StoreContext';
 import { inputClasses, selectClasses, labelClasses, searchInputClasses, chevronDownClasses, uploadAreaBaseClasses, modalCancelButtonClasses, modalSubmitButtonClasses } from '../styles';
 
@@ -35,7 +35,6 @@ const ScootersPage: React.FC = () => {
   const [editingScooter, setEditingScooter] = useState<Scooter | null>(null);
   const [scooters, setScooters] = useState<Scooter[]>([]);
   const [allScooters, setAllScooters] = useState<Scooter[]>([]); // 儲存所有機車用於計算計數
-  const [stores, setStores] = useState<Store[]>([]);
   const [scooterModels, setScooterModels] = useState<ScooterModel[]>([]);
   const [scooterTypes, setScooterTypes] = useState<Array<{id: number; name: string; color: string | null}>>([]);
   const [modelColorMap, setModelColorMap] = useState<Record<string, string>>({});
@@ -62,7 +61,6 @@ const ScootersPage: React.FC = () => {
 
   useEffect(() => {
     fetchScooters();
-    fetchStores();
     fetchScooterModels();
     fetchScooterTypes();
   }, [statusFilter, searchTerm, currentStore]);
@@ -119,15 +117,6 @@ const ScootersPage: React.FC = () => {
       setScooters([]);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const fetchStores = async () => {
-    try {
-      const response = await storesApi.list();
-      setStores(response.data || []);
-    } catch (error) {
-      console.error('Failed to fetch stores:', error);
     }
   };
 

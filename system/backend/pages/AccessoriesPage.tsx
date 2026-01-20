@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, Plus, Package, Edit3, Trash2, ShieldCheck, ShoppingBag, Smartphone, CloudRain, X, Loader2, MoreHorizontal, ChevronDown } from 'lucide-react';
-import { accessoriesApi, storesApi } from '../lib/api';
+import { accessoriesApi } from '../lib/api';
 import { useStore } from '../contexts/StoreContext';
 import { inputClasses, selectClasses, labelClasses, searchInputClasses, chevronDownClasses, modalCancelButtonClasses, modalSubmitButtonClasses } from '../styles';
 
