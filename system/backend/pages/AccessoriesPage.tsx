@@ -70,16 +70,26 @@ const AccessoriesPage: React.FC = () => {
   const fetchAccessories = async () => {
     setLoading(true);
     try {
-      // 獲取所有配件用於計算計數
-      const allResponse = await accessoriesApi.list();
+      // 始終根據 currentStore 過濾配件列表
+      const params: any = {};
+      if (searchTerm) params.search = searchTerm;
+      if (currentStore) {
+        params.store_id = currentStore.id;
+      } else {
+        // 如果沒有選擇商店，返回空列表
+        setAccessories([]);
+        setAllAccessories([]);
+        setLoading(false);
+        return;
+      }
+      
+      // 獲取所有配件用於計算計數（根據 store_id 過濾）
+      const allResponse = await accessoriesApi.list({ store_id: currentStore.id });
       const allAccessoriesData = allResponse.data?.data || allResponse.data || [];
       setAllAccessories(Array.isArray(allAccessoriesData) ? allAccessoriesData : []);
       
       // 獲取過濾後的配件用於顯示
-      const params: any = {};
-      if (searchTerm) params.search = searchTerm;
-      if (currentStore) params.store_id = currentStore.id;
-      const response = await accessoriesApi.list(Object.keys(params).length > 0 ? params : undefined);
+      const response = await accessoriesApi.list(params);
       const accessoriesData = response.data?.data || response.data || [];
       setAccessories(Array.isArray(accessoriesData) ? accessoriesData : []);
     } catch (error) {
@@ -105,21 +115,25 @@ const AccessoriesPage: React.FC = () => {
   const handleOpenModal = (accessory?: Accessory) => {
     if (accessory) {
       setEditingAccessory(accessory);
+      // 編輯模式：store_id 固定為配件的 store_id
+      const fixedStoreId = accessory.store_id ? String(accessory.store_id) : (currentStore ? String(currentStore.id) : '');
       setFormData({
         name: accessory.name,
         category: accessory.category,
         stock: String(accessory.stock),
         rent_price: String(accessory.rent_price),
-        store_id: accessory.store_id ? String(accessory.store_id) : '',
+        store_id: fixedStoreId,
       });
     } else {
       setEditingAccessory(null);
+      // 新增模式：store_id 固定為 currentStore
+      const fixedStoreId = currentStore ? String(currentStore.id) : '';
       setFormData({
         name: '',
         category: '防護',
         stock: '',
         rent_price: '',
-        store_id: currentStore ? String(currentStore.id) : '',
+        store_id: fixedStoreId,
       });
     }
     setIsModalOpen(true);
@@ -266,30 +280,17 @@ const AccessoriesPage: React.FC = () => {
               />
             </div>
           </div>
-          {/* 第二行：店家選擇器 */}
-          <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
-              店家：
-            </label>
-            <div className="relative flex-1 max-w-xs">
-              <select
-                className={selectClasses}
-                value={currentStore?.id || ''}
-                onChange={(e) => {
-                  const selectedStore = stores.find(s => s.id === parseInt(e.target.value));
-                  setCurrentStore(selectedStore || null);
-                }}
-              >
-                <option value="">全部店家</option>
-                {stores.map(store => (
-                  <option key={store.id} value={store.id}>
-                    {store.name}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown size={18} className={chevronDownClasses} />
+          {/* 第二行：顯示當前商店（只讀） */}
+          {currentStore && (
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
+                店家：
+              </label>
+              <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                {currentStore.name}
+              </span>
             </div>
-          </div>
+          )}
         </div>
 
         {loading ? (
@@ -415,19 +416,14 @@ const AccessoriesPage: React.FC = () => {
             <div className="p-8 space-y-5 overflow-y-auto max-h-[calc(90vh-180px)]">
               <div>
                 <label className={labelClasses}>所屬商店 <span className="text-red-500">*</span></label>
-                <div className="relative">
-                  <select 
-                    className={selectClasses}
-                    value={formData.store_id}
-                    onChange={(e) => setFormData({ ...formData, store_id: e.target.value })}
-                  >
-                    <option value="" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">請選擇</option>
-                    {stores.map(store => (
-                      <option key={store.id} value={store.id} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">{store.name}</option>
-                    ))}
-                  </select>
-                  <ChevronDown size={18} className={chevronDownClasses} />
-                </div>
+                <input
+                  type="text"
+                  className={`${inputClasses} bg-gray-50 dark:bg-gray-700/50 cursor-not-allowed`}
+                  value={formData.store_id ? stores.find(s => s.id === parseInt(formData.store_id))?.name || '未知商店' : '未選擇商店'}
+                  readOnly
+                  disabled
+                />
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">所屬商店已固定，無法修改</p>
               </div>
               <div>
                 <label className={labelClasses}>配件完整名稱 <span className="text-red-500">*</span></label>

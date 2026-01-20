@@ -95,18 +95,25 @@ const ScootersPage: React.FC = () => {
   const fetchScooters = async () => {
     setLoading(true);
     try {
-      // 獲取所有機車用於計算計數
-      const allResponse = await scootersApi.list();
+      // 始終根據 currentStore 過濾機車列表
+      if (!currentStore) {
+        // 如果沒有選擇商店，返回空列表
+        setScooters([]);
+        setAllScooters([]);
+        setLoading(false);
+        return;
+      }
+      
+      // 獲取所有機車用於計算計數（根據 store_id 過濾）
+      const allResponse = await scootersApi.list({ store_id: currentStore.id });
       const allScootersData = allResponse.data || [];
       setAllScooters(Array.isArray(allScootersData) ? allScootersData : []);
       
       // 獲取過濾後的機車用於顯示
-      const params: any = {};
+      const params: any = { store_id: currentStore.id };
       if (statusFilter) params.status = statusFilter;
       if (searchTerm) params.search = searchTerm;
-      // 如果有選擇店家，則過濾該店家的機車；如果選擇「全部店家」，則不過濾
-      if (currentStore) params.store_id = currentStore.id;
-      const response = await scootersApi.list(Object.keys(params).length > 0 ? params : undefined);
+      const response = await scootersApi.list(params);
       // API returns { data: [...] }, api.get() returns the whole JSON object
       // So response.data is the array
       const scootersData = response.data || [];
@@ -115,6 +122,7 @@ const ScootersPage: React.FC = () => {
     } catch (error) {
       console.error('Failed to fetch scooters:', error);
       setScooters([]);
+      setAllScooters([]);
     } finally {
       setLoading(false);
     }
@@ -149,8 +157,10 @@ const ScootersPage: React.FC = () => {
       setEditingScooter(scooter);
       // 從 scooter 的 scooter_model_id 或 model 來查找對應的 scooter_model_id
       const scooterModel = scooterModels.find(m => m.name === scooter.model && m.type === scooter.type);
+      // 編輯模式：store_id 固定為機車的 store_id
+      const fixedStoreId = String(scooter.store_id);
       setFormData({
-        store_id: String(scooter.store_id),
+        store_id: fixedStoreId,
         plate_number: scooter.plate_number,
         scooter_model_id: scooterModel ? String(scooterModel.id) : '',
         model: scooter.model,
@@ -162,8 +172,10 @@ const ScootersPage: React.FC = () => {
       setShouldDeletePhoto(false);
     } else {
       setEditingScooter(null);
+      // 新增模式：store_id 固定為 currentStore
+      const fixedStoreId = currentStore ? String(currentStore.id) : '';
       setFormData({
-        store_id: '',
+        store_id: fixedStoreId,
         plate_number: '',
         scooter_model_id: '',
         model: '',
@@ -360,7 +372,7 @@ const ScootersPage: React.FC = () => {
   // 根據選擇的店家過濾機車（用於計算計數）
   const filteredScootersForCount = React.useMemo(() => {
     if (!currentStore) {
-      return allScooters; // 如果沒有選擇店家，使用所有機車
+      return []; // 如果沒有選擇店家，返回空數組
     }
     return allScooters.filter(s => s.store_id === currentStore.id);
   }, [allScooters, currentStore]);
@@ -482,30 +494,17 @@ const ScootersPage: React.FC = () => {
               />
             </div>
           </div>
-          {/* 第二行：店家選擇器 */}
-          <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
-              店家：
-            </label>
-            <div className="relative flex-1 max-w-xs">
-              <select
-                className={selectClasses}
-                value={currentStore?.id || ''}
-                onChange={(e) => {
-                  const selectedStore = stores.find(s => s.id === parseInt(e.target.value));
-                  setCurrentStore(selectedStore || null);
-                }}
-              >
-                <option value="">全部店家</option>
-                {stores.map(store => (
-                  <option key={store.id} value={store.id}>
-                    {store.name}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown size={18} className={chevronDownClasses} />
+          {/* 第二行：顯示當前商店（只讀） */}
+          {currentStore && (
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
+                店家：
+              </label>
+              <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                {currentStore.name}
+              </span>
             </div>
-          </div>
+          )}
         </div>
 
         {loading ? (
@@ -625,19 +624,14 @@ const ScootersPage: React.FC = () => {
                   <label className={labelClasses}>
                     所屬商店 <span className="text-red-500">*</span>
                   </label>
-                  <div className="relative">
-                    <select 
-                      className={selectClasses}
-                      value={formData.store_id}
-                      onChange={(e) => setFormData({ ...formData, store_id: e.target.value })}
-                    >
-                      <option value="" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">請選擇</option>
-                      {stores.map(store => (
-                        <option key={store.id} value={store.id} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">{store.name}</option>
-                      ))}
-                    </select>
-                    <ChevronDown size={18} className={chevronDownClasses} />
-                  </div>
+                  <input
+                    type="text"
+                    className={`${inputClasses} bg-gray-50 dark:bg-gray-700/50 cursor-not-allowed`}
+                    value={formData.store_id ? stores.find(s => s.id === parseInt(formData.store_id))?.name || '未知商店' : '未選擇商店'}
+                    readOnly
+                    disabled
+                  />
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">所屬商店已固定，無法修改</p>
                 </div>
                 <div>
                   <label className={labelClasses}>
