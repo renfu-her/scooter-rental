@@ -537,22 +537,22 @@ const StoresPage: React.FC = () => {
                               alt={`環境圖片 ${index + 1}`}
                               className="w-full h-full object-cover"
                             />
-                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center gap-2">
+                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex flex-col items-center justify-center gap-2">
                               <button
                                 type="button"
                                 onClick={() => handleMoveEnvironmentImage(img.id, 'up')}
                                 disabled={index === 0}
-                                className={`p-2 rounded-full bg-white/90 hover:bg-white transition-colors ${
+                                className={`p-2 rounded-full bg-white dark:bg-gray-800 hover:bg-white dark:hover:bg-gray-700 transition-colors border border-gray-300 dark:border-gray-600 shadow-lg ${
                                   index === 0 ? 'opacity-50 cursor-not-allowed' : ''
                                 }`}
                                 title="上移"
                               >
-                                <ArrowUp size={16} />
+                                <ArrowUp size={16} className="text-gray-800 dark:text-white" />
                               </button>
                               <button
                                 type="button"
                                 onClick={() => handleDeleteEnvironmentImage(img.id)}
-                                className="p-2 rounded-full bg-red-500/90 hover:bg-red-600 text-white transition-colors"
+                                className="p-2 rounded-full bg-red-500/90 hover:bg-red-600 text-white transition-colors shadow-lg"
                                 title="刪除"
                               >
                                 <X size={16} />
@@ -561,12 +561,12 @@ const StoresPage: React.FC = () => {
                                 type="button"
                                 onClick={() => handleMoveEnvironmentImage(img.id, 'down')}
                                 disabled={index === environmentImages.length - 1}
-                                className={`p-2 rounded-full bg-white/90 hover:bg-white transition-colors ${
+                                className={`p-2 rounded-full bg-white dark:bg-gray-800 hover:bg-white dark:hover:bg-gray-700 transition-colors border border-gray-300 dark:border-gray-600 shadow-lg ${
                                   index === environmentImages.length - 1 ? 'opacity-50 cursor-not-allowed' : ''
                                 }`}
                                 title="下移"
                               >
-                                <ArrowDown size={16} />
+                                <ArrowDown size={16} className="text-gray-800 dark:text-white" />
                               </button>
                             </div>
                           </div>
