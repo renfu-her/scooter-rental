@@ -130,17 +130,15 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
   useEffect(() => {
     if (isOpen) {
       const initializeModal = async () => {
-        // 先獲取合作商和商店
-        await Promise.all([
-          fetchPartners(),
-          fetchStores()
-        ]);
+        // 先獲取商店列表（合作商會在 fixedStoreId 確定後載入）
+        await fetchStores();
         
         if (editingOrder) {
-          // 編輯模式：預填表單數據並獲取訂單詳情以獲取機車 ID
+          // 編輯模式：預填表單數據，store_id 固定為訂單的 store_id
+          const orderStoreId = editingOrder.store_id || editingOrder.store?.id;
           setFormData({
             partner_id: editingOrder.partner?.id.toString() || '',
-            store_id: editingOrder.store_id?.toString() || editingOrder.store?.id.toString() || '',
+            store_id: orderStoreId ? orderStoreId.toString() : '',
             tenant: editingOrder.tenant,
             appointment_date: formatDateForInput(editingOrder.appointment_date),
             start_time: formatDateForInput(editingOrder.start_time),
@@ -161,46 +159,11 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
           } else {
             setIsAmountManuallyEdited(true); // 有金額時，標記為已手動修改（避免自動覆蓋）
           }
-          
-          // 從訂單詳情 API 獲取完整的機車 ID 列表
-          try {
-            const response = await ordersApi.get(editingOrder.id);
-            const orderData = response.data;
-            let scooterIds: number[] = [];
-            
-            // 如果 API 返回包含 scooter_ids 或完整的 scooters 數組
-            if (orderData.scooter_ids && Array.isArray(orderData.scooter_ids)) {
-              scooterIds = orderData.scooter_ids;
-            } else if (orderData.scooters && Array.isArray(orderData.scooters)) {
-              // 如果返回的是完整的機車對象數組
-              scooterIds = orderData.scooters.map((s: any) => s.id || s.scooter_id).filter((id: any) => id);
-            }
-            
-            if (scooterIds.length > 0) {
-              // 獲取這些機車的完整信息（包括已租借的）
-              // 注意：這裡不根據 store_id 過濾，因為訂單中的機車可能屬於任何商店
-              const orderScooters = await fetchScootersByIds(scooterIds);
-              // 將訂單中的機車也加入到可用機車列表中（如果還沒有）
-              setAvailableScooters(prev => {
-                const existingIds = new Set(prev.map(s => s.id));
-                const newScooters = orderScooters.filter((s: Scooter) => !existingIds.has(s.id));
-                return [...prev, ...newScooters];
-              });
-              // 確保在機車信息已載入後再設置選中的機車 ID
-              setSelectedScooterIds(scooterIds);
-            } else {
-              setSelectedScooterIds([]);
-            }
-          } catch (error) {
-            console.error('Failed to fetch order details:', error);
-            setSelectedScooterIds([]);
-          }
         } else {
-          // 新增模式：重置表單
-          const newStoreId = currentStore?.id.toString() || '';
+          // 新增模式：重置表單，store_id 使用 currentStore（固定）
           setFormData({
             partner_id: '',
-            store_id: newStoreId,
+            store_id: currentStore?.id.toString() || '',
             tenant: '',
             appointment_date: '',
             start_time: '',
@@ -225,49 +188,41 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
     }
   }, [isOpen, editingOrder]);
 
-  // 當 currentStore 改變時，如果表單中沒有選擇商店，自動設置為當前商店
-  useEffect(() => {
-    if (isOpen && currentStore && !formData.store_id) {
-      setFormData(prev => ({ ...prev, store_id: currentStore.id.toString() }));
-    }
-  }, [currentStore, isOpen, formData.store_id]);
+  // 確定固定的 store_id（新增模式使用 currentStore，編輯模式使用訂單的 store_id）
+  const fixedStoreId = editingOrder 
+    ? (editingOrder.store_id || editingOrder.store?.id)
+    : (currentStore?.id);
 
-  // 當選擇的商店改變時，重新載入機車列表
+  // 當固定的 store_id 確定後，載入合作商和機車列表
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && fixedStoreId) {
+      // 載入該商店的合作商列表
+      fetchPartners();
+      // 載入該商店的機車列表
       fetchAvailableScooters();
-      // 如果是在編輯模式下，且商店改變了，需要重新驗證訂單中的機車
-      if (editingOrder && formData.store_id) {
-        // 重新獲取訂單中的機車（根據新的 store_id 過濾）
+      // 如果是編輯模式，載入訂單中的機車
+      if (editingOrder) {
         const scooterIds = editingOrder.scooters?.map(s => s.id) || [];
         if (scooterIds.length > 0) {
-          fetchScootersByIds(scooterIds, true).then(orderScooters => {
+          fetchScootersByIds(scooterIds).then(orderScooters => {
             setAvailableScooters(prev => {
               const existingIds = new Set(prev.map(s => s.id));
               const newScooters = orderScooters.filter((s: Scooter) => !existingIds.has(s.id));
               return [...prev, ...newScooters];
             });
-            // 只保留在新商店中存在的機車 ID
-            const validScooterIds = orderScooters.map(s => s.id);
-            setSelectedScooterIds(prev => prev.filter(id => validScooterIds.includes(id)));
+            setSelectedScooterIds(scooterIds);
           });
-        } else {
-          // 如果訂單中沒有機車，清空選擇
-          setSelectedScooterIds([]);
         }
-      } else if (!editingOrder) {
-        // 新增模式下，清空已選擇的機車（因為不同店家可能有不同的機車）
-        setSelectedScooterIds([]);
       }
     }
-  }, [formData.store_id, isOpen]);
+  }, [fixedStoreId, isOpen, editingOrder]);
 
   const fetchAvailableScooters = async () => {
     try {
-      // 根據選擇的商店過濾機車列表（只顯示狀態為「待出租」的機車）
+      // 根據固定的 store_id 過濾機車列表（只顯示狀態為「待出租」的機車）
       const params: any = { status: '待出租' };
-      if (formData.store_id) {
-        params.store_id = parseInt(formData.store_id);
+      if (fixedStoreId) {
+        params.store_id = fixedStoreId;
       }
       const response = await scootersApi.list(params);
       setAvailableScooters(response.data || []);
@@ -276,13 +231,12 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
     }
   };
 
-  const fetchScootersByIds = async (scooterIds: number[], useStoreFilter: boolean = false): Promise<Scooter[]> => {
+  const fetchScootersByIds = async (scooterIds: number[]): Promise<Scooter[]> => {
     try {
-      // 獲取所有機車列表（包括已租借的），不傳 status 參數以獲取所有狀態的機車
-      // 如果 useStoreFilter 為 true 且選擇了商店，根據商店過濾
+      // 獲取機車列表（包括已租借的），根據固定的 store_id 過濾
       const params: any = {};
-      if (useStoreFilter && formData.store_id) {
-        params.store_id = parseInt(formData.store_id);
+      if (fixedStoreId) {
+        params.store_id = fixedStoreId;
       }
       const response = await scootersApi.list(params);
       const allScooters = response.data || [];
@@ -304,13 +258,23 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
 
   const fetchPartners = async () => {
     try {
-      const response = await partnersApi.list();
+      // 根據固定的 store_id 過濾合作商列表
+      const params = fixedStoreId ? { store_id: fixedStoreId } : undefined;
+      const response = await partnersApi.list(params);
       // 確保載入 transfer_fees 關係
       const partnersWithFees = (response.data || []).map((partner: any) => ({
         ...partner,
         transfer_fees: partner.transfer_fees || [],
       }));
       setPartners(partnersWithFees);
+      
+      // 如果沒有選擇合作商，自動選擇該商店的預設合作商
+      if (!formData.partner_id && partnersWithFees.length > 0) {
+        const defaultPartner = partnersWithFees.find((p: any) => p.is_default_for_booking);
+        if (defaultPartner) {
+          setFormData(prev => ({ ...prev, partner_id: defaultPartner.id.toString() }));
+        }
+      }
     } catch (error) {
       console.error('Failed to fetch partners:', error);
     }
@@ -440,7 +404,7 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
     try {
       const orderData = {
         partner_id: formData.partner_id || null,
-        store_id: formData.store_id || currentStore?.id || null,
+        store_id: fixedStoreId || null,
         tenant: formData.tenant,
         appointment_date: formData.appointment_date,
         start_time: formData.start_time,
@@ -566,18 +530,15 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
               <div>
                 <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">商店選擇</label>
                 <div className="relative">
-                  <select 
-                    className={selectClasses}
-                    value={formData.store_id}
-                    onChange={(e) => setFormData({ ...formData, store_id: e.target.value })}
-                  >
-                    <option value="" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">請選擇商店（非必選）</option>
-                    {stores.map(store => (
-                      <option key={store.id} value={store.id} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">{store.name}</option>
-                    ))}
-                  </select>
-                  <ChevronDown size={18} className={chevronDownClasses} />
+                  <input
+                    type="text"
+                    className={`${inputClasses} bg-gray-50 dark:bg-gray-700/50 cursor-not-allowed`}
+                    value={fixedStoreId ? stores.find(s => s.id === fixedStoreId)?.name || '未知商店' : '未選擇商店'}
+                    readOnly
+                    disabled
+                  />
                 </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">商店選擇已固定，無法修改</p>
               </div>
 
               <div>

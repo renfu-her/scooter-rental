@@ -71,18 +71,20 @@ class StoreController extends Controller
         try {
             $store = Store::create($validator->validated());
             
-            // 檢查是否已有預設線上預約合作商
-            $hasDefaultPartner = Partner::where('is_default_for_booking', true)->exists();
+            // 檢查該商店是否已有預設線上預約合作商
+            $hasDefaultPartnerForStore = Partner::where('store_id', $store->id)
+                ->where('is_default_for_booking', true)
+                ->exists();
             
             // 自動創建一個名為「蘭光智能」的合作商，關聯到新創建的商店
-            // 如果系統中沒有其他預設合作商，則將此合作商設為預設（用於線上預約）
+            // 如果該商店沒有預設合作商，則將此合作商設為預設（用於線上預約）
             $partner = Partner::create([
                 'name' => '蘭光智能',
                 'address' => $store->address,
                 'phone' => $store->phone,
                 'manager' => $store->manager,
                 'store_id' => $store->id,
-                'is_default_for_booking' => !$hasDefaultPartner, // 如果沒有其他預設合作商，則設為預設
+                'is_default_for_booking' => !$hasDefaultPartnerForStore, // 如果該商店沒有預設合作商，則設為預設
             ]);
             
             DB::commit();

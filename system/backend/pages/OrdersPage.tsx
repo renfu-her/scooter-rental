@@ -1340,9 +1340,11 @@ const OrdersPage: React.FC = () => {
   // Fetch pending bookings count and list
   const fetchPendingBookings = async () => {
     try {
+      // 根據選擇的商店過濾預約訂單
+      const params = currentStore?.id ? { store_id: currentStore.id } : undefined;
       const [countResponse, listResponse] = await Promise.all([
-        bookingsApi.pendingCount(),
-        bookingsApi.pending(),
+        bookingsApi.pendingCount(params),
+        bookingsApi.pending(params),
       ]);
       setPendingBookingsCount(countResponse.count || 0);
       const bookings = listResponse.data || [];
@@ -1351,10 +1353,15 @@ const OrdersPage: React.FC = () => {
       // 初始化每個預約的合作商
       const initialPartners: Record<number, number | null> = {};
       bookings.forEach((booking: any) => {
-        // 設置預設合作商：優先使用 booking 的 partner_id，否則使用預設合作商
+        // 設置預設合作商：優先使用 booking 的 partner_id，否則使用該商店的預設合作商
         let defaultPartnerId: number | null = booking.partner_id || null;
         if (!defaultPartnerId && partners.length > 0) {
-          const defaultPartner = partners.find((p: any) => p.is_default_for_booking);
+          // 根據 booking 的 store_id 查找該商店的預設合作商
+          const bookingStoreId = booking.store_id || booking.store?.id;
+          const defaultPartner = partners.find((p: any) => 
+            p.is_default_for_booking && 
+            (p.store_id === bookingStoreId || (!p.store_id && !bookingStoreId))
+          );
           defaultPartnerId = defaultPartner ? defaultPartner.id : null;
         }
         initialPartners[booking.id] = defaultPartnerId;
@@ -1389,7 +1396,7 @@ const OrdersPage: React.FC = () => {
     // 每 30 秒刷新一次未確認預約數量
     const interval = setInterval(fetchPendingBookings, 30000);
     return () => clearInterval(interval);
-  }, [partners, rentalPlans]);
+  }, [partners, rentalPlans, currentStore]);
 
   // Fetch orders
   useEffect(() => {

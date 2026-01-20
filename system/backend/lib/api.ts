@@ -343,7 +343,7 @@ export const api = new ApiClient(API_BASE_URL);
 
 // API endpoints
 export const ordersApi = {
-  list: (params?: { month?: string; search?: string; page?: number }) =>
+  list: (params?: { month?: string; search?: string; page?: number; store_id?: number }) =>
     api.get('/orders', params),
   get: (id: string | number) => api.get(`/orders/${id}`),
   create: (data: any) => api.post('/orders', data),
@@ -630,8 +630,8 @@ export const bookingsApi = {
   updateStatus: (id: string | number, status: string) =>
     api.patch(`/bookings/${id}/status`, { status }),
   delete: (id: string | number) => api.delete(`/bookings/${id}`),
-  pending: () => api.get('/bookings/pending'),
-  pendingCount: () => api.get('/bookings/pending/count'),
+  pending: (params?: { store_id?: number }) => api.get('/bookings/pending', params),
+  pendingCount: (params?: { store_id?: number }) => api.get('/bookings/pending/count', params),
   convertToOrder: (id: string | number, data: any) =>
     api.post(`/bookings/${id}/convert-to-order`, data),
 };

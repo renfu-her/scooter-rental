@@ -82,9 +82,20 @@ class PartnerController extends Controller
         $transferFees = $data['transfer_fees'] ?? [];
         unset($data['transfer_fees']);
         
-        // 如果設置為預設，取消其他合作商的預設狀態
+        // 如果設置為預設，取消同一 store_id 下其他合作商的預設狀態
         if (isset($data['is_default_for_booking']) && $data['is_default_for_booking']) {
-            Partner::where('id', '!=', 0)->update(['is_default_for_booking' => false]);
+            $storeId = $data['store_id'] ?? null;
+            if ($storeId) {
+                // 只取消同一 store_id 下其他合作商的預設狀態
+                Partner::where('store_id', $storeId)
+                    ->where('id', '!=', 0)
+                    ->update(['is_default_for_booking' => false]);
+            } else {
+                // 如果沒有 store_id，取消所有沒有 store_id 的合作商的預設狀態
+                Partner::whereNull('store_id')
+                    ->where('id', '!=', 0)
+                    ->update(['is_default_for_booking' => false]);
+            }
         }
 
         DB::beginTransaction();
@@ -161,9 +172,20 @@ class PartnerController extends Controller
         $transferFees = $data['transfer_fees'] ?? null;
         unset($data['transfer_fees']);
         
-        // 如果設置為預設，取消其他合作商的預設狀態
+        // 如果設置為預設，取消同一 store_id 下其他合作商的預設狀態
         if (isset($data['is_default_for_booking']) && $data['is_default_for_booking']) {
-            Partner::where('id', '!=', $partner->id)->update(['is_default_for_booking' => false]);
+            $storeId = $data['store_id'] ?? $partner->store_id;
+            if ($storeId) {
+                // 只取消同一 store_id 下其他合作商的預設狀態
+                Partner::where('store_id', $storeId)
+                    ->where('id', '!=', $partner->id)
+                    ->update(['is_default_for_booking' => false]);
+            } else {
+                // 如果沒有 store_id，取消所有沒有 store_id 的合作商的預設狀態
+                Partner::whereNull('store_id')
+                    ->where('id', '!=', $partner->id)
+                    ->update(['is_default_for_booking' => false]);
+            }
         }
 
         DB::beginTransaction();

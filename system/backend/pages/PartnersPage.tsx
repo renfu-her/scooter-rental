@@ -87,10 +87,18 @@ const PartnersPage: React.FC = () => {
   const fetchPartners = async () => {
     setLoading(true);
     try {
+      // 始終根據 currentStore 過濾合作商列表
       const params: any = {};
       if (searchTerm) params.search = searchTerm;
-      if (currentStore) params.store_id = currentStore.id;
-      const response = await partnersApi.list(Object.keys(params).length > 0 ? params : undefined);
+      if (currentStore) {
+        params.store_id = currentStore.id;
+      } else {
+        // 如果沒有選擇商店，返回空列表
+        setPartners([]);
+        setLoading(false);
+        return;
+      }
+      const response = await partnersApi.list(params);
       // API returns { data: [...] }, api.get() returns the whole JSON object
       // So response.data is the array
       setPartners(response.data || []);
@@ -126,6 +134,9 @@ const PartnersPage: React.FC = () => {
           }))
         : [];
       
+      // 編輯模式：store_id 固定為合作商的 store_id
+      const fixedStoreId = partner.store_id ? String(partner.store_id) : (currentStore ? String(currentStore.id) : '');
+      
       setFormData({
         name: partner.name,
         address: partner.address || '',
@@ -133,7 +144,7 @@ const PartnersPage: React.FC = () => {
         tax_id: partner.tax_id || '',
         manager: partner.manager || '',
         color: partner.color || '',
-        store_id: partner.store_id ? String(partner.store_id) : '',
+        store_id: fixedStoreId,
         is_default_for_booking: partner.is_default_for_booking || false,
         transfer_fees: transferFees,
       });
@@ -150,6 +161,9 @@ const PartnersPage: React.FC = () => {
           }))
         : [];
       
+      // 新增模式：store_id 固定為 currentStore
+      const fixedStoreId = currentStore ? String(currentStore.id) : '';
+      
       setFormData({
         name: '',
         address: '',
@@ -157,7 +171,7 @@ const PartnersPage: React.FC = () => {
         tax_id: '',
         manager: '',
         color: '',
-        store_id: currentStore ? String(currentStore.id) : '',
+        store_id: fixedStoreId,
         is_default_for_booking: false,
         transfer_fees: initialTransferFees,
       });
@@ -346,30 +360,17 @@ const PartnersPage: React.FC = () => {
               />
             </div>
           </div>
-          {/* 第二行：店家選擇器 */}
-          <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
-              店家：
-            </label>
-            <div className="relative flex-1 max-w-xs">
-              <select
-                className={selectClasses}
-                value={currentStore?.id || ''}
-                onChange={(e) => {
-                  const selectedStore = stores.find(s => s.id === parseInt(e.target.value));
-                  setCurrentStore(selectedStore || null);
-                }}
-              >
-                <option value="">全部店家</option>
-                {stores.map(store => (
-                  <option key={store.id} value={store.id}>
-                    {store.name}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown size={18} className={chevronDownClasses} />
+          {/* 第二行：顯示當前商店（只讀） */}
+          {currentStore && (
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
+                店家：
+              </label>
+              <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                {currentStore.name}
+              </span>
             </div>
-          </div>
+          )}
         </div>
 
         {loading ? (
@@ -536,21 +537,14 @@ const PartnersPage: React.FC = () => {
                   <label className={`${labelClasses} flex items-center`}>
                     <Building size={14} className="mr-1.5" /> 所屬商店
                   </label>
-                  <div className="relative">
-                    <select
-                      className={selectClasses}
-                      value={formData.store_id}
-                      onChange={(e) => setFormData({ ...formData, store_id: e.target.value })}
-                    >
-                      <option value="">請選擇</option>
-                      {stores.map(store => (
-                        <option key={store.id} value={store.id}>
-                          {store.name}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown size={18} className={chevronDownClasses} />
-                  </div>
+                  <input
+                    type="text"
+                    className={`${inputClasses} bg-gray-50 dark:bg-gray-700/50 cursor-not-allowed`}
+                    value={formData.store_id ? stores.find(s => s.id === parseInt(formData.store_id))?.name || '未知商店' : '未選擇商店'}
+                    readOnly
+                    disabled
+                  />
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">所屬商店已固定，無法修改</p>
                 </div>
                 <div>
                   <label className={labelClasses}>

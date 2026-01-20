@@ -131,8 +131,14 @@ const StoreSelector: React.FC<{ theme: 'light' | 'dark'; sidebarOpen: boolean }>
                 stores.map((store) => (
                 <div key={store.id} className="group">
                   <div
-                    className={`px-3 py-2 flex items-center justify-between cursor-pointer hover:${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-50'} ${
-                      currentStore?.id === store.id ? (theme === 'dark' ? 'bg-gray-700' : 'bg-orange-50') : ''
+                    className={`px-3 py-2 flex items-center justify-between cursor-pointer transition-all ${
+                      currentStore?.id === store.id 
+                        ? (theme === 'dark' 
+                          ? 'bg-gray-700 border-2 border-orange-500 rounded-lg' 
+                          : 'bg-orange-50 border-2 border-orange-500 rounded-lg')
+                        : (theme === 'dark' 
+                          ? 'hover:bg-gray-700' 
+                          : 'hover:bg-gray-50')
                     }`}
                     onClick={() => {
                       setCurrentStore(store);
@@ -141,7 +147,7 @@ const StoreSelector: React.FC<{ theme: 'light' | 'dark'; sidebarOpen: boolean }>
                   >
                     <div className="flex items-center space-x-2 flex-1 min-w-0">
                       <Store size={14} className="flex-shrink-0" />
-                      <span className={`text-xs font-medium truncate ${currentStore?.id === store.id ? 'text-orange-600 dark:text-orange-400' : ''}`}>
+                      <span className={`text-xs font-medium truncate ${currentStore?.id === store.id ? 'text-orange-600 dark:text-orange-400' : (theme === 'dark' ? 'text-gray-300' : 'text-gray-700')}`}>
                         {store.name}
                       </span>
                     </div>

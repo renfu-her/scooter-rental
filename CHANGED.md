@@ -1,5 +1,154 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-20 21:50:02 (Asia/Taipei) - 修復 dark mode 下商店選擇器選中狀態的可見性
+
+### 變更內容
+
+#### 前端變更
+
+- **StoreSelector.tsx** (`system/backend/components/StoreSelector.tsx`)
+  - 改進選中商店的視覺效果：添加橙色邊框（`border-2 border-orange-500`）和圓角（`rounded-lg`）
+  - 在 dark mode 下，選中的商店現在有明顯的橙色邊框，更容易識別
+  - 改進文字顏色對比度，確保在 dark mode 下文字清晰可見
+  - 統一選中狀態的樣式：同時使用背景色和邊框來突出顯示
+
+### 功能說明
+
+- **商店選擇器**：
+  - 選中的商店現在有明顯的橙色邊框（2px），在 dark mode 和 light mode 下都清晰可見
+  - 選中的商店有圓角背景，視覺效果更明顯
+  - 改進了文字顏色，確保在 dark mode 下有足夠的對比度
+
+---
+
+## 2026-01-20 21:48:47 (Asia/Taipei) - 修復合作商管理頁面以 store_id 為主直接呈現，且新增/編輯時所屬商店固定
+
+### 變更內容
+
+#### 前端變更
+
+- **PartnersPage.tsx** (`system/backend/pages/PartnersPage.tsx`)
+  - 移除商店選擇下拉選單，改為只讀顯示當前商店名稱
+  - 更新 `fetchPartners` 方法：如果沒有選擇商店，返回空列表（確保列表始終根據 store_id 過濾）
+  - 修改 `handleOpenModal` 方法：
+    - 新增模式：`store_id` 固定為 `currentStore.id`
+    - 編輯模式：`store_id` 固定為合作商的原始 `store_id`
+  - 將新增/編輯表單中的「所屬商店」欄位改為只讀輸入框，顯示商店名稱並提示「所屬商店已固定，無法修改」
+
+### 功能說明
+
+- **合作商管理列表**：
+  - 列表始終根據當前選擇的商店（`currentStore.id`）過濾顯示
+  - 移除商店選擇器，改為只讀顯示當前商店名稱（例如：「店家：蘭光總店」）
+  - 如果沒有選擇商店，列表為空
+
+- **新增合作商**：
+  - `store_id` 固定為當前選擇的商店（`currentStore.id`），無法修改
+  - 所屬商店欄位顯示為只讀，提示「所屬商店已固定，無法修改」
+
+- **編輯合作商**：
+  - `store_id` 固定為合作商的原始 `store_id`，無法修改
+  - 所屬商店欄位顯示為只讀，顯示合作商所屬的商店名稱
+
+---
+
+## 2026-01-20 21:46:14 (Asia/Taipei) - 修復訂單新增和編輯時合作商列表根據 store_id 過濾
+
+### 變更內容
+
+#### 前端變更
+
+- **AddOrderModal.tsx** (`system/backend/components/AddOrderModal.tsx`)
+  - 更新 `fetchPartners` 方法，根據 `fixedStoreId` 過濾合作商列表
+  - 將合作商載入邏輯移到 `useEffect` 中，當 `fixedStoreId` 確定後才載入
+  - 當載入合作商列表後，自動選擇該商店的預設合作商（如果存在且尚未選擇）
+  - 簡化初始化邏輯，移除在初始化時載入合作商的步驟
+
+### 功能說明
+
+- **新增訂單**：
+  - 合作商列表只顯示屬於當前商店（`currentStore.id`）的合作商
+  - 如果該商店有預設合作商，會自動選擇該預設合作商
+
+- **編輯訂單**：
+  - 合作商列表只顯示屬於訂單商店（訂單的 `store_id`）的合作商
+  - 保持訂單原有的合作商選擇
+
+---
+
+## 2026-01-20 21:44:29 (Asia/Taipei) - 修復訂單新增和編輯時 store_id 固定且機車列表根據 store_id 過濾
+
+### 變更內容
+
+#### 前端變更
+
+- **AddOrderModal.tsx** (`system/backend/components/AddOrderModal.tsx`)
+  - 引入 `fixedStoreId` 概念：新增模式使用 `currentStore.id`，編輯模式使用訂單的 `store_id`
+  - 移除商店選擇下拉選單的修改功能，改為只讀顯示
+  - 更新 `fetchAvailableScooters` 方法，始終根據 `fixedStoreId` 過濾機車列表
+  - 更新 `fetchScootersByIds` 方法，根據 `fixedStoreId` 過濾機車（用於編輯模式下載入訂單中的機車）
+  - 簡化 `useEffect` 邏輯，當 `fixedStoreId` 確定後載入機車列表
+  - 提交訂單時使用 `fixedStoreId` 而不是 `formData.store_id`
+
+### 功能說明
+
+- **新增訂單**：
+  - `store_id` 固定為當前選擇的商店（`currentStore.id`），無法修改
+  - 機車列表只顯示該商店狀態為「待出租」的機車
+  - 商店選擇欄位顯示為只讀，提示「商店選擇已固定，無法修改」
+
+- **編輯訂單**：
+  - `store_id` 固定為訂單的原始 `store_id`，無法修改
+  - 機車列表只顯示該商店的機車（包括已租借的，以便查看訂單中的機車）
+  - 商店選擇欄位顯示為只讀，顯示訂單所屬的商店名稱
+
+---
+
+## 2026-01-20 21:42:27 (Asia/Taipei) - 修復訂單管理的預約訂單過濾和合作商管理的預設邏輯
+
+### 變更內容
+
+#### 後端變更
+
+- **BookingController.php** (`app/Http/Controllers/Api/BookingController.php`)
+  - 更新 `pending()` 方法，支持根據 `store_id` 參數過濾預約訂單
+  - 更新 `pendingCount()` 方法，支持根據 `store_id` 參數過濾預約訂單數量
+
+- **PartnerController.php** (`app/Http/Controllers/Api/PartnerController.php`)
+  - 修改 `store()` 方法：當設置 `is_default_for_booking = true` 時，只取消同一 `store_id` 下其他合作商的預設狀態
+  - 修改 `update()` 方法：當設置 `is_default_for_booking = true` 時，只取消同一 `store_id` 下其他合作商的預設狀態
+  - 確保每個 `store_id` 都有一個預設的合作商（`is_default_for_booking = true`）
+
+- **StoreController.php** (`app/Http/Controllers/Api/StoreController.php`)
+  - 修改創建新商店時的邏輯：檢查該商店是否已有預設合作商，而不是檢查整個系統
+  - 確保每個新創建的商店都有一個預設的合作商
+
+#### 前端變更
+
+- **api.ts** (`system/backend/lib/api.ts`)
+  - 更新 `bookingsApi.pending()` 和 `pendingCount()` 方法，支持傳遞 `store_id` 參數
+  - 更新 `ordersApi.list()` 的類型定義，添加 `store_id` 參數支持
+
+- **OrdersPage.tsx** (`system/backend/pages/OrdersPage.tsx`)
+  - 修改 `fetchPendingBookings()` 方法，根據 `currentStore` 過濾預約訂單
+  - 更新 `useEffect` 依賴，當 `currentStore` 改變時重新載入預約訂單
+  - 修改預設合作商的查找邏輯，根據預約訂單的 `store_id` 查找該商店的預設合作商
+
+### 功能說明
+
+- **訂單管理的預約訂單**：
+  - 當選擇不同的商店時，預約訂單列表會根據該商店的 `store_id` 自動過濾
+  - 只顯示屬於該商店的預約訂單（`status = '預約中'`）
+  - 預設合作商的選擇會根據預約訂單的 `store_id` 自動匹配該商店的預設合作商
+
+- **合作商管理的預設邏輯**：
+  - 每個 `store_id` 都有一個預設的合作商（`is_default_for_booking = true`）
+  - 當設置一個合作商為預設時，只取消同一 `store_id` 下其他合作商的預設狀態
+  - 不同商店的預設合作商互不影響
+  - 創建新商店時，會自動創建一個預設的合作商「蘭光智能」
+
+---
+
 ## 2026-01-20 17:43:15 (Asia/Taipei) - 修復線上預約頁面根據選擇的商店動態更新機車型號列表
 
 ### 變更內容

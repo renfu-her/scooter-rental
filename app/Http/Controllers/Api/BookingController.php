@@ -329,9 +329,16 @@ class BookingController extends Controller
     /**
      * Get count of pending bookings (status = '預約中')
      */
-    public function pendingCount(): JsonResponse
+    public function pendingCount(Request $request): JsonResponse
     {
-        $count = Booking::where('status', '預約中')->count();
+        $query = Booking::where('status', '預約中');
+        
+        // Filter by store_id
+        if ($request->has('store_id')) {
+            $query->where('store_id', $request->get('store_id'));
+        }
+        
+        $count = $query->count();
 
         return response()->json([
             'count' => $count,
@@ -341,12 +348,17 @@ class BookingController extends Controller
     /**
      * Get list of pending bookings (status = '預約中')
      */
-    public function pending(): JsonResponse
+    public function pending(Request $request): JsonResponse
     {
-        $bookings = Booking::with('store')
-            ->where('status', '預約中')
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $query = Booking::with('store')
+            ->where('status', '預約中');
+        
+        // Filter by store_id
+        if ($request->has('store_id')) {
+            $query->where('store_id', $request->get('store_id'));
+        }
+        
+        $bookings = $query->orderBy('created_at', 'desc')->get();
 
         return response()->json([
             'data' => $bookings,
