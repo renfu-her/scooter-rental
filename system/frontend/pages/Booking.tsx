@@ -141,6 +141,12 @@ const Booking: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // 驗證商店選擇
+    if (!formData.storeId) {
+      alert('請選擇商店');
+      return;
+    }
+
     // 驗證所有租車項目都已選擇
     const invalidItems = scooterItems.filter(item => !item.model || !item.type || item.count < 1);
     if (invalidItems.length > 0) {
@@ -156,7 +162,7 @@ const Booking: React.FC = () => {
         email: formData.email,
         lineId: formData.lineId || undefined,
         phone: formData.phone,
-        storeId: formData.storeId || undefined,
+        storeId: formData.storeId,
         appointmentDate: formData.appointmentDate,
         endDate: formData.endDate,
         shippingCompany: formData.shippingCompany,
@@ -305,14 +311,15 @@ const Booking: React.FC = () => {
 
               <div>
                 <label className="block text-xs sm:text-sm font-bold text-gray-700 mb-2">
-                  選擇商店
+                  選擇商店 <span className="text-red-500">*</span>
                 </label>
                 <select 
+                  required
                   className="w-full px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl border border-gray-200 focus:border-black focus:ring-0 transition-all text-sm sm:text-base"
                   value={formData.storeId}
                   onChange={e => setFormData({...formData, storeId: e.target.value})}
                 >
-                  <option value="">請選擇商店（選填）</option>
+                  <option value="">請選擇商店</option>
                   {stores.map((store) => (
                     <option key={store.id} value={store.id}>
                       {store.name}
@@ -480,7 +487,7 @@ const Booking: React.FC = () => {
             <div className="md:col-span-2 pt-4 sm:pt-6">
               <button 
                 type="submit"
-                disabled={submitting || scooterItems.some(item => !item.model || !item.type)}
+                disabled={submitting || !formData.storeId || scooterItems.some(item => !item.model || !item.type)}
                 className="w-full bg-black text-white py-4 sm:py-5 rounded-full font-bold text-base sm:text-lg hover:bg-teal-700 transition-all shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {submitting ? '提交中...' : '確認送出'}

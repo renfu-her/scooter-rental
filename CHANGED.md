@@ -1,5 +1,37 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-20 09:40:00 (Asia/Taipei) - 線上預約商店選擇改為必填
+
+### 變更內容
+
+#### 前端變更
+
+- **線上預約頁面更新** (`system/frontend/pages/Booking.tsx`)：
+  - 「選擇商店」標籤添加必填標記（紅色 *）
+  - `select` 元素添加 `required` 屬性
+  - 更新 placeholder 文字，從「請選擇商店（選填）」改為「請選擇商店」
+  - 在 `handleSubmit` 中添加商店選擇驗證
+  - 更新提交按鈕的 `disabled` 條件，包含商店選擇驗證
+
+#### 後端變更
+
+- **BookingController 更新** (`app/Http/Controllers/Api/BookingController.php`)：
+  - 將 `storeId` 驗證規則從 `nullable|exists:stores,id` 改為 `required|exists:stores,id`
+  - 移除 `store_id` 賦值時的 `?? null` 處理，因為現在是必填欄位
+
+### 功能說明
+
+1. **前端驗證**：
+   - HTML5 原生驗證：`required` 屬性確保表單提交前必須選擇商店
+   - JavaScript 驗證：在 `handleSubmit` 中檢查商店是否已選擇
+   - UI 反饋：提交按鈕在未選擇商店時會被禁用
+
+2. **後端驗證**：
+   - Laravel 驗證規則確保 `storeId` 必須存在且有效
+   - 如果未提供或無效，返回 422 錯誤和驗證錯誤訊息
+
+---
+
 ## 2026-01-20 09:25:00 (Asia/Taipei) - 關於我們頁面顯示商店環境圖片
 
 ### 變更內容

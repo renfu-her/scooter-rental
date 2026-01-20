@@ -31,7 +31,7 @@ class BookingController extends Controller
             'email' => 'required|email|max:255',
             'lineId' => 'nullable|string|max:255', // 改為可選
             'phone' => 'required|string|max:20',
-            'storeId' => 'nullable|exists:stores,id',
+            'storeId' => 'required|exists:stores,id',
             'appointmentDate' => 'required|date',
             'endDate' => 'required|date|after_or_equal:appointmentDate',
             'shippingCompany' => 'nullable|in:泰富,藍白,聯營,大福,公船', // 改為可選，如果沒有提供會使用預設值
@@ -146,7 +146,7 @@ class BookingController extends Controller
                 'email' => $data['email'],
                 'line_id' => $data['lineId'] ?? null,
                 'phone' => $data['phone'],
-                'store_id' => $data['storeId'] ?? null,
+                'store_id' => $data['storeId'],
                 'booking_date' => $data['appointmentDate'],
                 'end_date' => $data['endDate'],
                 'shipping_company' => $shippingCompany,
