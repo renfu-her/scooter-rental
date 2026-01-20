@@ -1,5 +1,46 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-20 17:05:00 (Asia/Taipei) - 修復機車配件創建時 store_id 驗證問題
+
+### 變更內容
+
+#### 後端變更
+
+- **AccessoryController.php** (`app/Http/Controllers/Api/AccessoryController.php`)
+  - 在 `store` 方法（創建配件）的驗證規則中添加 `store_id` 為必填欄位
+  - 從 `'store_id' => 'nullable|exists:stores,id'` 改為 `'store_id' => 'required|exists:stores,id'`
+  - 確保創建配件時必須指定所屬商店
+
+### 功能說明
+
+- 現在創建配件時，`store_id` 是必填欄位，與更新配件時的驗證規則保持一致
+- 前端表單已經正確處理了 `store_id` 的驗證和提交
+
+---
+
+## 2026-01-20 17:00:00 (Asia/Taipei) - 修復構建錯誤：移除重複的 stores 聲明
+
+### 變更內容
+
+#### 前端變更
+
+- **ScootersPage.tsx** (`system/backend/pages/ScootersPage.tsx`)
+  - 移除了本地的 `const [stores, setStores] = useState<Store[]>([]);` 聲明（與 `useStore()` 提供的 `stores` 衝突）
+  - 移除了本地的 `fetchStores` 函數（`StoreContext` 已提供）
+  - 移除了 `useEffect` 中對 `fetchStores()` 的調用
+  - 移除了未使用的 `storesApi` import
+
+- **AccessoriesPage.tsx** (`system/backend/pages/AccessoriesPage.tsx`)
+  - 移除了未使用的 `storesApi` import
+
+### 問題說明
+
+- 構建錯誤：`The symbol "stores" has already been declared`
+- 原因：`ScootersPage` 中同時從 `useStore()` 獲取 `stores` 和聲明本地 `stores` state
+- 解決：移除本地聲明，統一使用 `StoreContext` 提供的 `stores`
+
+---
+
 ## 2026-01-20 16:56:19 (Asia/Taipei) - 機車配件管理頁面添加店家（store_id）功能
 
 ### 變更內容

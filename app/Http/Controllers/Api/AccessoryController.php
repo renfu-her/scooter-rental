@@ -56,6 +56,7 @@ class AccessoryController extends Controller
             'category' => 'required|in:防護,配件,雨具,其他',
             'stock' => 'required|integer|min:0',
             'rent_price' => 'required|numeric|min:0',
+            'store_id' => 'required|exists:stores,id',
         ]);
 
         if ($validator->fails()) {
