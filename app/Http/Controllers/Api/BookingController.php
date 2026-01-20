@@ -68,8 +68,21 @@ class BookingController extends Controller
                 ];
             }, $data['scooters']);
             
-            // 獲取預設線上預約合作商
-            $defaultPartner = Partner::where('is_default_for_booking', true)->first();
+            // 獲取預設線上預約合作商（根據 store_id）
+            $storeId = $data['storeId'] ?? null;
+            $defaultPartner = null;
+            if ($storeId) {
+                // 查找該商店的預設合作商
+                $defaultPartner = Partner::where('store_id', $storeId)
+                    ->where('is_default_for_booking', true)
+                    ->first();
+            }
+            // 如果該商店沒有預設合作商，嘗試使用全局預設合作商（沒有 store_id 的）
+            if (!$defaultPartner) {
+                $defaultPartner = Partner::whereNull('store_id')
+                    ->where('is_default_for_booking', true)
+                    ->first();
+            }
 
             // 計算租期天數與調車費用總金額（只算調車費用）
             $bookingDateCarbon = Carbon::parse($data['appointmentDate'])->startOfDay();
@@ -409,9 +422,21 @@ class BookingController extends Controller
         $partnerId = $request->get('partner_id');
         $partner = $partnerId ? Partner::find($partnerId) : ($booking->partner_id ? Partner::find($booking->partner_id) : null);
         
-        // 如果沒有合作商，嘗試使用預設線上預約合作商
+        // 如果沒有合作商，根據 booking 的 store_id 查找該商店的預設線上預約合作商
         if (!$partner) {
-            $partner = Partner::where('is_default_for_booking', true)->first();
+            $storeId = $booking->store_id;
+            if ($storeId) {
+                // 查找該商店的預設合作商
+                $partner = Partner::where('store_id', $storeId)
+                    ->where('is_default_for_booking', true)
+                    ->first();
+            }
+            // 如果該商店沒有預設合作商，嘗試使用全局預設合作商（沒有 store_id 的）
+            if (!$partner) {
+                $partner = Partner::whereNull('store_id')
+                    ->where('is_default_for_booking', true)
+                    ->first();
+            }
         }
 
         // 計算租期天數與調車費用總金額（只算調車費用）

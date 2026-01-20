@@ -1,5 +1,31 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-20 22:49:34 (Asia/Taipei) - 修復訂單管理的預約訂單轉換時自動使用店家的預設合作商
+
+### 變更內容
+
+#### 後端變更
+
+- **BookingController.php** (`app/Http/Controllers/Api/BookingController.php`)
+  - 更新 `send` 方法：根據 `storeId` 查找該商店的預設合作商（`is_default_for_booking = true` 且 `store_id` 匹配），如果該商店沒有預設合作商，則使用全局預設合作商（沒有 `store_id` 的）
+  - 更新 `convertToOrder` 方法：當轉換預約為訂單時，如果沒有提供 `partner_id` 且預約沒有 `partner_id`，則根據 `booking->store_id` 查找該商店的預設合作商，如果該商店沒有預設合作商，則使用全局預設合作商
+
+#### 前端變更
+
+- **ConvertBookingModal.tsx** (`system/backend/components/ConvertBookingModal.tsx`)
+  - 更新 `useEffect`：根據 `booking.store_id` 獲取該商店的合作商列表（傳遞 `store_id` 參數給 `partnersApi.list`）
+  - 更新預設合作商選擇邏輯：優先使用 `booking.partner_id`，否則使用該商店的預設合作商（`is_default_for_booking = true`）
+
+### 功能說明
+
+- **訂單管理的預約訂單轉換**：
+  - 當將預約轉換為訂單時，系統會自動根據預約的 `store_id` 查找該商店的預設合作商
+  - 如果該商店有預設合作商（`is_default_for_booking = true` 且 `store_id` 匹配），則自動使用該合作商
+  - 如果該商店沒有預設合作商，則使用全局預設合作商（沒有 `store_id` 的）
+  - 確保店家的預設合作商與訂單管理的預約訂單正確關聯
+
+---
+
 ## 2026-01-20 22:23:53 (Asia/Taipei) - 修復前臺線上預約頁面根據選擇的商店自動選擇預設合作商
 
 ### 變更內容

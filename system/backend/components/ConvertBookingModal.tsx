@@ -71,18 +71,25 @@ const ConvertBookingModal: React.FC<ConvertBookingModalProps> = ({ isOpen, onClo
   useEffect(() => {
     if (isOpen && booking) {
       setIsLoading(true);
+      // 根據 booking 的 store_id 獲取該商店的合作商列表
+      const storeId = booking.store_id || booking.store?.id;
+      const partnersParams = storeId ? { store_id: storeId } : undefined;
+      
       Promise.all([
-        partnersApi.list(),
+        partnersApi.list(partnersParams),
         rentalPlansApi.list({ active_only: true }),
       ])
         .then(([partnersRes, plansRes]) => {
           setPartners(partnersRes.data || []);
           setRentalPlans(plansRes.data || []);
 
-          // 設置預設合作商：優先使用 booking 的 partner_id，否則使用預設合作商
+          // 設置預設合作商：優先使用 booking 的 partner_id，否則使用該商店的預設合作商
           let defaultPartnerId: number | null = booking.partner_id;
           if (!defaultPartnerId) {
-            const defaultPartner = (partnersRes.data || []).find((p: Partner) => (p as any).is_default_for_booking);
+            // 根據 booking 的 store_id 查找該商店的預設合作商
+            const defaultPartner = (partnersRes.data || []).find((p: Partner) => 
+              (p as any).is_default_for_booking === true
+            );
             defaultPartnerId = defaultPartner ? defaultPartner.id : null;
           }
           setSelectedPartnerId(defaultPartnerId);
