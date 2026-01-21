@@ -1,6 +1,5 @@
 
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, Store, X } from 'lucide-react';
 import SEO from '../components/SEO';
 import { publicApi } from '../lib/api';
 
@@ -16,59 +15,54 @@ interface Store {
   id: number;
   name: string;
   notice?: string | null;
+  environmentImages?: EnvironmentImage[];
 }
 
 const About: React.FC = () => {
-  const [environmentImages, setEnvironmentImages] = useState<EnvironmentImage[]>([]);
   const [stores, setStores] = useState<Store[]>([]);
-  const [selectedStore, setSelectedStore] = useState<Store | null>(null);
-  const [showStoreModal, setShowStoreModal] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // 獲取商店列表
   useEffect(() => {
-    const fetchStores = async () => {
+    const fetchData = async () => {
+      setLoading(true);
       try {
-        const response = await publicApi.stores.list();
-        const sortedStores = (response.data || []).sort((a: Store, b: Store) => a.id - b.id);
-        setStores(sortedStores);
-        // 如果有很多店家，預設選擇第一個店家
-        if (sortedStores.length > 0 && !selectedStore) {
-          setSelectedStore(sortedStores[0]);
-        }
+        // 同時獲取商店列表和所有環境圖片
+        const [storesResponse, allImagesResponse] = await Promise.all([
+          publicApi.stores.list(),
+          publicApi.environmentImages.list(),
+        ]);
+
+        const sortedStores = (storesResponse.data || []).sort((a: Store, b: Store) => a.id - b.id);
+        const allImages = (allImagesResponse.data || []) as EnvironmentImage[];
+
+        // 為每個商店分配對應的環境圖片
+        const storesWithImages = sortedStores.map((store: Store) => {
+          const storeImages = allImages
+            .filter((img: EnvironmentImage) => img.store_id === store.id)
+            .sort((a: EnvironmentImage, b: EnvironmentImage) => a.sort_order - b.sort_order);
+          
+          return {
+            ...store,
+            environmentImages: storeImages,
+          };
+        });
+
+        // 只顯示有環境圖片的商店
+        const storesWithImagesFiltered = storesWithImages.filter(
+          (store: Store) => store.environmentImages && store.environmentImages.length > 0
+        );
+
+        setStores(storesWithImagesFiltered);
       } catch (error) {
-        console.error('Failed to fetch stores:', error);
+        console.error('Failed to fetch data:', error);
+        setStores([]);
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchStores();
+    fetchData();
   }, []);
-
-  // 當 selectedStore 改變時，獲取該商店的環境圖片
-  useEffect(() => {
-    if (selectedStore) {
-      const fetchEnvironmentImages = async () => {
-        setLoading(true);
-        try {
-          const params = { store_id: selectedStore.id };
-          const response = await publicApi.environmentImages.list(params);
-          const images = (response.data || []).sort((a: EnvironmentImage, b: EnvironmentImage) => 
-            a.sort_order - b.sort_order
-          );
-          setEnvironmentImages(images);
-        } catch (error) {
-          console.error('Failed to fetch environment images:', error);
-          setEnvironmentImages([]);
-        } finally {
-          setLoading(false);
-        }
-      };
-      fetchEnvironmentImages();
-    } else {
-      setEnvironmentImages([]);
-      setLoading(false);
-    }
-  }, [selectedStore]);
   const structuredData = {
     '@context': 'https://schema.org',
     '@type': 'AboutPage',
@@ -217,85 +211,35 @@ const About: React.FC = () => {
       </section>
 
       {/* Environment Images Section */}
-      <section className="py-12 sm:py-16 md:py-20 bg-[#f0f4ff]">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold serif text-center mb-8 sm:mb-12">我們的環境</h2>
-          
-          {/* 店家選擇按鈕 */}
-          {stores.length > 0 && (
-            <div className="mb-6 sm:mb-8 flex justify-center">
-              <button
-                onClick={() => setShowStoreModal(true)}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-white rounded-full shadow-md hover:shadow-lg transition-all text-gray-800 font-medium"
-              >
-                <Store size={18} />
-                <span>{selectedStore ? selectedStore.name : '選擇店家'}</span>
-                <ChevronDown size={18} />
-              </button>
-            </div>
-          )}
-
-          {loading ? (
-            <div className="flex justify-center items-center py-12">
-              <div className="text-gray-400">載入中...</div>
-            </div>
-          ) : environmentImages.length > 0 ? (
-            <div className="bg-[#f0f4ff] rounded-[30px] sm:rounded-[35px] md:rounded-[40px] p-6 sm:p-8 md:p-12">
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
-                {environmentImages.map((image) => (
-                  <div key={image.id} className="aspect-square rounded-[30px] overflow-hidden">
-                    <img
-                      src={`/storage/${image.image_path}`}
-                      alt="環境圖片"
-                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div className="text-center py-12 text-gray-400">
-              目前沒有環境圖片
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* 商店選擇 Modal */}
-      {showStoreModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full max-h-[80vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200 flex items-center justify-between">
-              <h3 className="text-xl font-bold text-gray-800">選擇店家</h3>
-              <button
-                onClick={() => setShowStoreModal(false)}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <X size={24} />
-              </button>
-            </div>
-            <div className="p-6">
-              <div className="space-y-2">
-                {stores.map((store) => (
-                  <button
-                    key={store.id}
-                    onClick={() => {
-                      setSelectedStore(store);
-                      setShowStoreModal(false);
-                    }}
-                    className={`w-full text-left px-4 py-3 rounded-lg transition-colors ${
-                      selectedStore?.id === store.id
-                        ? 'bg-orange-100 text-orange-600 font-medium'
-                        : 'bg-gray-50 hover:bg-gray-100 text-gray-800'
-                    }`}
-                  >
+      {!loading && stores.length > 0 && (
+        <section className="py-12 sm:py-16 md:py-20 bg-[#f0f4ff]">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold serif text-center mb-8 sm:mb-12">我們的環境</h2>
+            
+            <div className="space-y-12 sm:space-y-16">
+              {stores.map((store) => (
+                <div key={store.id} className="bg-[#f0f4ff] rounded-[30px] sm:rounded-[35px] md:rounded-[40px] p-6 sm:p-8 md:p-12">
+                  <h3 className="text-xl sm:text-2xl md:text-3xl font-bold serif mb-6 sm:mb-8 text-center">
                     {store.name}
-                  </button>
-                ))}
-              </div>
+                  </h3>
+                  {store.environmentImages && store.environmentImages.length > 0 && (
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+                      {store.environmentImages.map((image) => (
+                        <div key={image.id} className="aspect-square rounded-[30px] overflow-hidden">
+                          <img
+                            src={`/storage/${image.image_path}`}
+                            alt={`${store.name} 環境圖片`}
+                            className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
-        </div>
+        </section>
       )}
     </div>
   );
