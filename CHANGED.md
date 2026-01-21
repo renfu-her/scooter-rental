@@ -1,5 +1,27 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-21 21:42:29 (Asia/Taipei) - 前臺租車方案頁面「隨車附安全帽」和「注意事項」文字大小再增加一級
+
+### 變更內容
+
+#### 前端變更
+
+- **RentalPlans.tsx** (`system/frontend/pages/RentalPlans.tsx`)
+  - 將「隨車附安全帽，並提供衛生帽套供使用」文字大小從 `text-sm sm:text-base` 改為 `text-base sm:text-lg`（再增加一級）
+  - 將「注意事項」標題字體大小從 `text-sm sm:text-base` 改為 `text-base sm:text-lg`（再增加一級）
+  - 將「注意事項」內容字體大小從 `text-sm sm:text-base` 改為 `text-base sm:text-lg`（再增加一級）
+  - 現在「隨車附安全帽」和「注意事項」文字與店家選擇大小相同
+
+### 功能說明
+
+- **前臺「租車方案」頁面**：
+  - 「隨車附安全帽，並提供衛生帽套供使用」文字大小為 `text-base sm:text-lg`（16px/18px）
+  - 「注意事項」標題和內容文字大小為 `text-base sm:text-lg`（16px/18px）
+  - 店家選擇按鈕文字大小為 `text-base sm:text-lg`（16px/18px）
+  - 現在所有文字大小一致，視覺效果更統一
+
+---
+
 ## 2026-01-21 21:34:03 (Asia/Taipei) - 前臺租車方案頁面「隨車附安全帽」和「注意事項」文字大小增加一級
 
 ### 變更內容
