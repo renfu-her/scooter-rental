@@ -223,13 +223,13 @@ const GuidelinesPage: React.FC = () => {
             <table className="w-full text-left">
               <thead className="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700">
                 <tr>
-                  <th className="px-6 py-4 text-sm font-bold text-gray-700 dark:text-gray-300">分類</th>
-                  <th className="px-6 py-4 text-sm font-bold text-gray-700 dark:text-gray-300">問題</th>
-                  <th className="px-6 py-4 text-sm font-bold text-gray-700 dark:text-gray-300">答案</th>
-                  <th className="px-6 py-4 text-sm font-bold text-gray-700 dark:text-gray-300">商店</th>
-                  <th className="px-6 py-4 text-sm font-bold text-gray-700 dark:text-gray-300">排序</th>
-                  <th className="px-6 py-4 text-sm font-bold text-gray-700 dark:text-gray-300">狀態</th>
-                  <th className="px-6 py-4 text-sm font-bold text-gray-700 dark:text-gray-300 text-center">操作</th>
+                  <th className="px-6 py-4 text-sm font-bold text-gray-700 dark:text-gray-300 whitespace-nowrap">分類</th>
+                  <th className="px-6 py-4 text-sm font-bold text-gray-700 dark:text-gray-300 whitespace-nowrap">問題</th>
+                  <th className="px-6 py-4 text-sm font-bold text-gray-700 dark:text-gray-300 whitespace-nowrap">答案</th>
+                  <th className="px-6 py-4 text-sm font-bold text-gray-700 dark:text-gray-300 whitespace-nowrap">商店</th>
+                  <th className="px-6 py-4 text-sm font-bold text-gray-700 dark:text-gray-300 whitespace-nowrap">排序</th>
+                  <th className="px-6 py-4 text-sm font-bold text-gray-700 dark:text-gray-300 whitespace-nowrap">狀態</th>
+                  <th className="px-6 py-4 text-sm font-bold text-gray-700 dark:text-gray-300 text-center whitespace-nowrap">操作</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -244,7 +244,7 @@ const GuidelinesPage: React.FC = () => {
                       <span className="text-sm font-medium text-gray-800 dark:text-gray-100">{guideline.question}</span>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="text-sm text-gray-600 dark:text-gray-400 whitespace-normal">{guideline.answer}</span>
+                      <span className="text-xs text-gray-600 dark:text-gray-400 whitespace-normal">{guideline.answer}</span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="text-sm text-gray-600 dark:text-gray-400">{guideline.store?.name || '-'}</span>
