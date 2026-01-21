@@ -99,7 +99,7 @@ export const publicApi = {
     list: (params?: { store_id?: number }) => api.get('/environment-images', params),
   },
   shuttleImages: {
-    list: () => api.get('/shuttle-images'),
+    list: (params?: { store_id?: number }) => api.get('/shuttle-images', params),
   },
   rentalPlans: {
     list: (params?: { store_id?: number }) => api.get('/rental-plans', { active_only: true, ...params }),

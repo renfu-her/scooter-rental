@@ -1,5 +1,31 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-21 14:14:11 (Asia/Taipei) - 前臺專車接送圖片添加 store_id 過濾並統一圖片高度
+
+### 變更內容
+
+#### 前端變更
+
+- **Guidelines.tsx** (`system/frontend/pages/Guidelines.tsx`)
+  - 修改 `fetchShuttleImages` 函數，根據 `selectedStore` 過濾專車接送圖片
+  - 當 `selectedStore` 改變時，自動重新獲取該商店的專車接送圖片
+  - 將 `fetchShuttleImages` 調用移到 `if (selectedStore)` 條件內，確保只有在選擇商店後才獲取圖片
+  - 修改專車接送圖片顯示，設置固定高度：`h-[300px] sm:h-[350px] md:h-[400px]`，確保所有圖片高度一致
+  - 使用 `object-cover` 確保圖片在固定高度容器內正確顯示
+
+- **api.ts** (`system/frontend/lib/api.ts`)
+  - `publicApi.shuttleImages.list`：添加可選的 `store_id` 參數，支持根據商店過濾專車接送圖片
+
+### 功能說明
+
+- **前臺「租車須知」頁面的專車接送圖片**：
+  - 現在會根據選擇的商店（`selectedStore`）自動過濾並顯示該商店的專車接送圖片
+  - 當用戶切換商店時，專車接送圖片會自動更新
+  - 所有專車接送圖片現在使用固定高度，確保視覺一致性
+  - 後臺的專車接送圖片管理頁面已經支持 `store_id`，會根據當前選擇的商店（`currentStore`）自動切換顯示
+
+---
+
 ## 2026-01-21 14:04:19 (Asia/Taipei) - 前臺環境圖片添加商店選擇器，後臺移除商店環境圖片管理
 
 ### 變更內容

@@ -88,7 +88,8 @@ const Guidelines: React.FC = () => {
 
     const fetchShuttleImages = async () => {
       try {
-        const response = await publicApi.shuttleImages.list();
+        const params = selectedStore ? { store_id: selectedStore.id } : undefined;
+        const response = await publicApi.shuttleImages.list(params);
         setShuttleImages(response.data || []);
       } catch (error) {
         console.error('Failed to fetch shuttle images:', error);
@@ -100,10 +101,10 @@ const Guidelines: React.FC = () => {
     if (selectedStore) {
       fetchGuidelines();
       fetchGuesthouses();
+      fetchShuttleImages();
     } else {
       setLoading(false);
     }
-    fetchShuttleImages();
   }, [selectedStore]);
 
   const categories = Array.from(new Set(guidelines.map(g => g.category)));
@@ -293,7 +294,7 @@ const Guidelines: React.FC = () => {
                     <img
                       src={`/storage/${image.image_path}`}
                       alt="專車接送"
-                      className="w-full h-auto object-cover"
+                      className="w-full h-[300px] sm:h-[350px] md:h-[400px] object-cover"
                     />
                   </div>
                 ))}
