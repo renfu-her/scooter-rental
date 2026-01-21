@@ -151,7 +151,7 @@ const RentalPlans: React.FC = () => {
                 <div key={plan.id} className="flex flex-col items-center">
                   <div className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] mb-8 sm:mb-12">
                     <div className="absolute inset-0 bg-gray-50 rounded-[100px] -z-10 transform -rotate-3"></div>
-                    <div className="w-full h-full rounded-[100px] overflow-hidden shadow-2xl">
+                    <div className="w-full h-full rounded-[100px] overflow-hidden shadow-2xl border-4 border-white">
                       {plan.image_path ? (
                         <img
                           src={`/storage/${plan.image_path}`}
