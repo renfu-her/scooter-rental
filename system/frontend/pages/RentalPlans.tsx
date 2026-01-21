@@ -128,8 +128,8 @@ const RentalPlans: React.FC = () => {
             <p className="text-gray-600 text-xs sm:text-sm mb-3 sm:mb-4">隨車附安全帽，並提供衛生帽套供使用</p>
             {selectedStore?.notice && (
               <div className="bg-gray-50 rounded-xl p-4 sm:p-6 text-left">
-                <p className="text-base sm:text-lg font-semibold text-gray-800 mb-2 sm:mb-3">*注意事項：</p>
-                <p className="text-base sm:text-lg text-gray-600 leading-relaxed whitespace-pre-line">
+                <p className="text-xs sm:text-sm font-semibold text-gray-800 mb-2 sm:mb-3">*注意事項：</p>
+                <p className="text-xs sm:text-sm text-gray-600 leading-relaxed whitespace-pre-line">
                   {selectedStore.notice}
                 </p>
               </div>
