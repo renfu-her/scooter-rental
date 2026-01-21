@@ -602,7 +602,7 @@ const BookingsPage: React.FC = () => {
 
             <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-4">
               <div>
-                <label className={labelClasses}>姓名 *</label>
+                <label className={labelClasses}>姓名 <span className="text-red-500">*</span></label>
                 <input
                   type="text"
                   required
@@ -644,7 +644,7 @@ const BookingsPage: React.FC = () => {
               </div>
 
               <div>
-                <label className={labelClasses}>預約日期 *</label>
+                <label className={labelClasses}>預約日期 <span className="text-red-500">*</span></label>
                 <input
                   type="date"
                   required
@@ -794,7 +794,7 @@ const BookingsPage: React.FC = () => {
               </div>
 
               <div>
-                <label className={labelClasses}>狀態 *</label>
+                <label className={labelClasses}>狀態 <span className="text-red-500">*</span></label>
                 <select
                   required
                   value={formData.status}

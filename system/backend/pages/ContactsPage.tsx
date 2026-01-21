@@ -270,7 +270,7 @@ const ContactsPage: React.FC = () => {
 
             <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-4">
               <div>
-                <label className={labelClasses}>姓名 *</label>
+                <label className={labelClasses}>姓名 <span className="text-red-500">*</span></label>
                 <input
                   type="text"
                   required
@@ -281,7 +281,7 @@ const ContactsPage: React.FC = () => {
               </div>
 
               <div>
-                <label className={labelClasses}>LINE ID *</label>
+                <label className={labelClasses}>LINE ID <span className="text-red-500">*</span></label>
                 <input
                   type="text"
                   required
@@ -302,7 +302,7 @@ const ContactsPage: React.FC = () => {
               </div>
 
               <div>
-                <label className={labelClasses}>訊息內容 *</label>
+                <label className={labelClasses}>訊息內容 <span className="text-red-500">*</span></label>
                 <textarea
                   required
                   value={formData.message}
@@ -313,7 +313,7 @@ const ContactsPage: React.FC = () => {
               </div>
 
               <div>
-                <label className={labelClasses}>狀態 *</label>
+                <label className={labelClasses}>狀態 <span className="text-red-500">*</span></label>
                 <select
                   required
                   value={formData.status}

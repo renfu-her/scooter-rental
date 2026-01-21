@@ -160,7 +160,7 @@ const EnvironmentImagesPage: React.FC = () => {
           <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4">新增圖片</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
             <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 flex flex-col h-full">
-              <label className={labelClasses}>圖片 *</label>
+              <label className={labelClasses}>圖片 <span className="text-red-500">*</span></label>
               
               <div className="mt-4 flex flex-col flex-1 min-h-0">
                 <div className="flex-shrink-0 mb-4">

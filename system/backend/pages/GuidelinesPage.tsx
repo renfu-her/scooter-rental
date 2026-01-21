@@ -323,7 +323,7 @@ const GuidelinesPage: React.FC = () => {
               </div>
 
               <div>
-                <label className={labelClasses}>分類 *</label>
+                <label className={labelClasses}>分類 <span className="text-red-500">*</span></label>
                 <input
                   type="text"
                   required
@@ -335,7 +335,7 @@ const GuidelinesPage: React.FC = () => {
               </div>
 
               <div>
-                <label className={labelClasses}>問題 *</label>
+                <label className={labelClasses}>問題 <span className="text-red-500">*</span></label>
                 <input
                   type="text"
                   required
@@ -347,7 +347,7 @@ const GuidelinesPage: React.FC = () => {
               </div>
 
               <div>
-                <label className={labelClasses}>答案 *</label>
+                <label className={labelClasses}>答案 <span className="text-red-500">*</span></label>
                 <textarea
                   required
                   rows={5}

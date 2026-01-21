@@ -1,5 +1,37 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-21 11:04:37 (Asia/Taipei) - 將後端表單必填欄位的 * 號改為紅色
+
+### 變更內容
+
+#### 前端變更
+
+- **所有後端表單頁面**
+  - 將所有必填欄位標籤中的 `*` 號改為紅色顯示
+  - 使用 `<span className="text-red-500">*</span>` 包裹 `*` 號，使其顯示為紅色
+  - 修改的頁面包括：
+    - **GuesthousesPage.tsx**: 所屬商店、民宿名稱
+    - **EnvironmentImagesPage.tsx**: 圖片
+    - **RentalPlansPage.tsx**: 型號、價錢
+    - **GuidelinesPage.tsx**: 分類、問題、答案
+    - **LocationsPage.tsx**: 門市名稱
+    - **ContactInfosPage.tsx**: 店名
+    - **ShuttleImagesPage.tsx**: 圖片
+    - **BookingsPage.tsx**: 姓名、預約日期、狀態
+    - **BannersPage.tsx**: 標題、圖片
+    - **ContactsPage.tsx**: 姓名、LINE ID、訊息內容、狀態
+    - **FinesPage.tsx**: 車牌號碼、承租人、罰鍰金額、違規事由/類型、繳費狀態（已使用紅色）
+    - **AccessoriesPage.tsx**: 所屬商店、配件完整名稱、所屬類別、初始庫存量、每日加購租金（已使用紅色）
+
+### 功能說明
+
+- **後端表單必填欄位標記**：
+  - 現在所有後端表單中標記為必填的欄位（帶有 `*` 號）都會以紅色顯示
+  - 使用統一的樣式 `<span className="text-red-500">*</span>` 來標記必填欄位
+  - 提高用戶體驗，讓必填欄位更加醒目和易於識別
+
+---
+
 ## 2026-01-21 10:55:42 (Asia/Taipei) - 修改前台 Guidelines 頁面民宿推薦根據 store_id 過濾
 
 ### 變更內容

@@ -282,7 +282,7 @@ const BannersPage: React.FC = () => {
 
             <form onSubmit={handleSubmit} className="p-6 space-y-6">
               <div>
-                <label className={labelClasses}>標題 *</label>
+                <label className={labelClasses}>標題 <span className="text-red-500">*</span></label>
                 <input
                   type="text"
                   required
@@ -350,7 +350,7 @@ const BannersPage: React.FC = () => {
               </div>
 
               <div>
-                <label className={labelClasses}>圖片 *</label>
+                <label className={labelClasses}>圖片 <span className="text-red-500">*</span></label>
                 <div className={uploadAreaBaseClasses}>
                   {imagePreview ? (
                     <div className="relative">

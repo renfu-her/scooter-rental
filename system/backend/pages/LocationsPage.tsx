@@ -321,7 +321,7 @@ const LocationsPage: React.FC = () => {
 
             <form onSubmit={handleSubmit} className="p-6 space-y-6">
               <div>
-                <label className={labelClasses}>門市名稱 *</label>
+                <label className={labelClasses}>門市名稱 <span className="text-red-500">*</span></label>
                 <input
                   type="text"
                   required

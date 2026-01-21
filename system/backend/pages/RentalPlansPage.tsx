@@ -360,7 +360,7 @@ const RentalPlansPage: React.FC = () => {
               </div>
 
               <div>
-                <label className={labelClasses}>型號 *</label>
+                <label className={labelClasses}>型號 <span className="text-red-500">*</span></label>
                 <input
                   type="text"
                   required
@@ -372,7 +372,7 @@ const RentalPlansPage: React.FC = () => {
               </div>
 
               <div>
-                <label className={labelClasses}>價錢 *</label>
+                <label className={labelClasses}>價錢 <span className="text-red-500">*</span></label>
                 <input
                   type="number"
                   required

@@ -228,7 +228,7 @@ const ContactInfosPage: React.FC = () => {
 
             <form onSubmit={handleSubmit} className="p-6 space-y-6">
               <div>
-                <label className={labelClasses}>店名 *</label>
+                <label className={labelClasses}>店名 <span className="text-red-500">*</span></label>
                 <input
                   type="text"
                   required

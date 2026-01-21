@@ -363,7 +363,7 @@ const GuesthousesPage: React.FC = () => {
 
             <form onSubmit={handleSubmit} className="p-6 space-y-6">
               <div>
-                <label className={labelClasses}>所屬商店 *</label>
+                <label className={labelClasses}>所屬商店 <span className="text-red-500">*</span></label>
                 {editingGuesthouse ? (
                   <input
                     type="text"
@@ -390,7 +390,7 @@ const GuesthousesPage: React.FC = () => {
               </div>
 
               <div>
-                <label className={labelClasses}>民宿名稱 *</label>
+                <label className={labelClasses}>民宿名稱 <span className="text-red-500">*</span></label>
                 <input
                   type="text"
                   required
