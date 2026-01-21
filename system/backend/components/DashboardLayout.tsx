@@ -182,7 +182,7 @@ const DashboardLayout: React.FC = () => {
                     }}
                     className={`text-[10px] font-bold hover:text-red-600 transition-colors uppercase tracking-tighter ${theme === 'dark' ? 'text-red-500' : 'text-red-400'}`}
                   >
-                    Sign Out
+                    登出
                   </button>
                 </div>
               )}
