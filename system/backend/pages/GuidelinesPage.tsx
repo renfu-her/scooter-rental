@@ -235,24 +235,24 @@ const GuidelinesPage: React.FC = () => {
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {guidelines.map((guideline) => (
                   <tr key={guideline.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 whitespace-nowrap">
                       <span className="px-2 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded text-xs font-bold">
                         {guideline.category}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 whitespace-nowrap">
                       <span className="text-sm font-medium text-gray-800 dark:text-gray-100">{guideline.question}</span>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">{guideline.answer}</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400 whitespace-normal">{guideline.answer}</span>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 whitespace-nowrap">
                       <span className="text-sm text-gray-600 dark:text-gray-400">{guideline.store?.name || '-'}</span>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 whitespace-nowrap">
                       <span className="text-sm text-gray-600 dark:text-gray-400">{guideline.sort_order}</span>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 whitespace-nowrap">
                       {guideline.is_active ? (
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
                           啟用
@@ -263,7 +263,7 @@ const GuidelinesPage: React.FC = () => {
                         </span>
                       )}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center justify-center space-x-2">
                         <button
                           onClick={() => handleOpenModal(guideline)}
