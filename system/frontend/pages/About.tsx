@@ -3,44 +3,30 @@ import React, { useState, useEffect } from 'react';
 import SEO from '../components/SEO';
 import { publicApi } from '../lib/api';
 
-interface StoreEnvironmentImage {
+interface EnvironmentImage {
   id: number;
   image_path: string;
   sort_order: number;
 }
 
-interface Store {
-  id: number;
-  name: string;
-  address: string | null;
-  phone: string | null;
-  manager: string;
-  photo_path: string | null;
-  notice: string | null;
-  environment_images?: StoreEnvironmentImage[];
-}
-
 const About: React.FC = () => {
-  const [stores, setStores] = useState<Store[]>([]);
+  const [environmentImages, setEnvironmentImages] = useState<EnvironmentImage[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchStores();
+    fetchEnvironmentImages();
   }, []);
 
-  const fetchStores = async () => {
+  const fetchEnvironmentImages = async () => {
     try {
-      const response = await publicApi.stores.list();
-      // 過濾出有環境圖片的商店
-      const storesWithImages = (response.data || []).filter(
-        (store: Store) => store.environment_images && store.environment_images.length > 0
+      const response = await publicApi.environmentImages.list();
+      const images = (response.data || []).sort((a: EnvironmentImage, b: EnvironmentImage) => 
+        a.sort_order - b.sort_order
       );
-      // 按 ID 排序
-      const sortedStores = storesWithImages.sort((a: Store, b: Store) => a.id - b.id);
-      setStores(sortedStores);
+      setEnvironmentImages(images);
     } catch (error) {
-      console.error('Failed to fetch stores:', error);
-      setStores([]);
+      console.error('Failed to fetch environment images:', error);
+      setEnvironmentImages([]);
     } finally {
       setLoading(false);
     }
@@ -192,32 +178,23 @@ const About: React.FC = () => {
         </div>
       </section>
 
-      {/* Store Environment Images */}
-      {!loading && stores.length > 0 && (
+      {/* Environment Images */}
+      {!loading && environmentImages.length > 0 && (
         <section className="py-12 sm:py-16 md:py-20 bg-[#f0f4ff]">
           <div className="max-w-6xl mx-auto px-4 sm:px-6">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold serif text-center mb-8 sm:mb-12">我們的環境</h2>
-            <div className="space-y-12 sm:space-y-16">
-              {stores.map((store) => (
-                <div key={store.id} className="bg-[#f0f4ff] rounded-[30px] sm:rounded-[35px] md:rounded-[40px] p-6 sm:p-8 md:p-12">
-                  <h3 className="text-xl sm:text-2xl md:text-3xl font-bold serif mb-6 sm:mb-8 text-center">
-                    {store.name}
-                  </h3>
-                  {store.environment_images && store.environment_images.length > 0 && (
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
-                      {store.environment_images.map((image) => (
-                        <div key={image.id} className="aspect-square rounded-[30px] overflow-hidden">
-                          <img
-                            src={image.image_path}
-                            alt={`${store.name} 環境圖片`}
-                            className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
+            <div className="bg-[#f0f4ff] rounded-[30px] sm:rounded-[35px] md:rounded-[40px] p-6 sm:p-8 md:p-12">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+                {environmentImages.map((image) => (
+                  <div key={image.id} className="aspect-square rounded-[30px] overflow-hidden">
+                    <img
+                      src={`/storage/${image.image_path}`}
+                      alt="環境圖片"
+                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </section>
