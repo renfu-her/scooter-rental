@@ -1,5 +1,29 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-21 16:52:02 (Asia/Taipei) - 前臺商店 select 增加顏色並放大，使用顏色 #0D9488
+
+### 變更內容
+
+#### 前端變更
+
+- **Booking.tsx** (`system/frontend/pages/Booking.tsx`)
+  - 將商店 select 的邊框顏色改為 `#0D9488`（使用 `border-2` 增加邊框寬度）
+  - 設置 focus 狀態時的邊框顏色為 `#0D9488`，並添加 focus ring 效果（`focus:ring-2 focus:ring-[#0D9488]/20`）
+  - 增加 select 的 padding：從 `px-3 py-2.5 sm:px-4 sm:py-3` 改為 `px-4 py-3 sm:px-5 sm:py-4`
+  - 增加字體大小：從 `text-sm sm:text-base` 改為 `text-base sm:text-lg`
+  - 添加字體粗細：`font-medium`
+  - 設置選中項目的文字顏色為 `#0D9488`
+  - 使用動態樣式設置 select 文字顏色：未選擇時為灰色，選擇後為 `#0D9488`
+
+### 功能說明
+
+- **前臺「線上預約」頁面的商店選擇器**：
+  - 現在使用品牌色 `#0D9488` 作為邊框和文字顏色
+  - select 元素更大更明顯，提升用戶體驗
+  - 視覺效果更突出，與品牌色調一致
+
+---
+
 ## 2026-01-21 16:46:20 (Asia/Taipei) - 在所有圖片區塊下方添加細的 hr 分隔線，顏色為 #ccc
 
 ### 變更內容

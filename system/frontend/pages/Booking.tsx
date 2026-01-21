@@ -341,13 +341,14 @@ const Booking: React.FC = () => {
                 </label>
                 <select 
                   required
-                  className="w-full px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl border border-gray-200 focus:border-black focus:ring-0 transition-all text-sm sm:text-base"
+                  className="w-full px-4 py-3 sm:px-5 sm:py-4 rounded-xl border-2 border-[#0D9488] focus:border-[#0D9488] focus:ring-2 focus:ring-[#0D9488]/20 transition-all text-base sm:text-lg font-medium text-[#0D9488] bg-white"
+                  style={{ color: formData.storeId ? '#0D9488' : '#6b7280' }}
                   value={formData.storeId}
                   onChange={e => setFormData({...formData, storeId: e.target.value})}
                 >
-                  <option value="">請選擇商店</option>
+                  <option value="" className="text-gray-500">請選擇商店</option>
                   {stores.map((store) => (
-                    <option key={store.id} value={store.id}>
+                    <option key={store.id} value={store.id} className="text-[#0D9488]">
                       {store.name}
                     </option>
                   ))}
