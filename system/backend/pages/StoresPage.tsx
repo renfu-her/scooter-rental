@@ -1,13 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus, Search, Edit3, Trash2, MapPin, Phone, Building, Image as ImageIcon, X, Loader2, MoreHorizontal, ArrowUp, ArrowDown } from 'lucide-react';
+import { Plus, Search, Edit3, Trash2, MapPin, Phone, Building, Image as ImageIcon, X, Loader2, MoreHorizontal } from 'lucide-react';
 import { storesApi } from '../lib/api';
 import { inputClasses, labelClasses, searchInputClasses, uploadAreaBaseClasses, modalCancelButtonClasses, modalSubmitButtonClasses } from '../styles';
-
-interface EnvironmentImage {
-  id: number;
-  image_path: string;
-  sort_order: number;
-}
 
 interface Store {
   id: number;
@@ -17,7 +11,6 @@ interface Store {
   manager: string;
   photo_path: string | null;
   notice: string | null;
-  environment_images?: EnvironmentImage[];
 }
 
 const StoresPage: React.FC = () => {
@@ -36,15 +29,12 @@ const StoresPage: React.FC = () => {
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [shouldDeletePhoto, setShouldDeletePhoto] = useState(false);
-  const [environmentImages, setEnvironmentImages] = useState<EnvironmentImage[]>([]);
-  const [uploadingEnvironmentImage, setUploadingEnvironmentImage] = useState(false);
   const [openDropdownId, setOpenDropdownId] = useState<number | null>(null);
   const [dropdownPosition, setDropdownPosition] = useState<{ top: number; right: number } | null>(null);
   const dropdownRefs = useRef<Record<number, HTMLDivElement | null>>({});
   const buttonRefs = useRef<Record<number, HTMLButtonElement | null>>({});
   const [imageViewerOpen, setImageViewerOpen] = useState(false);
   const [imageViewerUrl, setImageViewerUrl] = useState<string | null>(null);
-  const environmentImageInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetchStores();
@@ -75,7 +65,6 @@ const StoresPage: React.FC = () => {
       });
       setPhotoPreview(store.photo_path || null);
       setShouldDeletePhoto(false);
-      setEnvironmentImages(store.environment_images || []);
     } else {
       setEditingStore(null);
       setFormData({
@@ -86,7 +75,6 @@ const StoresPage: React.FC = () => {
         notice: '',
       });
       setPhotoPreview(null);
-      setEnvironmentImages([]);
     }
     setPhotoFile(null);
     setIsModalOpen(true);
@@ -105,7 +93,6 @@ const StoresPage: React.FC = () => {
     setPhotoFile(null);
     setPhotoPreview(null);
     setShouldDeletePhoto(false);
-    setEnvironmentImages([]);
   };
 
   const handleSubmit = async () => {
@@ -219,97 +206,6 @@ const StoresPage: React.FC = () => {
     }
   };
 
-  const handleEnvironmentImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-
-    if (!editingStore) {
-      alert('請先建立商店後再上傳環境圖片');
-      return;
-    }
-
-    setUploadingEnvironmentImage(true);
-    try {
-      const maxSortOrder = environmentImages.length > 0 
-        ? Math.max(...environmentImages.map(img => img.sort_order))
-        : -1;
-      
-      // 批量上傳所有選中的圖片
-      const uploadPromises = Array.from(files).map((file, index) => 
-        storesApi.uploadEnvironmentImage(
-          editingStore.id,
-          file,
-          maxSortOrder + 1 + index
-        )
-      );
-      
-      const responses = await Promise.all(uploadPromises);
-      
-      const newImages: EnvironmentImage[] = responses.map(response => ({
-        id: response.data.id,
-        image_path: response.data.image_path,
-        sort_order: response.data.sort_order,
-      }));
-      
-      setEnvironmentImages([...environmentImages, ...newImages].sort((a, b) => a.sort_order - b.sort_order));
-      
-      // 重置 input
-      if (environmentImageInputRef.current) {
-        environmentImageInputRef.current.value = '';
-      }
-    } catch (error: any) {
-      console.error('Failed to upload environment images:', error);
-      alert(error?.response?.data?.message || '上傳環境圖片失敗');
-    } finally {
-      setUploadingEnvironmentImage(false);
-    }
-  };
-
-  const handleDeleteEnvironmentImage = async (imageId: number) => {
-    if (!editingStore) return;
-    
-    if (!confirm('確定要刪除此環境圖片嗎？')) return;
-
-    try {
-      await storesApi.deleteEnvironmentImage(editingStore.id, imageId);
-      setEnvironmentImages(environmentImages.filter(img => img.id !== imageId));
-    } catch (error: any) {
-      console.error('Failed to delete environment image:', error);
-      alert(error?.response?.data?.message || '刪除環境圖片失敗');
-    }
-  };
-
-  const handleMoveEnvironmentImage = async (imageId: number, direction: 'up' | 'down') => {
-    if (!editingStore) return;
-
-    const currentIndex = environmentImages.findIndex(img => img.id === imageId);
-    if (currentIndex === -1) return;
-
-    const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
-    if (newIndex < 0 || newIndex >= environmentImages.length) return;
-
-    const newImages = [...environmentImages];
-    const [movedImage] = newImages.splice(currentIndex, 1);
-    newImages.splice(newIndex, 0, movedImage);
-
-    // 更新排序
-    const updatedImages = newImages.map((img, index) => ({
-      ...img,
-      sort_order: index,
-    }));
-
-    try {
-      await storesApi.updateEnvironmentImageOrder(editingStore.id, imageId, updatedImages[currentIndex].sort_order);
-      // 同時更新另一個圖片的排序
-      const otherImageId = newImages[newIndex].id;
-      await storesApi.updateEnvironmentImageOrder(editingStore.id, otherImageId, updatedImages[newIndex].sort_order);
-      
-      setEnvironmentImages(updatedImages);
-    } catch (error: any) {
-      console.error('Failed to update environment image order:', error);
-      alert(error?.response?.data?.message || '更新排序失敗');
-    }
-  };
 
   return (
     <div className="px-6 pb-6 pt-0 dark:text-gray-100">
@@ -520,90 +416,6 @@ const StoresPage: React.FC = () => {
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                   />
                 </div>
-              </div>
-              <div>
-                <label className={`${labelClasses} mb-3`}>環境圖片</label>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
-                  可以上傳多張環境圖片，用於展示商店環境
-                </p>
-                {editingStore ? (
-                  <>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-4">
-                      {environmentImages.map((img, index) => (
-                        <div key={img.id} className="relative group">
-                          <div className="relative aspect-square rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-                            <img
-                              src={img.image_path}
-                              alt={`環境圖片 ${index + 1}`}
-                              className="w-full h-full object-cover"
-                            />
-                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex flex-col items-center justify-center gap-2">
-                              <button
-                                type="button"
-                                onClick={() => handleMoveEnvironmentImage(img.id, 'up')}
-                                disabled={index === 0}
-                                className={`p-2 rounded-full bg-white dark:bg-gray-800 hover:bg-white dark:hover:bg-gray-700 transition-colors border border-gray-300 dark:border-gray-600 shadow-lg ${
-                                  index === 0 ? 'opacity-50 cursor-not-allowed' : ''
-                                }`}
-                                title="上移"
-                              >
-                                <ArrowUp size={16} className="text-gray-800 dark:text-white" />
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => handleDeleteEnvironmentImage(img.id)}
-                                className="p-2 rounded-full bg-red-500/90 hover:bg-red-600 text-white transition-colors shadow-lg"
-                                title="刪除"
-                              >
-                                <X size={16} />
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => handleMoveEnvironmentImage(img.id, 'down')}
-                                disabled={index === environmentImages.length - 1}
-                                className={`p-2 rounded-full bg-white dark:bg-gray-800 hover:bg-white dark:hover:bg-gray-700 transition-colors border border-gray-300 dark:border-gray-600 shadow-lg ${
-                                  index === environmentImages.length - 1 ? 'opacity-50 cursor-not-allowed' : ''
-                                }`}
-                                title="下移"
-                              >
-                                <ArrowDown size={16} className="text-gray-800 dark:text-white" />
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    <div className={uploadAreaBaseClasses}>
-                      {uploadingEnvironmentImage ? (
-                        <div className="text-center py-8">
-                          <Loader2 className="mx-auto text-orange-600 animate-spin mb-2" size={24} />
-                          <p className="text-sm text-gray-500">上傳中...</p>
-                        </div>
-                      ) : (
-                        <div className="text-center">
-                          <ImageIcon className="mx-auto text-gray-400 mb-2" size={32} />
-                          <p className="text-sm text-gray-500">點擊或拖放圖片到此處上傳環境圖片</p>
-                          <p className="text-xs text-gray-400 mt-1">可一次選擇多張圖片</p>
-                        </div>
-                      )}
-                      <input
-                        ref={environmentImageInputRef}
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        onChange={handleEnvironmentImageChange}
-                        disabled={uploadingEnvironmentImage}
-                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
-                      />
-                    </div>
-                  </>
-                ) : (
-                  <div className="p-6 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl text-center">
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      請先建立商店後再上傳環境圖片
-                    </p>
-                  </div>
-                )}
               </div>
             </div>
             <div className="p-6 border-t border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 flex justify-end space-x-3 rounded-b-3xl flex-shrink-0">

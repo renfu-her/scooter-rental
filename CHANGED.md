@@ -1,5 +1,54 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-21 14:04:19 (Asia/Taipei) - 前臺環境圖片添加商店選擇器，後臺移除商店環境圖片管理
+
+### 變更內容
+
+#### 前端變更
+
+- **About.tsx** (`system/frontend/pages/About.tsx`)
+  - 添加商店選擇器（類似租車方案頁面），可以選擇商店來過濾顯示的環境圖片
+  - 移除 `StoreEnvironmentImage` 接口和相關代碼
+  - 移除全局環境圖片和商店環境圖片的混合顯示邏輯
+  - 改為根據選擇的商店（`selectedStore`）過濾顯示環境圖片
+  - 添加商店選擇按鈕和 Modal（與租車方案頁面一致）
+  - 當 `selectedStore` 改變時，自動獲取該商店的環境圖片
+  - 移除 `stores.environment_images` 相關的顯示邏輯
+
+- **api.ts** (`system/frontend/lib/api.ts`)
+  - `publicApi.environmentImages.list`：添加可選的 `store_id` 參數，支持根據商店過濾環境圖片
+
+#### 後端變更
+
+- **StoresPage.tsx** (`system/backend/pages/StoresPage.tsx`)
+  - 移除 `EnvironmentImage` 接口定義
+  - 移除 `Store` 接口中的 `environment_images` 屬性
+  - 移除 `environmentImages` state
+  - 移除 `uploadingEnvironmentImage` state
+  - 移除 `environmentImageInputRef` ref
+  - 移除 `handleEnvironmentImageChange` 函數（上傳環境圖片）
+  - 移除 `handleDeleteEnvironmentImage` 函數（刪除環境圖片）
+  - 移除 `handleMoveEnvironmentImage` 函數（移動環境圖片排序）
+  - 在 `handleOpenModal` 中移除 `setEnvironmentImages` 相關代碼
+  - 在 `handleCloseModal` 中移除 `setEnvironmentImages` 相關代碼
+  - 移除 UI 中的環境圖片管理區塊（包括上傳、刪除、排序功能）
+  - 移除 `ArrowUp` 和 `ArrowDown` 圖標的導入（如果只用在環境圖片的話）
+
+### 功能說明
+
+- **前臺「我們的環境」頁面**：
+  - 現在可以通過商店選擇器選擇不同的商店
+  - 根據選擇的商店，自動過濾並顯示該商店的環境圖片
+  - 與租車方案頁面保持一致的用戶體驗
+  - 不再顯示全局環境圖片和商店環境圖片的混合內容
+
+- **後臺商店管理頁面**：
+  - 移除了商店環境圖片的管理功能
+  - 環境圖片現在統一在「環境圖片管理」頁面進行管理（根據 `store_id` 過濾）
+  - 簡化了商店管理頁面的功能，專注於商店基本資訊的管理
+
+---
+
 ## 2026-01-21 12:32:33 (Asia/Taipei) - 為環境圖片管理添加 store_id 功能
 
 ### 變更內容

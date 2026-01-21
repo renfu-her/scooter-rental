@@ -96,7 +96,7 @@ export const publicApi = {
     list: () => api.get('/home-images'),
   },
   environmentImages: {
-    list: () => api.get('/environment-images'),
+    list: (params?: { store_id?: number }) => api.get('/environment-images', params),
   },
   shuttleImages: {
     list: () => api.get('/shuttle-images'),

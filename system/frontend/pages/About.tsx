@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { ChevronDown, Store, X } from 'lucide-react';
 import SEO from '../components/SEO';
 import { publicApi } from '../lib/api';
 
@@ -7,64 +8,67 @@ interface EnvironmentImage {
   id: number;
   image_path: string;
   sort_order: number;
-}
-
-interface StoreEnvironmentImage {
-  id: number;
-  image_path: string;
-  sort_order: number;
+  store_id?: number | null;
+  store?: { id: number; name: string } | null;
 }
 
 interface Store {
   id: number;
   name: string;
-  address: string | null;
-  phone: string | null;
-  manager: string;
-  photo_path: string | null;
-  notice: string | null;
-  environment_images?: StoreEnvironmentImage[];
+  notice?: string | null;
 }
 
 const About: React.FC = () => {
   const [environmentImages, setEnvironmentImages] = useState<EnvironmentImage[]>([]);
   const [stores, setStores] = useState<Store[]>([]);
+  const [selectedStore, setSelectedStore] = useState<Store | null>(null);
+  const [showStoreModal, setShowStoreModal] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  // 獲取商店列表
   useEffect(() => {
-    fetchData();
+    const fetchStores = async () => {
+      try {
+        const response = await publicApi.stores.list();
+        const sortedStores = (response.data || []).sort((a: Store, b: Store) => a.id - b.id);
+        setStores(sortedStores);
+        // 如果有很多店家，預設選擇第一個店家
+        if (sortedStores.length > 0 && !selectedStore) {
+          setSelectedStore(sortedStores[0]);
+        }
+      } catch (error) {
+        console.error('Failed to fetch stores:', error);
+      }
+    };
+
+    fetchStores();
   }, []);
 
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      // 同時獲取全局環境圖片和商店環境圖片
-      const [environmentImagesResponse, storesResponse] = await Promise.all([
-        publicApi.environmentImages.list(),
-        publicApi.stores.list(),
-      ]);
-
-      // 處理全局環境圖片
-      const images = (environmentImagesResponse.data || []).sort((a: EnvironmentImage, b: EnvironmentImage) => 
-        a.sort_order - b.sort_order
-      );
-      setEnvironmentImages(images);
-
-      // 處理商店環境圖片
-      const storesData = (storesResponse.data || []).filter(
-        (store: Store) => store.environment_images && store.environment_images.length > 0
-      );
-      // 按 ID 排序
-      const sortedStores = storesData.sort((a: Store, b: Store) => a.id - b.id);
-      setStores(sortedStores);
-    } catch (error) {
-      console.error('Failed to fetch data:', error);
+  // 當 selectedStore 改變時，獲取該商店的環境圖片
+  useEffect(() => {
+    if (selectedStore) {
+      const fetchEnvironmentImages = async () => {
+        setLoading(true);
+        try {
+          const params = { store_id: selectedStore.id };
+          const response = await publicApi.environmentImages.list(params);
+          const images = (response.data || []).sort((a: EnvironmentImage, b: EnvironmentImage) => 
+            a.sort_order - b.sort_order
+          );
+          setEnvironmentImages(images);
+        } catch (error) {
+          console.error('Failed to fetch environment images:', error);
+          setEnvironmentImages([]);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchEnvironmentImages();
+    } else {
       setEnvironmentImages([]);
-      setStores([]);
-    } finally {
       setLoading(false);
     }
-  };
+  }, [selectedStore]);
   const structuredData = {
     '@context': 'https://schema.org',
     '@type': 'AboutPage',
@@ -213,57 +217,85 @@ const About: React.FC = () => {
       </section>
 
       {/* Environment Images Section */}
-      {!loading && (environmentImages.length > 0 || stores.length > 0) && (
-        <section className="py-12 sm:py-16 md:py-20 bg-[#f0f4ff]">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold serif text-center mb-8 sm:mb-12">我們的環境</h2>
-            
-            {/* Global Environment Images */}
-            {environmentImages.length > 0 && (
-              <div className="mb-12 sm:mb-16">
-                <div className="bg-[#f0f4ff] rounded-[30px] sm:rounded-[35px] md:rounded-[40px] p-6 sm:p-8 md:p-12">
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
-                    {environmentImages.map((image) => (
-                      <div key={image.id} className="aspect-square rounded-[30px] overflow-hidden">
-                        <img
-                          src={`/storage/${image.image_path}`}
-                          alt="環境圖片"
-                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
+      <section className="py-12 sm:py-16 md:py-20 bg-[#f0f4ff]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold serif text-center mb-8 sm:mb-12">我們的環境</h2>
+          
+          {/* 店家選擇按鈕 */}
+          {stores.length > 0 && (
+            <div className="mb-6 sm:mb-8 flex justify-center">
+              <button
+                onClick={() => setShowStoreModal(true)}
+                className="inline-flex items-center gap-2 px-6 py-3 bg-white rounded-full shadow-md hover:shadow-lg transition-all text-gray-800 font-medium"
+              >
+                <Store size={18} />
+                <span>{selectedStore ? selectedStore.name : '選擇店家'}</span>
+                <ChevronDown size={18} />
+              </button>
+            </div>
+          )}
 
-            {/* Store Environment Images */}
-            {stores.length > 0 && (
-              <div className="space-y-12 sm:space-y-16">
-                {stores.map((store) => (
-                  <div key={store.id} className="bg-[#f0f4ff] rounded-[30px] sm:rounded-[35px] md:rounded-[40px] p-6 sm:p-8 md:p-12">
-                    <h3 className="text-xl sm:text-2xl md:text-3xl font-bold serif mb-6 sm:mb-8 text-center">
-                      {store.name}
-                    </h3>
-                    {store.environment_images && store.environment_images.length > 0 && (
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
-                        {store.environment_images.map((image) => (
-                          <div key={image.id} className="aspect-square rounded-[30px] overflow-hidden">
-                            <img
-                              src={image.image_path}
-                              alt={`${store.name} 環境圖片`}
-                              className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    )}
+          {loading ? (
+            <div className="flex justify-center items-center py-12">
+              <div className="text-gray-400">載入中...</div>
+            </div>
+          ) : environmentImages.length > 0 ? (
+            <div className="bg-[#f0f4ff] rounded-[30px] sm:rounded-[35px] md:rounded-[40px] p-6 sm:p-8 md:p-12">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+                {environmentImages.map((image) => (
+                  <div key={image.id} className="aspect-square rounded-[30px] overflow-hidden">
+                    <img
+                      src={`/storage/${image.image_path}`}
+                      alt="環境圖片"
+                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                    />
                   </div>
                 ))}
               </div>
-            )}
+            </div>
+          ) : (
+            <div className="text-center py-12 text-gray-400">
+              目前沒有環境圖片
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* 商店選擇 Modal */}
+      {showStoreModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full max-h-[80vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-200 flex items-center justify-between">
+              <h3 className="text-xl font-bold text-gray-800">選擇店家</h3>
+              <button
+                onClick={() => setShowStoreModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X size={24} />
+              </button>
+            </div>
+            <div className="p-6">
+              <div className="space-y-2">
+                {stores.map((store) => (
+                  <button
+                    key={store.id}
+                    onClick={() => {
+                      setSelectedStore(store);
+                      setShowStoreModal(false);
+                    }}
+                    className={`w-full text-left px-4 py-3 rounded-lg transition-colors ${
+                      selectedStore?.id === store.id
+                        ? 'bg-orange-100 text-orange-600 font-medium'
+                        : 'bg-gray-50 hover:bg-gray-100 text-gray-800'
+                    }`}
+                  >
+                    {store.name}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
-        </section>
+        </div>
       )}
     </div>
   );
