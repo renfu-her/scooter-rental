@@ -1,5 +1,35 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-21 10:42:15 (Asia/Taipei) - 修改前台民宿推薦頁面根據 store_id 過濾顯示
+
+### 變更內容
+
+#### 前端變更
+
+- **Guesthouses.tsx** (`system/frontend/pages/Guesthouses.tsx`)
+  - 添加商店選擇器功能，類似於租車方案頁面
+  - 添加 `stores` 和 `selectedStore` 狀態管理
+  - 添加商店選擇模態框，用戶可以選擇不同的商店
+  - 在頁面標題下方顯示當前選擇的商店按鈕
+  - 根據選擇的商店（`selectedStore`）過濾民宿推薦列表
+  - 使用 `useEffect` 監聽 `selectedStore` 變化，自動重新獲取對應商店的民宿推薦
+  - 預設選擇第一個商店
+  - 導入 `Store` 和 `X` 圖標用於商店選擇器 UI
+
+- **api.ts** (`system/frontend/lib/api.ts`)
+  - 更新 `publicApi.guesthouses.list` 方法，添加 `store_id` 參數支援
+  - 保持 `active_only: true` 作為預設參數，同時支援可選的 `store_id` 參數
+
+### 功能說明
+
+- **前台民宿推薦顯示**：
+  - 現在前台「民宿推薦」頁面會根據選擇的商店（`store_id`）過濾顯示
+  - 用戶可以通過商店選擇器切換不同的商店，查看對應商店的民宿推薦
+  - 預設顯示第一個商店的民宿推薦
+  - 確保前台顯示的民宿推薦與後台管理的內容完全對應（根據 `store_id` 過濾）
+
+---
+
 ## 2026-01-21 10:38:33 (Asia/Taipei) - 為民宿推薦管理添加 store_id 支援
 
 ### 變更內容

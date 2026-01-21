@@ -111,7 +111,7 @@ export const publicApi = {
     list: () => api.get('/locations', { active_only: true }),
   },
   guesthouses: {
-    list: () => api.get('/guesthouses', { active_only: true }),
+    list: (params?: { store_id?: number; active_only?: boolean }) => api.get('/guesthouses', { active_only: true, ...params }),
     get: (id: string | number) => api.get(`/guesthouses/${id}`),
   },
   contact: {
