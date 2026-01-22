@@ -1,5 +1,30 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-22 11:21:03 (Asia/Taipei) - 移除後台登入頁面的店家選擇器，直接使用 users store_id
+
+### 變更內容
+
+#### 前端變更
+
+- **LoginPage** (`system/backend/pages/LoginPage.tsx`)
+  - 移除店家選擇器（Store Selector）相關的 UI 元件
+  - 移除 `useStore` hook 的使用
+  - 移除 `Store`、`ChevronDown` 圖標的導入
+  - 移除店家選擇相關的 state（`isStoreDropdownOpen`、`storeDropdownRef`）
+  - 移除店家選擇相關的 useEffect（處理點擊外部關閉下拉選單）
+  - 登入後直接使用用戶的 `store_id` 自動設定商店（由 StoreContext 處理）
+
+### 功能說明
+
+- **後台登入流程**：
+  - 登入頁面不再顯示店家選擇器
+  - 登入成功後，系統會根據用戶的 `store_id` 自動設定對應的商店
+  - `admin` 用戶會自動選擇其 `store_id` 對應的商店
+  - `super_admin` 用戶會自動選擇 `store_id` 為 3 的商店（如果存在），否則選擇第一個商店
+  - 商店選擇邏輯由 `StoreContext` 在登入後自動處理
+
+---
+
 ## 2026-01-22 11:02:41 (Asia/Taipei) - 後端 User 模型增加店家 store_id 和權限管理功能
 
 ### 變更內容

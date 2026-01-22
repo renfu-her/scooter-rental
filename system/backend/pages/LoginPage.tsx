@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Mail, Lock, Loader2, AlertCircle, RefreshCw, Store, ChevronDown } from 'lucide-react';
+import { Mail, Lock, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { useStore } from '../contexts/StoreContext';
 import { captchaApi } from '../lib/api';
 
 interface Captcha {
@@ -13,7 +12,6 @@ interface Captcha {
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
-  const { currentStore, stores, loading: storesLoading, setCurrentStore } = useStore();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -23,9 +21,7 @@ const LoginPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoadingCaptcha, setIsLoadingCaptcha] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isStoreDropdownOpen, setIsStoreDropdownOpen] = useState(false);
   const hasFetchedRef = useRef(false);
-  const storeDropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!hasFetchedRef.current) {
@@ -33,22 +29,6 @@ const LoginPage: React.FC = () => {
       fetchCaptcha();
     }
   }, []);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (storeDropdownRef.current && !storeDropdownRef.current.contains(event.target as Node)) {
-        setIsStoreDropdownOpen(false);
-      }
-    };
-
-    if (isStoreDropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isStoreDropdownOpen]);
 
 
   const fetchCaptcha = async () => {
@@ -123,62 +103,6 @@ const LoginPage: React.FC = () => {
               <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
             </div>
           )}
-
-          {/* Store Selector */}
-          <div className="relative" ref={storeDropdownRef}>
-            <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">
-              選擇商店
-            </label>
-            <button
-              type="button"
-              onClick={() => setIsStoreDropdownOpen(!isStoreDropdownOpen)}
-              disabled={storesLoading}
-              className={`w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all flex items-center justify-between ${storesLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-            >
-              <div className="flex items-center space-x-2 flex-1 min-w-0">
-                {storesLoading ? (
-                  <Loader2 size={18} className="animate-spin text-gray-400" />
-                ) : (
-                  <Store size={18} className="text-gray-400 flex-shrink-0" />
-                )}
-                <span className="text-left truncate dark:text-gray-200">
-                  {storesLoading ? '載入中...' : (currentStore ? currentStore.name : stores.length === 0 ? '無商店，點擊新增' : '選擇商店')}
-                </span>
-              </div>
-              {!storesLoading && <ChevronDown size={16} className={`text-gray-400 flex-shrink-0 transition-transform ${isStoreDropdownOpen ? 'rotate-180' : ''}`} />}
-            </button>
-
-            {isStoreDropdownOpen && !storesLoading && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl shadow-lg z-50 max-h-64 overflow-y-auto">
-                {stores.length === 0 ? (
-                  <div className="px-4 py-3 text-center text-gray-500 dark:text-gray-400 text-sm">
-                    <p>目前沒有商店</p>
-                  </div>
-                ) : (
-                  stores.map((store) => (
-                    <div key={store.id}>
-                      <div
-                        className={`px-4 py-2.5 flex items-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 ${
-                          currentStore?.id === store.id ? 'bg-orange-50 dark:bg-orange-900/20' : ''
-                        }`}
-                        onClick={() => {
-                          setCurrentStore(store);
-                          setIsStoreDropdownOpen(false);
-                        }}
-                      >
-                        <div className="flex items-center space-x-2 flex-1 min-w-0">
-                          <Store size={14} className="flex-shrink-0 text-gray-400" />
-                          <span className={`text-sm truncate ${currentStore?.id === store.id ? 'text-orange-600 dark:text-orange-400 font-medium' : 'text-gray-700 dark:text-gray-200'}`}>
-                            {store.name}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            )}
-          </div>
 
           {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
