@@ -1,5 +1,99 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-22 11:02:41 (Asia/Taipei) - 後端 User 模型增加店家 store_id 和權限管理功能
+
+### 變更內容
+
+#### 資料庫變更
+
+- **Migration** (`database/migrations/2026_01_22_105904_add_store_id_and_permissions_to_users_table.php`)
+  - 增加 `store_id` 欄位（nullable，外鍵關聯到 stores 表）
+  - 修改 `role` 欄位從 `['admin', 'member']` 改為 `['super_admin', 'admin']`
+  - 增加 `can_manage_stores` 欄位（boolean，預設 false）
+  - 增加 `can_manage_content` 欄位（boolean，預設 false）
+  - 自動將現有的 `admin` 角色轉換為 `super_admin`，`member` 轉換為 `admin`
+
+#### 後端變更
+
+- **User 模型** (`app/Models/User.php`)
+  - 增加 `store_id`、`can_manage_stores`、`can_manage_content` 到 fillable
+  - 增加與 Store 的關聯方法 `store()`
+  - 增加輔助方法：`isSuperAdmin()`、`isAdmin()`、`canManageStores()`、`canManageContent()`
+
+- **UserController** (`app/Http/Controllers/Api/UserController.php`)
+  - 更新驗證規則，role 改為 `super_admin` 和 `admin`
+  - 增加 `store_id`、`can_manage_stores`、`can_manage_content` 欄位的處理
+  - 在 `index()` 和 `show()` 方法中載入 store 關聯
+
+- **UserResource** (`app/Http/Resources/UserResource.php`)
+  - 增加 `store_id`、`can_manage_stores`、`can_manage_content`、`store` 欄位到返回資料
+
+- **AuthController** (`app/Http/Controllers/Api/AuthController.php`)
+  - 在 `login()` 和 `me()` 方法中載入 store 關聯
+
+- **UserSeeder** (`database/seeders/UserSeeder.php`)
+  - 更新預設管理員角色為 `super_admin`
+  - 設定預設 `store_id` 為 3
+  - 設定 `can_manage_stores` 和 `can_manage_content` 為 true
+
+#### 前端變更
+
+- **AuthContext** (`system/backend/contexts/AuthContext.tsx`)
+  - 更新 User 介面，增加 `store_id`、`can_manage_stores`、`can_manage_content`、`store` 欄位
+  - 更新 role 類型從 `'admin' | 'member'` 改為 `'super_admin' | 'admin'`
+
+- **選單權限控制** (`system/backend/constants.tsx` 和 `system/backend/components/DashboardLayout.tsx`)
+  - 在 NAV_ITEMS 中增加 `permission` 屬性標記每個選單的權限需求
+  - 實作 `getFilteredNavItems()` 函數根據用戶角色和授權過濾選單
+  - `super_admin` 可以使用所有選單
+  - `admin` 需要對應授權才能使用特定選單：
+    - 系統 -> 系統管理者管理：只有 `super_admin` 可以使用
+    - 商店管理：需要 `can_manage_stores` 授權或 `super_admin`
+    - 網站內容管理：需要 `can_manage_content` 授權或 `super_admin`
+    - 其他選單：所有角色都可以使用
+
+- **StoreSelector** (`system/backend/components/StoreSelector.tsx`)
+  - 根據用戶角色過濾商店列表
+  - `super_admin` 可以看到所有商店並切換
+  - `admin` 只能看到自己的 `store_id` 對應的商店
+  - 只有 `super_admin` 可以新增/編輯/刪除商店
+
+- **StoreContext** (`system/backend/contexts/StoreContext.tsx`)
+  - 根據用戶角色和 `store_id` 自動選擇商店
+  - `admin` 登入時自動選擇其 `store_id` 對應的商店
+  - `super_admin` 預設選擇 `store_id` 為 3 的商店，如果沒有則選擇第一個
+
+- **AdminsPage** (`system/backend/pages/AdminsPage.tsx`)
+  - 更新 Admin 介面，支援新的角色和授權欄位
+  - 更新表單，增加角色選擇（super_admin/admin）、商店選擇、授權設定
+  - 更新表格，顯示角色、商店、授權資訊
+  - 更新 `fetchAdmins()` 以獲取 `super_admin` 和 `admin` 角色
+  - 只有 `super_admin` 可以建立帳號和設定授權
+
+### 功能說明
+
+- **角色系統**：
+  - `super_admin`：最高管理者，可以使用所有選單，可以建立帳號和店家，可以設定授權，可以切換店家，預設 `store_id` 為 3
+  - `admin`：管理者，根據授權使用選單，只能使用自己的 `store_id` 對應的店家
+
+- **授權系統**：
+  - `can_manage_stores`：授權商店管理，有此授權的 `admin` 可以使用商店管理選單
+  - `can_manage_content`：授權網站內容管理，有此授權的 `admin` 可以使用網站內容管理選單
+  - `super_admin` 自動擁有所有授權
+
+- **選單權限**：
+  - 系統 -> 系統管理者管理：只有 `super_admin` 可以使用
+  - 商店管理：需要 `can_manage_stores` 授權或 `super_admin`
+  - 網站內容管理：需要 `can_manage_content` 授權或 `super_admin`
+  - 其他選單：所有角色都可以使用
+
+- **商店選擇**：
+  - `super_admin` 可以看到所有商店並切換
+  - `admin` 只能看到自己的 `store_id` 對應的商店
+  - `admin` 登入時自動選擇其 `store_id` 對應的商店
+
+---
+
 ## 2026-01-21 21:42:29 (Asia/Taipei) - 前臺租車方案頁面「隨車附安全帽」和「注意事項」文字大小再增加一級
 
 ### 變更內容

@@ -21,6 +21,10 @@ class UserResource extends JsonResource
             'role' => $this->role,
             'phone' => $this->phone,
             'status' => $this->status,
+            'store_id' => $this->store_id,
+            'can_manage_stores' => $this->can_manage_stores,
+            'can_manage_content' => $this->can_manage_content,
+            'store' => $this->whenLoaded('store'),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

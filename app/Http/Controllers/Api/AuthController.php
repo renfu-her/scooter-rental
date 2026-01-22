@@ -67,6 +67,9 @@ class AuthController extends Controller
 
         $token = $user->createToken('auth-token')->plainTextToken;
 
+        // 載入 store 關聯
+        $user->load('store');
+
         return response()->json([
             'message' => '登入成功',
             'data' => [
@@ -81,8 +84,12 @@ class AuthController extends Controller
      */
     public function me(Request $request): JsonResponse
     {
+        $user = $request->user();
+        // 載入 store 關聯
+        $user->load('store');
+        
         return response()->json([
-            'data' => new UserResource($request->user()),
+            'data' => new UserResource($user),
         ]);
     }
 

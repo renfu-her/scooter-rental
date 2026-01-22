@@ -6,6 +6,7 @@ export const NAV_ITEMS = [
   { 
     title: '租借管理', 
     icon: <LayoutDashboard size={20} />, 
+    permission: null, // 所有角色都可以使用
     children: [
       { name: '訂單管理', path: '/orders' },
       { name: '罰單管理', path: '/fines' }
@@ -14,6 +15,7 @@ export const NAV_ITEMS = [
   { 
     title: '機車管理', 
     icon: <Bike size={20} />, 
+    permission: null, // 所有角色都可以使用
     children: [
       { name: '機車清單', path: '/scooters' },
       { name: '機車型號管理', path: '/scooter-models' },
@@ -24,16 +26,19 @@ export const NAV_ITEMS = [
   { 
     title: '合作商管理', 
     icon: <Users size={20} />, 
+    permission: null, // 所有角色都可以使用
     path: '/partners'
   },
   { 
     title: '商店管理', 
     icon: <ShoppingCart size={20} />, 
+    permission: 'can_manage_stores', // 需要授權商店管理
     path: '/stores'
   },
   { 
     title: '網站內容管理', 
     icon: <Home size={20} />, 
+    permission: 'can_manage_content', // 需要授權網站內容管理
     children: [
       { name: '首頁 Banner', path: '/banners' },
       { name: '首頁圖片', path: '/home-images' },
@@ -50,6 +55,7 @@ export const NAV_ITEMS = [
   { 
     title: '系統', 
     icon: <Settings size={20} />, 
+    permission: 'super_admin', // 只有 super_admin 可以使用
     children: [
       { name: '系統管理者管理', path: '/admins' }
     ]

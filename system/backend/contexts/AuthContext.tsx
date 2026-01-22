@@ -5,9 +5,21 @@ interface User {
   id: number;
   name: string;
   email: string;
-  role: 'admin' | 'member';
+  role: 'super_admin' | 'admin';
   phone: string | null;
   status: 'active' | 'inactive';
+  store_id: number | null;
+  can_manage_stores: boolean;
+  can_manage_content: boolean;
+  store?: {
+    id: number;
+    name: string;
+    address: string | null;
+    phone: string | null;
+    manager: string;
+    photo_path: string | null;
+    notice: string | null;
+  } | null;
 }
 
 interface AuthContextType {

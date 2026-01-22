@@ -1,20 +1,31 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Plus, Search, Edit3, Trash2, Phone, Mail, Shield, X, Loader2, MoreHorizontal } from 'lucide-react';
-import { usersApi } from '../lib/api';
+import { usersApi, storesApi } from '../lib/api';
 import { inputClasses as sharedInputClasses, labelClasses, searchInputClasses, modalCancelButtonClasses, modalSubmitButtonClasses } from '../styles';
+
+interface Store {
+  id: number;
+  name: string;
+}
+
 interface Admin {
   id: number;
   name: string;
   email: string;
   phone: string | null;
-  role: 'admin' | 'member';
+  role: 'super_admin' | 'admin';
   status: 'active' | 'inactive';
+  store_id: number | null;
+  can_manage_stores: boolean;
+  can_manage_content: boolean;
+  store?: Store | null;
 }
 
 const AdminsPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingAdmin, setEditingAdmin] = useState<Admin | null>(null);
   const [admins, setAdmins] = useState<Admin[]>([]);
+  const [stores, setStores] = useState<Store[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -23,7 +34,11 @@ const AdminsPage: React.FC = () => {
     email: '',
     phone: '',
     password: '',
+    role: 'admin' as 'super_admin' | 'admin',
     status: 'active' as 'active' | 'inactive',
+    store_id: null as number | null,
+    can_manage_stores: false,
+    can_manage_content: false,
   });
   const [openDropdownId, setOpenDropdownId] = useState<number | null>(null);
   const [dropdownPosition, setDropdownPosition] = useState<{ top: number; right: number } | null>(null);
@@ -33,16 +48,29 @@ const AdminsPage: React.FC = () => {
 
   useEffect(() => {
     fetchAdmins();
+    fetchStores();
   }, [searchTerm]);
+
+  const fetchStores = async () => {
+    try {
+      const response = await storesApi.list();
+      setStores(response.data || []);
+    } catch (error) {
+      console.error('Failed to fetch stores:', error);
+      setStores([]);
+    }
+  };
 
   const fetchAdmins = async () => {
     setLoading(true);
     try {
-      const response = await usersApi.list({
-        role: 'admin',
-        search: searchTerm || undefined,
-      });
-      setAdmins(response.data || []);
+      // 獲取 super_admin 和 admin 角色
+      const [superAdminResponse, adminResponse] = await Promise.all([
+        usersApi.list({ role: 'super_admin', search: searchTerm || undefined }),
+        usersApi.list({ role: 'admin', search: searchTerm || undefined }),
+      ]);
+      const allAdmins = [...(superAdminResponse.data || []), ...(adminResponse.data || [])];
+      setAdmins(allAdmins);
     } catch (error) {
       console.error('Failed to fetch admins:', error);
       setAdmins([]);
@@ -59,7 +87,11 @@ const AdminsPage: React.FC = () => {
         email: admin.email,
         phone: admin.phone || '',
         password: '',
+        role: admin.role,
         status: admin.status,
+        store_id: admin.store_id,
+        can_manage_stores: admin.can_manage_stores,
+        can_manage_content: admin.can_manage_content,
       });
     } else {
       setEditingAdmin(null);
@@ -68,7 +100,11 @@ const AdminsPage: React.FC = () => {
         email: '',
         phone: '',
         password: '',
+        role: 'admin',
         status: 'active',
+        store_id: null,
+        can_manage_stores: false,
+        can_manage_content: false,
       });
     }
     setIsModalOpen(true);
@@ -82,7 +118,11 @@ const AdminsPage: React.FC = () => {
       email: '',
       phone: '',
       password: '',
+      role: 'admin',
       status: 'active',
+      store_id: null,
+      can_manage_stores: false,
+      can_manage_content: false,
     });
   };
 
@@ -103,8 +143,11 @@ const AdminsPage: React.FC = () => {
         name: formData.name,
         email: formData.email,
         phone: formData.phone || null,
-        role: 'admin',
+        role: formData.role,
         status: formData.status,
+        store_id: formData.store_id,
+        can_manage_stores: formData.can_manage_stores,
+        can_manage_content: formData.can_manage_content,
       };
 
       if (formData.password) {
@@ -230,7 +273,9 @@ const AdminsPage: React.FC = () => {
                 <tr>
                   <th className="px-6 py-5">姓名</th>
                   <th className="px-6 py-5">Email</th>
-                  <th className="px-6 py-5">電話</th>
+                  <th className="px-6 py-5">角色</th>
+                  <th className="px-6 py-5">商店</th>
+                  <th className="px-6 py-5">授權</th>
                   <th className="px-6 py-5">狀態</th>
                   <th className="px-6 py-5 text-center">操作</th>
                 </tr>
@@ -238,7 +283,7 @@ const AdminsPage: React.FC = () => {
               <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                 {admins.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
+                    <td colSpan={7} className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
                       目前沒有系統管理者資料
                     </td>
                   </tr>
@@ -250,7 +295,37 @@ const AdminsPage: React.FC = () => {
                         {admin.name}
                       </td>
                       <td className="px-6 py-5 text-gray-600 dark:text-gray-400">{admin.email}</td>
-                      <td className="px-6 py-5 text-gray-600 dark:text-gray-400">{admin.phone || '-'}</td>
+                      <td className="px-6 py-5">
+                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                          admin.role === 'super_admin'
+                            ? 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400'
+                            : 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400'
+                        }`}>
+                          {admin.role === 'super_admin' ? '最高管理者' : '管理者'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-5 text-gray-600 dark:text-gray-400">
+                        {admin.store?.name || '-'}
+                      </td>
+                      <td className="px-6 py-5">
+                        <div className="flex flex-col gap-1">
+                          {admin.role === 'super_admin' ? (
+                            <span className="text-xs text-gray-500 dark:text-gray-400">全部授權</span>
+                          ) : (
+                            <>
+                              {admin.can_manage_stores && (
+                                <span className="text-xs px-2 py-0.5 bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400 rounded">商店管理</span>
+                              )}
+                              {admin.can_manage_content && (
+                                <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 rounded">內容管理</span>
+                              )}
+                              {!admin.can_manage_stores && !admin.can_manage_content && (
+                                <span className="text-xs text-gray-400">無授權</span>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      </td>
                       <td className="px-6 py-5">
                         <span className={`px-3 py-1 rounded-full text-xs font-bold ${
                           admin.status === 'active'
@@ -348,6 +423,76 @@ const AdminsPage: React.FC = () => {
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 />
               </div>
+
+              <div>
+                <label className={labelClasses}>
+                  角色 <span className="text-red-500">*</span>
+                </label>
+                <select
+                  className={inputClasses}
+                  value={formData.role}
+                  onChange={(e) => setFormData({ ...formData, role: e.target.value as 'super_admin' | 'admin' })}
+                >
+                  <option value="admin">管理者</option>
+                  <option value="super_admin">最高管理者</option>
+                </select>
+              </div>
+
+              {formData.role === 'admin' && (
+                <>
+                  <div>
+                    <label className={labelClasses}>
+                      所屬商店
+                    </label>
+                    <select
+                      className={inputClasses}
+                      value={formData.store_id || ''}
+                      onChange={(e) => setFormData({ ...formData, store_id: e.target.value ? parseInt(e.target.value) : null })}
+                    >
+                      <option value="">選擇商店</option>
+                      {stores.map((store) => (
+                        <option key={store.id} value={store.id}>
+                          {store.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className={labelClasses}>
+                      授權設定
+                    </label>
+                    <div className="space-y-2">
+                      <label className="flex items-center space-x-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={formData.can_manage_stores}
+                          onChange={(e) => setFormData({ ...formData, can_manage_stores: e.target.checked })}
+                          className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+                        />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">授權商店管理</span>
+                      </label>
+                      <label className="flex items-center space-x-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={formData.can_manage_content}
+                          onChange={(e) => setFormData({ ...formData, can_manage_content: e.target.checked })}
+                          className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+                        />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">授權網站內容管理</span>
+                      </label>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {formData.role === 'super_admin' && (
+                <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                  <p className="text-sm text-purple-700 dark:text-purple-300">
+                    最高管理者擁有所有權限，包括建立帳號、建立店家、設定授權等。
+                  </p>
+                </div>
+              )}
 
               <div>
                 <label className={labelClasses}>

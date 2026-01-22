@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Store, Plus, X, Edit3, Trash2, ChevronDown, Loader2 } from 'lucide-react';
 import { useStore } from '../contexts/StoreContext';
+import { useAuth } from '../contexts/AuthContext';
 import { storesApi } from '../lib/api';
 
 const StoreSelector: React.FC<{ theme: 'light' | 'dark'; sidebarOpen: boolean }> = ({ theme, sidebarOpen }) => {
+  const { user } = useAuth();
   const { currentStore, stores, loading, setCurrentStore, createStore, deleteStore } = useStore();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -18,6 +20,26 @@ const StoreSelector: React.FC<{ theme: 'light' | 'dark'; sidebarOpen: boolean }>
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // 根據用戶角色過濾商店列表
+  const getFilteredStores = () => {
+    if (!user) return [];
+    
+    // super_admin 可以看到所有商店
+    if (user.role === 'super_admin') {
+      return stores;
+    }
+    
+    // admin 只能看到自己的 store_id 對應的商店
+    if (user.role === 'admin' && user.store_id) {
+      return stores.filter(store => store.id === user.store_id);
+    }
+    
+    return [];
+  };
+
+  const filteredStores = getFilteredStores();
+  const isSuperAdmin = user?.role === 'super_admin';
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -113,7 +135,7 @@ const StoreSelector: React.FC<{ theme: 'light' | 'dark'; sidebarOpen: boolean }>
               )}
               {sidebarOpen && (
                 <span className="text-xs font-medium truncate animate-in fade-in duration-300">
-                  {loading ? '載入中...' : (currentStore ? currentStore.name : stores.length === 0 ? '無商店，點擊新增' : '選擇商店')}
+                  {loading ? '載入中...' : (currentStore ? currentStore.name : filteredStores.length === 0 ? (isSuperAdmin ? '無商店，點擊新增' : '無可用商店') : '選擇商店')}
                 </span>
               )}
             </div>
@@ -122,13 +144,13 @@ const StoreSelector: React.FC<{ theme: 'light' | 'dark'; sidebarOpen: boolean }>
 
           {isDropdownOpen && sidebarOpen && !loading && (
             <div className={`absolute bottom-full left-0 right-0 mb-2 ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border rounded-xl shadow-lg z-50 max-h-64 overflow-y-auto`}>
-              {stores.length === 0 ? (
+              {filteredStores.length === 0 ? (
                 <div className={`px-3 py-4 text-center ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
                   <p className="text-xs mb-2">目前沒有商店</p>
-                  <p className="text-xs">請點擊下方按鈕新增</p>
+                  {isSuperAdmin && <p className="text-xs">請點擊下方按鈕新增</p>}
                 </div>
               ) : (
-                stores.map((store) => (
+                filteredStores.map((store) => (
                 <div key={store.id} className="group">
                   <div
                     className={`px-3 py-2 flex items-center justify-between cursor-pointer transition-all ${
@@ -151,41 +173,45 @@ const StoreSelector: React.FC<{ theme: 'light' | 'dark'; sidebarOpen: boolean }>
                         {store.name}
                       </span>
                     </div>
-                    <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleOpenModal(store);
-                        }}
-                        className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded"
-                        title="編輯"
-                      >
-                        <Edit3 size={12} />
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDelete(store.id);
-                        }}
-                        className="p-1 hover:bg-red-100 dark:hover:bg-red-900/30 rounded text-red-600 dark:text-red-400"
-                        title="刪除"
-                      >
-                        <Trash2 size={12} />
-                      </button>
-                    </div>
+                    {isSuperAdmin && (
+                      <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenModal(store);
+                          }}
+                          className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded"
+                          title="編輯"
+                        >
+                          <Edit3 size={12} />
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(store.id);
+                          }}
+                          className="p-1 hover:bg-red-100 dark:hover:bg-red-900/30 rounded text-red-600 dark:text-red-400"
+                          title="刪除"
+                        >
+                          <Trash2 size={12} />
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
                 ))
               )}
-              <div className={`border-t ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>
-                <button
-                  onClick={() => handleOpenModal()}
-                  className={`w-full px-3 py-2 flex items-center space-x-2 text-xs font-medium ${theme === 'dark' ? 'hover:bg-gray-700 text-gray-300' : 'hover:bg-gray-50 text-gray-600'}`}
-                >
-                  <Plus size={14} />
-                  <span>新增商店</span>
-                </button>
-              </div>
+              {isSuperAdmin && (
+                <div className={`border-t ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>
+                  <button
+                    onClick={() => handleOpenModal()}
+                    className={`w-full px-3 py-2 flex items-center space-x-2 text-xs font-medium ${theme === 'dark' ? 'hover:bg-gray-700 text-gray-300' : 'hover:bg-gray-50 text-gray-600'}`}
+                  >
+                    <Plus size={14} />
+                    <span>新增商店</span>
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>

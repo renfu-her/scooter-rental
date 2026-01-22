@@ -25,6 +25,9 @@ class User extends Authenticatable
         'role',
         'phone',
         'status',
+        'store_id',
+        'can_manage_stores',
+        'can_manage_content',
     ];
 
     /**
@@ -47,6 +50,48 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'can_manage_stores' => 'boolean',
+            'can_manage_content' => 'boolean',
         ];
+    }
+
+    /**
+     * Get the store that the user belongs to.
+     */
+    public function store()
+    {
+        return $this->belongsTo(Store::class);
+    }
+
+    /**
+     * Check if user is super admin.
+     */
+    public function isSuperAdmin(): bool
+    {
+        return $this->role === 'super_admin';
+    }
+
+    /**
+     * Check if user is admin.
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    /**
+     * Check if user can manage stores.
+     */
+    public function canManageStores(): bool
+    {
+        return $this->isSuperAdmin() || $this->can_manage_stores;
+    }
+
+    /**
+     * Check if user can manage content.
+     */
+    public function canManageContent(): bool
+    {
+        return $this->isSuperAdmin() || $this->can_manage_content;
     }
 }

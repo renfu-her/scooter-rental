@@ -39,7 +39,7 @@ class UserController extends Controller
             });
         }
 
-        $users = $query->orderBy('created_at', 'desc')->get();
+        $users = $query->with('store')->orderBy('created_at', 'desc')->get();
 
         return response()->json([
             'data' => UserResource::collection($users),
@@ -55,9 +55,12 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
-            'role' => 'required|in:admin,member',
+            'role' => 'required|in:super_admin,admin',
             'phone' => 'nullable|string|max:20',
             'status' => 'required|in:active,inactive',
+            'store_id' => 'nullable|exists:stores,id',
+            'can_manage_stores' => 'nullable|boolean',
+            'can_manage_content' => 'nullable|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -74,6 +77,9 @@ class UserController extends Controller
             'role' => $request->get('role'),
             'phone' => $request->get('phone'),
             'status' => $request->get('status'),
+            'store_id' => $request->get('store_id'),
+            'can_manage_stores' => $request->get('can_manage_stores', false),
+            'can_manage_content' => $request->get('can_manage_content', false),
         ]);
 
         return response()->json([
@@ -87,6 +93,8 @@ class UserController extends Controller
      */
     public function show(User $user): JsonResponse
     {
+        $user->load('store');
+        
         return response()->json([
             'data' => new UserResource($user),
         ]);
@@ -101,9 +109,12 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:8',
-            'role' => 'required|in:admin,member',
+            'role' => 'required|in:super_admin,admin',
             'phone' => 'nullable|string|max:20',
             'status' => 'required|in:active,inactive',
+            'store_id' => 'nullable|exists:stores,id',
+            'can_manage_stores' => 'nullable|boolean',
+            'can_manage_content' => 'nullable|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -119,6 +130,9 @@ class UserController extends Controller
             'role' => $request->get('role'),
             'phone' => $request->get('phone'),
             'status' => $request->get('status'),
+            'store_id' => $request->get('store_id'),
+            'can_manage_stores' => $request->get('can_manage_stores', false),
+            'can_manage_content' => $request->get('can_manage_content', false),
         ];
 
         if ($request->has('password') && $request->get('password')) {

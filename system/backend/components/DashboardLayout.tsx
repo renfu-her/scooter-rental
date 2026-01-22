@@ -93,6 +93,37 @@ const DashboardLayout: React.FC = () => {
     return (saved as 'light' | 'dark') || 'light';
   });
 
+  // 根據權限過濾選單項目
+  const getFilteredNavItems = () => {
+    if (!user) return [];
+
+    return NAV_ITEMS.filter((item) => {
+      // 如果沒有設定權限，所有角色都可以使用
+      if (!item.permission) return true;
+
+      // super_admin 可以使用所有選單
+      if (user.role === 'super_admin') return true;
+
+      // 檢查特定權限
+      if (item.permission === 'super_admin') {
+        // 只有 super_admin 可以使用
+        return user.role === 'super_admin';
+      }
+
+      if (item.permission === 'can_manage_stores') {
+        // 需要授權商店管理
+        return user.can_manage_stores;
+      }
+
+      if (item.permission === 'can_manage_content') {
+        // 需要授權網站內容管理
+        return user.can_manage_content;
+      }
+
+      return false;
+    });
+  };
+
   useEffect(() => {
     localStorage.setItem('theme', theme);
     if (theme === 'dark') {
@@ -135,7 +166,7 @@ const DashboardLayout: React.FC = () => {
         
         {/* 導覽列表 */}
         <nav className="flex-1 overflow-y-auto px-3 pt-6 pb-0 space-y-2 scrollbar-hide">
-          {NAV_ITEMS.map((item, idx) => (
+          {getFilteredNavItems().map((item, idx) => (
             <SidebarItem 
               key={idx} 
               item={item} 
