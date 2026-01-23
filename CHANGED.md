@@ -1,5 +1,25 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-23 11:38:28 (Asia/Taipei) - 訂單管理 modal 取消與確認完成皆觸發 reload
+
+### 變更內容
+
+#### 前端變更
+
+- **OrdersPage.tsx** (`system/backend/pages/OrdersPage.tsx`)
+  - 修改 `AddOrderModal` 的 `onClose`：不論點擊「取消」或「確認完成」（新增/更新訂單），關閉 modal 後一律執行 `window.location.reload()`
+  - 使用 `setTimeout` 延遲 100ms 再 reload，確保 modal 先關閉
+
+- **AddOrderModal.tsx** (`system/backend/components/AddOrderModal.tsx`)
+  - 為「新增訂單/更新訂單」按鈕加上 `type="button"`，避免誤觸表單送出
+
+### 功能說明
+
+- 取消、X 關閉、點擊 backdrop、以及確認完成（新增/更新訂單）時，都會關閉 modal 後重新載入頁面
+- 透過 reload 重置畫面狀態，避免連結失效或殘留 modal 影響操作
+
+---
+
 ## 2026-01-23 09:53:14 (Asia/Taipei) - 在 modal 成功關閉後重新載入頁面以解決連結失效問題
 
 ### 變更內容
