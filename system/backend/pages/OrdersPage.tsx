@@ -2676,16 +2676,8 @@ const OrdersPage: React.FC = () => {
           setIsAddModalOpen(false);
           setEditingOrder(null);
           
-          // 如果有預約日期，表示是成功提交（新增或編輯），重新載入頁面以確保狀態重置
-          if (appointmentDate) {
-            // 使用 setTimeout 確保 modal 完全關閉後再重新載入
-            setTimeout(() => {
-              window.location.reload();
-            }, 100);
-          } else {
-            // 如果是取消操作，只保存預約日期讓 useEffect 處理
-            setPendingAppointmentDate(appointmentDate);
-          }
+          // 如果有預約日期，表示是成功提交（新增或編輯），更新 pendingAppointmentDate 以觸發 useEffect 刷新數據
+          setPendingAppointmentDate(appointmentDate);
         }} 
       />
       {/* 備註內容彈窗 */}

@@ -548,6 +548,7 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
             {editingOrder ? '編輯租借訂單' : '新增租借訂單'}
           </h2>
           <button 
+            type="button"
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -924,6 +925,7 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
 
         <div className="p-6 border-t border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 flex items-center justify-end space-x-4 sticky bottom-0 z-10">
           <button 
+            type="button"
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
