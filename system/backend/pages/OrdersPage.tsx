@@ -25,11 +25,14 @@ interface Order {
   end_time: string;
   expected_return_time: string | null;
   scooters: Array<{ model: string; type?: string; count: number }>;
+  scooter_ids?: number[]; // 機車 ID 列表（用於編輯）
   shipping_company: string | null;
   ship_arrival_time: string | null;
   ship_return_time: string | null;
   phone: string | null;
   partner: { id: number; name: string } | null;
+  store?: { id: number; name: string } | null;
+  store_id?: number | null;
   payment_method: string | null;
   payment_amount: number;
   remark: string | null;
@@ -2588,7 +2591,7 @@ const OrdersPage: React.FC = () => {
           
           // 如果有預約日期，跳轉到該月份
           let monthChanged = false;
-          if (appointmentDate) {
+          if (appointmentDate && typeof appointmentDate === 'string') {
             const [year, month] = appointmentDate.split('-').map(Number);
             if (year && month) {
               if (year !== selectedYear || month !== selectedMonth) {

@@ -14,7 +14,8 @@ interface Order {
   start_time: string;
   end_time: string;
   expected_return_time: string | null;
-  scooters: Array<{ id: number; model: string; count: number }>;
+  scooters: Array<{ model: string; type?: string; count: number }>;
+  scooter_ids?: number[]; // 機車 ID 列表（用於編輯）
   shipping_company: string | null;
   ship_arrival_time: string | null;
   ship_return_time: string | null;
@@ -202,7 +203,8 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
       fetchAvailableScooters();
       // 如果是編輯模式，載入訂單中的機車
       if (editingOrder) {
-        const scooterIds = editingOrder.scooters?.map(s => s.id) || [];
+        // 使用 scooter_ids 欄位（如果有的話），否則嘗試從 scooters 中提取（但 scooters 可能沒有 id）
+        const scooterIds = editingOrder.scooter_ids || [];
         if (scooterIds.length > 0) {
           fetchScootersByIds(scooterIds).then(orderScooters => {
             setAvailableScooters(prev => {
@@ -210,6 +212,10 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
               const newScooters = orderScooters.filter((s: Scooter) => !existingIds.has(s.id));
               return [...prev, ...newScooters];
             });
+            setSelectedScooterIds(scooterIds);
+          }).catch(error => {
+            console.error('Failed to fetch scooters by IDs:', error);
+            // 即使載入失敗，也至少設置選中的 ID，讓用戶知道應該有機車
             setSelectedScooterIds(scooterIds);
           });
         }

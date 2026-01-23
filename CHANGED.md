@@ -1,5 +1,45 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-23 08:43:34 (Asia/Taipei) - 修復編輯訂單時機車無法載入和 t.split 錯誤
+
+### 變更內容
+
+#### 前端變更
+
+- **AddOrderModal.tsx** (`system/backend/components/AddOrderModal.tsx`)
+  - 更新 `Order` 介面，加入 `scooter_ids` 欄位
+  - 修改編輯模式下載入機車的邏輯，改用 `scooter_ids` 欄位而不是從 `scooters` 陣列中提取 `id`
+  - `scooters` 陣列只包含 `{model, type, count}`，沒有 `id` 欄位
+  - 加入錯誤處理，即使載入失敗也會設置選中的 ID
+
+- **OrdersPage.tsx** (`system/backend/pages/OrdersPage.tsx`)
+  - 更新 `Order` 介面，加入 `scooter_ids` 和 `store` 欄位
+  - 修復 `t.split is not a function` 錯誤，在調用 `split` 前檢查 `appointmentDate` 是否為字串類型
+  - 加入類型檢查：`if (appointmentDate && typeof appointmentDate === 'string')`
+
+### 問題說明
+
+- **機車無法載入問題**：
+  - 原因：`OrderResource` 返回的 `scooters` 陣列格式為 `[{model, type, count}]`，沒有 `id` 欄位
+  - 解決：使用 `OrderResource` 提供的 `scooter_ids` 欄位（機車 ID 列表）來載入機車
+
+- **t.split 錯誤**：
+  - 原因：`onClose` 函數中，`appointmentDate` 參數可能不是字串類型（可能是 `undefined` 或其他類型）
+  - 解決：在調用 `split` 前加入類型檢查，確保是字串才處理
+
+### 功能說明
+
+- **編輯訂單時**：
+  - 系統會使用 `scooter_ids` 欄位載入訂單中的機車
+  - 如果 `scooter_ids` 不存在，會嘗試從其他來源獲取
+  - 即使部分機車載入失敗，也會顯示已選中的機車 ID
+
+- **關閉訂單 Modal 時**：
+  - 只有在 `appointmentDate` 是字串時才會進行日期解析和月份跳轉
+  - 避免 `TypeError: t.split is not a function` 錯誤
+
+---
+
 ## 2026-01-22 11:54:48 (Asia/Taipei) - 修改 User 刪除保護邏輯，只保護 zau1110216@gmail.com
 
 ### 變更內容
