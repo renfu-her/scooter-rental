@@ -119,7 +119,7 @@ const App: React.FC = () => {
   return (
     <AuthProvider>
       <StoreProvider>
-        <BrowserRouter>
+        <BrowserRouter basename="/backend">
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/" element={
