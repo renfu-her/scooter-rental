@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Search, Plus, Filter, FileText, ChevronLeft, ChevronRight, MoreHorizontal, Bike, X, TrendingUp, Loader2, Edit3, Trash2, ChevronDown, ChevronUp, Download, Bell, XCircle } from 'lucide-react';
 import AddOrderModal from '../components/AddOrderModal';
 import ConvertBookingModal from '../components/ConvertBookingModal';
@@ -1233,6 +1233,7 @@ const ChartModal: React.FC<{ isOpen: boolean; onClose: () => void; stats: Statis
 
 const OrdersPage: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { currentStore } = useStore();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
@@ -1470,13 +1471,36 @@ const OrdersPage: React.FC = () => {
     fetchStatistics();
   }, [selectedYear, selectedMonth, currentStore]);
 
+  // 當路由改變時，清除 pending 狀態，避免影響其他頁面
+  useEffect(() => {
+    if (location.pathname !== '/orders') {
+      setPendingAppointmentDate(undefined);
+      setIsAddModalOpen(false);
+      setEditingOrder(null);
+    }
+  }, [location.pathname]);
+
   // 處理 Modal 關閉後的異步操作（避免影響其他連結）
   useEffect(() => {
-    // 只在 Modal 從開啟變為關閉時執行
-    if (prevModalOpenRef.current && !isAddModalOpen && pendingAppointmentDate !== undefined) {
+    // 只在 Modal 從開啟變為關閉時執行，且確保當前在訂單頁面
+    if (prevModalOpenRef.current && !isAddModalOpen && pendingAppointmentDate !== undefined && location.pathname === '/orders') {
+      let isCancelled = false;
+      
       const processAfterClose = async () => {
+        // 再次檢查是否還在訂單頁面
+        if (location.pathname !== '/orders' || isCancelled) {
+          setPendingAppointmentDate(undefined);
+          return;
+        }
+        
         // 重新獲取年份列表（因為可能有新的年份）
         await fetchYears();
+        
+        // 再次檢查是否還在訂單頁面
+        if (location.pathname !== '/orders' || isCancelled) {
+          setPendingAppointmentDate(undefined);
+          return;
+        }
         
         // 如果有預約日期，跳轉到該月份
         let monthChanged = false;
@@ -1494,7 +1518,7 @@ const OrdersPage: React.FC = () => {
         }
         
         // 如果月份沒有改變，手動刷新訂單列表和統計
-        if (!monthChanged) {
+        if (!monthChanged && location.pathname === '/orders' && !isCancelled) {
           try {
             const response = await ordersApi.list({
               month: selectedMonthString,
@@ -1518,14 +1542,20 @@ const OrdersPage: React.FC = () => {
       };
       
       // 使用 setTimeout 確保 DOM 更新完成，Modal 完全移除
-      setTimeout(() => {
+      const timeoutId = setTimeout(() => {
         processAfterClose();
       }, 100);
+      
+      // 清理函數：如果組件卸載或路由改變，取消操作
+      return () => {
+        isCancelled = true;
+        clearTimeout(timeoutId);
+      };
     }
     
     // 更新前一個狀態
     prevModalOpenRef.current = isAddModalOpen;
-  }, [isAddModalOpen, pendingAppointmentDate, selectedYear, selectedMonth, selectedMonthString, searchTerm, currentPage, currentStore]);
+  }, [isAddModalOpen, pendingAppointmentDate, location.pathname, selectedYear, selectedMonth, selectedMonthString, searchTerm, currentPage, currentStore]);
 
   // 點擊外部關閉下拉菜單（現在通過遮罩層處理）
   // 滾動時關閉下拉菜單
