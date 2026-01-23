@@ -1305,6 +1305,28 @@ const OrdersPage: React.FC = () => {
   // 備註展開狀態（顯示彈窗的訂單ID）
   const [expandedRemarkId, setExpandedRemarkId] = useState<number | null>(null);
 
+  // 共用的 Modal 清理函數，確保所有殘留的 DOM 元素都被清理
+  const cleanupAllModals = () => {
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        // 查找所有 fixed overlay 元素
+        const fixedOverlays = document.querySelectorAll('[class*="fixed inset-0"]');
+        fixedOverlays.forEach((element) => {
+          const el = element as HTMLElement;
+          const zIndex = window.getComputedStyle(el).zIndex;
+          const computedZIndex = zIndex ? parseInt(zIndex) : 0;
+          if (computedZIndex >= 40) {
+            el.style.display = 'none';
+            el.style.pointerEvents = 'none';
+          }
+        });
+        
+        // 確保 body 沒有被鎖定
+        document.body.style.overflow = '';
+        document.body.style.pointerEvents = '';
+      }, 50);
+    });
+  };
 
   // Fetch available years from API
   const fetchYears = async () => {
@@ -2658,6 +2680,7 @@ const OrdersPage: React.FC = () => {
         onClose={() => {
           setIsConvertModalOpen(false);
           setSelectedBooking(null);
+          cleanupAllModals();
         }}
         booking={selectedBooking}
         onSuccess={handleConvertSuccess}
@@ -2693,27 +2716,8 @@ const OrdersPage: React.FC = () => {
           // 重置 ref
           prevModalOpenRef.current = false;
           
-          // 強制清理所有可能的殘留 DOM 元素
-          requestAnimationFrame(() => {
-            setTimeout(() => {
-              // 查找所有 fixed overlay 元素
-              const fixedOverlays = document.querySelectorAll('[class*="fixed inset-0"]');
-              fixedOverlays.forEach((element) => {
-                const el = element as HTMLElement;
-                const zIndex = window.getComputedStyle(el).zIndex;
-                const computedZIndex = zIndex ? parseInt(zIndex) : 0;
-                // 如果是高 z-index 的 overlay，強制移除
-                if (computedZIndex >= 40) {
-                  el.style.display = 'none';
-                  el.style.pointerEvents = 'none';
-                }
-              });
-              
-              // 確保 body 沒有被鎖定
-              document.body.style.overflow = '';
-              document.body.style.pointerEvents = '';
-            }, 50);
-          });
+          // 使用共用的清理函數
+          cleanupAllModals();
         }} 
       />
       {/* 備註內容彈窗 */}
@@ -2722,7 +2726,10 @@ const OrdersPage: React.FC = () => {
         return order?.remark ? (
           <div 
             className="fixed inset-0 z-[70] flex items-center justify-center p-4"
-            onClick={() => setExpandedRemarkId(null)}
+            onClick={() => {
+              setExpandedRemarkId(null);
+              cleanupAllModals();
+            }}
           >
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
             <div 
@@ -2734,7 +2741,10 @@ const OrdersPage: React.FC = () => {
                   備註內容
                 </h2>
                 <button 
-                  onClick={() => setExpandedRemarkId(null)} 
+                  onClick={() => {
+                    setExpandedRemarkId(null);
+                    cleanupAllModals();
+                  }} 
                   className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full text-gray-400 dark:text-gray-500 transition-colors"
                 >
                   <X size={20} />
@@ -2755,9 +2765,24 @@ const OrdersPage: React.FC = () => {
         ) : null;
       })()}
 
-      <StatsModal isOpen={isStatsModalOpen} onClose={() => setIsStatsModalOpen(false)} stats={stats} currentStore={currentStore} />
+      <StatsModal 
+        isOpen={isStatsModalOpen} 
+        onClose={() => {
+          setIsStatsModalOpen(false);
+          cleanupAllModals();
+        }} 
+        stats={stats} 
+        currentStore={currentStore} 
+      />
       
-      <ChartModal isOpen={isChartModalOpen} onClose={() => setIsChartModalOpen(false)} stats={stats} />
+      <ChartModal 
+        isOpen={isChartModalOpen} 
+        onClose={() => {
+          setIsChartModalOpen(false);
+          cleanupAllModals();
+        }} 
+        stats={stats} 
+      />
 
       {/* 合作商分類 Modal 已隱藏 */}
       {/* <PartnerCategoryModal 

@@ -1,6 +1,6 @@
 
 import React, { Suspense } from 'react';
-import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { StoreProvider } from './contexts/StoreContext';
 import DashboardLayout from './components/DashboardLayout';
@@ -119,7 +119,7 @@ const App: React.FC = () => {
   return (
     <AuthProvider>
       <StoreProvider>
-        <HashRouter>
+        <BrowserRouter>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/" element={
@@ -249,7 +249,7 @@ const App: React.FC = () => {
             } />
           </Route>
         </Routes>
-      </HashRouter>
+      </BrowserRouter>
       </StoreProvider>
     </AuthProvider>
   );

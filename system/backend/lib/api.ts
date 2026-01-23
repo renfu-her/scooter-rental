@@ -65,8 +65,8 @@ class ApiClient {
         // 如果是 401 未授權錯誤，清除 token 並跳轉到登入頁面
         if (response.status === 401) {
           localStorage.removeItem('auth_token');
-          if (window.location.hash !== '#/login') {
-            window.location.hash = '/login';
+          if (window.location.pathname !== '/login') {
+            window.location.href = '/login';
           }
         }
         
@@ -124,8 +124,8 @@ class ApiClient {
       if (!response.ok) {
         if (response.status === 401) {
           localStorage.removeItem('auth_token');
-          if (window.location.hash !== '#/login') {
-            window.location.hash = '/login';
+          if (window.location.pathname !== '/login') {
+            window.location.href = '/login';
           }
         }
         const error: any = new Error(responseData.message || 'API request failed');
@@ -161,8 +161,8 @@ class ApiClient {
       if (!response.ok) {
         if (response.status === 401) {
           localStorage.removeItem('auth_token');
-          if (window.location.hash !== '#/login') {
-            window.location.hash = '/login';
+          if (window.location.pathname !== '/login') {
+            window.location.href = '/login';
           }
         }
         const error: any = new Error(responseData.message || 'API request failed');

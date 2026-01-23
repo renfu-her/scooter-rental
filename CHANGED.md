@@ -1,5 +1,57 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-23 14:27:58 (Asia/Taipei) - 修復所有 Modal 殘留問題並將 HashRouter 改為 BrowserRouter
+
+### 變更內容
+
+#### 前端變更
+
+- **OrdersPage.tsx** (`system/backend/pages/OrdersPage.tsx`)
+  - 創建共用的 `cleanupAllModals` 函數，統一處理所有 modal 關閉時的 DOM 清理
+  - 在 `StatsModal` 的 `onClose` 中調用清理函數
+  - 在 `ChartModal` 的 `onClose` 中調用清理函數
+  - 在 `ConvertBookingModal` 的 `onClose` 中調用清理函數
+  - 在備註內容彈窗的關閉處理中調用清理函數
+  - 簡化 `AddOrderModal` 的 `onClose`，使用共用的清理函數
+
+- **App.tsx** (`system/backend/App.tsx`)
+  - 將 `HashRouter` 改為 `BrowserRouter`
+  - URL 格式從 `/#/orders` 改為 `/orders`
+
+- **api.ts** (`system/backend/lib/api.ts`)
+  - 將所有 `window.location.hash !== '#/login'` 改為 `window.location.pathname !== '/login'`
+  - 將所有 `window.location.hash = '/login'` 改為 `window.location.href = '/login'`
+  - 共更新 8 處路由檢查（第 68, 127, 164, 228, 296, 331, 576, 613 行）
+
+### 問題說明
+
+- **所有 Modal 殘留問題**：
+  - 原因：除了 `AddOrderModal` 外，其他 modal（`StatsModal`, `ChartModal`, `ConvertBookingModal`, 備註內容彈窗）關閉時沒有清理殘留的 DOM 元素
+  - 解決：創建共用的 `cleanupAllModals` 函數，在所有 modal 關閉時統一調用，確保所有殘留元素都被清理
+
+- **URL 路由問題**：
+  - 原因：使用 `HashRouter` 導致 URL 格式為 `/#/orders`，不夠美觀
+  - 解決：改為 `BrowserRouter`，URL 格式改為 `/orders`，需要更新 nginx 配置支持 SPA 路由（配置已存在）
+
+### 功能說明
+
+- **共用清理函數**：
+  - `cleanupAllModals()` 函數會查找所有 `fixed inset-0` 且 z-index >= 40 的元素
+  - 強制設置 `display: none` 和 `pointer-events: none`
+  - 確保 body 沒有被鎖定
+
+- **BrowserRouter 改進**：
+  - URL 更簡潔，從 `/#/orders` 改為 `/orders`
+  - 需要 nginx 配置支持（`try_files $uri $uri/ /backend/index.html`），配置已存在
+  - 所有路由檢查已更新為使用 `pathname` 而不是 `hash`
+
+- **改進效果**：
+  - 所有 modal 關閉後，殘留的 DOM 元素都會被清理
+  - URL 更簡潔美觀
+  - 不會因為殘留的 modal 元素導致畫面卡住
+
+---
+
 ## 2026-01-23 14:18:29 (Asia/Taipei) - 強制清理殘留 DOM 元素解決畫面卡住問題
 
 ### 變更內容
