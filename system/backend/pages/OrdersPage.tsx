@@ -1241,6 +1241,7 @@ const OrdersPage: React.FC = () => {
   const [isPartnerCategoryModalOpen, setIsPartnerCategoryModalOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<any>(null);
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
+  const [pendingAppointmentDate, setPendingAppointmentDate] = useState<string | undefined>(undefined);
   const [selectedYear, setSelectedYear] = useState(() => {
     const now = new Date();
     return now.getFullYear();
@@ -1271,6 +1272,7 @@ const OrdersPage: React.FC = () => {
   const [bookingPartners, setBookingPartners] = useState<Record<number, number | null>>({});
   const [bookingPrices, setBookingPrices] = useState<Record<number, Record<string, number>>>({});
   const [expandedBookings, setExpandedBookings] = useState<Record<number, boolean>>({});
+  const prevModalOpenRef = useRef<boolean>(false);
 
   // 車款類型對應的顏色（與機車管理頁面一致）
   const typeColorMap: Record<string, string> = {
@@ -1467,6 +1469,63 @@ const OrdersPage: React.FC = () => {
   useEffect(() => {
     fetchStatistics();
   }, [selectedYear, selectedMonth, currentStore]);
+
+  // 處理 Modal 關閉後的異步操作（避免影響其他連結）
+  useEffect(() => {
+    // 只在 Modal 從開啟變為關閉時執行
+    if (prevModalOpenRef.current && !isAddModalOpen && pendingAppointmentDate !== undefined) {
+      const processAfterClose = async () => {
+        // 重新獲取年份列表（因為可能有新的年份）
+        await fetchYears();
+        
+        // 如果有預約日期，跳轉到該月份
+        let monthChanged = false;
+        if (pendingAppointmentDate && typeof pendingAppointmentDate === 'string') {
+          const [year, month] = pendingAppointmentDate.split('-').map(Number);
+          if (year && month) {
+            if (year !== selectedYear || month !== selectedMonth) {
+              setSelectedYear(year);
+              setSelectedMonth(month);
+              setCurrentPage(1);
+              fetchMonthsWithOrders(year);
+              monthChanged = true;
+            }
+          }
+        }
+        
+        // 如果月份沒有改變，手動刷新訂單列表和統計
+        if (!monthChanged) {
+          try {
+            const response = await ordersApi.list({
+              month: selectedMonthString,
+              search: searchTerm || undefined,
+              page: currentPage,
+              store_id: currentStore?.id,
+            });
+            const ordersData = response.data || [];
+            setOrders(Array.isArray(ordersData) ? ordersData : []);
+            if (response.meta) {
+              setTotalPages(response.meta.last_page);
+            }
+            fetchStatistics();
+          } catch (error) {
+            console.error('Failed to refresh orders:', error);
+          }
+        }
+        
+        // 清除 pending 狀態
+        setPendingAppointmentDate(undefined);
+      };
+      
+      // 使用 setTimeout 確保 DOM 更新完成，Modal 完全移除
+      setTimeout(() => {
+        processAfterClose();
+      }, 100);
+    }
+    
+    // 更新前一個狀態
+    prevModalOpenRef.current = isAddModalOpen;
+  }, [isAddModalOpen, pendingAppointmentDate, selectedYear, selectedMonth, selectedMonthString, searchTerm, currentPage, currentStore]);
 
   // 點擊外部關閉下拉菜單（現在通過遮罩層處理）
   // 滾動時關閉下拉菜單
@@ -2582,48 +2641,13 @@ const OrdersPage: React.FC = () => {
             setSelectedYear(year);
           }
         }}
-        onClose={async (appointmentDate) => {
+        onClose={(appointmentDate) => {
+          // 立即關閉 Modal，避免影響其他連結
           setIsAddModalOpen(false);
           setEditingOrder(null);
           
-          // 重新獲取年份列表（因為可能有新的年份）
-          await fetchYears();
-          
-          // 如果有預約日期，跳轉到該月份
-          let monthChanged = false;
-          if (appointmentDate && typeof appointmentDate === 'string') {
-            const [year, month] = appointmentDate.split('-').map(Number);
-            if (year && month) {
-              if (year !== selectedYear || month !== selectedMonth) {
-                setSelectedYear(year);
-                setSelectedMonth(month);
-                setCurrentPage(1);
-                fetchMonthsWithOrders(year);
-                monthChanged = true;
-              }
-            }
-          }
-          
-          // 如果月份沒有改變，手動刷新訂單列表和統計
-          if (!monthChanged) {
-            try {
-              const response = await ordersApi.list({
-                month: selectedMonthString,
-                search: searchTerm || undefined,
-                page: currentPage,
-                store_id: currentStore?.id,
-              });
-              const ordersData = response.data || [];
-              setOrders(Array.isArray(ordersData) ? ordersData : []);
-              if (response.meta) {
-                setTotalPages(response.meta.last_page);
-              }
-              fetchStatistics();
-            } catch (error) {
-              console.error('Failed to refresh orders:', error);
-            }
-          }
-          // 如果月份改變了，useEffect 會自動觸發刷新
+          // 保存預約日期，讓 useEffect 處理後續操作
+          setPendingAppointmentDate(appointmentDate);
         }} 
       />
       {/* 備註內容彈窗 */}

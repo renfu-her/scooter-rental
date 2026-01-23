@@ -1,5 +1,43 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-23 08:53:45 (Asia/Taipei) - 修復新增/修改訂單後其他連結失效的問題
+
+### 變更內容
+
+#### 前端變更
+
+- **OrdersPage.tsx** (`system/backend/pages/OrdersPage.tsx`)
+  - 修改 `onClose` 回調函數，改為同步函數，立即關閉 Modal
+  - 使用 `pendingAppointmentDate` state 和 `prevModalOpenRef` 來追蹤 Modal 狀態
+  - 新增 `useEffect` 來處理 Modal 關閉後的異步操作（重新獲取年份、刷新訂單列表等）
+  - 確保 Modal 完全關閉後再執行異步操作，避免影響其他連結的點擊
+
+- **AddOrderModal.tsx** (`system/backend/components/AddOrderModal.tsx`)
+  - 改進 backdrop 點擊處理，使用 `handleBackdropClick` 函數確保正確處理點擊事件
+  - 確保點擊的是 backdrop 本身才關閉 Modal
+
+### 問題說明
+
+- **其他連結失效問題**：
+  - 原因：Modal 關閉時的 `onClose` 是 async 函數，會立即執行異步操作（如 `fetchYears()`），這些操作可能會阻塞或影響頁面的交互
+  - 解決：將 `onClose` 改為同步函數，立即關閉 Modal，然後使用 `useEffect` 在 Modal 完全關閉後再執行異步操作
+  - 使用 `setTimeout` 確保 DOM 更新完成，Modal 完全移除後再執行後續操作
+
+### 功能說明
+
+- **Modal 關閉流程**：
+  1. 用戶點擊關閉或提交訂單後，`onClose` 立即執行，關閉 Modal
+  2. 保存 `appointmentDate` 到 `pendingAppointmentDate` state
+  3. `useEffect` 偵測到 Modal 關閉後，延遲 100ms 執行異步操作
+  4. 執行完成後清除 `pendingAppointmentDate`，避免重複執行
+
+- **改進效果**：
+  - Modal 關閉後，其他連結可以立即正常使用
+  - 不會因為異步操作阻塞頁面交互
+  - 訂單列表和統計資料仍會正確刷新
+
+---
+
 ## 2026-01-23 08:43:34 (Asia/Taipei) - 修復編輯訂單時機車無法載入和 t.split 錯誤
 
 ### 變更內容
