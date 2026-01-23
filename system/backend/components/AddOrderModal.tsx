@@ -489,18 +489,24 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
     return Object.values(modelStats).reduce((sum, stat) => sum + stat.count, 0);
   }, [modelStats]);
 
-  if (!isOpen) return null;
-
   const handleBackdropClick = (e: React.MouseEvent) => {
     // 確保點擊的是 backdrop 本身，而不是子元素
-    if (e.target === e.currentTarget) {
+    if (e.target === e.currentTarget && isOpen) {
+      e.preventDefault();
+      e.stopPropagation();
       onClose();
     }
   };
 
+  // 如果 modal 未開啟，立即返回 null，確保 DOM 完全移除
+  if (!isOpen) return null;
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={handleBackdropClick} />
+      <div 
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm" 
+        onClick={handleBackdropClick}
+      />
       <div 
         className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col relative animate-in fade-in zoom-in duration-200"
         onClick={(e) => {

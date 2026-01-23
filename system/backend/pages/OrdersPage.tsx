@@ -2672,10 +2672,9 @@ const OrdersPage: React.FC = () => {
           }
         }}
         onClose={(appointmentDate) => {
-          // 立即關閉 Modal，避免影響其他連結
+          // 立即同步關閉 Modal，避免影響其他連結
           setIsAddModalOpen(false);
           setEditingOrder(null);
-          
           // 保存預約日期，讓 useEffect 處理後續操作
           setPendingAppointmentDate(appointmentDate);
         }} 

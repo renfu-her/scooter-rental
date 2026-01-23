@@ -1,5 +1,41 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-23 09:29:43 (Asia/Taipei) - 修復完成編輯或新增 modal 動作後其他連結失效的問題
+
+### 變更內容
+
+#### 前端變更
+
+- **AddOrderModal.tsx** (`system/backend/components/AddOrderModal.tsx`)
+  - 改進 `handleBackdropClick` 函數，添加 `e.preventDefault()` 和 `e.stopPropagation()` 確保點擊事件正確處理
+  - 確保當 `isOpen` 為 false 時，組件立即返回 null，完全移除 DOM 元素
+  - 移除不必要的 `onMouseDown` 處理器，簡化事件處理邏輯
+
+- **OrdersPage.tsx** (`system/backend/pages/OrdersPage.tsx`)
+  - 確保 `onClose` 回調函數同步執行，立即關閉 Modal
+  - 保持使用 `pendingAppointmentDate` 和 `useEffect` 來處理 Modal 關閉後的異步操作
+
+### 問題說明
+
+- **其他連結失效問題**：
+  - 原因：Modal 關閉時，backdrop 的點擊事件處理可能在某些情況下沒有正確阻止事件傳播，導致 backdrop 在關閉過程中仍然攔截點擊事件
+  - 解決：改進 `handleBackdropClick` 函數，添加 `preventDefault()` 和 `stopPropagation()` 確保點擊事件正確處理，並確保當 `isOpen` 為 false 時，組件立即返回 null，完全移除 DOM 元素
+
+### 功能說明
+
+- **Modal 關閉流程改進**：
+  1. 用戶點擊關閉或提交訂單後，`onClose` 立即執行，同步關閉 Modal
+  2. 當 `isOpen` 變為 false 時，組件立即返回 null，完全移除 DOM 元素
+  3. Backdrop 的點擊處理添加了 `preventDefault()` 和 `stopPropagation()`，確保事件正確處理
+  4. `useEffect` 在 Modal 完全關閉後執行異步操作（重新獲取年份、刷新訂單列表等）
+
+- **改進效果**：
+  - Modal 關閉後，其他連結可以立即正常使用
+  - 不會因為 backdrop 或事件處理問題導致連結失效
+  - 訂單列表和統計資料仍會正確刷新
+
+---
+
 ## 2026-01-23 09:06:58 (Asia/Taipei) - 修復完成新增/編輯訂單後切換頁面仍停留在訂單畫面的問題
 
 ### 變更內容
