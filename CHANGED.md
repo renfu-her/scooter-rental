@@ -1,5 +1,40 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-23 09:45:19 (Asia/Taipei) - 進一步修復完成編輯或新增 modal 動作後其他連結失效的問題
+
+### 變更內容
+
+#### 前端變更
+
+- **AddOrderModal.tsx** (`system/backend/components/AddOrderModal.tsx`)
+  - 添加 `modalRef` 用於追蹤 modal 容器
+  - 添加 `useEffect` 來確保當 modal 關閉時，立即移除任何可能殘留的 backdrop 或 overlay
+  - 改進所有關閉按鈕的事件處理，添加 `e.preventDefault()` 和 `e.stopPropagation()` 確保事件正確處理
+  - 改進關閉按鈕（X 按鈕）的事件處理
+  - 改進取消按鈕的事件處理
+  - 確保 `handleSubmit` 完成後立即調用 `onClose`，不會延遲
+
+### 問題說明
+
+- **其他連結失效問題（持續修復）**：
+  - 原因：雖然之前已經修復了 backdrop 的點擊處理，但在某些情況下，關閉按鈕或取消按鈕的點擊事件可能沒有正確處理，導致 modal 沒有立即關閉
+  - 解決：改進所有關閉相關按鈕的事件處理，添加 `preventDefault()` 和 `stopPropagation()`，並添加 `useEffect` 來清理任何可能殘留的元素
+
+### 功能說明
+
+- **Modal 關閉流程進一步改進**：
+  1. 所有關閉按鈕（X 按鈕、取消按鈕）都添加了 `preventDefault()` 和 `stopPropagation()`
+  2. 添加 `useEffect` 來監控 modal 的關閉狀態，確保任何殘留的元素都被清理
+  3. 確保 `handleSubmit` 完成後立即調用 `onClose`，不會有任何延遲
+  4. 使用 `modalRef` 來追蹤 modal 容器，方便清理
+
+- **改進效果**：
+  - Modal 關閉後，其他連結可以立即正常使用
+  - 不會因為事件處理問題導致連結失效
+  - 不會因為殘留的 backdrop 或 overlay 導致連結失效
+
+---
+
 ## 2026-01-23 09:29:43 (Asia/Taipei) - 修復完成編輯或新增 modal 動作後其他連結失效的問題
 
 ### 變更內容

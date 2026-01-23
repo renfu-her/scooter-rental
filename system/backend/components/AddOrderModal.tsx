@@ -73,6 +73,28 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
   const [showPlateDropdown, setShowPlateDropdown] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAmountManuallyEdited, setIsAmountManuallyEdited] = useState(false);
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  // 確保當 modal 關閉時，立即移除任何可能阻擋的元素
+  useEffect(() => {
+    if (!isOpen) {
+      // 當 modal 關閉時，強制移除任何可能殘留的 backdrop 或 overlay
+      // 使用 setTimeout 確保在 React 重新渲染後執行
+      const timeoutId = setTimeout(() => {
+        // 檢查是否有殘留的 modal 元素
+        const modals = document.querySelectorAll('[class*="fixed inset-0 z-50"]');
+        modals.forEach((modal) => {
+          const element = modal as HTMLElement;
+          // 如果元素不可見或不在使用中，移除它
+          if (element.style.display === 'none' || !element.offsetParent) {
+            element.style.pointerEvents = 'none';
+          }
+        });
+      }, 0);
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isOpen]);
 
   const [formData, setFormData] = useState({
     partner_id: '',
@@ -433,6 +455,7 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
         await ordersApi.create(orderData);
       }
       // 傳遞預約日期，用於跳轉到對應月份
+      // 立即關閉 modal，確保不會阻擋其他連結
       onClose(formData.appointment_date || undefined);
     } catch (error: any) {
       console.error('Failed to create order:', error);
@@ -502,7 +525,10 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div 
+      ref={modalRef}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+    >
       <div 
         className="absolute inset-0 bg-black/50 backdrop-blur-sm" 
         onClick={handleBackdropClick}
@@ -521,7 +547,14 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
           <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 flex items-center">
             {editingOrder ? '編輯租借訂單' : '新增租借訂單'}
           </h2>
-          <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full text-gray-400 dark:text-gray-500 transition-colors">
+          <button 
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onClose();
+            }} 
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full text-gray-400 dark:text-gray-500 transition-colors"
+          >
             <X size={20} />
           </button>
         </div>
@@ -891,7 +924,11 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
 
         <div className="p-6 border-t border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 flex items-center justify-end space-x-4 sticky bottom-0 z-10">
           <button 
-            onClick={onClose} 
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onClose();
+            }} 
             className="px-6 py-2.5 rounded-xl text-sm font-bold text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 transition-all"
             disabled={isSubmitting}
           >

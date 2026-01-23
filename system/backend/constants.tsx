@@ -56,7 +56,7 @@ export const NAV_ITEMS = [
     title: '系統', 
     icon: <Settings size={20} />, 
     permission: 'super_admin', // 只有 super_admin 可以使用
-    children: [
+    children: [image.png
       { name: '系統管理者管理', path: '/admins' }
     ]
   }
