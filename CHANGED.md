@@ -1,5 +1,49 @@
 # 變更記錄 (Change Log)
 
+## 2026-01-23 14:18:29 (Asia/Taipei) - 強制清理殘留 DOM 元素解決畫面卡住問題
+
+### 變更內容
+
+#### 前端變更
+
+- **AddOrderModal.tsx** (`system/backend/components/AddOrderModal.tsx`)
+  - 改進 `useEffect` 清理邏輯，當 modal 關閉時強制清理所有殘留的 DOM 元素
+  - 使用 `requestAnimationFrame` 和 `setTimeout` 確保在 React 渲染完成後執行清理
+  - 查找所有 `fixed inset-0` 且 z-index >= 40 的元素，強制設置 `display: none` 和 `pointer-events: none`
+  - 特別處理 backdrop 元素（包含 `bg-black` 或 `backdrop-blur` 類別）
+  - 確保 `document.body` 的 `overflow` 和 `pointer-events` 沒有被鎖定
+
+- **OrdersPage.tsx** (`system/backend/pages/OrdersPage.tsx`)
+  - 在 `AddOrderModal` 的 `onClose` 回調中添加 DOM 清理邏輯
+  - 使用 `requestAnimationFrame` 和 `setTimeout` 延遲執行清理，確保 modal 完全關閉後再清理
+  - 查找所有 `fixed inset-0` 且 z-index >= 40 的 overlay 元素，強制移除
+  - 確保 `document.body` 沒有被鎖定
+
+### 問題說明
+
+- **畫面卡住問題（進一步修復）**：
+  - 原因：雖然已經清空了所有相關 state，但可能還有殘留的 DOM 元素（backdrop、overlay）在 DOM 中，即使不可見也可能攔截點擊事件
+  - 解決：在 modal 關閉時，強制清理所有可能的殘留 DOM 元素，包括：
+    - 所有 `fixed inset-0` 且 z-index >= 40 的元素
+    - 所有 backdrop 元素
+    - 確保 body 沒有被鎖定
+
+### 功能說明
+
+- **DOM 清理流程**：
+  1. Modal 關閉時，清空所有相關 state
+  2. 使用 `requestAnimationFrame` 確保在 React 渲染完成後執行
+  3. 查找所有可能的殘留 overlay 元素
+  4. 強制設置 `display: none` 和 `pointer-events: none`
+  5. 確保 body 沒有被鎖定
+
+- **改進效果**：
+  - Modal 關閉後，所有殘留的 DOM 元素都會被強制清理
+  - 不會因為殘留的 backdrop 或 overlay 導致畫面卡住
+  - 確保頁面可以正常交互，其他連結可以立即使用
+
+---
+
 ## 2026-01-23 14:11:21 (Asia/Taipei) - 改用清空 state 替代 reload 解決訂單管理 modal 關閉後連結失效問題
 
 ### 變更內容

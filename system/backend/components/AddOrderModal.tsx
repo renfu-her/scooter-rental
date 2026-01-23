@@ -78,21 +78,41 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, editingO
   // 確保當 modal 關閉時，立即移除任何可能阻擋的元素
   useEffect(() => {
     if (!isOpen) {
-      // 當 modal 關閉時，強制移除任何可能殘留的 backdrop 或 overlay
-      // 使用 setTimeout 確保在 React 重新渲染後執行
-      const timeoutId = setTimeout(() => {
-        // 檢查是否有殘留的 modal 元素
-        const modals = document.querySelectorAll('[class*="fixed inset-0 z-50"]');
-        modals.forEach((modal) => {
-          const element = modal as HTMLElement;
-          // 如果元素不可見或不在使用中，移除它
-          if (element.style.display === 'none' || !element.offsetParent) {
-            element.style.pointerEvents = 'none';
+      // 使用 requestAnimationFrame 確保在 React 渲染完成後執行
+      const cleanup = () => {
+        // 查找所有可能的 modal 相關元素
+        const allFixedOverlays = document.querySelectorAll('[class*="fixed inset-0"]');
+        allFixedOverlays.forEach((element) => {
+          const el = element as HTMLElement;
+          // 檢查是否是 modal 相關元素（z-50 或 z-[50-70]）
+          const zIndex = window.getComputedStyle(el).zIndex;
+          const computedZIndex = zIndex ? parseInt(zIndex) : 0;
+          if (computedZIndex >= 40 || el.classList.contains('z-50') || el.classList.contains('z-[50]') || el.classList.contains('z-[60]') || el.classList.contains('z-[70]')) {
+            // 強制移除或禁用
+            el.style.display = 'none';
+            el.style.pointerEvents = 'none';
           }
         });
-      }, 0);
+        
+        // 特別處理 backdrop 元素
+        const backdrops = document.querySelectorAll('[class*="backdrop"]');
+        backdrops.forEach((backdrop) => {
+          const el = backdrop as HTMLElement;
+          if (el.classList.contains('bg-black') || el.classList.contains('backdrop-blur')) {
+            el.style.display = 'none';
+            el.style.pointerEvents = 'none';
+          }
+        });
+        
+        // 確保 body 沒有被鎖定
+        document.body.style.overflow = '';
+        document.body.style.pointerEvents = '';
+      };
       
-      return () => clearTimeout(timeoutId);
+      // 使用雙重延遲確保清理
+      requestAnimationFrame(() => {
+        setTimeout(cleanup, 0);
+      });
     }
   }, [isOpen]);
 

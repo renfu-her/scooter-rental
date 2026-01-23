@@ -2692,6 +2692,28 @@ const OrdersPage: React.FC = () => {
           
           // 重置 ref
           prevModalOpenRef.current = false;
+          
+          // 強制清理所有可能的殘留 DOM 元素
+          requestAnimationFrame(() => {
+            setTimeout(() => {
+              // 查找所有 fixed overlay 元素
+              const fixedOverlays = document.querySelectorAll('[class*="fixed inset-0"]');
+              fixedOverlays.forEach((element) => {
+                const el = element as HTMLElement;
+                const zIndex = window.getComputedStyle(el).zIndex;
+                const computedZIndex = zIndex ? parseInt(zIndex) : 0;
+                // 如果是高 z-index 的 overlay，強制移除
+                if (computedZIndex >= 40) {
+                  el.style.display = 'none';
+                  el.style.pointerEvents = 'none';
+                }
+              });
+              
+              // 確保 body 沒有被鎖定
+              document.body.style.overflow = '';
+              document.body.style.pointerEvents = '';
+            }, 50);
+          });
         }} 
       />
       {/* 備註內容彈窗 */}
