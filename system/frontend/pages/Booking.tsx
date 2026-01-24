@@ -27,6 +27,16 @@ const Booking: React.FC = () => {
     return `${year}-${month}-${day}`;
   };
 
+  // 獲取明天的日期（格式：YYYY-MM-DD）
+  const getTomorrowDate = () => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const year = tomorrow.getFullYear();
+    const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
+    const day = String(tomorrow.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   // 獲取今天的日期時間（格式：YYYY-MM-DDTHH:mm）
   const getTodayDateTime = () => {
     const today = new Date();
@@ -39,6 +49,7 @@ const Booking: React.FC = () => {
   };
 
   const todayDate = getTodayDate();
+  const tomorrowDate = getTomorrowDate();
   const todayDateTime = getTodayDateTime();
 
   const [formData, setFormData] = useState({
@@ -169,7 +180,7 @@ const Booking: React.FC = () => {
 
     // 驗證商店選擇
     if (!formData.storeId) {
-      alert('請選擇商店');
+      alert('請選擇欲前往之店家');
       return;
     }
 
@@ -267,8 +278,8 @@ const Booking: React.FC = () => {
             <h3 className="text-base sm:text-lg font-bold text-gray-800 mb-3 sm:mb-4">注意事項</h3>
             <ol className="space-y-2 text-xs sm:text-sm text-gray-700 leading-relaxed">
               <li>1. 歡迎透過下列表單向店家確認租賃日期</li>
-              <li>2. 填寫表單後<span className="text-red-600 font-bold text-base">不代表預約成功</span>，店家將再透過email或電話與您聯絡</li>
-              <li>3. 若<span className="text-red-600 font-bold text-base">24小時內</span>未接到我們的回傳mail或聯絡電話，請主動與我們聯絡，不便之處敬請見諒！</li>
+              <li>2. 填寫表單後<span className="text-red-600 font-bold text-base">不代表預約成功</span>，<span className="text-red-600 font-bold text-base">店家將再透過email或電話與您聯絡</span></li>
+              <li>3. 若<span className="text-red-600 font-bold text-base">24小時內</span>未接到我們的回傳mail或聯絡電話，<span className="text-red-600 font-bold text-base">請主動與我們聯絡</span>，不便之處敬請見諒！</li>
               <li>4. 如需直接訂購，請參閱「<span className="text-red-600 font-bold">聯絡我們</span>」頁面，並撥打您欲前往之店面電話進行訂車</li>
               <li>5. ID搜尋<span className="text-red-600 font-bold text-base">@623czmsm</span>加入官方LINE更能快速確認訂單</li>
             </ol>
@@ -277,6 +288,25 @@ const Booking: React.FC = () => {
           <form onSubmit={handleSubmit} className="grid md:grid-cols-2 gap-6 sm:gap-8">
             {/* 左欄 */}
             <div className="space-y-4 sm:space-y-6">
+              <div>
+                <label className="block text-xs sm:text-sm font-bold text-gray-700 mb-2">
+                  選擇欲前往之店家 <span className="text-red-500">*</span>
+                </label>
+                <select 
+                  required
+                  className="w-full px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl border border-gray-200 focus:border-black focus:ring-0 transition-all text-sm sm:text-base"
+                  value={formData.storeId}
+                  onChange={e => setFormData({...formData, storeId: e.target.value})}
+                >
+                  <option value="">請選擇欲前往之店家</option>
+                  {stores.map((store) => (
+                    <option key={store.id} value={store.id}>
+                      {store.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               <div>
                 <label className="block text-xs sm:text-sm font-bold text-gray-700 mb-2">
                   承租人姓名 <span className="text-red-500">*</span>
@@ -337,31 +367,12 @@ const Booking: React.FC = () => {
 
               <div>
                 <label className="block text-xs sm:text-sm font-bold text-gray-700 mb-2">
-                  選擇商店 <span className="text-red-500">*</span>
-                </label>
-                <select 
-                  required
-                  className="w-full px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl border border-gray-200 focus:border-black focus:ring-0 transition-all text-sm sm:text-base"
-                  value={formData.storeId}
-                  onChange={e => setFormData({...formData, storeId: e.target.value})}
-                >
-                  <option value="">請選擇商店</option>
-                  {stores.map((store) => (
-                    <option key={store.id} value={store.id}>
-                      {store.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs sm:text-sm font-bold text-gray-700 mb-2">
                   預約日期 <span className="text-red-500">*</span>
                 </label>
                 <input 
                   type="date" 
                   required
-                  min={todayDate}
+                  min={tomorrowDate}
                   onKeyDown={(e) => e.preventDefault()}
                   onPaste={(e) => e.preventDefault()}
                   className="w-full px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl border border-gray-200 focus:border-black focus:ring-0 transition-all cursor-pointer text-sm sm:text-base"
@@ -382,7 +393,7 @@ const Booking: React.FC = () => {
                   className="w-full px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl border border-gray-200 focus:border-black focus:ring-0 transition-all cursor-pointer text-sm sm:text-base"
                   value={formData.endDate}
                   onChange={e => setFormData({...formData, endDate: e.target.value})}
-                  min={formData.appointmentDate || todayDate}
+                  min={formData.appointmentDate || tomorrowDate}
                 />
               </div>
 
