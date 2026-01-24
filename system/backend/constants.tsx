@@ -9,6 +9,7 @@ export const NAV_ITEMS = [
     permission: null, // 所有角色都可以使用
     children: [
       { name: '訂單管理', path: '/orders' },
+      { name: '預約管理', path: '/bookings' },
       { name: '罰單管理', path: '/fines' }
     ]
   },
@@ -48,8 +49,7 @@ export const NAV_ITEMS = [
       { name: '租車須知', path: '/guidelines' },
       { name: '聯絡我們', path: '/contact-infos' },
       { name: '門市據點', path: '/locations' },
-      { name: '民宿推薦', path: '/guesthouses' },
-      { name: '預約管理', path: '/bookings' }
+      { name: '民宿推薦', path: '/guesthouses' }
     ]
   },
   { 
@@ -81,6 +81,6 @@ export const ROUTE_PERMISSIONS: Record<string, string | null> = {
   '/contact-infos': 'can_manage_content',
   '/locations': 'can_manage_content',
   '/guesthouses': 'can_manage_content',
-  '/bookings': 'can_manage_content',
+  '/bookings': null,
   '/admins': 'super_admin', // 只有 super_admin 可以使用
 };
