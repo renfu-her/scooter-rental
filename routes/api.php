@@ -85,6 +85,7 @@ Route::prefix('orders')->group(function () {
 Route::prefix('partners')->group(function () {
     Route::get('/', [PartnerController::class, 'index']);
     Route::post('/', [PartnerController::class, 'store']);
+    Route::post('/reorder', [PartnerController::class, 'reorder']);
     Route::get('/{partner}', [PartnerController::class, 'show']);
     Route::put('/{partner}', [PartnerController::class, 'update']);
     Route::delete('/{partner}', [PartnerController::class, 'destroy']);

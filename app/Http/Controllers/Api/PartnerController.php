@@ -43,7 +43,9 @@ class PartnerController extends Controller
             $query->where('store_id', $request->get('store_id'));
         }
 
-        $partners = $query->with('scooterModelTransferFees.scooterModel')->orderBy('created_at', 'desc')->get();
+        $partners = $query->with('scooterModelTransferFees.scooterModel')
+            ->orderBy('sort_order', 'asc')
+            ->get();
 
         return response()->json([
             'data' => PartnerResource::collection($partners),
@@ -79,9 +81,14 @@ class PartnerController extends Controller
         }
 
         $data = $validator->validated();
+
+        // Set sort_order to max + 1
+        $maxSortOrder = Partner::max('sort_order') ?? 0;
+        $data['sort_order'] = $maxSortOrder + 1;
+
         $transferFees = $data['transfer_fees'] ?? [];
         unset($data['transfer_fees']);
-        
+
         // 如果設置為預設，取消同一 store_id 下其他合作商的預設狀態
         if (isset($data['is_default_for_booking']) && $data['is_default_for_booking']) {
             $storeId = $data['store_id'] ?? null;
@@ -101,7 +108,7 @@ class PartnerController extends Controller
         DB::beginTransaction();
         try {
             $partner = Partner::create($data);
-            
+
             // 儲存調車費用
             foreach ($transferFees as $fee) {
                 PartnerScooterModelTransferFee::updateOrCreate(
@@ -115,7 +122,7 @@ class PartnerController extends Controller
                     ]
                 );
             }
-            
+
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
@@ -159,6 +166,7 @@ class PartnerController extends Controller
             'transfer_fees.*.same_day_transfer_fee' => 'nullable|integer|min:0',
             'transfer_fees.*.overnight_transfer_fee' => 'nullable|integer|min:0',
             'photo_path' => 'nullable',
+            'sort_order' => 'nullable|integer',
         ]);
 
         if ($validator->fails()) {
@@ -171,7 +179,7 @@ class PartnerController extends Controller
         $data = $validator->validated();
         $transferFees = $data['transfer_fees'] ?? null;
         unset($data['transfer_fees']);
-        
+
         // 如果設置為預設，取消同一 store_id 下其他合作商的預設狀態
         if (isset($data['is_default_for_booking']) && $data['is_default_for_booking']) {
             $storeId = $data['store_id'] ?? $partner->store_id;
@@ -194,14 +202,14 @@ class PartnerController extends Controller
             if (isset($data['photo_path']) && $data['photo_path'] === null && $partner->photo_path) {
                 $this->imageService->deleteImage($partner->photo_path);
             }
-            
+
             $partner->update($data);
-            
+
             // 如果有提供 transfer_fees，更新調車費用
             if ($transferFees !== null) {
                 // 刪除現有的調車費用
                 PartnerScooterModelTransferFee::where('partner_id', $partner->id)->delete();
-                
+
                 // 儲存新的調車費用
                 foreach ($transferFees as $fee) {
                     PartnerScooterModelTransferFee::create([
@@ -212,7 +220,7 @@ class PartnerController extends Controller
                     ]);
                 }
             }
-            
+
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
@@ -239,6 +247,41 @@ class PartnerController extends Controller
 
         return response()->json([
             'message' => 'Partner deleted successfully',
+        ]);
+    }
+
+    /**
+     * Reorder partners
+     */
+    public function reorder(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'ids' => 'required|array',
+            'ids.*' => 'exists:partners,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation error',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $ids = $request->get('ids');
+
+        DB::beginTransaction();
+        try {
+            foreach ($ids as $index => $id) {
+                Partner::where('id', $id)->update(['sort_order' => $index + 1]);
+            }
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+
+        return response()->json([
+            'message' => 'Partners reordered successfully',
         ]);
     }
 
