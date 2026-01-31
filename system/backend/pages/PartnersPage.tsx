@@ -71,9 +71,15 @@ const PartnersPage: React.FC = () => {
   const [imageViewerUrl, setImageViewerUrl] = useState<string | null>(null);
 
   useEffect(() => {
+    // 當商店切換時，重置搜尋，避免在其他商店搜尋後切回來導致列表過濾後為空或非預期狀態
+    setSearchTerm('');
     fetchPartners();
     fetchScooterModels();
-  }, [searchTerm, currentStore]);
+  }, [currentStore]);
+
+  useEffect(() => {
+      fetchPartners();
+  }, [searchTerm]);
 
   const fetchScooterModels = async () => {
     try {
@@ -479,30 +485,35 @@ const PartnersPage: React.FC = () => {
                     <td className="px-6 py-5 text-gray-500 dark:text-gray-400 font-medium">{partner.store?.name || '-'}</td>
                     <td className="px-6 py-5 text-center">
                       <div className="flex items-center justify-center space-x-2">
-                        <button
-                          onClick={() => handleReorder(partners.indexOf(partner), 'up')}
-                          disabled={partners.indexOf(partner) === 0}
-                          className={`p-1.5 rounded-lg transition-colors ${
-                            partners.indexOf(partner) === 0
-                              ? 'text-gray-300 cursor-not-allowed'
-                              : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-700'
-                          }`}
-                          title="上移"
-                        >
-                          <ArrowUp size={16} />
-                        </button>
-                        <button
-                          onClick={() => handleReorder(partners.indexOf(partner), 'down')}
-                          disabled={partners.indexOf(partner) === partners.length - 1}
-                          className={`p-1.5 rounded-lg transition-colors ${
-                            partners.indexOf(partner) === partners.length - 1
-                              ? 'text-gray-300 cursor-not-allowed'
-                              : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-700'
-                          }`}
-                          title="下移"
-                        >
-                          <ArrowDown size={16} />
-                        </button>
+                        {/* 只有在沒有搜尋且有多筆資料時才顯示排序按鈕 */}
+                        {!searchTerm && partners.length > 1 && (
+                          <>
+                            <button
+                              onClick={() => handleReorder(partners.indexOf(partner), 'up')}
+                              disabled={partners.indexOf(partner) === 0}
+                              className={`p-1.5 rounded-lg transition-colors ${
+                                partners.indexOf(partner) === 0
+                                  ? 'text-gray-300 cursor-not-allowed opacity-50'
+                                  : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-700'
+                              }`}
+                              title="上移"
+                            >
+                              <ArrowUp size={16} />
+                            </button>
+                            <button
+                              onClick={() => handleReorder(partners.indexOf(partner), 'down')}
+                              disabled={partners.indexOf(partner) === partners.length - 1}
+                              className={`p-1.5 rounded-lg transition-colors ${
+                                partners.indexOf(partner) === partners.length - 1
+                                  ? 'text-gray-300 cursor-not-allowed opacity-50'
+                                  : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-700'
+                              }`}
+                              title="下移"
+                            >
+                              <ArrowDown size={16} />
+                            </button>
+                          </>
+                        )}
                         <div className="relative">
                           <button 
                             ref={(el) => { buttonRefs.current[partner.id] = el; }}
